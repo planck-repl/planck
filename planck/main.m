@@ -7,12 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#include <JavaScriptCore/JavaScriptCore.h>
+#import "Planck.h"
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
+        [[[Planck alloc] init] run];
     }
     return 0;
 }
+
+

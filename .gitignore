@@ -4,3 +4,6 @@ ClojureScript/planck/out
 .DS_Store
 ClojureScript/planck/.idea
 ClojureScript/planck/replete.iml
+Pods
+Podfile.lock
+planck.xcworkspace
