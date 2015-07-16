@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#include <JavaScriptCore/JavaScriptCore.h>
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {

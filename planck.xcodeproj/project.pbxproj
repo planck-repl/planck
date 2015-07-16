@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
+		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 /* Begin PBXFileReference section */
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +34,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -41,6 +44,7 @@
 		ED9C14831B57C21E0092866D = {
 			isa = PBXGroup;
 			children = (
+				EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */,
 				ED9C148E1B57C21E0092866D /* planck */,
 				ED9C148D1B57C21E0092866D /* Products */,
 			);
@@ -235,6 +239,7 @@
 				ED9C14951B57C21E0092866D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
