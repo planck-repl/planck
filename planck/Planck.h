@@ -10,6 +10,6 @@
 
 @interface Planck : NSObject
 
--(void)run;
+-(void)runEval:(NSString*)evalArg;
 
 @end

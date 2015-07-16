@@ -11,7 +11,11 @@
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        [[[Planck alloc] init] run];
+        NSString* evalArg = nil;
+        if (argc==3 && !strncmp(argv[1], "-e", 2)) {
+            evalArg = [NSString stringWithUTF8String:argv[2]];
+        }
+        [[[Planck alloc] init] runEval:evalArg];
     }
     return 0;
 }

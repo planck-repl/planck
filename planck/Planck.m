@@ -14,9 +14,9 @@
 
 @implementation Planck
 
--(void)run {
+-(void)runEval:(NSString*)evalArg {
    
-    if (isatty(fileno(stdin))) {
+    if (!evalArg && isatty(fileno(stdin))) {
         printf("cljs.user=> ");
         fflush(stdout);
     }
@@ -100,30 +100,36 @@
     
     
     context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-        printf("%s", message.cString);
+        if (!evalArg || ![message isEqualToString:@"nil"]) {
+            printf("%s", message.cString);
+        }
     };
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
 
-    NSString* input = nil;
-    for (;;) {
-        NSString* inputLine = [self getInput];
-        
-        if (input == nil) {
-            input = inputLine;
-        } else {
-            input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
-        }
-        if ([input isEqualToString:@":cljs/quit"] || [input isEqualToString:@""]) {
-            break;
-        }
-        BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
-        if (isReadable) {
-            [readEvalPrintFn callWithArguments:@[input]];
-            input = nil;
-            if (isatty(fileno(stdin))) {
-                [printPromptFn callWithArguments:@[]];
-                fflush(stdout);
+    if (evalArg) {
+        [readEvalPrintFn callWithArguments:@[evalArg]];
+    } else {
+        NSString* input = nil;
+        for (;;) {
+            NSString* inputLine = [self getInput];
+            
+            if (input == nil) {
+                input = inputLine;
+            } else {
+                input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
+            }
+            if ([input isEqualToString:@":cljs/quit"] || [input isEqualToString:@""]) {
+                break;
+            }
+            BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
+            if (isReadable) {
+                [readEvalPrintFn callWithArguments:@[input]];
+                input = nil;
+                if (!evalArg && isatty(fileno(stdin))) {
+                    [printPromptFn callWithArguments:@[]];
+                    fflush(stdout);
+                }
             }
         }
     }
