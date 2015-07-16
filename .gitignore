@@ -1,0 +1,6 @@
+xcuserdata
+ClojureScript/planck/resources/cljs
+ClojureScript/planck/out
+.DS_Store
+ClojureScript/planck/.idea
+ClojureScript/planck/replete.iml
