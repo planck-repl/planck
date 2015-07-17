@@ -17,4 +17,4 @@ You can download the binary file used in the demo in the blog post if you'd like
 3. Set the project.clj file so that it matches the ClojureScript master build number.
 4. In the ClojureScript/planck directory, do lein run -m clojure.main script/build.clj
 5. Do a pod install in the top level.
-6. open planck.xcworkspace and adjust the [path](https://github.com/mfikes/planck/blob/master/planck/Planck.m#L29) and run the app
+6. `open planck.xcworkspace` and adjust the [path](https://github.com/mfikes/planck/blob/master/planck/Planck.m#L29) and run the app
