@@ -47,9 +47,14 @@ int main(int argc,  char * const *argv) {
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
             printf("\n");
             printf("  init options:\n");
+            printf("    -i, --init path     Load a file or resource\n");
             printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
             printf("\n");
             printf("  main options:\n");
+            printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
+            printf("    -r, --repl          Run a repl\n");
+            printf("    path                Run a script from a file or resource\n");
+            printf("    -                   Run a script from standard input\n");
             printf("    -h, -?, --help      Print this help message and exit\n");
             printf("\n");
             printf("  The init options may be repeated and mixed freely, but must appear before\n");
