@@ -35,7 +35,7 @@
     [contextManager setupGlobalContext];
     [contextManager setUpAmblyImportScript];
    
-    NSString* mainJsFilePath = [[outURL URLByAppendingPathComponent:@"deps" isDirectory:NO]
+    NSString* mainJsFilePath = [[outURL URLByAppendingPathComponent:@"main" isDirectory:NO]
                                 URLByAppendingPathExtension:@"js"].path;
     
     NSURL* googDirectory = [outURL URLByAppendingPathComponent:@"goog"];
@@ -44,12 +44,6 @@
                                  googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
     
     JSContext* context = [JSContext contextWithJSGlobalContextRef:contextManager.context];
-    
-    NSURL* outCljsURL = [outURL URLByAppendingPathComponent:@"cljs"];
-    NSString* macrosJsPath = [[outCljsURL URLByAppendingPathComponent:@"core$macros"]
-                              URLByAppendingPathExtension:@"js"].path;
-    
-    [self processFile:macrosJsPath calling:nil inContext:context];
     
     [self requireAppNamespaces:context];
     
@@ -94,8 +88,9 @@
     };
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
+     [context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
     
-    [readEvalPrintFn callWithArguments:@[@"(defn slurp \"Slurps a file\" [filename] (js/PLANCK_SLURP_FN filename))"]];
+    [readEvalPrintFn callWithArguments:@[@"(defn slurp \"Slurps a file\" [filename] (or (js/PLANCK_SLURP_FN filename) (throw (js/Error. filename))))"]];
     [readEvalPrintFn callWithArguments:@[@"(defn spit \"Spits a file\" [filename content] (js/PLANCK_SPIT_FN filename content) nil)"]];
     
     
@@ -107,36 +102,8 @@
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
 
-    if (evalArg) {
-        [readEvalPrintFn callWithArguments:@[evalArg]];
-    } else {
-        NSString* input = nil;
-        for (;;) {
-            NSString* inputLine = [self getInput];
-            
-            if (input == nil) {
-                input = inputLine;
-            } else {
-                input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
-            }
-            if ([input isEqualToString:@":cljs/quit"] || [input isEqualToString:@""]) {
-                break;
-            }
-            BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
-            if (isReadable) {
-                [readEvalPrintFn callWithArguments:@[input]];
-                input = nil;
-                if (!evalArg && isatty(fileno(stdin))) {
-                    [printPromptFn callWithArguments:@[]];
-                    fflush(stdout);
-                }
-            }
-        }
-    }
-        
     BOOL runAmblyReplServer = NO;
     if (runAmblyReplServer) {
-        
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
                                            compilerOutputDirectory:outURL];
         [replServer startListening];
@@ -144,7 +111,36 @@
         BOOL shouldKeepRunning = YES;
         NSRunLoop *theRL = [NSRunLoop currentRunLoop];
         while (shouldKeepRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate     distantFuture]]);
+        
+    } else {
+        if (evalArg) {
+            [readEvalPrintFn callWithArguments:@[evalArg]];
+        } else {
+            NSString* input = nil;
+            for (;;) {
+                NSString* inputLine = [self getInput];
+                
+                if (input == nil) {
+                    input = inputLine;
+                } else {
+                    input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
+                }
+                if ([input isEqualToString:@":cljs/quit"] || [input isEqualToString:@""]) {
+                    break;
+                }
+                BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
+                if (isReadable) {
+                    [readEvalPrintFn callWithArguments:@[input]];
+                    input = nil;
+                    if (!evalArg && isatty(fileno(stdin))) {
+                        [printPromptFn callWithArguments:@[]];
+                        fflush(stdout);
+                    }
+                }
+            }
+        }
     }
+
 }
 
 -(NSString *) getInput
@@ -155,24 +151,6 @@
     inputString = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     
     return inputString;
-}
-
-- (void)processFile:(NSString*)path calling:(NSString*)fn inContext:(JSContext*)context
-{
-    NSError* error = nil;
-    NSString* contents = [NSString stringWithContentsOfFile:path
-                                                   encoding:NSUTF8StringEncoding error:&error];
-    
-    if (!fn) {
-        [context evaluateScript:contents];
-    } else {
-        JSValue* processFileFn = [self getValue:fn inNamespace:@"replete.core" fromContext:context];
-        NSAssert(!processFileFn.isUndefined, @"Could not find the process file function");
-        
-        if (!error && contents) {
-            [processFileFn callWithArguments:@[contents]];
-        }
-    }
 }
 
 -(void)requireAppNamespaces:(JSContext*)context

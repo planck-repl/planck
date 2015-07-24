@@ -1,0 +1,3 @@
+#!/bin/bash
+lein clean
+rm -rf resources

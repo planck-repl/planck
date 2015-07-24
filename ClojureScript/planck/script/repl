@@ -1,0 +1,14 @@
+#!/bin/bash
+
+type lein >/dev/null 2>&1 || { echo >&2 "I require lein but it's not installed.  Aborting."; exit 1; }
+
+if hash rlwrap 2>/dev/null; then
+    COMMAND="rlwrap lein"
+else
+    COMMAND="lein"
+fi
+
+$COMMAND trampoline run -m clojure.main -e \
+"(require '[cljs.repl :as repl])
+(require '[ambly.core :as ambly])
+(repl/repl (ambly/repl-env) :analyze-path \"src\")"
