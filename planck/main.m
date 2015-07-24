@@ -7,15 +7,58 @@
 //
 
 #import <Foundation/Foundation.h>
+#include <getopt.h>
 #import "Planck.h"
 
-int main(int argc, const char * argv[]) {
+int main(int argc,  char * const *argv) {
+    
     @autoreleasepool {
-        NSString* evalArg = nil;
-        if (argc==3 && !strncmp(argv[1], "-e", 2)) {
-            evalArg = [NSString stringWithUTF8String:argv[2]];
+        
+        BOOL help = NO;
+        NSString* evalArg;
+        
+        int option = -1;
+        static struct option longopts[] =
+        {
+            {"help", no_argument, NULL, 'h'},
+            {"eval", optional_argument, NULL, 'e'},
+            {0, 0, 0, 0}
+        };
+        
+        const char *shortopts = "he:";
+        while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
+            switch (option) {
+                case 'h':
+                {
+                    help = YES;
+                    break;
+                }
+                case 'e':
+                {
+                    evalArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                    break;
+                }
+            }
         }
-        [[[Planck alloc] init] runEval:evalArg];
+        
+        if (help) {
+            printf("Usage:  planck [init-opt*] [main-opt]\n");
+            printf("\n");
+            printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
+            printf("\n");
+            printf("  init options:\n");
+            printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
+            printf("\n");
+            printf("  main options:\n");
+            printf("    -h, -?, --help      Print this help message and exit\n");
+            printf("\n");
+            printf("  The init options may be repeated and mixed freely, but must appear before\n");
+            printf("  any main option.\n");
+            printf("\n");
+            printf("  Paths may be absolute or relative in the filesystem\n");
+        } else {
+            [[[Planck alloc] init] runEval:evalArg];
+        }
     }
     return 0;
 }
