@@ -42,7 +42,7 @@ int main(int argc,  char * const *argv) {
         }
         
         if (help) {
-            printf("Usage:  planck [init-opt*] [main-opt]\n");
+            printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
             printf("\n");
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
             printf("\n");
