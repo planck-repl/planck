@@ -14,21 +14,32 @@ echo "@\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWi
 done
 cd ..
 cat <<EOF >> CljsRuntime.m
+#import "CljsRuntime.h"
+
+@interface CljsRuntime()
+
+@property (strong) NSDictionary* manifest;
+
+@end
+
 @implementation CljsRuntime
 
-
--(NSString*)getSourceForPath:(NSString*)path {
- 
-    NSDictionary* manifest = @{
+-(id)init {
+    if ( self = [super init] ) {
+        self.manifest = @{
 EOF
 
 cat manifest.m >> CljsRuntime.m
 
 cat <<EOF >> CljsRuntime.m
     };
+    return self;
+}
 
-    unsigned char* p =[((NSValue*)(manifest[path][0])) pointerValue];
-    int len = [(NSNumber*)manifest[path][1] intValue];
+-(NSString*)getSourceForPath:(NSString*)path {
+
+    unsigned char* p =[((NSValue*)(self.manifest[path][0])) pointerValue];
+    int len = [(NSNumber*)self.manifest[path][1] intValue];
     
     NSData* data = [NSData dataWithBytes:p
                                   length:len];
