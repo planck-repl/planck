@@ -5,13 +5,40 @@ echo "" > manifest.m
 cd out
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.map'`
 do 
-echo $file
+file=${file:2}
 xxd -i $file >> ../CljsRuntime.m
 data_ref=${file//\//_}
 data_ref=${data_ref//\./_}
-echo $data_ref
-echo ${data_ref}_len
-echo @\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWithInt:${data_ref}_len]]
+data_ref=${data_ref//\$/_}
+echo "@\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWithInt:${data_ref}_len]]," >> ../manifest.m
 done
 cd ..
-#mv CljsRuntime.m ../../planck
+cat <<EOF >> CljsRuntime.m
+@implementation CljsRuntime
+
+
+-(NSString*)getSourceForPath:(NSString*)path {
+ 
+    NSDictionary* manifest = @{
+EOF
+
+cat manifest.m >> CljsRuntime.m
+
+cat <<EOF >> CljsRuntime.m
+    };
+
+    unsigned char* p =[((NSValue*)(manifest[path][0])) pointerValue];
+    int len = [(NSNumber*)manifest[path][1] intValue];
+    
+    NSData* data = [NSData dataWithBytes:p
+                                  length:len];
+    
+    NSString* rv =
+    [[NSString alloc] initWithData:data
+                          encoding:NSUTF8StringEncoding];
+    
+    return rv;
+}
+EOF
+rm manifest.m
+mv CljsRuntime.m ../../planck
