@@ -63,7 +63,8 @@
     
     JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:context];
     [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
-                                        @"user-interface-idiom": @"iPad"}]];
+                                        @"src": srcPath,
+                                        @"out": outPath}]];
     
     JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");

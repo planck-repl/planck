@@ -14,6 +14,14 @@
 
 (def current-ns (atom 'cljs.user))
 
+(def app-env (atom nil))
+
+(defn map-keys [f m]
+  (reduce-kv (fn [r k v] (assoc r (f k) v)) {} m))
+
+(defn ^:export init-app-env [app-env]
+  (reset! planck.core/app-env (map-keys keyword (cljs.core/js->clj app-env))))
+
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
 
@@ -61,22 +69,28 @@
 (defn ^:export print-prompt []
   (print (str @current-ns "=> ")))
 
-(defn form-full-path [relative-path extension]
-  (str "/Users/mfikes/Projects/planck/ClojureScript/planck/src/"
-    relative-path extension))
+(defn form-full-path [root relative-path extension]
+  (str root "/" relative-path extension))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
     :js
     :clj))
 
-(defn load-and-callback! [path extension cb]
-  (let [full-path (form-full-path path extension)]
-    #_(println "trying to load" full-path)
+(defn load-and-callback-impl! [root path extension cb]
+  (let [full-path (form-full-path root path extension)]
+    (println "trying to load" full-path)
     (cb {:lang   (extension->lang extension)
          :source (planck.io/slurp full-path)})))
 
-(defn load [{:keys [name macros path]} cb]
+(defn load-and-callback! [path extension cb]
+  (try
+    (load-and-callback-impl! (:src @app-env) path extension cb)
+    (catch :default _
+      (load-and-callback-impl! (:out @app-env) path extension cb))))
+
+(defn load [{:keys [name macros path] :as full} cb]
+  (prn full)
   (loop [extensions (if macros
                       [".clj" ".cljc"]
                       [".cljs" ".cljc" ".js"])]
@@ -108,6 +122,7 @@
       #_(println "require result:" res))))
 
 (defn ^:export read-eval-print [line]
+  (println "hi")
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             r/*data-readers* tags/*cljs-data-readers*]
