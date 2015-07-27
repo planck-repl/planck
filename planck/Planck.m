@@ -69,12 +69,12 @@
     JSValue* isReadableFn = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!isReadableFn.isUndefined, @"Could not find the is-readable? function");
     
-    context[@"PLANCK_SLURP_FN"] = ^(NSString *file) {
+    context[@"PLANCK_READ_FILE"] = ^(NSString *file) {
         return [NSString stringWithContentsOfFile:file
                                          encoding:NSUTF8StringEncoding error:nil];
     };
     
-    context[@"PLANCK_SPIT_FN"] = ^(NSString *file, NSString* content) {
+    context[@"PLANCK_WRITE_FILE"] = ^(NSString *file, NSString* content) {
         [content writeToFile:file atomically:YES encoding:NSUTF8StringEncoding error:nil];
         return @"";
     };
