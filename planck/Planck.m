@@ -14,19 +14,24 @@
 
 @implementation Planck
 
--(void)runEval:(NSString*)evalArg {
+-(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
    
     if (!evalArg && isatty(fileno(stdin))) {
         printf("cljs.user=> ");
         fflush(stdout);
     }
     
-    NSFileManager*fm = [NSFileManager defaultManager];
+    NSURL* outURL = [NSURL URLWithString:@"out"];
     
-    NSURL* outURL = [NSURL URLWithString:@"planck-cljs-runtime"];
+    if (outPath) {
+        outURL = [NSURL URLWithString:outPath];
+    }
     
-    if (![fm fileExistsAtPath:[outURL path]]) {
-        outURL = [NSURL URLWithString:@"/Users/mfikes/Projects/planck/ClojureScript/planck/out"];
+    NSFileManager* fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
+        NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
+        NSLog(@"(Current working directory is \"%@\")", [fm currentDirectoryPath]);
+        exit(1);
     }
     
     ABYContextManager* contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
