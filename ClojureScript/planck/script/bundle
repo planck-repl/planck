@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo '#import <Foundation/Foundation.h>' > CljsRuntime.m
+echo "" > manifest.m
+cd out
+for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.map'`
+do 
+echo $file
+xxd -i $file >> ../CljsRuntime.m
+data_ref=${file//\//_}
+data_ref=${data_ref//\./_}
+echo $data_ref
+echo ${data_ref}_len
+echo @\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWithInt:${data_ref}_len]]
+done
+cd ..
+#mv CljsRuntime.m ../../planck
