@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = ED51CF751B66D64D00200417 /* CljsRuntime.m */; };
 		ED72D3D11B57D8FF00BF6EA2 /* Planck.m in Sources */ = {isa = PBXBuildFile; fileRef = ED72D3D01B57D8FF00BF6EA2 /* Planck.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
@@ -29,6 +30,8 @@
 		37B72F5B56BF19E35DA7188F /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		C67726A927E96E71200D17FC /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDF90590CB4E236DA7B7C153 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		ED51CF741B66CC6200200417 /* CljsRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CljsRuntime.h; sourceTree = "<group>"; };
+		ED51CF751B66D64D00200417 /* CljsRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CljsRuntime.m; sourceTree = "<group>"; };
 		ED72D3CF1B57D8FF00BF6EA2 /* Planck.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Planck.h; sourceTree = "<group>"; };
 		ED72D3D01B57D8FF00BF6EA2 /* Planck.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Planck.m; sourceTree = "<group>"; };
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -91,6 +94,8 @@
 				ED9C148F1B57C21E0092866D /* main.m */,
 				ED72D3CF1B57D8FF00BF6EA2 /* Planck.h */,
 				ED72D3D01B57D8FF00BF6EA2 /* Planck.m */,
+				ED51CF741B66CC6200200417 /* CljsRuntime.h */,
+				ED51CF751B66D64D00200417 /* CljsRuntime.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
@@ -186,6 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */,
 				ED72D3D11B57D8FF00BF6EA2 /* Planck.m in Sources */,
 				ED9C14901B57C21E0092866D /* main.m in Sources */,
 			);
