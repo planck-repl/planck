@@ -72,7 +72,7 @@
 
 (defn load-and-callback! [path extension cb]
   (let [full-path (form-full-path path extension)]
-    (println "trying to load" full-path (planck.io/slurp full-path))
+    #_(println "trying to load" full-path)
     (cb {:lang   (extension->lang extension)
          :source (planck.io/slurp full-path)})))
 
@@ -83,7 +83,8 @@
     (if extensions
       (try
         (load-and-callback! path (first extensions) cb)
-        (catch :default _
+        (catch :default e
+          (prn e)
           (recur (next extensions))))
       (cb nil))))
 
@@ -95,8 +96,7 @@
        :exception e})))
 
 (defn require [args]
-  "((quote foo.bar) :reload)"
-  (prn "require" args)
+  #_(prn "require" args)
   (cljs.js/require
     {:*compiler*     (env/default-compiler-env)
      :*data-readers* tags/*cljs-data-readers*
@@ -105,7 +105,7 @@
     (second (first args))
     (second args)
     (fn [res]
-      (println "require result:" res))))
+      #_(println "require result:" res))))
 
 (defn ^:export read-eval-print [line]
   (binding [ana/*cljs-ns* @current-ns
