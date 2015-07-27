@@ -103,11 +103,7 @@
       (cb nil))))
 
 (defn eval [{:keys [source]}]
-  (try
-    {:result (js/eval source)}
-    (catch :default e
-      {:error     true
-       :exception e})))
+  (js/eval source))
 
 (defn require [args]
   #_(prn "require" args)
@@ -145,22 +141,24 @@
           {:ns            @current-ns
            :load          load
            :eval          eval
+           :source-map    true
            :verbose       true
            :context       :expr
            :def-emits-var true}
-          (fn [{:keys [ns value] :as ret}]
-            (if-not (:error value)
-              (let [result (:result value)]
-                (prn result)
+          (fn [{:keys [ns value error] :as ret}]
+            (prn ret)
+            (if-not error
+              (do
+                (prn value)
                 (when-not
                   (or ('#{*1 *2 *3 *e} form)
                     (ns-form? form))
                   (set! *3 *2)
                   (set! *2 *1)
-                  (set! *1 result))
+                  (set! *1 value))
                 (reset! current-ns ns)
                 nil)
-              (let [e (:exception value)]
-                (set! *e e)
-                (print (.-message e) "\n"
-                  (first (s/split (.-stack e) #"eval code")))))))))))
+              (do
+                (set! *e error)
+                (print (.-message error) "\n"
+                  (first (s/split (.-stack error) #"eval code")))))))))))
