@@ -7,7 +7,7 @@
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
             [clojure.string :as s]
-            [cljs.env]
+            [cljs.env :as env]
             [planck.io]))
 
 (def st (cljs/empty-state))
@@ -28,16 +28,18 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns doc})
+(def repl-specials '#{in-ns require doc})
 
 (defn repl-special? [form]
   (and (seq? form) (repl-specials (first form))))
 
 (def repl-special-doc-map
-  '{in-ns {:arglists ([name])
-           :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
-    doc   {:arglists ([name])
-           :doc      "Prints documentation for a var or special form given its name"}})
+  '{in-ns   {:arglists ([name])
+             :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
+    require {:arglists ([& args])
+             :doc      "Loads libs, skipping any that are already loaded."}
+    doc     {:arglists ([name])
+             :doc      "Prints documentation for a var or special form given its name"}})
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
@@ -60,7 +62,7 @@
   (print (str @current-ns "=> ")))
 
 (defn form-full-path [relative-path extension]
-  (str "/Users/mfikes/Projects/planck/ClojureScript/planck/src"
+  (str "/Users/mfikes/Projects/planck/ClojureScript/planck/src/"
     relative-path extension))
 
 (defn extension->lang [extension]
@@ -70,6 +72,7 @@
 
 (defn load-and-callback! [path extension cb]
   (let [full-path (form-full-path path extension)]
+    (println "trying to load" full-path (planck.io/slurp full-path))
     (cb {:lang   (extension->lang extension)
          :source (planck.io/slurp full-path)})))
 
@@ -91,6 +94,19 @@
       {:error     true
        :exception e})))
 
+(defn require [args]
+  "((quote foo.bar) :reload)"
+  (prn "require" args)
+  (cljs.js/require
+    {:*compiler*     (env/default-compiler-env)
+     :*data-readers* tags/*cljs-data-readers*
+     :*load-fn*      load
+     :*eval-fn*      eval}
+    (second (first args))
+    (second args)
+    (fn [res]
+      (println "require result:" res))))
+
 (defn ^:export read-eval-print [line]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
@@ -101,6 +117,7 @@
       (if (repl-special? form)
         (case (first form)
           in-ns (reset! current-ns (second (second form)))
+          require (planck.core/require (rest form))
           doc (if (repl-specials (second form))
                 (repl/print-doc (repl-special-doc (second form)))
                 (repl/print-doc
