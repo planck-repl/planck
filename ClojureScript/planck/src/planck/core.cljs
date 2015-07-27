@@ -7,16 +7,12 @@
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
             [clojure.string :as s]
-            [cljs.env]))
+            [cljs.env]
+            [planck.io]))
 
 (def st (cljs/empty-state))
 
 (def current-ns (atom 'cljs.user))
-
-(defn ^:export setup-cljs-user []
-  (comment
-    (js/eval "goog.provide('cljs.user')")
-    (js/eval "goog.require('cljs.core')")))
 
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
@@ -64,7 +60,8 @@
   (print (str @current-ns "=> ")))
 
 (defn form-full-path [relative-path extension]
-  (str "/tmp/test-planck-src/" relative-path extension))
+  (str "/Users/mfikes/Projects/planck/ClojureScript/planck/src"
+    relative-path extension))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
@@ -74,7 +71,7 @@
 (defn load-and-callback! [path extension cb]
   (let [full-path (form-full-path path extension)]
     (cb {:lang   (extension->lang extension)
-         :source (cljs.user/slurp full-path)})))
+         :source (planck.io/slurp full-path)})))
 
 (defn load [{:keys [name macros path]} cb]
   (loop [extensions (if macros

@@ -47,10 +47,6 @@
     
     [self requireAppNamespaces:context];
     
-    JSValue* setupCljsUser = [self getValue:@"setup-cljs-user" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!setupCljsUser.isUndefined, @"Could not find the setup-cljs-user function");
-    [setupCljsUser callWithArguments:@[]];
-    
 #ifdef DEBUG
     BOOL debugBuild = YES;
 #else
@@ -88,12 +84,9 @@
     };
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
-     [context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
+    [context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
     
-    [readEvalPrintFn callWithArguments:@[@"(defn slurp \"Slurps a file\" [filename] (or (js/PLANCK_SLURP_FN filename) (throw (js/Error. filename))))"]];
-    [readEvalPrintFn callWithArguments:@[@"(defn spit \"Spits a file\" [filename content] (js/PLANCK_SPIT_FN filename content) nil)"]];
-    
-    
+
     context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
         if (!evalArg || ![message isEqualToString:@"nil"]) {
             printf("%s", message.cString);
