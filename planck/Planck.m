@@ -9,8 +9,16 @@
 #include <stdio.h>
 
 #import "Planck.h"
+#import "ABYUtils.h"
 #import "ABYContextManager.h"
 #import "ABYServer.h"
+#import "CljsRuntime.h"
+
+@interface Planck()
+
+@property (strong, nonatomic) CljsRuntime* cljsRuntime;
+
+@end
 
 @implementation Planck
 
@@ -20,6 +28,8 @@
         printf("cljs.user=> ");
         fflush(stdout);
     }
+    
+    self.cljsRuntime = [[CljsRuntime alloc] init];
     
     NSURL* outURL = [NSURL URLWithString:@"out"];
     
@@ -38,15 +48,24 @@
                                                            compilerOutputDirectory:outURL];
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
-    [contextManager setUpAmblyImportScript];
-   
+    BOOL useBundledOutput = YES;
+    if (useBundledOutput) {
+        [self setUpAmblyImportScriptInContext:contextManager.context];
+    } else {
+        [contextManager setUpAmblyImportScript];
+    }
+    
     NSString* mainJsFilePath = [[outURL URLByAppendingPathComponent:@"main" isDirectory:NO]
                                 URLByAppendingPathExtension:@"js"].path;
     
     NSURL* googDirectory = [outURL URLByAppendingPathComponent:@"goog"];
     
-    [contextManager bootstrapWithDepsFilePath:mainJsFilePath
-                                 googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
+    if (useBundledOutput) {
+        [self bootstrapInContext:contextManager.context];
+    } else {
+        [contextManager bootstrapWithDepsFilePath:mainJsFilePath
+                                     googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
+    }
     
     JSContext* context = [JSContext contextWithJSGlobalContextRef:contextManager.context];
     
@@ -176,6 +195,84 @@
     return [[[s stringByReplacingOccurrencesOfString:@"-" withString:@"_"]
              stringByReplacingOccurrencesOfString:@"!" withString:@"_BANG_"]
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
+}
+
+-(void)setUpAmblyImportScriptInContext:(JSContextRef)context
+{
+    [ABYUtils installGlobalFunctionWithBlock:
+     
+     ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+         
+         if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString)
+         {
+             JSStringRef pathStrRef = JSValueToStringCopy(ctx, argv[0], NULL);
+             NSString* path = (__bridge_transfer NSString *) JSStringCopyCFString( kCFAllocatorDefault, pathStrRef );
+             if ([path hasPrefix:@"goog/../"]) {
+                 path = [path substringFromIndex:8];
+             }
+             JSStringRelease(pathStrRef);
+             
+             NSString* url = [@"file:///" stringByAppendingString:path];
+
+             JSStringRef urlStringRef = JSStringCreateWithCFString((__bridge CFStringRef)url);
+             
+             NSError* error = nil;
+             NSString* sourceText = [self.cljsRuntime getSourceForPath:path];
+             
+             if (!error && sourceText) {
+                 
+                 JSValueRef jsError = NULL;
+                 JSStringRef javaScriptStringRef = JSStringCreateWithCFString((__bridge CFStringRef)sourceText);
+                 JSEvaluateScript(ctx, javaScriptStringRef, NULL, urlStringRef, 0, &jsError);
+                 JSStringRelease(javaScriptStringRef);
+             }
+             
+             JSStringRelease(urlStringRef);
+         }
+         
+         return JSValueMakeUndefined(ctx);
+     }
+                                        name:@"AMBLY_IMPORT_SCRIPT"
+                                     argList:@"path"
+                                   inContext:context];
+    
+}
+
+-(void)bootstrapInContext:(JSContextRef)context
+{
+    // This implementation mirrors the bootstrapping code that is in -setup
+    
+    // Setup CLOSURE_IMPORT_SCRIPT
+    [ABYUtils evaluateScript:@"CLOSURE_IMPORT_SCRIPT = function(src) { AMBLY_IMPORT_SCRIPT('goog/' + src); return true; }" inContext:context];
+    
+    // Load goog base
+    NSString *baseScriptString = [self.cljsRuntime getSourceForPath:@"goog/base.js"];
+    NSAssert(baseScriptString != nil, @"The goog base JavaScript text could not be loaded");
+    [ABYUtils evaluateScript:baseScriptString inContext:context];
+    
+    // Load the deps file
+    NSString *depsScriptString = [self.cljsRuntime getSourceForPath:@"main.js"];
+    NSAssert(depsScriptString != nil, @"The deps JavaScript text could not be loaded");
+    [ABYUtils evaluateScript:depsScriptString inContext:context];
+    
+    [ABYUtils evaluateScript:@"goog.isProvided_ = function(x) { return false; };" inContext:context];
+    
+    [ABYUtils evaluateScript:@"goog.require = function (name) { return CLOSURE_IMPORT_SCRIPT(goog.dependencies_.nameToPath[name]); };" inContext:context];
+    
+    [ABYUtils evaluateScript:@"goog.require('cljs.core');" inContext:context];
+    
+    // redef goog.require to track loaded libs
+    [ABYUtils evaluateScript:@"cljs.core._STAR_loaded_libs_STAR_ = cljs.core.into.call(null, cljs.core.PersistentHashSet.EMPTY, [\"cljs.core\"]);\n"
+     "goog.require = function (name, reload) {\n"
+     "    if(!cljs.core.contains_QMARK_(cljs.core._STAR_loaded_libs_STAR_, name) || reload) {\n"
+     "        var AMBLY_TMP = cljs.core.PersistentHashSet.EMPTY;\n"
+     "        if (cljs.core._STAR_loaded_libs_STAR_) {\n"
+     "            AMBLY_TMP = cljs.core._STAR_loaded_libs_STAR_;\n"
+     "        }\n"
+     "        cljs.core._STAR_loaded_libs_STAR_ = cljs.core.into.call(null, AMBLY_TMP, [name]);\n"
+     "        CLOSURE_IMPORT_SCRIPT(goog.dependencies_.nameToPath[name]);\n"
+     "    }\n"
+     "};" inContext:context];
 }
 
 @end
