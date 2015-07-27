@@ -8,6 +8,8 @@
             [cljs.repl :as repl]
             [clojure.string :as s]
             [cljs.env :as env]
+            [cljs.stacktrace]
+            [planck.stacktrace]
             [planck.io]))
 
 (def st (cljs/empty-state))
@@ -160,5 +162,10 @@
                 nil)
               (do
                 (set! *e error)
-                (print (.-message error) "\n"
-                  (first (s/split (.-stack error) #"eval code")))))))))))
+                (println "Error occurred")
+                (println (.-stack (.-cause error)))
+                (prn (planck.stacktrace/raw-stacktrace->canonical-stacktrace
+                       (.-stack (.-cause error)) {}))
+                #_(prn (cljs.stacktrace/parse-stacktrace {}
+                       (.-stack (.-cause error))
+                       {:ua-product :safari}))))))))))
