@@ -112,7 +112,7 @@
 (defn require [args]
   #_(prn "require" args)
   (cljs.js/require
-    {:*compiler*     (env/default-compiler-env)
+    {:*compiler*     st
      :*data-readers* tags/*cljs-data-readers*
      :*load-fn*      load
      :*eval-fn*      eval}
@@ -122,7 +122,6 @@
       #_(println "require result:" res))))
 
 (defn ^:export read-eval-print [line]
-  (println "hi")
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             r/*data-readers* tags/*cljs-data-readers*]
@@ -143,7 +142,8 @@
           st
           line
           nil
-          {:load          load
+          {:ns            @current-ns
+           :load          load
            :eval          eval
            :verbose       true
            :context       :expr
