@@ -73,12 +73,28 @@
 
 (defn load-and-callback! [path extension cb]
   (let [full-path (form-full-path path extension)]
-    #_(println "Trying to load" full-path)
     (cb {:lang   (extension->lang extension)
          :source (cljs.user/slurp full-path)})))
 
+(defn load [{:keys [name macros path]} cb]
+  (loop [extensions (if macros
+                      [".clj" ".cljc"]
+                      [".cljs" ".cljc" ".js"])]
+    (if extensions
+      (try
+        (load-and-callback! path (first extensions) cb)
+        (catch :default _
+          (recur (next extensions))))
+      (cb nil))))
+
+(defn eval [{:keys [source]}]
+  (try
+    {:result (js/eval source)}
+    (catch :default e
+      {:error     true
+       :exception e})))
+
 (defn ^:export read-eval-print [line]
-  #_(println "Line passed to eval:" line)
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             r/*data-readers* tags/*cljs-data-readers*]
@@ -98,27 +114,12 @@
           st
           line
           nil
-          {:load          (fn [{:keys [name macros path]} cb]
-                            (loop [extensions (if macros
-                                                [".clj" ".cljc"]
-                                                [".cljs" ".cljc" ".js"])]
-                              (if extensions
-                                (try
-                                  (load-and-callback! path (first extensions) cb)
-                                  (catch :default _
-                                    (recur (next extensions))))
-                                (cb nil))))
-           :eval          (fn [{:keys [source]}]
-                            (try
-                              {:result (js/eval source)}
-                              (catch :default e
-                                {:error     true
-                                 :exception e})))
+          {:load          load
+           :eval          eval
            :verbose       true
-           #_:context       #_:expr
+           :context       :expr
            :def-emits-var true}
           (fn [{:keys [ns value] :as ret}]
-            #_(prn ret)
             (if-not (:error value)
               (let [result (:result value)]
                 (prn result)
@@ -128,7 +129,8 @@
                   (set! *3 *2)
                   (set! *2 *1)
                   (set! *1 result))
-                (reset! current-ns ns))
+                (reset! current-ns ns)
+                nil)
               (let [e (:exception value)]
                 (set! *e e)
                 (print (.-message e) "\n"
