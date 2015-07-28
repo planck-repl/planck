@@ -14,6 +14,10 @@ You can download the binary file:
 $ gunzip planck.gz 
 $ chmod +x planck 
 $ ./planck 
+cljs.user=> *clojurescript-version*
+"1.7.2"
+cljs.user=> (map inc [0 1 2])
+(1 2 3)
 ```
 
 # Building 
