@@ -24,7 +24,7 @@
 
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
     
-    BOOL useBundledOutput = YES;
+    BOOL useBundledOutput = NO;
    
     if (!evalArg && isatty(fileno(stdin))) {
         printf("cljs.user=> ");
