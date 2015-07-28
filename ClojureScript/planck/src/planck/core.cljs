@@ -38,18 +38,21 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns require doc})
+(def repl-specials '#{in-ns require require-macros doc})
 
 (defn repl-special? [form]
   (and (seq? form) (repl-specials (first form))))
 
 (def repl-special-doc-map
-  '{in-ns   {:arglists ([name])
-             :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
-    require {:arglists ([& args])
-             :doc      "Loads libs, skipping any that are already loaded."}
-    doc     {:arglists ([name])
-             :doc      "Prints documentation for a var or special form given its name"}})
+  '{in-ns          {:arglists ([name])
+                    :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
+    require        {:arglists ([& args])
+                    :doc      "Loads libs, skipping any that are already loaded."}
+    require-macros {:arglists ([& args])
+                    :doc      "Similar to the require REPL special function but
+                    only for macros."}
+    doc            {:arglists ([name])
+                    :doc      "Prints documentation for a var or special form given its name"}})
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
@@ -106,7 +109,7 @@
 (defn eval [{:keys [source]}]
   (js/eval source))
 
-(defn require [args]
+(defn require [macros-ns? args]
   (let [[[_ sym] reload] args]
     (prn "sym" sym)
     (prn "reload" reload)
@@ -117,7 +120,8 @@
        :*eval-fn*      eval}
       sym
       reload
-      nil
+      {:macros-ns macros-ns?
+       :verbose   true}
       (fn [res]
         (println "require result:" res)))))
 
@@ -131,7 +135,8 @@
       (if (repl-special? form)
         (case (first form)
           in-ns (reset! current-ns (second (second form)))
-          require (planck.core/require (rest form))
+          require (planck.core/require false (rest form))
+          require-macros (planck.core/require true (rest form))
           doc (if (repl-specials (second form))
                 (repl/print-doc (repl-special-doc (second form)))
                 (repl/print-doc
