@@ -25,9 +25,15 @@
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
     
     BOOL useBundledOutput = NO;
+    BOOL runAmblyReplServer = NO;
    
-    if (!evalArg && isatty(fileno(stdin))) {
+    if (!evalArg && isatty(fileno(stdin)) &&!runAmblyReplServer) {
         printf("cljs.user=> ");
+        fflush(stdout);
+    }
+    
+    if (runAmblyReplServer) {
+        printf("Connect using script/repl");
         fflush(stdout);
     }
     
@@ -127,7 +133,7 @@
     [context evaluateScript:@"goog.provide('cljs.user')"];
     [context evaluateScript:@"goog.require('cljs.core')"];
     
-    BOOL runAmblyReplServer = NO;
+    
     if (runAmblyReplServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
                                            compilerOutputDirectory:outURL];
