@@ -19,9 +19,9 @@ $ ./planck
 # Building 
 
 1. Clone and build [ClojureScript master](https://github.com/clojure/clojurescript) (script/build).
-2. Set the project.clj file so that it matches the ClojureScript master build number.
+2. Set the `project.clj` file so that it matches the ClojureScript master build number.
 3. In the ClojureScript/planck directory, do `script/build`
-4. Do a pod install in the top level.
+4. Do a `pod install` in the top level.
 5. `open planck.xcworkspace`
 6. Edit the scheme to pass in src and out arguments as below and then run it via Xcode
 
