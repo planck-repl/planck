@@ -148,7 +148,7 @@
            :context       :expr
            :def-emits-var true}
           (fn [{:keys [ns value error] :as ret}]
-            (prn ret)
+            #_(prn ret)
             (if-not error
               (do
                 (prn value)

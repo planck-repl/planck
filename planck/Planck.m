@@ -23,6 +23,8 @@
 @implementation Planck
 
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
+    
+    BOOL useBundledOutput = YES;
    
     if (!evalArg && isatty(fileno(stdin))) {
         printf("cljs.user=> ");
@@ -37,18 +39,19 @@
         outURL = [NSURL URLWithString:outPath];
     }
     
-    NSFileManager* fm = [NSFileManager defaultManager];
-    if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
-        NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
-        NSLog(@"(Current working directory is \"%@\")", [fm currentDirectoryPath]);
-        exit(1);
+    if (!useBundledOutput) {
+        NSFileManager* fm = [NSFileManager defaultManager];
+        if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
+            NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
+            NSLog(@"(Current working directory is \"%@\")", [fm currentDirectoryPath]);
+            exit(1);
+        }
     }
     
     ABYContextManager* contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                            compilerOutputDirectory:outURL];
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
-    BOOL useBundledOutput = YES;
     if (useBundledOutput) {
         [self setUpAmblyImportScriptInContext:contextManager.context];
     } else {
@@ -82,8 +85,8 @@
     
     JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:context];
     [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
-                                        @"src": srcPath,
-                                        @"out": outPath}]];
+                                        @"src": srcPath ? srcPath : @"",
+                                        @"out": outPath ? outPath : @""}]];
     
     JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");
