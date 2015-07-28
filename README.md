@@ -10,6 +10,12 @@ You can download the binary file:
 
 [planck.gz](http://blog.fikesfarm.com/planck.gz) size 1169543 bytes, md5 `eacdc5711a941450ae5823aaba221b9b`
 
+```
+$ gunzip planck.gz 
+$ chmod +x planck 
+$ ./planck 
+```
+
 # Building 
 
 1. Clone and build [ClojureScript master](https://github.com/clojure/clojurescript) (script/build).
