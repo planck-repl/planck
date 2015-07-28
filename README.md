@@ -13,11 +13,20 @@ You can download the binary file:
 # Building 
 
 1. Clone and build [ClojureScript master](https://github.com/clojure/clojurescript) (script/build).
-2. Clone [David Nolen's fork of tools.reader](https://github.com/swannodette/tools.reader/tree/cljs-bootstrap), switch to the cljs-bootstrap branch and do lein install.
-3. Set the project.clj file so that it matches the ClojureScript master build number.
-4. In the ClojureScript/planck directory, do `script/build`
-5. Do a pod install in the top level.
-6. `open planck.xcworkspace` and adjust the [path](https://github.com/mfikes/planck/blob/master/planck/Planck.m#L29) and run the app
+2. Set the project.clj file so that it matches the ClojureScript master build number.
+3. In the ClojureScript/planck directory, do `script/build`
+4. Do a pod install in the top level.
+5. `open planck.xcworkspace`
+6. Edit the scheme to pass in src and out arguments as below and then run it via Xcode
+
+```
+-s $PROJECT_DIR/ClojureScript/planck/src
+-o $PROJECT_DIR/ClojureScript/planck/out
+```
+
+In order to work on it using Ambly, set `runAmblyReplServer` to `YES` in the `Planck` class and then `script/repl`.
+
+In order to bundle things up for standalone execution, `script/bundle` and then build it with `useBundledOutput` set to `YES` in the `Planck` class.
 
 # License
 
