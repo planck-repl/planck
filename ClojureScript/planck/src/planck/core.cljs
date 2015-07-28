@@ -99,8 +99,7 @@
     (if extensions
       (try
         (load-and-callback! path (first extensions) cb)
-        (catch :default e
-          (prn e)
+        (catch :default _
           (recur (next extensions))))
       (cb nil))))
 
