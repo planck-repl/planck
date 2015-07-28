@@ -123,6 +123,10 @@
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
 
+    // Set up the cljs.user namespace
+    [context evaluateScript:@"goog.provide('cljs.user')"];
+    [context evaluateScript:@"goog.require('cljs.core')"];
+    
     BOOL runAmblyReplServer = NO;
     if (runAmblyReplServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
