@@ -6,18 +6,33 @@ Read the [blog post](http://blog.fikesfarm.com/posts/2015-07-16-fast-javascriptc
 
 # Download / Running
 
-You can download the binary file used in the demo in the blog post if you'd like to give it a try. Run the `planck` executeable from within the uncompressed/untarred directory. (The `planck` executable looks for and needs the `planck-cljs-runtime` to be in the current working directory).
+You can download the binary file:
 
-[planck-demo.tar.gz](http://blog.fikesfarm.com/planck-demo.tar.gz) size 1195442 bytes, md5 `0935c612c142dbc8a51c018f370f0e54`
+[planck.gz](http://blog.fikesfarm.com/planck.gz) &nbsp; size 1169543 bytes, md5 `eacdc5711a941450ae5823aaba221b9b`
+
+```
+$ gunzip planck.gz 
+$ chmod +x planck 
+$ ./planck 
+```
 
 # Building 
 
 1. Clone and build [ClojureScript master](https://github.com/clojure/clojurescript) (script/build).
-2. Clone [David Nolen's fork of tools.reader](https://github.com/swannodette/tools.reader/tree/cljs-bootstrap), switch to the cljs-bootstrap branch and do lein install.
-3. Set the project.clj file so that it matches the ClojureScript master build number.
-4. In the ClojureScript/planck directory, do `script/build`
-5. Do a pod install in the top level.
-6. `open planck.xcworkspace` and adjust the [path](https://github.com/mfikes/planck/blob/master/planck/Planck.m#L29) and run the app
+2. Set the project.clj file so that it matches the ClojureScript master build number.
+3. In the ClojureScript/planck directory, do `script/build`
+4. Do a pod install in the top level.
+5. `open planck.xcworkspace`
+6. Edit the scheme to pass in src and out arguments as below and then run it via Xcode
+
+```
+-s $PROJECT_DIR/ClojureScript/planck/src
+-o $PROJECT_DIR/ClojureScript/planck/out
+```
+
+In order to work on it using Ambly, set `runAmblyReplServer` to `YES` in the `Planck` class and then `script/repl`.
+
+In order to bundle things up for standalone execution, `script/bundle` and then build it with `useBundledOutput` set to `YES` in the `Planck` class.
 
 # License
 
