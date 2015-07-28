@@ -33,7 +33,7 @@
     }
     
     if (runAmblyReplServer) {
-        printf("Connect using script/repl");
+        printf("Connect using script/repl\n");
         fflush(stdout);
     }
     
