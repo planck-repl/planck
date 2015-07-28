@@ -12,11 +12,11 @@
             [planck.stacktrace]
             [planck.io]))
 
-(def st (cljs/empty-state))
+(defonce st (cljs/empty-state))
 
-(def current-ns (atom 'cljs.user))
+(defonce current-ns (atom 'cljs.user))
 
-(def app-env (atom nil))
+(defonce app-env (atom nil))
 
 (defn map-keys [f m]
   (reduce-kv (fn [r k v] (assoc r (f k) v)) {} m))
@@ -107,16 +107,18 @@
   (js/eval source))
 
 (defn require [args]
-  #_(prn "require" args)
-  (cljs.js/require
-    {:*compiler*     st
-     :*data-readers* tags/*cljs-data-readers*
-     :*load-fn*      load
-     :*eval-fn*      eval}
-    (second (first args))
-    (second args)
-    (fn [res]
-      #_(println "require result:" res))))
+  (let [[[_ sym] reload] args]
+    (prn "sym" sym)
+    (prn "reload" reload)
+    (cljs.js/require
+      {:*compiler*     st
+       :*data-readers* tags/*cljs-data-readers*
+       :*load-fn*      load
+       :*eval-fn*      eval}
+      sym
+      reload
+      (fn [res]
+        (println "require result:" res)))))
 
 (defn ^:export read-eval-print [line]
   (binding [ana/*cljs-ns* @current-ns
