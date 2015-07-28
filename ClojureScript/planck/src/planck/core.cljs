@@ -117,6 +117,7 @@
        :*eval-fn*      eval}
       sym
       reload
+      nil
       (fn [res]
         (println "require result:" res)))))
 
