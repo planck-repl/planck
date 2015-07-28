@@ -24,9 +24,18 @@
 
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
     
-    BOOL useBundledOutput = NO;
+    BOOL useBundledOutput = YES;
     BOOL runAmblyReplServer = NO;
-   
+    
+    // Add trailing slash to srcPath and outPath
+    if (srcPath && ![srcPath hasSuffix:@"/"]) {
+        srcPath = [srcPath stringByAppendingString:@"/"];
+    }
+    
+    if (outPath && ![outPath hasSuffix:@"/"]) {
+        outPath = [outPath stringByAppendingString:@"/"];
+    }
+    
     if (!evalArg && isatty(fileno(stdin)) &&!runAmblyReplServer) {
         printf("cljs.user=> ");
         fflush(stdout);
@@ -90,9 +99,7 @@
     [context evaluateScript:@"var window = global;"];
     
     JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:context];
-    [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
-                                        @"src": srcPath ? srcPath : @"",
-                                        @"out": outPath ? outPath : @""}]];
+    [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild)}]];
     
     JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");
@@ -102,6 +109,29 @@
     
     JSValue* isReadableFn = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!isReadableFn.isUndefined, @"Could not find the is-readable? function");
+    
+    context[@"PLANCK_LOAD"] = ^(NSString *path) {
+        // First try in the srcPath
+        
+        NSString* fullPath = [NSURL URLWithString:path
+                                    relativeToURL:[NSURL URLWithString:srcPath]].path;
+        
+        NSString* rv = [NSString stringWithContentsOfFile:fullPath
+                                                 encoding:NSUTF8StringEncoding error:nil];
+        // Now try in the outPath
+        if (!rv) {
+            if (useBundledOutput) {
+                rv = [self.cljsRuntime getSourceForPath:path];
+            } else {
+                fullPath = [NSURL URLWithString:path
+                                  relativeToURL:[NSURL URLWithString:outPath]].path;
+                rv = [NSString stringWithContentsOfFile:fullPath
+                                               encoding:NSUTF8StringEncoding error:nil];
+            }
+        }
+        
+        return rv;
+    };
     
     context[@"PLANCK_READ_FILE"] = ^(NSString *file) {
         return [NSString stringWithContentsOfFile:file

@@ -74,25 +74,16 @@
 (defn ^:export print-prompt []
   (print (str @current-ns "=> ")))
 
-(defn form-full-path [root relative-path extension]
-  (str root "/" relative-path extension))
-
 (defn extension->lang [extension]
   (if (= ".js" extension)
     :js
     :clj))
 
-(defn load-and-callback-impl! [root path extension cb]
-  (let [full-path (form-full-path root path extension)]
-    (println "trying to load" full-path)
-    (cb {:lang   (extension->lang extension)
-         :source (planck.io/slurp full-path)})))
-
 (defn load-and-callback! [path extension cb]
-  (try
-    (load-and-callback-impl! (:src @app-env) path extension cb)
-    (catch :default _
-      (load-and-callback-impl! (:out @app-env) path extension cb))))
+  (when-let [source (js/PLANCK_LOAD (str path extension))]
+    (cb {:lang   (extension->lang extension)
+         :source source})
+    :loaded))
 
 (defn load [{:keys [name macros path] :as full} cb]
   (prn full)
@@ -100,10 +91,8 @@
                       [".clj" ".cljc"]
                       [".cljs" ".cljc" ".js"])]
     (if extensions
-      (try
-        (load-and-callback! path (first extensions) cb)
-        (catch :default _
-          (recur (next extensions))))
+      (when-not (load-and-callback! path (first extensions) cb)
+        (recur (next extensions)))
       (cb nil))))
 
 (defn eval [{:keys [source]}]
@@ -111,8 +100,8 @@
 
 (defn require [macros-ns? args]
   (let [[[_ sym] reload] args]
-    (prn "sym" sym)
-    (prn "reload" reload)
+    #_(prn "sym" sym)
+    #_(prn "reload" reload)
     (cljs.js/require
       {:*compiler*     st
        :*data-readers* tags/*cljs-data-readers*
@@ -174,5 +163,5 @@
                 (prn (planck.stacktrace/raw-stacktrace->canonical-stacktrace
                        (.-stack (.-cause error)) {}))
                 #_(prn (cljs.stacktrace/parse-stacktrace {}
-                       (.-stack (.-cause error))
-                       {:ua-product :safari}))))))))))
+                         (.-stack (.-cause error))
+                         {:ua-product :safari}))))))))))

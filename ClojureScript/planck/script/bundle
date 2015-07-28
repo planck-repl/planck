@@ -39,7 +39,12 @@ cat <<EOF >> CljsRuntime.m
 
 -(NSString*)getSourceForPath:(NSString*)path {
 
-    unsigned char* p =[((NSValue*)(self.manifest[path][0])) pointerValue];
+    NSValue* value = (NSValue*)(self.manifest[path][0]);
+    if (!value) {
+      return nil;
+    }
+
+    unsigned char* p =[value pointerValue];
     int len = [(NSNumber*)self.manifest[path][1] intValue];
     
     NSData* data = [NSData dataWithBytes:p
