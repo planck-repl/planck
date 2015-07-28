@@ -6,9 +6,9 @@ Read the [blog post](http://blog.fikesfarm.com/posts/2015-07-16-fast-javascriptc
 
 # Download / Running
 
-You can download the binary file used in the demo in the blog post if you'd like to give it a try. Run the `planck` executeable from within the uncompressed/untarred directory. (The `planck` executable looks for and needs the `planck-cljs-runtime` to be in the current working directory).
+You can download the binary file:
 
-[planck-demo.tar.gz](http://blog.fikesfarm.com/planck-demo.tar.gz) size 1195442 bytes, md5 `0935c612c142dbc8a51c018f370f0e54`
+[planck.gz](http://blog.fikesfarm.com/planck.gz) size 1195442 bytes, md5 `eacdc5711a941450ae5823aaba221b9b`
 
 # Building 
 
