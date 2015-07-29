@@ -86,7 +86,7 @@
     :loaded))
 
 (defn load [{:keys [name macros path] :as full} cb]
-  (prn full)
+  #_(prn full)
   (loop [extensions (if macros
                       [".clj" ".cljc"]
                       [".cljs" ".cljc" ".js"])]

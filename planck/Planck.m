@@ -22,18 +22,37 @@
 
 @implementation Planck
 
+-(NSString*)ensureSlash:(NSString*)s
+{
+    if (!s) {
+        return nil;
+    }
+    if ([s hasSuffix:@"/"]) {
+        return s;
+    }
+    return [s stringByAppendingString:@"/"];
+}
+
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
     
     BOOL useBundledOutput = YES;
     BOOL runAmblyReplServer = NO;
     
     // Add trailing slash to srcPath and outPath
-    if (srcPath && ![srcPath hasSuffix:@"/"]) {
-        srcPath = [srcPath stringByAppendingString:@"/"];
+    
+    srcPath = [self ensureSlash:srcPath];
+    outPath = [self ensureSlash:outPath];
+    
+    // Add fully qualified current working directory if relative
+    
+    NSString* currentDirectory = [self ensureSlash:[NSFileManager defaultManager].currentDirectoryPath];
+    
+    if (srcPath && ![srcPath hasPrefix:@"/"]) {
+        srcPath = [currentDirectory stringByAppendingString:srcPath];
     }
     
-    if (outPath && ![outPath hasSuffix:@"/"]) {
-        outPath = [outPath stringByAppendingString:@"/"];
+    if (outPath && ![outPath hasPrefix:@"/"]) {
+        outPath = [currentDirectory stringByAppendingString:outPath];
     }
     
     if (!evalArg && isatty(fileno(stdin)) &&!runAmblyReplServer) {
