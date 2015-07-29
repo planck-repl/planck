@@ -112,7 +112,7 @@
       {:macros-ns macros-ns?
        :verbose   true}
       (fn [res]
-        (println "require result:" res)))))
+        #_(println "require result:" res)))))
 
 (defn ^:export read-eval-print [line]
   (binding [ana/*cljs-ns* @current-ns
