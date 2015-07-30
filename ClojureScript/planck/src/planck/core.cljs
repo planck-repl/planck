@@ -122,16 +122,18 @@
                                      :ns {:name @current-ns})
           form (repl-read-string line)]
       (if (repl-special? form)
-        (case (first form)
-          in-ns (reset! current-ns (second (second form)))
-          require (planck.core/require false (rest form))
-          require-macros (planck.core/require true (rest form))
-          doc (if (repl-specials (second form))
-                (repl/print-doc (repl-special-doc (second form)))
-                (repl/print-doc
-                  (let [sym (second form)
-                        var (resolve env sym)]
-                    (:meta var)))))
+        (do
+          (case (first form)
+           in-ns (reset! current-ns (second (second form)))
+           require (planck.core/require false (rest form))
+           require-macros (planck.core/require true (rest form))
+           doc (if (repl-specials (second form))
+                 (repl/print-doc (repl-special-doc (second form)))
+                 (repl/print-doc
+                   (let [sym (second form)
+                         var (resolve env sym)]
+                     (:meta var)))))
+          (prn nil))
         (cljs/eval-str
           st
           line
