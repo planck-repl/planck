@@ -154,8 +154,7 @@
           {:ns            @current-ns
            :load          load
            :eval          eval
-           :source-map    true
-           :verbose       true
+           :source-map    false
            :context       :expr
            :def-emits-var true}
           (fn [{:keys [ns value error] :as ret}]
