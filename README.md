@@ -8,14 +8,14 @@ Read the [blog post](http://blog.fikesfarm.com/posts/2015-07-16-fast-javascriptc
 
 You can download the binary file:
 
-[planck.gz](http://blog.fikesfarm.com/planck.gz) &nbsp; size 1175362 bytes, md5 `09130a0d330de5f73b4c18c0b3d07437`
+[planck.gz](http://blog.fikesfarm.com/planck.gz) &nbsp; size 1174607 bytes, md5 `c89cdfb948fd4c5f6b2af5eefd6d9378`
 
 ```
 $ gunzip planck.gz 
 $ chmod +x planck 
 $ ./planck 
 cljs.user=> *clojurescript-version*
-"1.7.2"
+"1.7.10"
 cljs.user=> (map inc [0 1 2])
 (1 2 3)
 ```
