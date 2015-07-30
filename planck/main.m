@@ -30,7 +30,7 @@ int main(int argc,  char * const *argv) {
             {0, 0, 0, 0}
         };
         
-        const char *shortopts = "he:s:o:";
+        const char *shortopts = "he:s:o:m:";
         while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
             switch (option) {
                 case 'h':

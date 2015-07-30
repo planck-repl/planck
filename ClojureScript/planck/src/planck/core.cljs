@@ -1,4 +1,5 @@
 (ns planck.core
+  (:require-macros [cljs.env.macros :refer [with-compiler-env]])
   (:require [cljs.js :as cljs]
             [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
@@ -59,7 +60,7 @@
     :name name-symbol
     :repl-special-function true))
 
-;; Copied from cljs.analyzer.api (which hasn't yet been converted to cljc)
+
 (defn resolve
   "Given an analysis environment resolve a var. Analogous to
    clojure.core/resolve"
@@ -98,21 +99,37 @@
 (defn eval [{:keys [source]}]
   (js/eval source))
 
-(defn require [macros-ns? args]
+(defn require [macros-ns? sym reload]
+  (cljs.js/require
+    {:*compiler*     st
+     :*data-readers* tags/*cljs-data-readers*
+     :*load-fn*      load
+     :*eval-fn*      eval}
+    sym
+    reload
+    {:macros-ns macros-ns?
+     :verbose   true}
+    (fn [res]
+      #_(println "require result:" res))))
+
+(defn require-destructure [macros-ns? args]
   (let [[[_ sym] reload] args]
-    #_(prn "sym" sym)
-    #_(prn "reload" reload)
-    (cljs.js/require
-      {:*compiler*     st
-       :*data-readers* tags/*cljs-data-readers*
-       :*load-fn*      load
-       :*eval-fn*      eval}
-      sym
-      reload
-      {:macros-ns macros-ns?
-       :verbose   true}
-      (fn [res]
-        #_(println "require result:" res)))))
+    (require macros-ns? sym reload)))
+
+(defn ^:export run-main [main-ns args]
+  (let [main-args (js->clj args)]
+    (require false (symbol main-ns) nil)
+    (cljs/eval-str st
+      (str "(var -main)")
+      nil
+      {:ns         (symbol main-ns)
+       :load       load
+       :eval       eval
+       :source-map false
+       :context    :expr}
+      (fn [{:keys [ns value error] :as ret}]
+        (apply value args)))
+    nil))
 
 (defn ^:export read-eval-print [line]
   (binding [ana/*cljs-ns* @current-ns
@@ -124,15 +141,16 @@
       (if (repl-special? form)
         (do
           (case (first form)
-           in-ns (reset! current-ns (second (second form)))
-           require (planck.core/require false (rest form))
-           require-macros (planck.core/require true (rest form))
-           doc (if (repl-specials (second form))
-                 (repl/print-doc (repl-special-doc (second form)))
-                 (repl/print-doc
-                   (let [sym (second form)
-                         var (resolve env sym)]
-                     (:meta var)))))
+            in-ns (reset! current-ns (second (second form)))
+            require (require-destructure false (rest form))
+            require-macros (require-destructure true (rest form))
+            doc (if (repl-specials (second form))
+                  (repl/print-doc (repl-special-doc (second form)))
+                  (repl/print-doc
+                    (let [sym (second form)
+                          var (with-compiler-env st
+                                (resolve env sym))]
+                      (:meta var)))))
           (prn nil))
         (cljs/eval-str
           st

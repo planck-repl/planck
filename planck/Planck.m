@@ -55,7 +55,7 @@
         outPath = [currentDirectory stringByAppendingString:outPath];
     }
     
-    if (!evalArg && isatty(fileno(stdin)) &&!runAmblyReplServer) {
+    if (!evalArg && !mainNsName && isatty(fileno(stdin)) &&!runAmblyReplServer) {
         printf("cljs.user=> ");
         fflush(stdout);
     }
@@ -195,6 +195,9 @@
     } else {
         if (evalArg) {
             [readEvalPrintFn callWithArguments:@[evalArg]];
+        } else if (mainNsName) {
+            JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
+            [runMainFn callWithArguments:@[mainNsName, args]];
         } else {
             NSString* input = nil;
             for (;;) {
