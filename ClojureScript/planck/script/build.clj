@@ -3,6 +3,8 @@
 
 (println "Building")
 (api/build (api/inputs "src")
-  {:output-dir "out"
-   :output-to  "out/main.js"})
+  {:output-dir    "out"
+   :output-to     "out/main.js"
+   :optimizations :none})
 (println "Done building")
+(System/exit 0)

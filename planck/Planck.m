@@ -35,8 +35,16 @@
 
 -(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args {
     
-    BOOL useBundledOutput = YES;
+    BOOL useBundledOutput = NO;
+    BOOL useSimpleOutput = NO;
     BOOL runAmblyReplServer = NO;
+    BOOL measureTime = NO;
+    
+    NSDate *launchTime;
+    if (measureTime) {
+        NSLog(@"Launching");
+        launchTime = [NSDate date];
+    }
     
     // Add trailing slash to srcPath and outPath
     
@@ -86,10 +94,12 @@
                                                            compilerOutputDirectory:outURL];
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
-    if (useBundledOutput) {
-        [self setUpAmblyImportScriptInContext:contextManager.context];
-    } else {
-        [contextManager setUpAmblyImportScript];
+    if (!useSimpleOutput) {
+        if (useBundledOutput) {
+            [self setUpAmblyImportScriptInContext:contextManager.context];
+        } else {
+            [contextManager setUpAmblyImportScript];
+        }
     }
     
     NSString* mainJsFilePath = [[outURL URLByAppendingPathComponent:@"main" isDirectory:NO]
@@ -97,16 +107,34 @@
     
     NSURL* googDirectory = [outURL URLByAppendingPathComponent:@"goog"];
     
-    if (useBundledOutput) {
-        [self bootstrapInContext:contextManager.context];
+    if (useSimpleOutput) {
+        NSString *mainJsString;
+        if (useBundledOutput) {
+            mainJsString = [self.cljsRuntime getSourceForPath:@"main.js"];
+        } else {
+            mainJsString = [NSString stringWithContentsOfFile:mainJsFilePath encoding:NSUTF8StringEncoding error:nil];
+        }
+        NSAssert(mainJsString != nil, @"The main JavaScript text could not be loaded");
+        [ABYUtils evaluateScript:mainJsString inContext:contextManager.context];
     } else {
-        [contextManager bootstrapWithDepsFilePath:mainJsFilePath
-                                     googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
+        if (useBundledOutput) {
+            [self bootstrapInContext:contextManager.context];
+        } else {
+            [contextManager bootstrapWithDepsFilePath:mainJsFilePath
+                                         googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
+        }
+    }
+    if (measureTime) {
+        NSDate* loadedTime = [NSDate date];
+        NSTimeInterval executionTime = [loadedTime timeIntervalSinceDate:launchTime];
+        NSLog(@"Loaded main JavaScript in %f s", executionTime);
     }
     
     JSContext* context = [JSContext contextWithJSGlobalContextRef:contextManager.context];
     
-    [self requireAppNamespaces:context];
+    if (!useSimpleOutput) {
+        [self requireAppNamespaces:context];
+    }
     
 #ifdef DEBUG
     BOOL debugBuild = YES;
@@ -177,11 +205,13 @@
     };
     
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
+    //[context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
 
-    // Set up the cljs.user namespace
-    [context evaluateScript:@"goog.provide('cljs.user')"];
-    [context evaluateScript:@"goog.require('cljs.core')"];
-    
+    if (!useSimpleOutput) {
+        // Set up the cljs.user namespace
+        [context evaluateScript:@"goog.provide('cljs.user')"];
+        [context evaluateScript:@"goog.require('cljs.core')"];
+    }
     
     if (runAmblyReplServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
@@ -194,7 +224,24 @@
         
     } else {
         if (evalArg) {
+            NSDate *readyTime;
+            if (measureTime) {
+                readyTime = [NSDate date];
+                NSTimeInterval executionTime = [readyTime timeIntervalSinceDate:launchTime];
+                NSLog(@"Ready to eval in %f s", executionTime);
+            }
+            
             [readEvalPrintFn callWithArguments:@[evalArg]];
+            
+            if (measureTime) {
+                NSDate *evalTime = [NSDate date];
+                NSTimeInterval executionTime = [evalTime timeIntervalSinceDate:readyTime];
+                NSLog(@"Evaluated in %f s", executionTime);
+                
+                NSDate *totalTime = [NSDate date];
+                executionTime = [totalTime timeIntervalSinceDate:launchTime];
+                NSLog(@"Total execcution in %f s", executionTime);
+            }
         } else if (mainNsName) {
             JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
             [runMainFn callWithArguments:@[mainNsName, args]];
