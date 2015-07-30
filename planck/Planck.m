@@ -172,7 +172,7 @@
 
     context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
         if (!evalArg || ![message isEqualToString:@"nil"]) {
-            printf("%s", message.cString);
+            printf("%s", message.UTF8String);
         }
     };
     
