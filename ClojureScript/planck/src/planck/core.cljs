@@ -1,16 +1,11 @@
 (ns planck.core
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
   (:require [cljs.js :as cljs]
-            [cljs.pprint :refer [pprint]]
             [cljs.tagged-literals :as tags]
             [cljs.tools.reader :as r]
             [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
-            [clojure.string :as s]
-            [cljs.env :as env]
-            [cljs.stacktrace]
-            [planck.stacktrace]
             [planck.io]))
 
 (defonce st (cljs/empty-state))
@@ -180,7 +175,7 @@
                 (set! *e error)
                 (println "Error occurred")
                 (println (.-stack (.-cause error)))
-                (prn (planck.stacktrace/raw-stacktrace->canonical-stacktrace
+                #_(prn (planck.stacktrace/raw-stacktrace->canonical-stacktrace
                        (.-stack (.-cause error)) {}))
                 #_(prn (cljs.stacktrace/parse-stacktrace {}
                          (.-stack (.-cause error))
