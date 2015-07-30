@@ -33,7 +33,7 @@
     return [s stringByAppendingString:@"/"];
 }
 
--(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath {
+-(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args {
     
     BOOL useBundledOutput = YES;
     BOOL runAmblyReplServer = NO;

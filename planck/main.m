@@ -18,6 +18,7 @@ int main(int argc,  char * const *argv) {
         NSString* evalArg;
         NSString* srcArg;
         NSString* outArg;
+        NSString* mainNsName;
         
         int option = -1;
         static struct option longopts[] =
@@ -52,7 +53,19 @@ int main(int argc,  char * const *argv) {
                     outArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
+                case 'm':
+                {
+                    mainNsName = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                    break;
+                }
             }
+        }
+        argc -= optind;
+        argv += optind;
+        
+        NSMutableArray* args = [[NSMutableArray alloc] init];
+        while (argc-- > 0) {
+            [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
         }
         
         if (help) {
@@ -78,7 +91,7 @@ int main(int argc,  char * const *argv) {
             printf("\n");
             printf("  Paths may be absolute or relative in the filesystem\n");
         } else {
-            [[[Planck alloc] init] runEval:evalArg srcPath:srcArg outPath:outArg];
+            [[[Planck alloc] init] runEval:evalArg srcPath:srcArg outPath:outArg mainNsName:mainNsName args:args];
         }
     }
     return 0;
