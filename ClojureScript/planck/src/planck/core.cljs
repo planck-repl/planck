@@ -3,7 +3,6 @@
   (:require [cljs.js :as cljs]
             [cljs.tagged-literals :as tags]
             [cljs.tools.reader :as r]
-            [cljs.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
             [planck.io]))
