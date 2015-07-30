@@ -6,9 +6,7 @@ Read the [blog post](http://blog.fikesfarm.com/posts/2015-07-16-fast-javascriptc
 
 # Download / Running
 
-You can download the binary file:
-
-[planck.gz](http://blog.fikesfarm.com/planck.gz) &nbsp; size 1174607 bytes, md5 `c89cdfb948fd4c5f6b2af5eefd6d9378`
+You can download the binary file: [planck.gz](http://blog.fikesfarm.com/planck.gz)
 
 ```
 $ gunzip planck.gz 
