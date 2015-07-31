@@ -28,8 +28,8 @@ cljs.user=> (map inc [0 1 2])
 6. Edit the scheme to pass in src and out arguments as below and then run it via Xcode
 
 ```
--s $PROJECT_DIR/ClojureScript/planck/src
--o $PROJECT_DIR/ClojureScript/planck/out
+-s $PROJECT_DIR/planck-cljs/src
+-o $PROJECT_DIR/planck-cljs/out
 ```
 
 In order to work on it using Ambly, set `runAmblyReplServer` to `YES` in the `Planck` class and then `script/repl`.
