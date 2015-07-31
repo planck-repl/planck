@@ -276,12 +276,21 @@
                 } else {
                     input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
                 }
-                if ([input isEqualToString:@":cljs/quit"] || [input isEqualToString:@""]) {
+                if ([input isEqualToString:@":cljs/quit"]) {
                     break;
                 }
+                
                 BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
                 if (isReadable) {
-                    [readEvalPrintFn callWithArguments:@[input]];
+                    
+                    NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
+                    NSString *trimmedString = [input stringByTrimmingCharactersInSet:charSet];
+                    if (![trimmedString isEqualToString:@""]) {
+                        [readEvalPrintFn callWithArguments:@[input]];
+                    } else {
+                        printf("\n");
+                    }
+                    
                     input = nil;
                     
                     [printPromptFn callWithArguments:@[]];
