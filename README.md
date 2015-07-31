@@ -2,21 +2,9 @@
 
 A command line bootstrapped ClojureScript REPL for OS X based on JavaScriptCore.
 
-Read the [blog post](http://blog.fikesfarm.com/posts/2015-07-16-fast-javascriptcore-desktop-clojurescript-repl.html).
+# Downloading
 
-# Download / Running
-
-You can download the binary file: [planck.gz](http://blog.fikesfarm.com/planck.gz)
-
-```
-$ gunzip planck.gz 
-$ chmod +x planck 
-$ ./planck 
-cljs.user=> *clojurescript-version*
-"1.7.10"
-cljs.user=> (map inc [0 1 2])
-(1 2 3)
-```
+Head over to [planck.fikesfarm.com](http://planck.fikesfarm.com).
 
 # Building 
 
