@@ -3,9 +3,10 @@
 
 (println "Building")
 (api/build (api/inputs "src")
-  {:output-dir    "out"
-   :output-to     "out/main.js"
-   :optimizations :none
-   :static-fns    true})
+  {:output-dir         "out"
+   :output-to          "out/main.js"
+   :optimizations      :none
+   :static-fns         true
+   :optimize-constants false})
 (println "Done building")
 (System/exit 0)
