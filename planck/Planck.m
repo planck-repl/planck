@@ -61,7 +61,7 @@
     
     // For good UX, we display the first prompt immediately if we can
     BOOL initialPromptDisplayed = NO;
-    if (!initPath && !evalArg && !mainNsName) {
+    if (!initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
         printf("cljs.user=> ");
         fflush(stdout);
         initialPromptDisplayed = YES;
@@ -219,13 +219,7 @@
         [self setPrintFnsInContext:contextManager.context];
         
         if (initPath) {
-            NSString* source = [NSString stringWithContentsOfFile:initPath encoding:NSUTF8StringEncoding error:nil];
-            if (source) {
-                [readEvalPrintFn callWithArguments:@[source, @(NO)]];
-            } else {
-                NSLog(@"Could not read init file at %@", initPath);
-                exit(1);
-            }
+            [self executeScriptAtPath:initPath readEvalPrintFn:readEvalPrintFn];
         }
         
         if (evalArg) {
@@ -251,8 +245,15 @@
         }
         
         if (mainNsName) {
+        
             JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
             [runMainFn callWithArguments:@[mainNsName, args]];
+        
+        } else if (!repl && args.count > 0) {
+            
+            // We treat the first arg as a path to a file to be executed
+            [self executeScriptAtPath:[self fullyQualify:args[0]] readEvalPrintFn:readEvalPrintFn];
+        
         } else if (repl) {
             
             if (!initialPromptDisplayed) {
@@ -407,6 +408,16 @@
      "};" inContext:context];
 }
 
+-(void)executeScriptAtPath:(NSString*)path readEvalPrintFn:(JSValue*)readEvalPrintFn
+{
+    NSString* source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    if (source) {
+        [readEvalPrintFn callWithArguments:@[source, @(NO)]];
+    } else {
+        NSLog(@"Could not read file at %@", path);
+        exit(1);
+    }
+}
 
 -(void)setPrintFnsInContext:(JSContextRef)context
 {
