@@ -194,6 +194,17 @@
         // supressing
     };
     
+    context[@"PLANCK_READ_LINE"] = ^() {
+        NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
+        NSData *inputData = [input availableData];
+        NSString *inputString = nil;
+        if (0 != [inputData length]) {
+            inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
+            inputString = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+        }
+        return inputString;
+    };
+
     [self setPrintFnsInContext:contextManager.context];
 
     // Set up the cljs.user namespace
