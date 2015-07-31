@@ -114,7 +114,7 @@ int main(int argc,  char * const *argv) {
                 printf("  The init options may be repeated and mixed freely, but must appear before\n");
                 printf("  any main option.\n");
                 printf("\n");
-                printf("  Paths may be absolute or relative in the filesystem\n");
+                printf("  Paths may be absolute or relative in the filesystem.\n");
             } else {
                 [[[Planck alloc] init] runInit:initPath
                                           eval:evalArg
