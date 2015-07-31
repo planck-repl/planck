@@ -207,11 +207,9 @@
     [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
     //[context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
 
-    if (!useSimpleOutput) {
-        // Set up the cljs.user namespace
-        [context evaluateScript:@"goog.provide('cljs.user')"];
-        [context evaluateScript:@"goog.require('cljs.core')"];
-    }
+    // Set up the cljs.user namespace
+    [context evaluateScript:@"goog.provide('cljs.user')"];
+    [context evaluateScript:@"goog.require('cljs.core')"];
     
     if (runAmblyReplServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
