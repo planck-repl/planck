@@ -59,6 +59,14 @@
     srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
     outPath = [self ensureSlash:[self fullyQualify:outPath]];
     
+    // For good UX, we display the first prompt immediately if we can
+    BOOL initialPromptDisplayed = NO;
+    if (!initPath && !evalArg && !mainNsName) {
+        printf("cljs.user=> ");
+        fflush(stdout);
+        initialPromptDisplayed = YES;
+    }
+    
     if (runAmblyReplServer) {
         printf("Connect using script/repl\n");
         fflush(stdout);
@@ -202,6 +210,14 @@
         while (shouldKeepRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate     distantFuture]]);
         
     } else {
+        context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
+            if (![message isEqualToString:@"nil"]) {
+                printf("%s", message.UTF8String);
+            }
+        };
+        
+        [self setPrintFnsInContext:contextManager.context];
+        
         if (initPath) {
             NSString* source = [NSString stringWithContentsOfFile:initPath encoding:NSUTF8StringEncoding error:nil];
             if (source) {
@@ -211,14 +227,6 @@
                 exit(1);
             }
         }
-        
-        context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            if (![message isEqualToString:@"nil"]) {
-                printf("%s", message.UTF8String);
-            }
-        };
-        
-        [self setPrintFnsInContext:contextManager.context];
         
         if (evalArg) {
             
@@ -247,8 +255,10 @@
             [runMainFn callWithArguments:@[mainNsName, args]];
         } else if (repl) {
             
-            printf("cljs.user=> ");
-            fflush(stdout);
+            if (!initialPromptDisplayed) {
+                printf("cljs.user=> ");
+                fflush(stdout);
+            }
             
             context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
                 printf("%s", message.UTF8String);
