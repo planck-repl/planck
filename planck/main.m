@@ -27,6 +27,7 @@ int main(int argc,  char * const *argv) {
             {"eval", optional_argument, NULL, 'e'},
             {"src", optional_argument, NULL, 's'},
             {"out", optional_argument, NULL, 'o'},
+            {"main", optional_argument, NULL, 'm'},
             {0, 0, 0, 0}
         };
         
