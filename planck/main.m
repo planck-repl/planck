@@ -95,6 +95,10 @@ int main(int argc,  char * const *argv) {
             [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
         }
         
+        if (verbose) {
+            printf("planck v1.0\n\n");
+        }
+        
         if (mainNsName && repl) {
             printf("Only one main-opt can be specified.");
         } else {
