@@ -37,9 +37,14 @@ int main(int argc,  char * const *argv) {
             {0, 0, 0, 0}
         };
         
-        const char *shortopts = "hi:e:s:o:vm:r";
+        const char *shortopts = "h?i:e:s:o:vm:r";
         while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
             switch (option) {
+                case '?':
+                {
+                    help = YES;
+                    break;
+                }
                 case 'h':
                 {
                     help = YES;
