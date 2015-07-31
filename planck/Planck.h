@@ -10,6 +10,6 @@
 
 @interface Planck : NSObject
 
--(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args;
+-(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args;
 
 @end

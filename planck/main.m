@@ -15,6 +15,7 @@ int main(int argc,  char * const *argv) {
     @autoreleasepool {
         
         BOOL help = NO;
+        NSString* initPath;
         NSString* evalArg;
         NSString* srcArg;
         NSString* outArg;
@@ -24,6 +25,7 @@ int main(int argc,  char * const *argv) {
         static struct option longopts[] =
         {
             {"help", no_argument, NULL, 'h'},
+            {"init", optional_argument, NULL, 'i'},
             {"eval", optional_argument, NULL, 'e'},
             {"src", optional_argument, NULL, 's'},
             {"out", optional_argument, NULL, 'o'},
@@ -31,12 +33,17 @@ int main(int argc,  char * const *argv) {
             {0, 0, 0, 0}
         };
         
-        const char *shortopts = "he:s:o:m:";
+        const char *shortopts = "hi:e:s:o:m:";
         while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
             switch (option) {
                 case 'h':
                 {
                     help = YES;
+                    break;
+                }
+                case 'i':
+                {
+                    initPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
                 case 'e':
@@ -77,8 +84,8 @@ int main(int argc,  char * const *argv) {
             printf("  init options:\n");
             printf("    -i, --init path     Load a file or resource\n");
             printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
-            printf("    -s, --src  path     Use path for source. Default is \"src\"\n");
-            printf("    -o, --out  path     Use path as compiler out directory. Default is \"out\"\n");
+            printf("    -s, --src  path      Use path for source. Default is \"src\"\n");
+            printf("    -o, --out  path      Use path as compiler out directory. Default is \"out\"\n");
             printf("\n");
             printf("  main options:\n");
             printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
@@ -92,7 +99,12 @@ int main(int argc,  char * const *argv) {
             printf("\n");
             printf("  Paths may be absolute or relative in the filesystem\n");
         } else {
-            [[[Planck alloc] init] runEval:evalArg srcPath:srcArg outPath:outArg mainNsName:mainNsName args:args];
+            [[[Planck alloc] init] runInit:initPath
+                                      eval:evalArg
+                                   srcPath:srcArg
+                                   outPath:outArg
+                                mainNsName:mainNsName
+                                      args:args];
         }
     }
     return 0;

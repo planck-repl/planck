@@ -125,56 +125,61 @@
         (apply value args)))
     nil))
 
-(defn ^:export read-eval-print [line]
-  (binding [ana/*cljs-ns* @current-ns
-            *ns* (create-ns @current-ns)
-            r/*data-readers* tags/*cljs-data-readers*]
-    (let [env (assoc (ana/empty-env) :context :expr
-                                     :ns {:name @current-ns})
-          form (repl-read-string line)]
-      (if (repl-special? form)
-        (do
-          (case (first form)
-            in-ns (reset! current-ns (second (second form)))
-            require (require-destructure false (rest form))
-            require-macros (require-destructure true (rest form))
-            doc (if (repl-specials (second form))
-                  (repl/print-doc (repl-special-doc (second form)))
-                  (repl/print-doc
-                    (let [sym (second form)
-                          var (with-compiler-env st
-                                (resolve env sym))]
-                      (:meta var)))))
-          (prn nil))
-        (cljs/eval-str
-          st
-          line
-          nil
-          {:ns            @current-ns
-           :load          load
-           :eval          eval
-           :source-map    false
-           :context       :expr
-           :def-emits-var true}
-          (fn [{:keys [ns value error] :as ret}]
-            #_(prn ret)
-            (if-not error
-              (do
-                (prn value)
-                (when-not
-                  (or ('#{*1 *2 *3 *e} form)
-                    (ns-form? form))
-                  (set! *3 *2)
-                  (set! *2 *1)
-                  (set! *1 value))
-                (reset! current-ns ns)
-                nil)
-              (do
-                (set! *e error)
-                (println "Error occurred")
-                (println (.-stack (.-cause error)))
-                #_(prn (planck.stacktrace/raw-stacktrace->canonical-stacktrace
-                       (.-stack (.-cause error)) {}))
-                #_(prn (cljs.stacktrace/parse-stacktrace {}
-                         (.-stack (.-cause error))
-                         {:ua-product :safari}))))))))))
+(defn print-error [error]
+  (let [cause (.-cause error)]
+    (println (.-message cause))
+    (println (.-stack cause))))
+
+(defn ^:export read-eval-print
+  ([source]
+    (read-eval-print source true))
+  ([source expression?]
+    (binding [ana/*cljs-ns* @current-ns
+              *ns* (create-ns @current-ns)
+              r/*data-readers* tags/*cljs-data-readers*]
+      (let [expression-form (and expression? (repl-read-string source))]
+        (if (repl-special? expression-form)
+          (let [env (assoc (ana/empty-env) :context :expr
+                                           :ns {:name @current-ns})]
+            (case (first expression-form)
+              in-ns (reset! current-ns (second (second expression-form)))
+              require (require-destructure false (rest expression-form))
+              require-macros (require-destructure true (rest expression-form))
+              doc (if (repl-specials (second expression-form))
+                    (repl/print-doc (repl-special-doc (second expression-form)))
+                    (repl/print-doc
+                      (let [sym (second expression-form)
+                            var (with-compiler-env st
+                                  (resolve env sym))]
+                        (:meta var)))))
+            (prn nil))
+          (cljs/eval-str
+            st
+            source
+            nil
+            (merge
+              {:ns            @current-ns
+              :load          load
+              :eval          eval
+              :source-map    false}
+              (when expression?
+                :context       :expr
+                :def-emits-var true))
+            (fn [{:keys [ns value error] :as ret}]
+              #_(prn ret)
+              (if expression?
+                (if-not error
+                  (do
+                    (prn value)
+                    (when-not
+                      (or ('#{*1 *2 *3 *e} expression-form)
+                        (ns-form? expression-form))
+                      (set! *3 *2)
+                      (set! *2 *1)
+                      (set! *1 value))
+                    (reset! current-ns ns)
+                    nil)
+                  (do
+                    (set! *e error))))
+              (when error
+                (print-error error)))))))))

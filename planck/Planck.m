@@ -33,7 +33,16 @@
     return [s stringByAppendingString:@"/"];
 }
 
--(void)runEval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args {
+-(NSString*)fullyQualify:(NSString*)path
+{
+    NSString* currentDirectory = [self ensureSlash:[NSFileManager defaultManager].currentDirectoryPath];
+    if (path && ![path hasPrefix:@"/"]) {
+        path = [currentDirectory stringByAppendingString:path];
+    }
+    return path;
+}
+
+-(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args {
     
     BOOL useBundledOutput = NO;
     BOOL useSimpleOutput = NO;
@@ -46,22 +55,9 @@
         launchTime = [NSDate date];
     }
     
-    // Add trailing slash to srcPath and outPath
-    
-    srcPath = [self ensureSlash:srcPath];
-    outPath = [self ensureSlash:outPath];
-    
-    // Add fully qualified current working directory if relative
-    
-    NSString* currentDirectory = [self ensureSlash:[NSFileManager defaultManager].currentDirectoryPath];
-    
-    if (srcPath && ![srcPath hasPrefix:@"/"]) {
-        srcPath = [currentDirectory stringByAppendingString:srcPath];
-    }
-    
-    if (outPath && ![outPath hasPrefix:@"/"]) {
-        outPath = [currentDirectory stringByAppendingString:outPath];
-    }
+    initPath = [self fullyQualify:initPath];
+    srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
+    outPath = [self ensureSlash:[self fullyQualify:outPath]];
     
     if (!evalArg && !mainNsName && isatty(fileno(stdin)) &&!runAmblyReplServer) {
         printf("cljs.user=> ");
@@ -221,6 +217,16 @@
         while (shouldKeepRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate     distantFuture]]);
         
     } else {
+        if (initPath) {
+            NSString* source = [NSString stringWithContentsOfFile:initPath encoding:NSUTF8StringEncoding error:nil];
+            if (source) {
+                [readEvalPrintFn callWithArguments:@[source, @(NO)]];
+            } else {
+                NSLog(@"Could not read init file at %@", initPath);
+                exit(1);
+            }
+        }
+        
         if (evalArg) {
             NSDate *readyTime;
             if (measureTime) {
