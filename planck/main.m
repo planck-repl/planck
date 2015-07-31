@@ -17,7 +17,7 @@ int main(int argc,  char * const *argv) {
         BOOL help = NO;
         NSString* initPath;
         NSString* evalArg;
-        NSString* srcArg;
+        NSString* srcArg = @"src";
         NSString* outArg;
         NSString* mainNsName;
         BOOL repl = argc == 1;
@@ -102,7 +102,6 @@ int main(int argc,  char * const *argv) {
                 printf("    -i, --init path     Load a file or resource\n");
                 printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
                 printf("    -s, --src  path     Use path for source. Default is \"src\"\n");
-                printf("    -o, --out  path     Use path as compiler out directory. Default is \"out\"\n");
                 printf("    -v, --verbose       Emit verbose diagnostic output.\n");
                 printf("\n");
                 printf("  main options:\n");
