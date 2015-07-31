@@ -60,4 +60,4 @@ cat <<EOF >> CljsRuntime.m
 @end
 EOF
 rm manifest.m
-mv CljsRuntime.m ../../planck
+mv CljsRuntime.m ../planck
