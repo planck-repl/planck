@@ -20,6 +20,8 @@ int main(int argc,  char * const *argv) {
         NSString* srcArg;
         NSString* outArg;
         NSString* mainNsName;
+        BOOL repl = argc == 1;
+        BOOL verbose = NO;
         
         int option = -1;
         static struct option longopts[] =
@@ -29,11 +31,13 @@ int main(int argc,  char * const *argv) {
             {"eval", optional_argument, NULL, 'e'},
             {"src", optional_argument, NULL, 's'},
             {"out", optional_argument, NULL, 'o'},
+            {"verbose", optional_argument, NULL, 'v'},
             {"main", optional_argument, NULL, 'm'},
+            {"repl", optional_argument, NULL, 'r'},
             {0, 0, 0, 0}
         };
         
-        const char *shortopts = "hi:e:s:o:m:";
+        const char *shortopts = "hi:e:s:o:vm:r";
         while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
             switch (option) {
                 case 'h':
@@ -61,9 +65,19 @@ int main(int argc,  char * const *argv) {
                     outArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
+                case 'v':
+                {
+                    verbose = YES;
+                    break;
+                }
                 case 'm':
                 {
                     mainNsName = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                    break;
+                }
+                case 'r':
+                {
+                    repl = YES;
                     break;
                 }
             }
@@ -76,35 +90,42 @@ int main(int argc,  char * const *argv) {
             [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
         }
         
-        if (help) {
-            printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
-            printf("\n");
-            printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
-            printf("\n");
-            printf("  init options:\n");
-            printf("    -i, --init path     Load a file or resource\n");
-            printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
-            printf("    -s, --src  path      Use path for source. Default is \"src\"\n");
-            printf("    -o, --out  path      Use path as compiler out directory. Default is \"out\"\n");
-            printf("\n");
-            printf("  main options:\n");
-            printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
-            printf("    -r, --repl          Run a repl\n");
-            printf("    path                Run a script from a file or resource\n");
-            printf("    -                   Run a script from standard input\n");
-            printf("    -h, -?, --help      Print this help message and exit\n");
-            printf("\n");
-            printf("  The init options may be repeated and mixed freely, but must appear before\n");
-            printf("  any main option.\n");
-            printf("\n");
-            printf("  Paths may be absolute or relative in the filesystem\n");
+        if (mainNsName && repl) {
+            printf("Only one main-opt can be specified.");
         } else {
-            [[[Planck alloc] init] runInit:initPath
-                                      eval:evalArg
-                                   srcPath:srcArg
-                                   outPath:outArg
-                                mainNsName:mainNsName
-                                      args:args];
+            if (help) {
+                printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
+                printf("\n");
+                printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
+                printf("\n");
+                printf("  init options:\n");
+                printf("    -i, --init path     Load a file or resource\n");
+                printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
+                printf("    -s, --src  path     Use path for source. Default is \"src\"\n");
+                printf("    -o, --out  path     Use path as compiler out directory. Default is \"out\"\n");
+                printf("    -v, --verbose       Emit verbose diagnostic output.\n");
+                printf("\n");
+                printf("  main options:\n");
+                printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
+                printf("    -r, --repl          Run a repl\n");
+                printf("    path                Run a script from a file or resource\n");
+                printf("    -                   Run a script from standard input\n");
+                printf("    -h, -?, --help      Print this help message and exit\n");
+                printf("\n");
+                printf("  The init options may be repeated and mixed freely, but must appear before\n");
+                printf("  any main option.\n");
+                printf("\n");
+                printf("  Paths may be absolute or relative in the filesystem\n");
+            } else {
+                [[[Planck alloc] init] runInit:initPath
+                                          eval:evalArg
+                                       srcPath:srcArg
+                                       outPath:outArg
+                                       verbose:verbose
+                                    mainNsName:mainNsName
+                                          repl:repl
+                                          args:args];
+            }
         }
     }
     return 0;

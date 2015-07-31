@@ -90,19 +90,16 @@
         (recur (next extensions)))
       (cb nil))))
 
-(defn eval [{:keys [source]}]
-  (js/eval source))
-
 (defn require [macros-ns? sym reload]
   (cljs.js/require
     {:*compiler*     st
      :*data-readers* tags/*cljs-data-readers*
      :*load-fn*      load
-     :*eval-fn*      eval}
+     :*eval-fn*      cljs/js-eval}
     sym
     reload
     {:macros-ns macros-ns?
-     :verbose   true}
+     :verbose   (:verbose @app-env)}
     (fn [res]
       #_(println "require result:" res))))
 
@@ -118,7 +115,7 @@
       nil
       {:ns         (symbol main-ns)
        :load       load
-       :eval       eval
+       :eval       cljs/js-eval
        :source-map false
        :context    :expr}
       (fn [{:keys [ns value error] :as ret}]
@@ -132,54 +129,57 @@
 
 (defn ^:export read-eval-print
   ([source]
-    (read-eval-print source true))
+   (read-eval-print source true))
   ([source expression?]
-    (binding [ana/*cljs-ns* @current-ns
-              *ns* (create-ns @current-ns)
-              r/*data-readers* tags/*cljs-data-readers*]
-      (let [expression-form (and expression? (repl-read-string source))]
-        (if (repl-special? expression-form)
-          (let [env (assoc (ana/empty-env) :context :expr
-                                           :ns {:name @current-ns})]
-            (case (first expression-form)
-              in-ns (reset! current-ns (second (second expression-form)))
-              require (require-destructure false (rest expression-form))
-              require-macros (require-destructure true (rest expression-form))
-              doc (if (repl-specials (second expression-form))
-                    (repl/print-doc (repl-special-doc (second expression-form)))
-                    (repl/print-doc
-                      (let [sym (second expression-form)
-                            var (with-compiler-env st
-                                  (resolve env sym))]
-                        (:meta var)))))
-            (prn nil))
-          (cljs/eval-str
-            st
-            source
-            nil
-            (merge
-              {:ns            @current-ns
-              :load          load
-              :eval          eval
-              :source-map    false}
-              (when expression?
-                :context       :expr
-                :def-emits-var true))
-            (fn [{:keys [ns value error] :as ret}]
-              #_(prn ret)
-              (if expression?
-                (if-not error
-                  (do
-                    (prn value)
-                    (when-not
-                      (or ('#{*1 *2 *3 *e} expression-form)
-                        (ns-form? expression-form))
-                      (set! *3 *2)
-                      (set! *2 *1)
-                      (set! *1 value))
-                    (reset! current-ns ns)
-                    nil)
-                  (do
-                    (set! *e error))))
-              (when error
-                (print-error error)))))))))
+   (binding [ana/*cljs-ns* @current-ns
+             *ns* (create-ns @current-ns)
+             r/*data-readers* tags/*cljs-data-readers*]
+     (let [expression-form (and expression? (repl-read-string source))]
+       (if (repl-special? expression-form)
+         (let [env (assoc (ana/empty-env) :context :expr
+                                          :ns {:name @current-ns})]
+           (case (first expression-form)
+             in-ns (reset! current-ns (second (second expression-form)))
+             require (require-destructure false (rest expression-form))
+             require-macros (require-destructure true (rest expression-form))
+             doc (if (repl-specials (second expression-form))
+                   (repl/print-doc (repl-special-doc (second expression-form)))
+                   (repl/print-doc
+                     (let [sym (second expression-form)
+                           var (with-compiler-env st
+                                 (resolve env sym))]
+                       (:meta var)))))
+           (prn nil))
+         (try
+           (cljs/eval-str
+             st
+             source
+             (if expression? source "File")
+             (merge
+               {:ns         @current-ns
+                :load       load
+                :eval       cljs/js-eval
+                :source-map false
+                :verbose    (:verbose @app-env)}
+               (when expression?
+                 {:context       :expr
+                  :def-emits-var true}))
+             (fn [{:keys [ns value error] :as ret}]
+               (if expression?
+                 (if-not error
+                   (do
+                     (prn value)
+                     (when-not
+                       (or ('#{*1 *2 *3 *e} expression-form)
+                         (ns-form? expression-form))
+                       (set! *3 *2)
+                       (set! *2 *1)
+                       (set! *1 value))
+                     (reset! current-ns ns)
+                     nil)
+                   (do
+                     (set! *e error))))
+               (when error
+                 (print-error error))))
+           (catch :default e
+             (print-error e))))))))

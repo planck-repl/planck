@@ -42,7 +42,7 @@
     return path;
 }
 
--(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath mainNsName:(NSString*)mainNsName args:(NSArray*)args {
+-(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose mainNsName:(NSString*)mainNsName repl:(BOOL)repl args:(NSArray*)args {
     
     BOOL useBundledOutput = NO;
     BOOL useSimpleOutput = NO;
@@ -58,11 +58,6 @@
     initPath = [self fullyQualify:initPath];
     srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
     outPath = [self ensureSlash:[self fullyQualify:outPath]];
-    
-    if (!evalArg && !mainNsName && isatty(fileno(stdin)) &&!runAmblyReplServer) {
-        printf("cljs.user=> ");
-        fflush(stdout);
-    }
     
     if (runAmblyReplServer) {
         printf("Connect using script/repl\n");
@@ -142,7 +137,8 @@
     [context evaluateScript:@"var window = global;"];
     
     JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:context];
-    [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild)}]];
+    [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
+                                        @"verbose": @(verbose)}]];
     
     JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");
@@ -190,18 +186,7 @@
         // supressing
     };
     
-    [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
-    [context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
-    
-
-    context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-        if (!evalArg || ![message isEqualToString:@"nil"]) {
-            printf("%s", message.UTF8String);
-        }
-    };
-    
-    [context evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
-    //[context evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);"];
+    [self setPrintFnsInContext:contextManager.context];
 
     // Set up the cljs.user namespace
     [context evaluateScript:@"goog.provide('cljs.user')"];
@@ -227,7 +212,16 @@
             }
         }
         
+        context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
+            if (![message isEqualToString:@"nil"]) {
+                printf("%s", message.UTF8String);
+            }
+        };
+        
+        [self setPrintFnsInContext:contextManager.context];
+        
         if (evalArg) {
+            
             NSDate *readyTime;
             if (measureTime) {
                 readyTime = [NSDate date];
@@ -246,10 +240,22 @@
                 executionTime = [totalTime timeIntervalSinceDate:launchTime];
                 NSLog(@"Total execcution in %f s", executionTime);
             }
-        } else if (mainNsName) {
+        }
+        
+        if (mainNsName) {
             JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
             [runMainFn callWithArguments:@[mainNsName, args]];
-        } else {
+        } else if (repl) {
+            
+            printf("cljs.user=> ");
+            fflush(stdout);
+            
+            context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
+                printf("%s", message.UTF8String);
+            };
+            
+            [self setPrintFnsInContext:contextManager.context];
+            
             NSString* input = nil;
             for (;;) {
                 NSString* inputLine = [self getInput];
@@ -266,7 +272,7 @@
                 if (isReadable) {
                     [readEvalPrintFn callWithArguments:@[input]];
                     input = nil;
-                    if (!evalArg && isatty(fileno(stdin))) {
+                    if (isatty(fileno(stdin))) {
                         [printPromptFn callWithArguments:@[]];
                         fflush(stdout);
                     }
@@ -389,6 +395,13 @@
      "        CLOSURE_IMPORT_SCRIPT(goog.dependencies_.nameToPath[name]);\n"
      "    }\n"
      "};" inContext:context];
+}
+
+
+-(void)setPrintFnsInContext:(JSContextRef)context
+{
+    [ABYUtils evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
+    [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
 }
 
 @end
