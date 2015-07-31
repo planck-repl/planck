@@ -44,7 +44,7 @@
 
 -(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose mainNsName:(NSString*)mainNsName repl:(BOOL)repl args:(NSArray*)args {
     
-    BOOL useBundledOutput = NO;
+    BOOL useBundledOutput = YES;
     BOOL useSimpleOutput = NO;
     BOOL runAmblyReplServer = NO;
     BOOL measureTime = NO;
@@ -251,8 +251,8 @@
         
         } else if (!repl && args.count > 0) {
             
-            // We treat the first arg as a path to a file to be executed
-            [self executeScriptAtPath:[self fullyQualify:args[0]] readEvalPrintFn:readEvalPrintFn];
+            // We treat the first arg as a path to a file to be executed (it can be '-', which means stdin)
+            [self executeScriptAtPath:args[0] readEvalPrintFn:readEvalPrintFn];
         
         } else if (repl) {
             
@@ -283,10 +283,10 @@
                 if (isReadable) {
                     [readEvalPrintFn callWithArguments:@[input]];
                     input = nil;
-                    if (isatty(fileno(stdin))) {
-                        [printPromptFn callWithArguments:@[]];
-                        fflush(stdout);
-                    }
+                    
+                    [printPromptFn callWithArguments:@[]];
+                    fflush(stdout);
+                    
                 }
             }
         }
@@ -410,8 +410,12 @@
 
 -(void)executeScriptAtPath:(NSString*)path readEvalPrintFn:(JSValue*)readEvalPrintFn
 {
-    NSString* source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    if (source) {
+    NSString* source;
+    if ([path isEqualToString:@"-"]) {
+        source = [self getInput];
+    } else {
+        source = [NSString stringWithContentsOfFile:[self fullyQualify:path] encoding:NSUTF8StringEncoding error:nil];
+    } if (source) {
         [readEvalPrintFn callWithArguments:@[source, @(NO)]];
     } else {
         NSLog(@"Could not read file at %@", path);
