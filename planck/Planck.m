@@ -194,15 +194,10 @@
         // supressing
     };
     
-    
     context[@"PLANCK_RAW_READ_STDIN"] = ^NSString*() {
-        BOOL read = NO;
-        if (read) {
-            return nil;
-        } else {
-            read = YES;
-            return @"test-string";
-        }
+        NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
+        NSData *inputData = [input availableData];
+        return [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding];
     };
     
     context[@"PLANCK_RAW_WRITE_STDOUT"] = ^(NSString *s) {

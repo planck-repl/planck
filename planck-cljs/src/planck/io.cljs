@@ -41,9 +41,25 @@
   (js/PLANCK_WRITE_FILE filename content)
   nil)
 
+(defn- fission! [atom f & args]
+  "Breaks an atom's value into two parts. The supplied function should
+  return a pair. The first element will be set to be the atom's new
+  value and the second element will be returned."
+  (loop []
+    (let [old @atom
+          [new-in new-out] (apply f old args)]
+      (if (compare-and-set! atom old new-in)
+        new-out
+        (recur)))))
+
+(defonce read-characters (atom ""))
+
 (defn read-line
   "Reads the next line from the current value of planck.io/*in*"
   []
-  ;; todo: Perhaps read from *in* and save charactrs beyond \n in atom?
-  ;; what if *in* bound differently between calls, what does Clojure do in that case?
-  (-read *in*))
+  (let [n (.indexOf @read-characters "\n")]
+    (if (neg? n)
+      (do
+        (swap! read-characters (fn [s] (str s (-read *in*))))
+        (recur))
+      (fission! read-characters (fn [s] [(subs s (inc n)) (subs s 0 n)])))))
