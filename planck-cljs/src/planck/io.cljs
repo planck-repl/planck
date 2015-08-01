@@ -1,22 +1,33 @@
 (ns planck.io)
 
+(defprotocol IReader
+  (-read [this] "Returns available characters as a string or nil of EOF."))
+
+(defrecord Reader [raw-read raw-close]
+  IReader
+  (-read [_]
+    (raw-read)))
+
+(defrecord Writer [raw-write raw-flush]
+  IWriter
+  (-write [_ s]
+    (raw-write s))
+  (-flush [_]
+    (raw-flush)))
+
 (defonce
-  ^{:doc "Represents standard input for read operations."
+  ^{:doc "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
-  nil)
+  (Reader. js/PLANCK_RAW_READ_STDIN nil))
+
+(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT))
 
 (defonce
-  ^{:doc "Represents standard output for print operations."
-    :dynamic true}
-  *out*
-  nil)
-
-(defonce
-  ^{:doc "Represents standard error for print operations."
+  ^{:doc "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
-  nil)
+  (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
 (defn slurp
   "Slurps a file"
@@ -30,7 +41,9 @@
   (js/PLANCK_WRITE_FILE filename content)
   nil)
 
-(defn readline
-  "Reads a line from standard in"
+(defn read-line
+  "Reads the next line from the current value of planck.io/*in*"
   []
-  (js/PLANCK_READ_LINE))
+  ;; todo: Perhaps read from *in* and save charactrs beyond \n in atom?
+  ;; what if *in* bound differently between calls, what does Clojure do in that case?
+  (-read *in*))

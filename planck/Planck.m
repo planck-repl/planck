@@ -194,17 +194,33 @@
         // supressing
     };
     
-    context[@"PLANCK_READ_LINE"] = ^() {
-        NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
-        NSData *inputData = [input availableData];
-        NSString *inputString = nil;
-        if (0 != [inputData length]) {
-            inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
-            inputString = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+    
+    context[@"PLANCK_RAW_READ_STDIN"] = ^NSString*() {
+        BOOL read = NO;
+        if (read) {
+            return nil;
+        } else {
+            read = YES;
+            return @"test-string";
         }
-        return inputString;
     };
-
+    
+    context[@"PLANCK_RAW_WRITE_STDOUT"] = ^(NSString *s) {
+        fprintf(stdout, "%s", [s cStringUsingEncoding:NSUTF8StringEncoding]);
+    };
+    
+    context[@"PLANCK_RAW_FLUSH_STDOUT"] = ^() {
+        fflush(stdout);
+    };
+    
+    context[@"PLANCK_RAW_WRITE_STDERR"] = ^(NSString *s) {
+        fprintf(stderr, "%s", [s cStringUsingEncoding:NSUTF8StringEncoding]);
+    };
+    
+    context[@"PLANCK_RAW_FLUSH_STDERR"] = ^() {
+        fflush(stderr);
+    };
+    
     [self setPrintFnsInContext:contextManager.context];
 
     // Set up the cljs.user namespace
