@@ -196,8 +196,12 @@
     
     context[@"PLANCK_RAW_READ_STDIN"] = ^NSString*() {
         NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
-        NSData *inputData = [input availableData];
-        return [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding];
+        NSData *inputData = [input readDataOfLength:1024];
+        if (inputData.length) {
+            return [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding];
+        } else {
+            return nil;
+        }
     };
     
     context[@"PLANCK_RAW_WRITE_STDOUT"] = ^(NSString *s) {

@@ -52,14 +52,23 @@
         new-out
         (recur)))))
 
-(defonce read-characters (atom ""))
+(defonce ^:private buffer (atom nil))
 
 (defn read-line
   "Reads the next line from the current value of planck.io/*in*"
   []
-  (let [n (.indexOf @read-characters "\n")]
-    (if (neg? n)
-      (do
-        (swap! read-characters (fn [s] (str s (-read *in*))))
-        (recur))
-      (fission! read-characters (fn [s] [(subs s (inc n)) (subs s 0 n)])))))
+  (if-let [buffered @buffer]
+    (let [n (.indexOf buffered "\n")]
+      (if (neg? n)
+        (if-let [next-characters (-read *in*)]
+          (do
+            (swap! buffer (fn [s] (str s next-characters)))
+            (recur))
+          (fission! buffer (fn [s] [nil s])))
+        (fission! buffer (fn [s] [(let [residual (subs s (inc n))]
+                                    (if (= "" residual)
+                                      nil
+                                      residual))
+                                  (subs s 0 n)]))))
+    (when (reset! buffer (-read *in*))
+      (recur))))
