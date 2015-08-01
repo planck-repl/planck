@@ -96,7 +96,7 @@ int main(int argc,  char * const *argv) {
         }
         
         if (verbose) {
-            printf("planck v1.0\n\n");
+            printf("planck v1.1\n\n");
         }
         
         if (mainNsName && repl) {
