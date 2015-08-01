@@ -194,9 +194,11 @@
         // supressing
     };
     
+    const BOOL isTty = isatty(fileno(stdin));
+    
     context[@"PLANCK_RAW_READ_STDIN"] = ^NSString*() {
         NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
-        NSData *inputData = [input readDataOfLength:1024];
+        NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
         if (inputData.length) {
             return [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding];
         } else {
