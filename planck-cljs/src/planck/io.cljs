@@ -11,3 +11,8 @@
   [filename content]
   (js/PLANCK_WRITE_FILE filename content)
   nil)
+
+(defn readline
+  "Reads a line from standard in"
+  []
+  (js/PLANCK_READ_LINE))
