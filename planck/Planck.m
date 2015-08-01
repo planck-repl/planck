@@ -299,6 +299,7 @@
             for (;;) {
                 NSString* inputLine = [self getInput];
                 if (inputLine == nil) {
+                    printf("\n");
                     break;
                 }
                 
