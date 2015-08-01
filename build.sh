@@ -10,4 +10,4 @@ script/bundle
 cd ..
 
 # Xcode
-xcodebuild -workspace planck.xcworkspace -scheme planck
+xcodebuild -workspace planck.xcworkspace -scheme planck -configuration Release
