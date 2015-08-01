@@ -10,4 +10,4 @@ script/bundle
 cd ..
 
 # Xcode
-xcodebuild -workspace planck.xcworkspace -scheme planck -configuration Release
+xcodebuild -workspace planck.xcworkspace -scheme planck -configuration Release SYMROOT=$(PWD)/build
