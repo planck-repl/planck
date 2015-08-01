@@ -298,6 +298,9 @@
             NSString* input = nil;
             for (;;) {
                 NSString* inputLine = [self getInput];
+                if (inputLine == nil) {
+                    break;
+                }
                 
                 if (input == nil) {
                     input = inputLine;
@@ -335,10 +338,12 @@
 {
     NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
     NSData *inputData = [input availableData];
-    NSString *inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
-    inputString = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
-    
-    return inputString;
+    if (inputData.length) {
+        NSString *inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
+        return [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+    } else {
+        return nil;
+    }
 }
 
 -(void)requireAppNamespaces:(JSContext*)context
