@@ -1,5 +1,23 @@
 (ns planck.io)
 
+(defonce
+  ^{:doc "Represents standard input for read operations."
+    :dynamic true}
+  *in*
+  nil)
+
+(defonce
+  ^{:doc "Represents standard output for print operations."
+    :dynamic true}
+  *out*
+  nil)
+
+(defonce
+  ^{:doc "Represents standard error for print operations."
+    :dynamic true}
+  *err*
+  nil)
+
 (defn slurp
   "Slurps a file"
   [filename]
