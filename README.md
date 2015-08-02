@@ -13,11 +13,12 @@ Head over to [planck.fikesfarm.com](http://planck.fikesfarm.com).
 3. In the `plank-cljs` directory, do `script/build`
 4. Do a `pod install` in the top level.
 5. `open planck.xcworkspace`
-6. Edit the scheme to pass in src and out arguments as below and then run it via Xcode
+6. Edit the scheme to pass in src, out, and repl arguments as below and then run it via Xcode
 
 ```
 -s $PROJECT_DIR/planck-cljs/src
 -o $PROJECT_DIR/planck-cljs/out
+-r
 ```
 
 In order to work on it using Ambly, set `runAmblyReplServer` to `YES` in the `Planck` class and then `script/repl`.
