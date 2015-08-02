@@ -384,15 +384,16 @@
          {
              JSStringRef pathStrRef = JSValueToStringCopy(ctx, argv[0], NULL);
              NSString* path = (__bridge_transfer NSString *) JSStringCopyCFString( kCFAllocatorDefault, pathStrRef );
-             if ([path hasPrefix:@"goog/../"]) {
-                 path = [path substringFromIndex:8];
-             }
+
              JSStringRelease(pathStrRef);
              
              NSString* url = [@"file:///" stringByAppendingString:path];
 
              JSStringRef urlStringRef = JSStringCreateWithCFString((__bridge CFStringRef)url);
              
+             if ([path hasPrefix:@"goog/../"]) {
+                 path = [path substringFromIndex:8];
+             }
              NSError* error = nil;
              NSString* sourceText = [self.cljsRuntime getSourceForPath:path];
              
