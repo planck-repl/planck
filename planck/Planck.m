@@ -13,6 +13,7 @@
 #import "ABYContextManager.h"
 #import "ABYServer.h"
 #import "CljsRuntime.h"
+#include "linenoise.h"
 
 @interface Planck()
 
@@ -48,6 +49,7 @@
     BOOL useSimpleOutput = NO;
     BOOL runAmblyReplServer = NO;
     BOOL measureTime = NO;
+    BOOL useLineNoise = YES; // Turn if off if in Xcode
     
     NSDate *launchTime;
     if (measureTime) {
@@ -61,7 +63,7 @@
     
     // For good UX, we display the first prompt immediately if we can
     BOOL initialPromptDisplayed = NO;
-    if (!initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
+    if (!useLineNoise && !initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
         printf("cljs.user=> ");
         fflush(stdout);
         initialPromptDisplayed = YES;
@@ -152,8 +154,8 @@
     JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");
     
-    JSValue* printPromptFn = [self getValue:@"print-prompt" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!printPromptFn.isUndefined, @"Could not find the print-prompt function");
+    JSValue* getCurrentNsFn = [self getValue:@"get-current-ns" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!getCurrentNsFn.isUndefined, @"Could not find the get-current-ns function");
     
     JSValue* isReadableFn = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!isReadableFn.isUndefined, @"Could not find the is-readable? function");
@@ -285,32 +287,70 @@
         
         } else if (repl) {
             
-            if (!initialPromptDisplayed) {
-                printf("cljs.user=> ");
-                fflush(stdout);
-            }
-            
             context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
                 printf("%s", message.UTF8String);
             };
             
             [self setPrintFnsInContext:contextManager.context];
             
+            if (!initialPromptDisplayed && !useLineNoise) {
+                printf("cljs.user=> ");
+                fflush(stdout);
+            }
+            
+            NSString* historyFile = nil;
+            if (useLineNoise) {
+                char* homedir = getenv("HOME");
+                if (homedir) {
+                    historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
+                    linenoiseHistoryLoad([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
+                }
+            }
+            
+            // Set up linenoise prompt
+            NSString* currentNs = @"cljs.user";
+            NSString* currentPrompt = @"";
+            if (useLineNoise) {
+                currentPrompt = [self formPrompt:currentNs isSecondary:NO];
+            }
+
             NSString* input = nil;
-            for (;;) {
-                NSString* inputLine = [self getInput];
-                if (inputLine == nil) {
-                    printf("\n");
-                    break;
+            char *line = NULL;
+            linenoiseSetMultiLine(1);
+            while(!useLineNoise || (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
+                
+                NSString* inputLine;
+                
+                if (useLineNoise) {
+                    inputLine = [NSString stringWithCString:line encoding:NSUTF8StringEncoding];
+                    free(line);
+                } else {
+                    inputLine = [self getInput];
+                    // Check if ^D has been pressed and if so, exit
+                    if (inputLine == nil) {
+                        printf("\n");
+                        break;
+                    }
                 }
                 
                 if (input == nil) {
                     input = inputLine;
+                    if (useLineNoise) {
+                        currentPrompt = [self formPrompt:currentNs isSecondary:YES];
+                    }
                 } else {
                     input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
                 }
+                
                 if ([input isEqualToString:@":cljs/quit"]) {
                     break;
+                } else {
+                    if (useLineNoise) {
+                        linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
+                        if (historyFile) {
+                            linenoiseHistorySave([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
+                        }
+                    }
                 }
                 
                 BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
@@ -321,19 +361,37 @@
                     if (![trimmedString isEqualToString:@""]) {
                         [readEvalPrintFn callWithArguments:@[input]];
                     } else {
-                        printf("\n");
+                        if (!useLineNoise) {
+                            printf("\n");
+                        }
                     }
                     
                     input = nil;
                     
-                    [printPromptFn callWithArguments:@[]];
-                    fflush(stdout);
+                    currentNs = [getCurrentNsFn callWithArguments:@[]].toString;
+                    if (useLineNoise) {
+                        currentPrompt = [self formPrompt:currentNs isSecondary:NO];
+                    } else {
+                        printf("%s", [currentNs cStringUsingEncoding:NSUTF8StringEncoding]);
+                        printf("=> ");
+                        fflush(stdout);
+                    }
                     
                 }
             }
+            
         }
     }
 
+}
+
+-(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary
+{
+    if (secondary) {
+        return [[@"" stringByPaddingToLength:currentNs.length-2 withString:@" " startingAtIndex:0] stringByAppendingString:@"#_=> "];
+    } else {
+        return [NSString stringWithFormat:@"%@=> ", currentNs];
+    }
 }
 
 -(NSString *) getInput

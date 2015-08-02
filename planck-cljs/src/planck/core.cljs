@@ -69,8 +69,8 @@
     (catch :default _
       (ana/resolve-macro-var env sym))))
 
-(defn ^:export print-prompt []
-  (print (str @current-ns "=> ")))
+(defn ^:export get-current-ns []
+  (str @current-ns))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
@@ -184,7 +184,7 @@
                {:ns         @current-ns
                 :load       load
                 :eval       cljs/js-eval
-                :source-map true
+                :source-map false
                 :verbose    (:verbose @app-env)}
                (when expression?
                  {:context       :expr
