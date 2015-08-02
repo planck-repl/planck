@@ -138,17 +138,14 @@
                                                   (js/PLANCK_LOAD "cljs/core.js.map")))})))
 
 (defn print-error [error]
-  #_(prn error)
-  (let [cause (.-cause error)]
-    (load-core-source-maps!)
+  (let [cause (or (.-cause error) error)]
     (println (.-message cause))
-    #_(println (.-stack cause))
+    (load-core-source-maps!)
     (let [canonical-stacktrace (st/parse-stacktrace
                                  {}
                                  (.-stack cause)
                                  {:ua-product :safari}
-                                 {:output-dir "file:///goog/.."})]
-
+                                 {:output-dir "file://(/goog/..)?"})]
       (println
         (st/mapped-stacktrace-str
           canonical-stacktrace
