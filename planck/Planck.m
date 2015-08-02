@@ -85,6 +85,7 @@
         if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
             NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
             NSLog(@"(Current working directory is \"%@\")", [fm currentDirectoryPath]);
+            NSLog(@"If running from Xcode, set -o $PROJECT_DIR/planck-cljs/out");
             exit(1);
         }
     }
