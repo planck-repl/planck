@@ -5,6 +5,9 @@
             [cljs.tools.reader :as r]
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
+            [cljs.stacktrace :as st]
+            [cljs.source-map :as sm]
+            [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
 
 (defonce st (cljs/empty-state))
@@ -98,8 +101,9 @@
      :*eval-fn*      cljs/js-eval}
     sym
     reload
-    {:macros-ns macros-ns?
-     :verbose   (:verbose @app-env)}
+    {:macros-ns  macros-ns?
+     :verbose    (:verbose @app-env)
+     :source-map true}
     (fn [res]
       #_(println "require result:" res))))
 
@@ -116,16 +120,40 @@
       {:ns         (symbol main-ns)
        :load       load
        :eval       cljs/js-eval
-       :source-map false
+       :source-map true
        :context    :expr}
       (fn [{:keys [ns value error] :as ret}]
         (apply value args)))
     nil))
 
+(defn load-core-source-maps! []
+  (when-not (get (:source-maps @planck.core/st) 'planck.core)
+    (swap! st update-in [:source-maps] merge {'planck.core
+                                              (sm/decode
+                                                (cljson->clj
+                                                  (js/PLANCK_LOAD "planck/core.js.map")))
+                                              'cljs.core
+                                              (sm/decode
+                                                (cljson->clj
+                                                  (js/PLANCK_LOAD "cljs/core.js.map")))})))
+
 (defn print-error [error]
+  #_(prn error)
   (let [cause (.-cause error)]
+    (load-core-source-maps!)
     (println (.-message cause))
-    (println (.-stack cause))))
+    #_(println (.-stack cause))
+    (let [canonical-stacktrace (st/parse-stacktrace
+                                 {}
+                                 (.-stack cause)
+                                 {:ua-product :safari}
+                                 {:output-dir "file:///goog/.."})]
+
+      (println
+        (st/mapped-stacktrace-str
+          canonical-stacktrace
+          (or (:source-maps @planck.core/st) {})
+          nil)))))
 
 (defn ^:export read-eval-print
   ([source]
@@ -159,7 +187,7 @@
                {:ns         @current-ns
                 :load       load
                 :eval       cljs/js-eval
-                :source-map false
+                :source-map true
                 :verbose    (:verbose @app-env)}
                (when expression?
                  {:context       :expr
