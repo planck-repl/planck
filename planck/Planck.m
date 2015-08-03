@@ -15,7 +15,11 @@
 
 @implementation Planck
 
+static NSCondition* javaScriptEngineReadyCondition;
+static BOOL javaScriptEngineReady;
 static JSValue* getCompletionsFn = nil;
+static JSContext* context = nil;
+static ABYContextManager* contextManager = nil;
 
 void completion(const char *buf, linenoiseCompletions *lc) {
     
@@ -70,15 +74,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     initPath = [self fullyQualify:initPath];
     srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
     outPath = [self ensureSlash:[self fullyQualify:outPath]];
-    
-    // For good UX, we display the first prompt immediately if we can
-    BOOL initialPromptDisplayed = NO;
-    if (plainTerminal && !initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
-        printf("cljs.user=> ");
-        fflush(stdout);
-        initialPromptDisplayed = YES;
-    }
-    
+        
     if (amblyServer) {
         printf("Connect with Ambly by using planck-cljs/script/repl\n");
         fflush(stdout);
@@ -102,7 +98,13 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         }
     }
     
-    ABYContextManager* contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
+    javaScriptEngineReadyCondition = [[NSCondition alloc] init];
+    javaScriptEngineReady = NO;
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
+    
+    
+    contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                            compilerOutputDirectory:outURL];
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
@@ -142,7 +144,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         NSLog(@"Loaded main JavaScript in %f s", executionTime);
     }
     
-    JSContext* context = [JSContext contextWithJSGlobalContextRef:contextManager.context];
+    context = [JSContext contextWithJSGlobalContextRef:contextManager.context];
     
     if (!useSimpleOutput) {
         [self requireAppNamespaces:context];
@@ -160,18 +162,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:context];
     [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
                                         @"verbose": @(verbose)}]];
-    
-    JSValue* readEvalPrintFn = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!readEvalPrintFn.isUndefined, @"Could not find the read-eval-print function");
-    
-    JSValue* getCurrentNsFn = [self getValue:@"get-current-ns" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!getCurrentNsFn.isUndefined, @"Could not find the get-current-ns function");
-    
-    JSValue* isReadableFn = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!isReadableFn.isUndefined, @"Could not find the is-readable? function");
-    
-    getCompletionsFn = [self getValue:@"get-completions" inNamespace:@"planck.core" fromContext:context];
-    NSAssert(!getCompletionsFn.isUndefined, @"Could not find the get-completions function");
     
     context[@"PLANCK_LOAD"] = ^(NSString *path) {
         // First try in the srcPath
@@ -239,11 +229,30 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         fflush(stderr);
     };
     
+        
+        // We presume we are not going to be in a REPL, so set it to print non-nil things.
+        context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
+            if (![message isEqualToString:@"nil"]) {
+                printf("%s", message.UTF8String);
+            }
+        };
+        
+        
     [self setPrintFnsInContext:contextManager.context];
 
     // Set up the cljs.user namespace
     [context evaluateScript:@"goog.provide('cljs.user')"];
     [context evaluateScript:@"goog.require('cljs.core')"];
+        
+        
+        
+        
+        [javaScriptEngineReadyCondition lock];
+        javaScriptEngineReady = YES;
+        [javaScriptEngineReadyCondition signal];
+        [javaScriptEngineReadyCondition unlock];
+
+            });
     
     if (amblyServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
@@ -255,20 +264,14 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         while (shouldKeepRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate     distantFuture]]);
         
     } else {
-        context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            if (![message isEqualToString:@"nil"]) {
-                printf("%s", message.UTF8String);
-            }
-        };
-        
-        [self setPrintFnsInContext:contextManager.context];
         
         if (initPath) {
-            [self executeScriptAtPath:initPath readEvalPrintFn:readEvalPrintFn];
+            [self blockUntilEngineReady];
+            [self executeScriptAtPath:initPath readEvalPrintFn:[self readEvalPrintFn]];
         }
         
         if (evalArg) {
-            
+            [self blockUntilEngineReady];
             NSDate *readyTime;
             if (measureTime) {
                 readyTime = [NSDate date];
@@ -276,7 +279,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                 NSLog(@"Ready to eval in %f s", executionTime);
             }
             
-            [readEvalPrintFn callWithArguments:@[evalArg]];
+            [[self readEvalPrintFn] callWithArguments:@[evalArg]];
             
             if (measureTime) {
                 NSDate *evalTime = [NSDate date];
@@ -290,24 +293,18 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         }
         
         if (mainNsName) {
-        
+        [self blockUntilEngineReady];
             JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
             [runMainFn callWithArguments:@[mainNsName, args]];
         
         } else if (!repl && args.count > 0) {
-            
+            [self blockUntilEngineReady];
             // We treat the first arg as a path to a file to be executed (it can be '-', which means stdin)
-            [self executeScriptAtPath:args[0] readEvalPrintFn:readEvalPrintFn];
+            [self executeScriptAtPath:args[0] readEvalPrintFn:[self readEvalPrintFn]];
         
         } else if (repl) {
             
-            context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-                printf("%s", message.UTF8String);
-            };
-            
-            [self setPrintFnsInContext:contextManager.context];
-            
-            if (!initialPromptDisplayed && plainTerminal) {
+            if (plainTerminal) {
                 printf("cljs.user=> ");
                 fflush(stdout);
             }
@@ -352,6 +349,15 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     }
                 }
                 
+                [self blockUntilEngineReady];
+                
+                // TODO arrange to have this occur only once
+                context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
+                    printf("%s", message.UTF8String);
+                };
+                
+                [self setPrintFnsInContext:contextManager.context];
+                
                 if (input == nil) {
                     input = inputLine;
                     if (!plainTerminal) {
@@ -372,13 +378,13 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     }
                 }
                 
-                BOOL isReadable = [isReadableFn callWithArguments:@[input]].toBool;
+                BOOL isReadable = [[self isReadableFn] callWithArguments:@[input]].toBool;
                 if (isReadable) {
                     
                     NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
                     NSString *trimmedString = [input stringByTrimmingCharactersInSet:charSet];
                     if (![trimmedString isEqualToString:@""]) {
-                        [readEvalPrintFn callWithArguments:@[input]];
+                        [[self readEvalPrintFn] callWithArguments:@[input]];
                     } else {
                         if (plainTerminal) {
                             printf("\n");
@@ -387,7 +393,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     
                     input = nil;
                     
-                    currentNs = [getCurrentNsFn callWithArguments:@[]].toString;
+                    currentNs = [[self getCurrentNsFn] callWithArguments:@[]].toString;
                     if (!plainTerminal) {
                         currentPrompt = [self formPrompt:currentNs isSecondary:NO];
                     } else {
@@ -549,6 +555,39 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 {
     [ABYUtils evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
     [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
+}
+
+-(JSValue*)readEvalPrintFn {
+    JSValue* rv = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!rv.isUndefined, @"Could not find the read-eval-print function");
+    return rv;
+}
+
+-(JSValue*)getCurrentNsFn {
+    JSValue* rv = [self getValue:@"get-current-ns" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!rv.isUndefined, @"Could not find the get-current-ns function");
+    return rv;
+}
+
+-(JSValue*)isReadableFn {
+    JSValue* rv = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!rv.isUndefined, @"Could not find the is-readable? function");
+    return rv;
+}
+
+-(JSValue*)completionsFn {
+    JSValue* rv = [self getValue:@"get-completions" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!rv.isUndefined, @"Could not find the is-readable? function");
+    return rv;
+}
+
+-(void)blockUntilEngineReady
+{
+    [javaScriptEngineReadyCondition lock];
+    while (!javaScriptEngineReady)
+        [javaScriptEngineReadyCondition wait];
+    
+    [javaScriptEngineReadyCondition unlock];
 }
 
 @end
