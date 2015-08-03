@@ -113,15 +113,11 @@ int main(int argc,  char * const *argv) {
 
         // Process arguments
         
-        if (verbose) {
-            printf("planck %s\n\n", PLANCK_VERSION);
-        }
-    
         if (mainNsName && repl) {
             printf("Only one main-opt can be specified.");
         } else {
             if (help) {
-                printf("planck %s", PLANCK_VERSION);
+                printf("planck %s\n", PLANCK_VERSION);
                 printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
                 printf("\n");
                 printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
