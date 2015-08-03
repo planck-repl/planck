@@ -17,18 +17,37 @@
 
 static NSCondition* javaScriptEngineReadyCondition;
 static BOOL javaScriptEngineReady;
-static JSValue* getCompletionsFn = nil;
+
+
+void blockUntilEngineReady()
+{
+    [javaScriptEngineReadyCondition lock];
+    while (!javaScriptEngineReady)
+        [javaScriptEngineReadyCondition wait];
+    
+    [javaScriptEngineReadyCondition unlock];
+}
+
+void signalEngineReady()
+{
+    [javaScriptEngineReadyCondition lock];
+    javaScriptEngineReady = YES;
+    [javaScriptEngineReadyCondition signal];
+    [javaScriptEngineReadyCondition unlock];
+}
+
 static JSContext* context = nil;
 static ABYContextManager* contextManager = nil;
 
 void completion(const char *buf, linenoiseCompletions *lc) {
     
-    if (getCompletionsFn) {
-        NSArray* completions = [getCompletionsFn callWithArguments:@[[NSString stringWithCString:buf encoding:NSUTF8StringEncoding]]].toArray;
-        for (NSString* completion in completions) {
-            linenoiseAddCompletion(lc, [completion cStringUsingEncoding:NSUTF8StringEncoding]);
-        }
+    blockUntilEngineReady();
+    // TODO fix hack on how completionsFn accessed
+    NSArray* completions = [[[Planck alloc] init].completionsFn callWithArguments:@[[NSString stringWithCString:buf encoding:NSUTF8StringEncoding]]].toArray;
+    for (NSString* completion in completions) {
+        linenoiseAddCompletion(lc, [completion cStringUsingEncoding:NSUTF8StringEncoding]);
     }
+    
 }
 
 -(NSString*)ensureSlash:(NSString*)s
@@ -246,11 +265,8 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         
         
         
-        
-        [javaScriptEngineReadyCondition lock];
-        javaScriptEngineReady = YES;
-        [javaScriptEngineReadyCondition signal];
-        [javaScriptEngineReadyCondition unlock];
+        signalEngineReady();
+
 
             });
     
@@ -266,12 +282,12 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     } else {
         
         if (initPath) {
-            [self blockUntilEngineReady];
+            blockUntilEngineReady();
             [self executeScriptAtPath:initPath readEvalPrintFn:[self readEvalPrintFn]];
         }
         
         if (evalArg) {
-            [self blockUntilEngineReady];
+            blockUntilEngineReady();
             NSDate *readyTime;
             if (measureTime) {
                 readyTime = [NSDate date];
@@ -293,12 +309,12 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         }
         
         if (mainNsName) {
-        [self blockUntilEngineReady];
+            blockUntilEngineReady();
             JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:context];
             [runMainFn callWithArguments:@[mainNsName, args]];
         
         } else if (!repl && args.count > 0) {
-            [self blockUntilEngineReady];
+            blockUntilEngineReady();
             // We treat the first arg as a path to a file to be executed (it can be '-', which means stdin)
             [self executeScriptAtPath:args[0] readEvalPrintFn:[self readEvalPrintFn]];
         
@@ -349,7 +365,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     }
                 }
                 
-                [self blockUntilEngineReady];
+                blockUntilEngineReady();
                 
                 // TODO arrange to have this occur only once
                 context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
@@ -579,15 +595,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     JSValue* rv = [self getValue:@"get-completions" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!rv.isUndefined, @"Could not find the is-readable? function");
     return rv;
-}
-
--(void)blockUntilEngineReady
-{
-    [javaScriptEngineReadyCondition lock];
-    while (!javaScriptEngineReady)
-        [javaScriptEngineReadyCondition wait];
-    
-    [javaScriptEngineReadyCondition unlock];
 }
 
 @end
