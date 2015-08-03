@@ -77,7 +77,9 @@
     (filter (if allow-private?
               identity
               #(not (:private (:meta (val %)))))
-      (:defs (get (:cljs.analyzer/namespaces @planck.core/st) ns-sym)))))
+      (apply merge
+        ((juxt :defs :macros)
+          (get (:cljs.analyzer/namespaces @planck.core/st) ns-sym))))))
 
 (defn is-completion? [buffer-match-suffix candidate]
   (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
@@ -95,9 +97,9 @@
       (clj->js (if (= "" buffer-match-suffix)
                  []
                  (map #(str buffer-prefix %)
-                  (sort
-                    (filter (partial is-completion? buffer-match-suffix)
-                      all-candidates))))))))
+                   (sort
+                     (filter (partial is-completion? buffer-match-suffix)
+                       all-candidates))))))))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
