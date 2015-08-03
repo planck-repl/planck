@@ -5,6 +5,9 @@
             [cljs.tools.reader :as r]
             [cljs.analyzer :as ana]
             [cljs.repl :as repl]
+            [cljs.stacktrace :as st]
+            [cljs.source-map :as sm]
+            [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
 
 (defonce st (cljs/empty-state))
@@ -66,8 +69,30 @@
     (catch :default _
       (ana/resolve-macro-var env sym))))
 
-(defn ^:export print-prompt []
-  (print (str @current-ns "=> ")))
+(defn ^:export get-current-ns []
+  (str @current-ns))
+
+(defn completion-candidates-for-ns [ns-sym]
+  (map (comp str first)
+    (:defs (get (:cljs.analyzer/namespaces @planck.core/st) ns-sym))))
+
+(defn is-completion? [buffer-match-suffix candidate]
+  (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
+
+(defn ^:export get-completions [buffer]
+  (let [namespace-candidates (map str
+                               (keys (:cljs.analyzer/namespaces @planck.core/st)))
+        all-candidates (into
+                         (into
+                           (into #{} namespace-candidates)
+                           (completion-candidates-for-ns 'cljs.core))
+                         (completion-candidates-for-ns @current-ns))]
+    (let [buffer-match-suffix (re-find #"[a-zA-Z]*$" buffer)
+          buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+      (clj->js (map #(str buffer-prefix %)
+                 (sort
+                   (filter (partial is-completion? buffer-match-suffix)
+                     all-candidates)))))))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
@@ -98,8 +123,9 @@
      :*eval-fn*      cljs/js-eval}
     sym
     reload
-    {:macros-ns macros-ns?
-     :verbose   (:verbose @app-env)}
+    {:macros-ns  macros-ns?
+     :verbose    (:verbose @app-env)
+     :source-map true}
     (fn [res]
       #_(println "require result:" res))))
 
@@ -116,16 +142,37 @@
       {:ns         (symbol main-ns)
        :load       load
        :eval       cljs/js-eval
-       :source-map false
+       :source-map true
        :context    :expr}
       (fn [{:keys [ns value error] :as ret}]
         (apply value args)))
     nil))
 
+(defn load-core-source-maps! []
+  (when-not (get (:source-maps @planck.core/st) 'planck.core)
+    (swap! st update-in [:source-maps] merge {'planck.core
+                                              (sm/decode
+                                                (cljson->clj
+                                                  (js/PLANCK_LOAD "planck/core.js.map")))
+                                              'cljs.core
+                                              (sm/decode
+                                                (cljson->clj
+                                                  (js/PLANCK_LOAD "cljs/core.js.map")))})))
+
 (defn print-error [error]
-  (let [cause (.-cause error)]
+  (let [cause (or (.-cause error) error)]
     (println (.-message cause))
-    (println (.-stack cause))))
+    (load-core-source-maps!)
+    (let [canonical-stacktrace (st/parse-stacktrace
+                                 {}
+                                 (.-stack cause)
+                                 {:ua-product :safari}
+                                 {:output-dir "file://(/goog/..)?"})]
+      (println
+        (st/mapped-stacktrace-str
+          canonical-stacktrace
+          (or (:source-maps @planck.core/st) {})
+          nil)))))
 
 (defn ^:export read-eval-print
   ([source]
