@@ -72,6 +72,28 @@
 (defn ^:export get-current-ns []
   (str @current-ns))
 
+(defn completion-candidates-for-ns [ns-sym]
+  (map (comp str first)
+    (:defs (get (:cljs.analyzer/namespaces @planck.core/st) ns-sym))))
+
+(defn is-completion? [buffer-match-suffix candidate]
+  (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
+
+(defn ^:export get-completions [buffer]
+  (let [namespace-candidates (map str
+                               (keys (:cljs.analyzer/namespaces @planck.core/st)))
+        all-candidates (into
+                         (into
+                           (into #{} namespace-candidates)
+                           (completion-candidates-for-ns 'cljs.core))
+                         (completion-candidates-for-ns @current-ns))]
+    (let [buffer-match-suffix (re-find #"[a-zA-Z]*$" buffer)
+          buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+      (clj->js (map #(str buffer-prefix %)
+                 (sort
+                   (filter (partial is-completion? buffer-match-suffix)
+                     all-candidates)))))))
+
 (defn extension->lang [extension]
   (if (= ".js" extension)
     :js

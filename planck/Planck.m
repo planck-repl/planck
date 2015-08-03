@@ -23,6 +23,18 @@
 
 @implementation Planck
 
+static JSValue* getCompletionsFn = nil;
+
+void completion(const char *buf, linenoiseCompletions *lc) {
+    
+    if (getCompletionsFn) {
+        NSArray* completions = [getCompletionsFn callWithArguments:@[[NSString stringWithCString:buf encoding:NSUTF8StringEncoding]]].toArray;
+        for (NSString* completion in completions) {
+            linenoiseAddCompletion(lc, [completion cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+    }
+}
+
 -(NSString*)ensureSlash:(NSString*)s
 {
     if (!s) {
@@ -159,6 +171,9 @@
     
     JSValue* isReadableFn = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:context];
     NSAssert(!isReadableFn.isUndefined, @"Could not find the is-readable? function");
+    
+    getCompletionsFn = [self getValue:@"get-completions" inNamespace:@"planck.core" fromContext:context];
+    NSAssert(!getCompletionsFn.isUndefined, @"Could not find the get-completions function");
     
     context[@"PLANCK_LOAD"] = ^(NSString *path) {
         // First try in the srcPath
@@ -316,7 +331,12 @@
 
             NSString* input = nil;
             char *line = NULL;
-            linenoiseSetMultiLine(1);
+            
+            if (useLineNoise) {
+                linenoiseSetMultiLine(1);
+                linenoiseSetCompletionCallback(completion);
+            }
+            
             while(!useLineNoise || (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
                 
                 NSString* inputLine;
