@@ -19,8 +19,7 @@ int main(int argc,  char * const *argv) {
         
         // Undocumented options, used for development.
         // The defaults set here are for release use.
-        NSString* outPath;
-        BOOL bundledOut = YES;
+        NSString* outPath = nil;
         BOOL amblyServer = NO;
         BOOL plainTerminal = NO;
         
@@ -38,7 +37,6 @@ int main(int argc,  char * const *argv) {
             
             // Undocumented options used for development
             {"out", optional_argument, NULL, 'o'},
-            {"bundled-out", optional_argument, NULL, 'b'},
             {"ambly-server", optional_argument, NULL, 'a'},
             {"plain-terminal", optional_argument, NULL, 'p'},
             
@@ -93,11 +91,6 @@ int main(int argc,  char * const *argv) {
                     outPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
-                case 'b':
-                {
-                    bundledOut = YES;
-                    break;
-                }
                 case 'a':
                 {
                     amblyServer = YES;
@@ -123,12 +116,6 @@ int main(int argc,  char * const *argv) {
         if (amblyServer && !outPath) {
             printf("If running Ambly server, compiler output directory must be specified.\n");
             exit(1);
-        }
-        
-        // Implicit argument deduction
-        
-        if (outPath && bundledOut) {
-            bundledOut = NO;
         }
         
         if (!initPath && !evalArg && !mainNsName && args.count==0) {
@@ -183,7 +170,6 @@ int main(int argc,  char * const *argv) {
                                     mainNsName:mainNsName
                                           repl:repl
                                        outPath:outPath
-                                    bundledOut:bundledOut
                                    amblyServer:amblyServer
                                  plainTerminal:plainTerminal
                                           args:args];

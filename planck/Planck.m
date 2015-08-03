@@ -54,7 +54,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     mainNsName:(NSString*)mainNsName
           repl:(BOOL)repl
        outPath:(NSString*)outPath
-    bundledOut:(BOOL)bundledOut
    amblyServer:(BOOL)amblyServer
  plainTerminal:(BOOL)plainTerminal
           args:(NSArray*)args; {
@@ -93,7 +92,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         outURL = [NSURL URLWithString:outPath];
     }
     
-    if (!bundledOut) {
+    if (outPath) {
         NSFileManager* fm = [NSFileManager defaultManager];
         if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
             NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
@@ -108,10 +107,10 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
     if (!useSimpleOutput) {
-        if (bundledOut) {
-            [self setUpAmblyImportScriptInContext:contextManager.context];
-        } else {
+        if (outPath) {
             [contextManager setUpAmblyImportScript];
+        } else {
+            [self setUpAmblyImportScriptInContext:contextManager.context];
         }
     }
     
@@ -122,19 +121,19 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     
     if (useSimpleOutput) {
         NSString *mainJsString;
-        if (bundledOut) {
-            mainJsString = [self.cljsRuntime getSourceForPath:@"main.js"];
-        } else {
+        if (outPath) {
             mainJsString = [NSString stringWithContentsOfFile:mainJsFilePath encoding:NSUTF8StringEncoding error:nil];
+        } else {
+            mainJsString = [self.cljsRuntime getSourceForPath:@"main.js"];
         }
         NSAssert(mainJsString != nil, @"The main JavaScript text could not be loaded");
         [ABYUtils evaluateScript:mainJsString inContext:contextManager.context];
     } else {
-        if (bundledOut) {
-            [self bootstrapInContext:contextManager.context];
-        } else {
+        if (outPath) {
             [contextManager bootstrapWithDepsFilePath:mainJsFilePath
                                          googBasePath:[[googDirectory URLByAppendingPathComponent:@"base" isDirectory:NO] URLByAppendingPathExtension:@"js"].path];
+        } else {
+            [self bootstrapInContext:contextManager.context];
         }
     }
     if (measureTime) {
@@ -182,15 +181,16 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         
         NSString* rv = [NSString stringWithContentsOfFile:fullPath
                                                  encoding:NSUTF8StringEncoding error:nil];
-        // Now try in the outPath
+        
+        // Now try to load the file from the output
         if (!rv) {
-            if (bundledOut) {
-                rv = [self.cljsRuntime getSourceForPath:path];
-            } else {
+            if (outPath) {
                 fullPath = [NSURL URLWithString:path
                                   relativeToURL:[NSURL URLWithString:outPath]].path;
                 rv = [NSString stringWithContentsOfFile:fullPath
                                                encoding:NSUTF8StringEncoding error:nil];
+            } else {
+                rv = [self.cljsRuntime getSourceForPath:path];
             }
         }
         

@@ -9,7 +9,6 @@
     mainNsName:(NSString*)mainNsName
           repl:(BOOL)repl
        outPath:(NSString*)outPath
-    bundledOut:(BOOL)bundledOut
    amblyServer:(BOOL)amblyServer
  plainTerminal:(BOOL)plainTerminal
           args:(NSArray*)args;
