@@ -89,10 +89,12 @@
                          (completion-candidates-for-ns @current-ns))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z]*$" buffer)
           buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
-      (clj->js (map #(str buffer-prefix %)
-                 (sort
-                   (filter (partial is-completion? buffer-match-suffix)
-                     all-candidates)))))))
+      (clj->js (if (= "" buffer-match-suffix)
+                 []
+                 (map #(str buffer-prefix %)
+                  (sort
+                    (filter (partial is-completion? buffer-match-suffix)
+                      all-candidates))))))))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
