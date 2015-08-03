@@ -16,16 +16,11 @@ Head over to [planck.fikesfarm.com](http://planck.fikesfarm.com).
 ## Development 
 
 1. In the `plank-cljs` directory, do `script/build`
-2. Do a `pod install` in the top level.
-3. `open planck.xcworkspace`
+2. `open planck.xcodeproj`
 
 ### Bundling
 
 For development, things are setup so that the on-disk ClojureScript compiler output is used (the `-o` or `--out` parameter). To instead have the output bundled into the binary, run `script/bundle` and then run Planck without the `--out` option.
-
-### Ambly
-
-In order to have Planck launch an Ambly server (so that you can connect to it with an Ambly REPL for development), pass the `--ambly-server` option to Planck.
 
 # License
 

@@ -12,7 +12,8 @@
 		ED72D3D11B57D8FF00BF6EA2 /* Planck.m in Sources */ = {isa = PBXBuildFile; fileRef = ED72D3D01B57D8FF00BF6EA2 /* Planck.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
-		F55D335E4F75649627A52AC2 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C67726A927E96E71200D17FC /* libPods.a */; };
+		EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */; };
+		EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,9 +29,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		37B72F5B56BF19E35DA7188F /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		C67726A927E96E71200D17FC /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		CDF90590CB4E236DA7B7C153 /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		ED4919571B6EB9520084F9C5 /* linenoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linenoise.c; path = planck/linenoise/linenoise.c; sourceTree = "<group>"; };
 		ED4919581B6EB9520084F9C5 /* linenoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = linenoise.h; path = planck/linenoise/linenoise.h; sourceTree = "<group>"; };
 		ED51CF741B66CC6200200417 /* CljsRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CljsRuntime.h; sourceTree = "<group>"; };
@@ -40,6 +39,10 @@
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABYContextManager.h; sourceTree = "<group>"; };
+		EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABYContextManager.m; sourceTree = "<group>"; };
+		EDEEDDA21B6FE2D000DF10C1 /* ABYUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABYUtils.h; sourceTree = "<group>"; };
+		EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABYUtils.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,22 +51,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */,
-				F55D335E4F75649627A52AC2 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3179F541CE42B352129ED19F /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				CDF90590CB4E236DA7B7C153 /* Pods.debug.xcconfig */,
-				37B72F5B56BF19E35DA7188F /* Pods.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		35A6B03D755C734C71B409B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,7 +81,6 @@
 				ED9C148E1B57C21E0092866D /* planck */,
 				ED4919561B6EB9180084F9C5 /* linenoise */,
 				ED9C148D1B57C21E0092866D /* Products */,
-				3179F541CE42B352129ED19F /* Pods */,
 				35A6B03D755C734C71B409B1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -104,6 +96,10 @@
 		ED9C148E1B57C21E0092866D /* planck */ = {
 			isa = PBXGroup;
 			children = (
+				EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */,
+				EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */,
+				EDEEDDA21B6FE2D000DF10C1 /* ABYUtils.h */,
+				EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */,
 				ED9C148F1B57C21E0092866D /* main.m */,
 				ED72D3CF1B57D8FF00BF6EA2 /* Planck.h */,
 				ED72D3D01B57D8FF00BF6EA2 /* Planck.m */,
@@ -120,11 +116,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = ED9C14931B57C21E0092866D /* Build configuration list for PBXNativeTarget "planck" */;
 			buildPhases = (
-				50E7D5889101888C95568B66 /* Check Pods Manifest.lock */,
 				ED9C14881B57C21E0092866D /* Sources */,
 				ED9C14891B57C21E0092866D /* Frameworks */,
 				ED9C148A1B57C21E0092866D /* CopyFiles */,
-				E285E4D9C8F71B0E5DB617E3 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -166,45 +160,14 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		50E7D5889101888C95568B66 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		E285E4D9C8F71B0E5DB617E3 /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		ED9C14881B57C21E0092866D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
 				ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */,
+				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				ED72D3D11B57D8FF00BF6EA2 /* Planck.m in Sources */,
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,
 				ED9C14901B57C21E0092866D /* main.m in Sources */,
@@ -293,7 +256,6 @@
 		};
 		ED9C14941B57C21E0092866D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CDF90590CB4E236DA7B7C153 /* Pods.debug.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -301,7 +263,6 @@
 		};
 		ED9C14951B57C21E0092866D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 37B72F5B56BF19E35DA7188F /* Pods.release.xcconfig */;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
