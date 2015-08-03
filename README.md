@@ -8,22 +8,24 @@ Head over to [planck.fikesfarm.com](http://planck.fikesfarm.com).
 
 # Building 
 
-1. Clone and build [ClojureScript master](https://github.com/clojure/clojurescript) (script/build).
-2. Set the `project.clj` file so that it matches the ClojureScript master build number.
-3. In the `plank-cljs` directory, do `script/build`
-4. Do a `pod install` in the top level.
-5. `open planck.xcworkspace`
-6. Edit the scheme to pass in src, out, and repl arguments as below and then run it via Xcode
+## Release Build
 
-```
--s $PROJECT_DIR/planck-cljs/src
--o $PROJECT_DIR/planck-cljs/out
--r
-```
+1. `./build.sh`
+2. Resulting binary is in `build/Release/planck`
 
-In order to work on it using Ambly, set `runAmblyReplServer` to `YES` in the `Planck` class and then `script/repl`.
+## Development 
 
-In order to bundle things up for standalone execution, `script/bundle` and then build it with `useBundledOutput` set to `YES` in the `Planck` class.
+1. In the `plank-cljs` directory, do `script/build`
+2. Do a `pod install` in the top level.
+3. `open planck.xcworkspace`
+
+### Bundling
+
+For development, things are setup so that the on-disk ClojureScript compiler output is used (the `-o` or `--out` parameter). To instead have the output bundled into the binary, run `script/bundle` and then run Planck without the `--out` option.
+
+### Ambly
+
+In order to have Planck launch an Ambly server (so that you can connect to it with an Ambly REPL for development), pass the `--ambly-server` option to Planck.
 
 # License
 
