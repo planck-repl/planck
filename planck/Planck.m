@@ -1,9 +1,8 @@
 #include <stdio.h>
 
 #import "Planck.h"
-#import "ABYUtils.h"
 #import "ABYContextManager.h"
-#import "ABYServer.h"
+#import "ABYUtils.h"
 #import "CljsRuntime.h"
 #include "linenoise.h"
 
@@ -77,7 +76,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     mainNsName:(NSString*)mainNsName
           repl:(BOOL)repl
        outPath:(NSString*)outPath
-   amblyServer:(BOOL)amblyServer
  plainTerminal:(BOOL)plainTerminal
           args:(NSArray*)args; {
     
@@ -93,11 +91,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     initPath = [self fullyQualify:initPath];
     srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
     outPath = [self ensureSlash:[self fullyQualify:outPath]];
-        
-    if (amblyServer) {
-        printf("Connect with Ambly by using planck-cljs/script/repl\n");
-        fflush(stdout);
-    }
     
     self.cljsRuntime = [[CljsRuntime alloc] init];
     
@@ -121,7 +114,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     javaScriptEngineReady = NO;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
-    
     
     contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                            compilerOutputDirectory:outURL];
@@ -270,17 +262,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 
             });
     
-    if (amblyServer) {
-        ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
-                                           compilerOutputDirectory:outURL];
-        [replServer startListening];
-        
-        BOOL shouldKeepRunning = YES;
-        NSRunLoop *theRL = [NSRunLoop currentRunLoop];
-        while (shouldKeepRunning && [theRL runMode:NSDefaultRunLoopMode beforeDate:[NSDate     distantFuture]]);
-        
-    } else {
-        
+    
         if (initPath) {
             blockUntilEngineReady();
             [self executeScriptAtPath:initPath readEvalPrintFn:[self readEvalPrintFn]];
@@ -424,7 +406,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         }
     }
 
-}
+
 
 -(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary
 {

@@ -20,7 +20,6 @@ int main(int argc,  char * const *argv) {
         // Undocumented options, used for development.
         // The defaults set here are for release use.
         NSString* outPath = nil;
-        BOOL amblyServer = NO;
         BOOL plainTerminal = NO;
         
         int option = -1;
@@ -91,11 +90,6 @@ int main(int argc,  char * const *argv) {
                     outPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
-                case 'a':
-                {
-                    amblyServer = YES;
-                    break;
-                }
                 case 'p':
                 {
                     plainTerminal = YES;
@@ -112,11 +106,6 @@ int main(int argc,  char * const *argv) {
         }
         
         // Argument validation
-        
-        if (amblyServer && !outPath) {
-            printf("If running Ambly server, compiler output directory must be specified.\n");
-            exit(1);
-        }
         
         if (!initPath && !evalArg && !mainNsName && args.count==0) {
             repl = YES;
@@ -170,7 +159,6 @@ int main(int argc,  char * const *argv) {
                                     mainNsName:mainNsName
                                           repl:repl
                                        outPath:outPath
-                                   amblyServer:amblyServer
                                  plainTerminal:plainTerminal
                                           args:args];
             }
