@@ -1,11 +1,3 @@
-//
-//  Planck.m
-//  planck
-//
-//  Created by Mike Fikes on 7/16/15.
-//  Copyright (c) 2015 FikesFarm. All rights reserved.
-//
-
 #include <stdio.h>
 
 #import "Planck.h"
@@ -55,13 +47,20 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     return path;
 }
 
--(void)runInit:(NSString*)initPath eval:(NSString*)evalArg srcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose mainNsName:(NSString*)mainNsName repl:(BOOL)repl args:(NSArray*)args {
+-(void)runInit:(NSString*)initPath
+          eval:(NSString*)evalArg
+       srcPath:(NSString*)srcPath
+       verbose:(BOOL)verbose
+    mainNsName:(NSString*)mainNsName
+          repl:(BOOL)repl
+       outPath:(NSString*)outPath
+    bundledOut:(BOOL)bundledOut
+   amblyServer:(BOOL)amblyServer
+ plainTerminal:(BOOL)plainTerminal
+          args:(NSArray*)args; {
     
-    BOOL useBundledOutput = YES;
     BOOL useSimpleOutput = NO;
-    BOOL runAmblyReplServer = NO;
     BOOL measureTime = NO;
-    BOOL useLineNoise = YES; // Turn if off if in Xcode
     
     NSDate *launchTime;
     if (measureTime) {
@@ -75,14 +74,14 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     
     // For good UX, we display the first prompt immediately if we can
     BOOL initialPromptDisplayed = NO;
-    if (!useLineNoise && !initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
+    if (plainTerminal && !initPath && !evalArg && !mainNsName && (repl && args.count == 0)) {
         printf("cljs.user=> ");
         fflush(stdout);
         initialPromptDisplayed = YES;
     }
     
-    if (runAmblyReplServer) {
-        printf("Connect using script/repl\n");
+    if (amblyServer) {
+        printf("Connect with Ambly by using planck-cljs/script/repl\n");
         fflush(stdout);
     }
     
@@ -94,7 +93,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         outURL = [NSURL URLWithString:outPath];
     }
     
-    if (!useBundledOutput) {
+    if (!bundledOut) {
         NSFileManager* fm = [NSFileManager defaultManager];
         if (![fm fileExistsAtPath:outURL.path isDirectory:nil]) {
             NSLog(@"ClojureScript compiler output directory not found at \"%@\".", outURL.path);
@@ -109,7 +108,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     [contextManager setUpConsoleLog];
     [contextManager setupGlobalContext];
     if (!useSimpleOutput) {
-        if (useBundledOutput) {
+        if (bundledOut) {
             [self setUpAmblyImportScriptInContext:contextManager.context];
         } else {
             [contextManager setUpAmblyImportScript];
@@ -123,7 +122,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     
     if (useSimpleOutput) {
         NSString *mainJsString;
-        if (useBundledOutput) {
+        if (bundledOut) {
             mainJsString = [self.cljsRuntime getSourceForPath:@"main.js"];
         } else {
             mainJsString = [NSString stringWithContentsOfFile:mainJsFilePath encoding:NSUTF8StringEncoding error:nil];
@@ -131,7 +130,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         NSAssert(mainJsString != nil, @"The main JavaScript text could not be loaded");
         [ABYUtils evaluateScript:mainJsString inContext:contextManager.context];
     } else {
-        if (useBundledOutput) {
+        if (bundledOut) {
             [self bootstrapInContext:contextManager.context];
         } else {
             [contextManager bootstrapWithDepsFilePath:mainJsFilePath
@@ -185,7 +184,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                                                  encoding:NSUTF8StringEncoding error:nil];
         // Now try in the outPath
         if (!rv) {
-            if (useBundledOutput) {
+            if (bundledOut) {
                 rv = [self.cljsRuntime getSourceForPath:path];
             } else {
                 fullPath = [NSURL URLWithString:path
@@ -246,7 +245,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     [context evaluateScript:@"goog.provide('cljs.user')"];
     [context evaluateScript:@"goog.require('cljs.core')"];
     
-    if (runAmblyReplServer) {
+    if (amblyServer) {
         ABYServer* replServer = [[ABYServer alloc] initWithContext:contextManager.context
                                            compilerOutputDirectory:outURL];
         [replServer startListening];
@@ -308,13 +307,13 @@ void completion(const char *buf, linenoiseCompletions *lc) {
             
             [self setPrintFnsInContext:contextManager.context];
             
-            if (!initialPromptDisplayed && !useLineNoise) {
+            if (!initialPromptDisplayed && plainTerminal) {
                 printf("cljs.user=> ");
                 fflush(stdout);
             }
             
             NSString* historyFile = nil;
-            if (useLineNoise) {
+            if (!plainTerminal) {
                 char* homedir = getenv("HOME");
                 if (homedir) {
                     historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
@@ -325,23 +324,23 @@ void completion(const char *buf, linenoiseCompletions *lc) {
             // Set up linenoise prompt
             NSString* currentNs = @"cljs.user";
             NSString* currentPrompt = @"";
-            if (useLineNoise) {
+            if (!plainTerminal) {
                 currentPrompt = [self formPrompt:currentNs isSecondary:NO];
             }
 
             NSString* input = nil;
             char *line = NULL;
             
-            if (useLineNoise) {
+            if (!plainTerminal) {
                 linenoiseSetMultiLine(1);
                 linenoiseSetCompletionCallback(completion);
             }
             
-            while(!useLineNoise || (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
+            while(plainTerminal || (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
                 
                 NSString* inputLine;
                 
-                if (useLineNoise) {
+                if (!plainTerminal) {
                     inputLine = [NSString stringWithCString:line encoding:NSUTF8StringEncoding];
                     free(line);
                 } else {
@@ -355,7 +354,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                 
                 if (input == nil) {
                     input = inputLine;
-                    if (useLineNoise) {
+                    if (!plainTerminal) {
                         currentPrompt = [self formPrompt:currentNs isSecondary:YES];
                     }
                 } else {
@@ -365,7 +364,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                 if ([input isEqualToString:@":cljs/quit"]) {
                     break;
                 } else {
-                    if (useLineNoise) {
+                    if (!plainTerminal) {
                         linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
                         if (historyFile) {
                             linenoiseHistorySave([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -381,7 +380,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     if (![trimmedString isEqualToString:@""]) {
                         [readEvalPrintFn callWithArguments:@[input]];
                     } else {
-                        if (!useLineNoise) {
+                        if (plainTerminal) {
                             printf("\n");
                         }
                     }
@@ -389,7 +388,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                     input = nil;
                     
                     currentNs = [getCurrentNsFn callWithArguments:@[]].toString;
-                    if (useLineNoise) {
+                    if (!plainTerminal) {
                         currentPrompt = [self formPrompt:currentNs isSecondary:NO];
                     } else {
                         printf("%s", [currentNs cStringUsingEncoding:NSUTF8StringEncoding]);

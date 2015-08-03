@@ -1,43 +1,51 @@
-//
-//  main.m
-//  planck
-//
-//  Created by Mike Fikes on 7/16/15.
-//  Copyright (c) 2015 FikesFarm. All rights reserved.
-//
-
 #import <Foundation/Foundation.h>
 #include <getopt.h>
 #import "Planck.h"
+
+#define PLANCK_VERSION "1.3"
 
 int main(int argc,  char * const *argv) {
     
     @autoreleasepool {
         
+        // Documented options
         BOOL help = NO;
-        NSString* initPath;
-        NSString* evalArg;
-        NSString* srcArg = @"src";
-        NSString* outArg;
-        NSString* mainNsName;
-        BOOL repl = argc == 1;
+        NSString* initPath = nil;
+        NSString* evalArg = nil;
+        NSString* srcPath = @"src";
+        NSString* mainNsName = nil;
+        BOOL repl = NO;
         BOOL verbose = NO;
+        
+        // Undocumented options, used for development.
+        // The defaults set here are for release use.
+        NSString* outPath;
+        BOOL bundledOut = YES;
+        BOOL amblyServer = NO;
+        BOOL plainTerminal = NO;
         
         int option = -1;
         static struct option longopts[] =
         {
+            // Documented options
             {"help", no_argument, NULL, 'h'},
             {"init", optional_argument, NULL, 'i'},
             {"eval", optional_argument, NULL, 'e'},
             {"src", optional_argument, NULL, 's'},
-            {"out", optional_argument, NULL, 'o'},
             {"verbose", optional_argument, NULL, 'v'},
             {"main", optional_argument, NULL, 'm'},
             {"repl", optional_argument, NULL, 'r'},
+            
+            // Undocumented options used for development
+            {"out", optional_argument, NULL, 'o'},
+            {"bundled-out", optional_argument, NULL, 'b'},
+            {"ambly-server", optional_argument, NULL, 'a'},
+            {"plain-terminal", optional_argument, NULL, 'p'},
+            
             {0, 0, 0, 0}
         };
         
-        const char *shortopts = "h?i:e:s:o:vm:r";
+        const char *shortopts = "h?i:e:s:vm:ro:bap";
         while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
             switch (option) {
                 case '?':
@@ -62,12 +70,7 @@ int main(int argc,  char * const *argv) {
                 }
                 case 's':
                 {
-                    srcArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
-                    break;
-                }
-                case 'o':
-                {
-                    outArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                    srcPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                     break;
                 }
                 case 'v':
@@ -85,6 +88,26 @@ int main(int argc,  char * const *argv) {
                     repl = YES;
                     break;
                 }
+                case 'o':
+                {
+                    outPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                    break;
+                }
+                case 'b':
+                {
+                    bundledOut = YES;
+                    break;
+                }
+                case 'a':
+                {
+                    amblyServer = YES;
+                    break;
+                }
+                case 'p':
+                {
+                    plainTerminal = YES;
+                    break;
+                }
             }
         }
         argc -= optind;
@@ -95,14 +118,34 @@ int main(int argc,  char * const *argv) {
             [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
         }
         
-        if (verbose) {
-            printf("planck v1.2\n\n");
+        // Argument validation
+        
+        if (amblyServer && !outPath) {
+            printf("If running Ambly server, compiler output directory must be specified.\n");
+            exit(1);
         }
         
+        // Implicit argument deduction
+        
+        if (outPath && bundledOut) {
+            bundledOut = NO;
+        }
+        
+        if (!initPath && !evalArg && !mainNsName && args.count==0) {
+            repl = YES;
+        }
+
+        // Process arguments
+        
+        if (verbose) {
+            printf("planck %s\n\n", PLANCK_VERSION);
+        }
+    
         if (mainNsName && repl) {
             printf("Only one main-opt can be specified.");
         } else {
             if (help) {
+                printf("planck %s", PLANCK_VERSION);
                 printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
                 printf("\n");
                 printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
@@ -120,6 +163,14 @@ int main(int argc,  char * const *argv) {
                 printf("    -                   Run a script from standard input\n");
                 printf("    -h, -?, --help      Print this help message and exit\n");
                 printf("\n");
+                printf("  operation:\n");
+                printf("\n");
+                printf("    - Enters the cljs.user namespace\n");
+                printf("    - Binds *command-line-args* to a seq of strings containing command line\n");
+                printf("      args that appear after any main option\n");
+                printf("    - Runs all init options in order\n");
+                printf("    - Calls a -main function or runs a repl or script if requested\n");
+                printf("\n");
                 printf("  The init options may be repeated and mixed freely, but must appear before\n");
                 printf("  any main option.\n");
                 printf("\n");
@@ -127,11 +178,14 @@ int main(int argc,  char * const *argv) {
             } else {
                 [[[Planck alloc] init] runInit:initPath
                                           eval:evalArg
-                                       srcPath:srcArg
-                                       outPath:outArg
+                                       srcPath:srcPath
                                        verbose:verbose
                                     mainNsName:mainNsName
                                           repl:repl
+                                       outPath:outPath
+                                    bundledOut:bundledOut
+                                   amblyServer:amblyServer
+                                 plainTerminal:plainTerminal
                                           args:args];
             }
         }
