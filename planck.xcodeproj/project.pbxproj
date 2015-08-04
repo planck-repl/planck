@@ -47,10 +47,10 @@
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABYContextManager.h; sourceTree = "<group>"; };
-		EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABYContextManager.m; sourceTree = "<group>"; };
-		EDEEDDA21B6FE2D000DF10C1 /* ABYUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABYUtils.h; sourceTree = "<group>"; };
-		EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABYUtils.m; sourceTree = "<group>"; };
+		EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABYContextManager.h; path = ambly/ABYContextManager.h; sourceTree = "<group>"; };
+		EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABYContextManager.m; path = ambly/ABYContextManager.m; sourceTree = "<group>"; };
+		EDEEDDA21B6FE2D000DF10C1 /* ABYUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABYUtils.h; path = ambly/ABYUtils.h; sourceTree = "<group>"; };
+		EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABYUtils.m; path = ambly/ABYUtils.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
