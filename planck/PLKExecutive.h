@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-@interface Planck : NSObject
+@interface PLKExecutive : NSObject
 
 -(void)runInit:(NSString*)initPath
           eval:(NSString*)evalArg
