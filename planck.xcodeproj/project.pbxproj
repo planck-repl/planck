@@ -128,10 +128,10 @@
 				ED1CE20E1B70464F0096585B /* PLKRepl.m */,
 				ED1CE2171B704FF10096585B /* PLKClojureScriptEngine.h */,
 				ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */,
-				ED51CF741B66CC6200200417 /* CljsRuntime.h */,
-				ED51CF751B66D64D00200417 /* CljsRuntime.m */,
 				E7FE09C11B713C70009D090C /* PLKScript.h */,
 				E7FE09C21B713C70009D090C /* PLKScript.m */,
+				ED51CF741B66CC6200200417 /* CljsRuntime.h */,
+				ED51CF751B66D64D00200417 /* CljsRuntime.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
