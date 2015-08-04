@@ -1,33 +1,12 @@
 #import "PLKClojureScriptEngine.h"
 #import "ABYUtils.h"
 #import "ABYContextManager.h"
-
 #import "CljsRuntime.h"
-
-static NSCondition* javaScriptEngineReadyCondition;
-static BOOL javaScriptEngineReady;
-
-
-void blockUntilEngineReady()
-{
-    [javaScriptEngineReadyCondition lock];
-    while (!javaScriptEngineReady)
-        [javaScriptEngineReadyCondition wait];
-    
-    [javaScriptEngineReadyCondition unlock];
-}
-
-void signalEngineReady()
-{
-    [javaScriptEngineReadyCondition lock];
-    javaScriptEngineReady = YES;
-    [javaScriptEngineReadyCondition signal];
-    [javaScriptEngineReadyCondition unlock];
-}
-
 
 @interface PLKClojureScriptEngine()
 
+@property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
+@property (nonatomic) BOOL javaScriptEngineReady;
 @property (nonatomic, strong) JSContext* context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) CljsRuntime* cljsRuntime;
@@ -36,13 +15,36 @@ void signalEngineReady()
 
 @implementation PLKClojureScriptEngine
 
+-(void)initalizeEngineReadyConditionVars
+{
+    self.javaScriptEngineReadyCondition = [[NSCondition alloc] init];
+    self.javaScriptEngineReady = NO;
+}
+
+-(void)blockUntilEngineReady
+{
+    [self.javaScriptEngineReadyCondition lock];
+    while (!self.javaScriptEngineReady)
+        [self.javaScriptEngineReadyCondition wait];
+    
+    [self.javaScriptEngineReadyCondition unlock];
+}
+
+-(void)signalEngineReady
+{
+    [self.javaScriptEngineReadyCondition lock];
+    self.javaScriptEngineReady = YES;
+    [self.javaScriptEngineReadyCondition signal];
+    [self.javaScriptEngineReadyCondition unlock];
+}
 
 -(void)startInitializationWithSrcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose
 {
+    // By default we expect :none, but this can be set if :simple
     
     BOOL useSimpleOutput = NO;
     
-    self.cljsRuntime = [[CljsRuntime alloc] init];
+    // Initialize out path / URL
     
     NSURL* outURL = [NSURL URLWithString:@"out"];
     
@@ -60,13 +62,19 @@ void signalEngineReady()
         }
     }
     
-    javaScriptEngineReadyCondition = [[NSCondition alloc] init];
-    javaScriptEngineReady = NO;
+    // ... and prepare for the "bundled" out location
+
+    self.cljsRuntime = [[CljsRuntime alloc] init];
+
+    // Now, start initializing JavaScriptCore in a background thread and return
+    
+    [self initalizeEngineReadyConditionVars];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
         
         self.contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                  compilerOutputDirectory:outURL];
+        
         [self.contextManager setUpConsoleLog];
         [self.contextManager setupGlobalContext];
         if (!useSimpleOutput) {
@@ -120,6 +128,7 @@ void signalEngineReady()
                                             @"verbose": @(verbose)}]];
         
         self.context[@"PLANCK_LOAD"] = ^(NSString *path) {
+            
             // First try in the srcPath
             
             NSString* fullPath = [NSURL URLWithString:path
@@ -186,22 +195,24 @@ void signalEngineReady()
         };
         
         
-        // We presume we are not going to be in a REPL, so set it to print non-nil things.
+        // We presume we are not going to be in a REPL, so set it to print only non-nil things.
+        
         self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
             if (![message isEqualToString:@"nil"]) {
                 printf("%s", message.UTF8String);
             }
         };
         
-        
         [self setPrintFnsInContext:self.contextManager.context];
         
         // Set up the cljs.user namespace
+        
         [self.context evaluateScript:@"goog.provide('cljs.user')"];
         [self.context evaluateScript:@"goog.require('cljs.core')"];
         
-        signalEngineReady();
+        // Go for launch!
         
+        [self signalEngineReady];
         
     });
 }
@@ -231,6 +242,9 @@ void signalEngineReady()
              stringByReplacingOccurrencesOfString:@"!" withString:@"_BANG_"]
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
 }
+
+// This implementation is just like Ambly's apart from the canonicalization "goog/../"
+// and delegation to CljsRuntime
 
 -(void)setUpAmblyImportScriptInContext:(JSContextRef)context
 {
@@ -273,6 +287,8 @@ void signalEngineReady()
                                    inContext:context];
     
 }
+
+// This implementation is just like Ambly's apart from the delegation to CljsRuntime
 
 -(void)bootstrapInContext:(JSContextRef)context
 {
@@ -317,65 +333,43 @@ void signalEngineReady()
     [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
 }
 
--(JSValue*)readEvalPrintFn {
-    JSValue* rv = [self getValue:@"read-eval-print" inNamespace:@"planck.core" fromContext:self.context];
-    NSAssert(!rv.isUndefined, @"Could not find the read-eval-print function");
-    return rv;
-}
-
--(JSValue*)getCurrentNsFn {
-    JSValue* rv = [self getValue:@"get-current-ns" inNamespace:@"planck.core" fromContext:self.context];
-    NSAssert(!rv.isUndefined, @"Could not find the get-current-ns function");
-    return rv;
-}
-
--(JSValue*)isReadableFn {
-    JSValue* rv = [self getValue:@"is-readable?" inNamespace:@"planck.core" fromContext:self.context];
-    NSAssert(!rv.isUndefined, @"Could not find the is-readable? function");
-    return rv;
-}
-
--(JSValue*)completionsFn {
-    JSValue* rv = [self getValue:@"get-completions" inNamespace:@"planck.core" fromContext:self.context];
-    NSAssert(!rv.isUndefined, @"Could not find the is-readable? function");
+-(JSValue*)getFunction:(NSString*)name
+{
+    [self blockUntilEngineReady];
+    JSValue* rv = [self getValue:name inNamespace:@"planck.core" fromContext:self.context];
+    NSAssert(!rv.isUndefined, name);
     return rv;
 }
 
 -(void)executeClojureScript:(NSString*)source expression:(BOOL)expression
 {
-    blockUntilEngineReady();
-    [[self readEvalPrintFn] callWithArguments:@[source, @(expression)]];
+    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression)]];
 }
 
 -(void)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
 {
-    blockUntilEngineReady();
-    JSValue* runMainFn = [self getValue:@"run-main" inNamespace:@"planck.core" fromContext:self.context];
-    NSAssert(!runMainFn.isUndefined, @"Could not find the run-main function");
-    [runMainFn callWithArguments:@[mainNsName, args]];
+    [[self getFunction:@"run-main"] callWithArguments:@[mainNsName, args]];
 }
 
 -(BOOL)isReadable:(NSString*)expression
 {
-    blockUntilEngineReady();
-    return [self.isReadableFn callWithArguments:@[expression]].toBool;
+    return [[self getFunction:@"is-readable?"] callWithArguments:@[expression]].toBool;
 }
 
 -(NSString*)getCurrentNs
 {
-    blockUntilEngineReady();
-    return [self.getCurrentNsFn callWithArguments:@[]].toString;
+    return [[self getFunction:@"get-current-ns"] callWithArguments:@[]].toString;
 }
 
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer
 {
-    blockUntilEngineReady();
-    return [self.completionsFn callWithArguments:@[buffer]].toArray;
+    return [[self getFunction:@"get-completions"] callWithArguments:@[buffer]].toArray;
 }
 
 -(void)setAllowPrintNils
 {
-    blockUntilEngineReady();
+    [self blockUntilEngineReady];
+    
     self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
         printf("%s", message.UTF8String);
     };
