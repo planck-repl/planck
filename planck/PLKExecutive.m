@@ -80,7 +80,9 @@
 
 -(void)executeScript:(PLKScript *)script
 {
-    [self.clojureScriptEngine executeClojureScript:script.content expression:script.expression];
+    [self.clojureScriptEngine executeClojureScript:script.content
+                                        expression:script.expression
+                                printNilExpression:script.printNilExpression];
 }
 
 @end

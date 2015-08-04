@@ -62,7 +62,8 @@
             }
             case 'e':
             {
-                [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
+                [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]
+                                                              printIfNil:NO]];
                 break;
             }
             case 's':

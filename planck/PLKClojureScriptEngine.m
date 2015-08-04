@@ -194,13 +194,8 @@
             fflush(stderr);
         };
         
-        
-        // We presume we are not going to be in a REPL, so set it to print only non-nil things.
-        
         self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            if (![message isEqualToString:@"nil"]) {
-                printf("%s", message.UTF8String);
-            }
+            printf("%s", message.UTF8String);
         };
         
         [self setPrintFnsInContext:self.contextManager.context];
@@ -341,9 +336,9 @@
     return rv;
 }
 
--(void)executeClojureScript:(NSString*)source expression:(BOOL)expression
+-(void)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression;
 {
-    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression)]];
+    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression), @(printNilExpression)]];
 }
 
 -(void)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
@@ -364,17 +359,6 @@
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer
 {
     return [[self getFunction:@"get-completions"] callWithArguments:@[buffer]].toArray;
-}
-
--(void)setAllowPrintNils
-{
-    [self blockUntilEngineReady];
-    
-    self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-        printf("%s", message.UTF8String);
-    };
-    
-    [self setPrintFnsInContext:self.contextManager.context];
 }
 
 @end

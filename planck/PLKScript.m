@@ -10,6 +10,7 @@
     }
     
     _expression = NO;
+    _printNilExpression = NO;
     _content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
     
     if (_content == nil) {
@@ -20,7 +21,7 @@
     return self;
 }
 
-- (instancetype)initWithExpression:(NSString *)expression
+- (instancetype)initWithExpression:(NSString *)expression printIfNil:(BOOL)printIfNil
 {
     self = [super init];
     if (self == nil) {
@@ -28,6 +29,7 @@
     }
     
     _expression = YES;
+    _printNilExpression = printIfNil;
     _content = [expression copy];
     
     return self;
@@ -41,6 +43,7 @@
     }
     
     _expression = NO;
+    _printNilExpression = NO;
     
     NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
     NSData *inputData = [input readDataToEndOfFile];
