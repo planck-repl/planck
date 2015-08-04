@@ -66,8 +66,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         linenoiseSetCompletionCallback(completion);
     }
     
-    BOOL clojureScriptEnginePrintsNils = NO;
-    
     NSString* input = nil;
     char *line = NULL;
     while(plainTerminal ||
@@ -87,11 +85,6 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         } else {
             inputLine = [NSString stringWithCString:line encoding:NSUTF8StringEncoding];
             free(line);
-        }
-                
-        if (!clojureScriptEnginePrintsNils) {
-            [clojureScriptEngine setAllowPrintNils];
-            clojureScriptEnginePrintsNils = YES;
         }
         
         // Accumulate input lines
@@ -127,7 +120,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
             NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
             NSString *trimmedString = [input stringByTrimmingCharactersInSet:charSet];
             if (![trimmedString isEqualToString:@""]) {
-                [clojureScriptEngine executeClojureScript:input expression:YES];
+                [clojureScriptEngine executeClojureScript:input expression:YES printNilExpression:YES];
             } else {
                 if (plainTerminal) {
                     printf("\n");
