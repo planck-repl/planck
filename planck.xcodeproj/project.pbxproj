@@ -12,8 +12,8 @@
 		ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2111B7047B70096585B /* PLKCommandLine.m */; };
 		ED1CE2161B7049670096585B /* PLKExecutive.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2151B7049670096585B /* PLKExecutive.m */; };
 		ED1CE2191B704FF10096585B /* PLKClojureScriptEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */; };
+		ED1CE21C1B7186B10096585B /* PLKBundledOut.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE21B1B7186B10096585B /* PLKBundledOut.m */; };
 		ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */ = {isa = PBXBuildFile; fileRef = ED4919571B6EB9520084F9C5 /* linenoise.c */; settings = {COMPILER_FLAGS = "-w"; }; };
-		ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */ = {isa = PBXBuildFile; fileRef = ED51CF751B66D64D00200417 /* CljsRuntime.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
 		EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */; };
@@ -43,10 +43,10 @@
 		ED1CE2151B7049670096585B /* PLKExecutive.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKExecutive.m; sourceTree = "<group>"; };
 		ED1CE2171B704FF10096585B /* PLKClojureScriptEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKClojureScriptEngine.h; sourceTree = "<group>"; };
 		ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKClojureScriptEngine.m; sourceTree = "<group>"; };
+		ED1CE21A1B7186B10096585B /* PLKBundledOut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKBundledOut.h; sourceTree = "<group>"; };
+		ED1CE21B1B7186B10096585B /* PLKBundledOut.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKBundledOut.m; sourceTree = "<group>"; };
 		ED4919571B6EB9520084F9C5 /* linenoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linenoise.c; path = planck/linenoise/linenoise.c; sourceTree = "<group>"; };
 		ED4919581B6EB9520084F9C5 /* linenoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = linenoise.h; path = planck/linenoise/linenoise.h; sourceTree = "<group>"; };
-		ED51CF741B66CC6200200417 /* CljsRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CljsRuntime.h; sourceTree = "<group>"; };
-		ED51CF751B66D64D00200417 /* CljsRuntime.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CljsRuntime.m; sourceTree = "<group>"; };
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -130,8 +130,8 @@
 				ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */,
 				E7FE09C11B713C70009D090C /* PLKScript.h */,
 				E7FE09C21B713C70009D090C /* PLKScript.m */,
-				ED51CF741B66CC6200200417 /* CljsRuntime.h */,
-				ED51CF751B66D64D00200417 /* CljsRuntime.m */,
+				ED1CE21A1B7186B10096585B /* PLKBundledOut.h */,
+				ED1CE21B1B7186B10096585B /* PLKBundledOut.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
@@ -194,7 +194,6 @@
 			files = (
 				ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */,
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
-				ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				E7FE09C31B713C70009D090C /* PLKScript.m in Sources */,
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,
@@ -202,6 +201,7 @@
 				ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */,
 				ED1CE2191B704FF10096585B /* PLKClojureScriptEngine.m in Sources */,
 				ED1CE2161B7049670096585B /* PLKExecutive.m in Sources */,
+				ED1CE21C1B7186B10096585B /* PLKBundledOut.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
