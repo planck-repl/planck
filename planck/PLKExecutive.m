@@ -11,7 +11,7 @@
 @implementation PLKExecutive
 
 -(void)runInit:(NSString*)initPath
-          eval:(NSString*)evalArg
+          eval:(NSArray*)evalArgs
        srcPath:(NSString*)srcPath
        verbose:(BOOL)verbose
     mainNsName:(NSString*)mainNsName
@@ -30,8 +30,10 @@
         [self executeScriptAtPath:initPath];
     }
     
-    if (evalArg) {
-        [self.clojureScriptEngine executeClojureScript:evalArg expression:YES];
+    if (evalArgs) {
+        for (NSString *evalArg in evalArgs) {
+            [self.clojureScriptEngine executeClojureScript:evalArg expression:YES];
+        }
     }
     
     // Process main arguments

@@ -3,7 +3,7 @@
 @interface PLKExecutive : NSObject
 
 -(void)runInit:(NSString*)initPath
-          eval:(NSString*)evalArg
+          eval:(NSArray*)evalArgs
        srcPath:(NSString*)srcPath
        verbose:(BOOL)verbose
     mainNsName:(NSString*)mainNsName
