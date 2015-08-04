@@ -11,7 +11,7 @@
     // Documented options
     BOOL help = NO;
     NSString* initPath = nil;
-    NSString* evalArg = nil;
+    NSMutableArray* evalArgs = [NSMutableArray new];
     NSString* srcPath = @"src";
     NSString* mainNsName = nil;
     BOOL repl = NO;
@@ -62,7 +62,7 @@
             }
             case 'e':
             {
-                evalArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                [evalArgs addObject:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]];
                 break;
             }
             case 's':
@@ -107,7 +107,7 @@
     
     // Argument validation
     
-    if (!initPath && !evalArg && !mainNsName && args.count==0) {
+    if (!initPath && !evalArgs && !mainNsName && args.count==0) {
         repl = YES;
     }
     
@@ -149,7 +149,7 @@
             printf("  Paths may be absolute or relative in the filesystem.\n");
         } else {
             [[[PLKExecutive alloc] init] runInit:initPath
-                                            eval:evalArg
+                                            eval:evalArgs
                                          srcPath:srcPath
                                          verbose:verbose
                                       mainNsName:mainNsName
