@@ -1,37 +1,37 @@
 #!/bin/bash
 
-echo '#import <Foundation/Foundation.h>' > CljsRuntime.m
+echo '#import <Foundation/Foundation.h>' > PLKBundledOut.m
 echo "" > manifest.m
 cd out
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.map'`
 do 
 file=${file:2}
-xxd -i $file >> ../CljsRuntime.m
+xxd -i $file >> ../PLKBundledOut.m
 data_ref=${file//\//_}
 data_ref=${data_ref//\./_}
 data_ref=${data_ref//\$/_}
 echo "@\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWithInt:${data_ref}_len]]," >> ../manifest.m
 done
 cd ..
-cat <<EOF >> CljsRuntime.m
-#import "CljsRuntime.h"
+cat <<EOF >> PLKBundledOut.m
+#import "PLKBundledOut.h"
 
-@interface CljsRuntime()
+@interface PLKBundledOut()
 
 @property (strong) NSDictionary* manifest;
 
 @end
 
-@implementation CljsRuntime
+@implementation PLKBundledOut 
 
 -(id)init {
     if ( self = [super init] ) {
         self.manifest = @{
 EOF
 
-cat manifest.m >> CljsRuntime.m
+cat manifest.m >> PLKBundledOut.m
 
-cat <<EOF >> CljsRuntime.m
+cat <<EOF >> PLKBundledOut.m
     };
   }
   return self;
@@ -60,4 +60,7 @@ cat <<EOF >> CljsRuntime.m
 @end
 EOF
 rm manifest.m
-mv CljsRuntime.m ../planck
+mv PLKBundledOut.m ../planck
+# We don't want git to suggest we commit this generated
+# output, so we suppress it here.
+git update-index --assume-unchanged ../planck/PLKBundledOut.m

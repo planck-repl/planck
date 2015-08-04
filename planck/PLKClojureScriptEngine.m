@@ -1,7 +1,7 @@
 #import "PLKClojureScriptEngine.h"
 #import "ABYUtils.h"
 #import "ABYContextManager.h"
-#import "CljsRuntime.h"
+#import "PLKBundledOut.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -9,7 +9,7 @@
 @property (nonatomic) BOOL javaScriptEngineReady;
 @property (nonatomic, strong) JSContext* context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
-@property (nonatomic, strong) CljsRuntime* cljsRuntime;
+@property (nonatomic, strong) PLKBundledOut* bundledOut;
 
 @end
 
@@ -64,7 +64,7 @@
     
     // ... and prepare for the "bundled" out location
 
-    self.cljsRuntime = [[CljsRuntime alloc] init];
+    self.bundledOut = [[PLKBundledOut alloc] init];
 
     // Now, start initializing JavaScriptCore in a background thread and return
     
@@ -95,7 +95,7 @@
             if (outPath) {
                 mainJsString = [NSString stringWithContentsOfFile:mainJsFilePath encoding:NSUTF8StringEncoding error:nil];
             } else {
-                mainJsString = [self.cljsRuntime getSourceForPath:@"main.js"];
+                mainJsString = [self.bundledOut getSourceForPath:@"main.js"];
             }
             NSAssert(mainJsString != nil, @"The main JavaScript text could not be loaded");
             [ABYUtils evaluateScript:mainJsString inContext:self.contextManager.context];
@@ -145,7 +145,7 @@
                     rv = [NSString stringWithContentsOfFile:fullPath
                                                    encoding:NSUTF8StringEncoding error:nil];
                 } else {
-                    rv = [self.cljsRuntime getSourceForPath:path];
+                    rv = [self.bundledOut getSourceForPath:path];
                 }
             }
             
@@ -262,7 +262,7 @@
                  path = [path substringFromIndex:8];
              }
              NSError* error = nil;
-             NSString* sourceText = [self.cljsRuntime getSourceForPath:path];
+             NSString* sourceText = [self.bundledOut getSourceForPath:path];
              
              if (!error && sourceText) {
                  
@@ -293,12 +293,12 @@
     [ABYUtils evaluateScript:@"CLOSURE_IMPORT_SCRIPT = function(src) { AMBLY_IMPORT_SCRIPT('goog/' + src); return true; }" inContext:context];
     
     // Load goog base
-    NSString *baseScriptString = [self.cljsRuntime getSourceForPath:@"goog/base.js"];
+    NSString *baseScriptString = [self.bundledOut getSourceForPath:@"goog/base.js"];
     NSAssert(baseScriptString != nil, @"The goog base JavaScript text could not be loaded");
     [ABYUtils evaluateScript:baseScriptString inContext:context];
     
     // Load the deps file
-    NSString *depsScriptString = [self.cljsRuntime getSourceForPath:@"main.js"];
+    NSString *depsScriptString = [self.bundledOut getSourceForPath:@"main.js"];
     NSAssert(depsScriptString != nil, @"The deps JavaScript text could not be loaded");
     [ABYUtils evaluateScript:depsScriptString inContext:context];
     
