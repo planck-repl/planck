@@ -20,12 +20,9 @@
  plainTerminal:(BOOL)plainTerminal
           args:(NSArray*)args; {
     
-    initPath = [self fullyQualify:initPath];
-    srcPath = [self ensureSlash:[self fullyQualify:srcPath]];
-    outPath = [self ensureSlash:[self fullyQualify:outPath]];
+    // Set up our engine
     
-    self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
-    [self.clojureScriptEngine startInitializationWithSrcPath:srcPath outPath:outPath verbose:verbose];
+    [self setupClojureScriptEngineWithSrcPath:srcPath outPath:outPath verbose:verbose];
     
     // Process init arguments
     
@@ -49,7 +46,16 @@
     }
 }
 
--(NSString*)ensureSlash:(NSString*)s
+-(void)setupClojureScriptEngineWithSrcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose
+{
+    srcPath = [self ensureTrailingSlash:[self fullyQualify:srcPath]];
+    outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
+    
+    self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
+    [self.clojureScriptEngine startInitializationWithSrcPath:srcPath outPath:outPath verbose:verbose];
+}
+
+-(NSString*)ensureTrailingSlash:(NSString*)s
 {
     if (!s) {
         return nil;
@@ -62,7 +68,7 @@
 
 -(NSString*)fullyQualify:(NSString*)path
 {
-    NSString* currentDirectory = [self ensureSlash:[NSFileManager defaultManager].currentDirectoryPath];
+    NSString* currentDirectory = [self ensureTrailingSlash:[NSFileManager defaultManager].currentDirectoryPath];
     if (path && ![path hasPrefix:@"/"]) {
         path = [currentDirectory stringByAppendingString:path];
     }
