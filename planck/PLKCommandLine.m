@@ -1,6 +1,7 @@
 #import "PLKCommandLine.h"
 #include <getopt.h>
 #import "PLKExecutive.h"
+#import "PLKScript.h"
 
 #define PLANCK_VERSION "1.3"
 
@@ -10,8 +11,7 @@
 {
     // Documented options
     BOOL help = NO;
-    NSString* initPath = nil;
-    NSString* evalArg = nil;
+    NSMutableArray* scripts = [NSMutableArray new]; // of PLKScript
     NSString* srcPath = @"src";
     NSString* mainNsName = nil;
     BOOL repl = NO;
@@ -57,12 +57,12 @@
             }
             case 'i':
             {
-                initPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                [scripts addObject:[[PLKScript alloc] initWithPath:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
                 break;
             }
             case 'e':
             {
-                evalArg = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
                 break;
             }
             case 's':
@@ -107,7 +107,7 @@
     
     // Argument validation
     
-    if (!initPath && !evalArg && !mainNsName && args.count==0) {
+    if (scripts.count == 0 && !mainNsName && args.count==0) {
         repl = YES;
     }
     
@@ -148,15 +148,14 @@
             printf("\n");
             printf("  Paths may be absolute or relative in the filesystem.\n");
         } else {
-            [[[PLKExecutive alloc] init] runInit:initPath
-                                            eval:evalArg
-                                         srcPath:srcPath
-                                         verbose:verbose
-                                      mainNsName:mainNsName
-                                            repl:repl
-                                         outPath:outPath
-                                   plainTerminal:plainTerminal
-                                            args:args];
+            [[[PLKExecutive alloc] init] runScripts:scripts
+                                            srcPath:srcPath
+                                            verbose:verbose
+                                         mainNsName:mainNsName
+                                               repl:repl
+                                            outPath:outPath
+                                      plainTerminal:plainTerminal
+                                               args:args];
         }
     }
     
