@@ -8,6 +8,14 @@ JSValueRef BlockFunctionCallAsFunction(JSContextRef ctx, JSObjectRef function, J
 
 @implementation ABYUtils
 
+
++(id)valueOfType:(Class)type fromJSValue:(JSValue*)value
+{
+    if (value.isUndefined)return nil;
+    if (value.isNull)return nil;
+    return [value toObjectOfClass:type];
+}
+
 +(NSString*)stringForValue:(JSValueRef)value inContext:(JSContextRef)context
 {
     JSStringRef JSString = JSValueToStringCopy(context, value, NULL);
