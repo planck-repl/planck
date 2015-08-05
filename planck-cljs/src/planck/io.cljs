@@ -1,4 +1,42 @@
-(ns planck.io)
+(ns planck.io
+  (:import goog.Uri))
+
+(defrecord File [path])
+
+(defn build-uri
+  "Builds a URI"
+  [scheme server-name server-port uri query-string]
+  (doto (Uri.)
+    (.setScheme (name (or scheme "http")))
+    (.setDomain server-name)
+    (.setPort server-port)
+    (.setPath uri)
+    (.setQuery query-string true)))
+
+(defprotocol Coercions
+  "Coerce between various 'resource-namish' things."
+  (^File as-file [x] "Coerce argument to a File.")
+  (^js/goog.Uri as-url [x] "Coerce argument to a goog.Uri."))
+
+(extend-protocol Coercions
+  nil
+  (as-file [_] nil)
+  (as-url [_] nil)
+
+  string
+  (as-file [s] (File. s))
+  (as-url [s] (Uri. s))
+
+  File
+  (as-file [f] f)
+  (as-url [f] (build-uri :file nil nil (:path f) nil))
+
+  js/goog.Uri
+  (as-url [u] u)
+  (as-file [u] u
+    (if (= "file" (.getScheme u))
+      (as-file (.getPath u))
+      (throw (js/Error. (str "Not a file: " u))))))
 
 (defprotocol IReader
   (-read [this] "Returns available characters as a string or nil of EOF."))
