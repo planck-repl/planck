@@ -1,4 +1,5 @@
 #import "PLKClojureScriptEngine.h"
+#import "PLKSh.h"
 #import "ABYUtils.h"
 #import "ABYContextManager.h"
 #import "CljsRuntime.h"
@@ -165,6 +166,13 @@
         self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
             // supressing
         };
+        
+        self.context[@"PLANCK_SHELL_SH"] = ^(NSArray *args, JSValue* arg_in, JSValue *encoding_in, JSValue *encoding_out, NSDictionary *env, JSValue *dir) {
+            #define TSTR(av) (NSString*)[ABYUtils valueOfType:[NSString class] fromJSValue:av]
+            NSDictionary *result = cljs_shell(args, TSTR(arg_in), TSTR(encoding_in), TSTR(encoding_out), env, TSTR(dir));
+            return result;
+        };
+
         
         const BOOL isTty = isatty(fileno(stdin));
         
