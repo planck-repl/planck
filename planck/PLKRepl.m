@@ -48,6 +48,12 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     fflush(stdout);
 }
 
+-(BOOL)isWhitespace:(NSString*)s
+{
+    NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
+    return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
+}
+
 -(void)runPlainTerminal:(BOOL)plainTerminal usingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
 {
     NSString* currentNs = @"cljs.user";
@@ -110,7 +116,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         
         // Add input line to history
         
-        if (!plainTerminal) {
+        if (!plainTerminal && ![self isWhitespace:input]) {
             linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
             if (historyFile) {
                 linenoiseHistorySave([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -122,16 +128,14 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         
         if ([clojureScriptEngine isReadable:input]) {
             
-            // Guard against empty string being read
-            
-            NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
-            NSString *trimmedString = [input stringByTrimmingCharactersInSet:charSet];
-            if (![trimmedString isEqualToString:@""]) {
+            if (![self isWhitespace:input]) {  // Guard against empty string being read
+                
                 [clojureScriptEngine executeClojureScript:input expression:YES printNilExpression:YES];
+            
             } else {
-                if (plainTerminal) {
-                    printf("\n");
-                }
+
+                printf("\n");
+                
             }
             
             // Now that we've evaluated the input, reset for next round
