@@ -28,8 +28,28 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     NSMutableArray *stringArgs = @[].mutableCopy;
     for (id argument in args)[stringArgs addObject:[NSString stringWithFormat:@"%@", argument]];
     
-    // set the executable
-    [aTask setLaunchPath:stringArgs.firstObject];
+    // set the executable, add a path if there isn't one
+    NSString *executable = stringArgs.firstObject;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:executable])
+        [aTask setLaunchPath:stringArgs.firstObject];
+    else {
+        NSString* pathString = [[[NSProcessInfo processInfo]environment]objectForKey:@"PATH"];
+        NSArray * paths = [pathString componentsSeparatedByString:@":"];
+        bool hasPath = false;
+        for (NSString *path in paths) {
+            NSString *fullPath = [path stringByAppendingPathComponent:executable];
+            if ([fileManager fileExistsAtPath:fullPath]) {
+                [aTask setLaunchPath:fullPath];
+                hasPath = true;
+                break;
+            }
+        }
+        // If we couldn't find the executable, set it anyway, it may be a built-in shell command
+        if (!hasPath) {
+            [aTask setLaunchPath:stringArgs.firstObject];
+        }
+    }
     
     // Set the arguments
     if (stringArgs.count > 1) {
