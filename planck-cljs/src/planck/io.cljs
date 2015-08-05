@@ -67,17 +67,6 @@
   *err*
   (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
-(defn slurp
-  "Slurps a file"
-  [filename]
-  (or (js/PLANCK_READ_FILE filename)
-    (throw (js/Error. filename))))
-
-(defn spit
-  "Spits a file"
-  [filename content]
-  (js/PLANCK_WRITE_FILE filename content)
-  nil)
 
 (defn- fission! [atom f & args]
   "Breaks an atom's value into two parts. The supplied function should
@@ -110,3 +99,15 @@
                                   (subs s 0 n)]))))
     (when (reset! buffer (-read *in*))
       (recur))))
+
+(defn slurp
+  "Slurps a file"
+  [filename]
+  (or (js/PLANCK_READ_FILE filename)
+    (throw (js/Error. filename))))
+
+(defn spit
+  "Spits a file"
+  [filename content]
+  (js/PLANCK_WRITE_FILE filename content)
+  nil)
