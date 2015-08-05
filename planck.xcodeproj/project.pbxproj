@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D5064A61B70F7E100C15423 /* PLKSh.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5064A51B70F7E100C15423 /* PLKSh.m */; };
 		ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE20E1B70464F0096585B /* PLKRepl.m */; };
 		ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2111B7047B70096585B /* PLKCommandLine.m */; };
 		ED1CE2161B7049670096585B /* PLKExecutive.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2151B7049670096585B /* PLKExecutive.m */; };
@@ -32,6 +33,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D5064A41B70F7E100C15423 /* PLKSh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKSh.h; sourceTree = "<group>"; };
+		4D5064A51B70F7E100C15423 /* PLKSh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKSh.m; sourceTree = "<group>"; };
 		ED1CE20D1B70464F0096585B /* PLKRepl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKRepl.h; sourceTree = "<group>"; };
 		ED1CE20E1B70464F0096585B /* PLKRepl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKRepl.m; sourceTree = "<group>"; };
 		ED1CE2101B7047B70096585B /* PLKCommandLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKCommandLine.h; sourceTree = "<group>"; };
@@ -123,6 +126,8 @@
 				ED1CE2151B7049670096585B /* PLKExecutive.m */,
 				ED1CE20D1B70464F0096585B /* PLKRepl.h */,
 				ED1CE20E1B70464F0096585B /* PLKRepl.m */,
+				4D5064A41B70F7E100C15423 /* PLKSh.h */,
+				4D5064A51B70F7E100C15423 /* PLKSh.m */,
 				ED1CE2171B704FF10096585B /* PLKClojureScriptEngine.h */,
 				ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */,
 				ED51CF741B66CC6200200417 /* CljsRuntime.h */,
@@ -189,6 +194,7 @@
 			files = (
 				ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */,
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
+				4D5064A61B70F7E100C15423 /* PLKSh.m in Sources */,
 				ED51CF761B66D64D00200417 /* CljsRuntime.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,
