@@ -19,7 +19,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 -(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary
 {
     if (secondary) {
-        return [[@"" stringByPaddingToLength:currentNs.length-2
+        return [[@" " stringByPaddingToLength:currentNs.length
                                   withString:@" "
                              startingAtIndex:0]
                 stringByAppendingString:@"#_=> "];
