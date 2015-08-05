@@ -90,8 +90,14 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     }
     
     // We'll block during execution
-    [aTask launch];
-    [aTask waitUntilExit];
+    @try {
+        [aTask launch];
+        [aTask waitUntilExit];
+    }
+    @catch (NSException *exception) {
+        return @{@"exit": @(-1),
+                 @"err": exception.description};
+    }
     
     // Read the data from the task
     NSData *outData = [outPipe.fileHandleForReading readDataToEndOfFile];
