@@ -18,14 +18,16 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 
 -(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary
 {
-    if (secondary) {
-        return [[@"" stringByPaddingToLength:currentNs.length
-                                  withString:@" "
-                             startingAtIndex:0]
-                stringByAppendingString:@"#_=> "];
-    } else {
+    if (!secondary) {
         return [NSString stringWithFormat:@"%@=> ", currentNs];
     }
+    if (currentNs.length == 1) {
+        return @"#_=> ";
+    }
+    return [[@"" stringByPaddingToLength:currentNs.length-2
+                              withString:@" "
+                         startingAtIndex:0]
+            stringByAppendingString:@"#_=> "];
 }
 
 -(NSString *)getInput
