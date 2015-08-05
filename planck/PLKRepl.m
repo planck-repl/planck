@@ -85,7 +85,12 @@ void completion(const char *buf, linenoiseCompletions *lc) {
                 break;
             }
         } else {
-            inputLine = [NSString stringWithCString:line encoding:NSUTF8StringEncoding];
+            inputLine = line ? [NSString stringWithCString:line encoding:NSUTF8StringEncoding] : nil;
+            // If the input line couldn't be decoded, replace it with emtpy string
+            if (inputLine == nil) {
+                printf("#<failed to decode input line>\n");
+                inputLine = @"";
+            }
             free(line);
         }
         
