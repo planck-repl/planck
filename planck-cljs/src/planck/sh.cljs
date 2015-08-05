@@ -35,4 +35,4 @@
   [& args]
   (let [[cmd opts] (parse-args args)
          {:keys [in in-enc out-enc env dir]} opts]
-    (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc env dir) :keywordize-keys true)))
+    (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js env) dir) :keywordize-keys true)))
