@@ -1,4 +1,4 @@
-(ns planck.sh)
+(ns planck.shell)
 
 (def ^:dynamic *sh-dir* nil)
 (def ^:dynamic *sh-env* nil)
