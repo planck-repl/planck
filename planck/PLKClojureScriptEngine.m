@@ -3,6 +3,7 @@
 #import "ABYUtils.h"
 #import "ABYContextManager.h"
 #import "PLKBundledOut.h"
+#import "PLKFileReader.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -207,6 +208,10 @@
         };
         
         [self setPrintFnsInContext:self.contextManager.context];
+        
+        // Inject Objective-C classes
+        
+        self.context[@"PLKFileReader"] = [PLKFileReader class];
         
         // Set up the cljs.user namespace
         
