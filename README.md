@@ -10,7 +10,7 @@ Home page: [planck.fikesfarm.com](http://planck.fikesfarm.com)
 brew install planck
 ```
 
-Binaries for manual download are [available](http://planck.fikesfarm.com).
+Binaries for manual download are [available](http://planck.fikesfarm.com/download.html).
 
 # Building 
 
