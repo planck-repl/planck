@@ -1,9 +1,9 @@
 (ns planck.io
-  (:import goog.Uri))
+  #_(:import goog.Uri))
 
 (defrecord File [path])
 
-(defn build-uri
+#_(defn build-uri
   "Builds a URI"
   [scheme server-name server-port uri query-string]
   (doto (Uri.)
@@ -15,25 +15,25 @@
 
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
-  (^File as-file [x] "Coerce argument to a File.")
-  (^js/goog.Uri as-url [x] "Coerce argument to a goog.Uri."))
+  (as-file [x] "Coerce argument to a File.")
+  #_(as-url [x] "Coerce argument to a goog.Uri."))
 
 (extend-protocol Coercions
   nil
   (as-file [_] nil)
-  (as-url [_] nil)
+  #_(as-url [_] nil)
 
   string
   (as-file [s] (File. s))
-  (as-url [s] (Uri. s))
+  #_(as-url [s] (Uri. s))
 
   File
   (as-file [f] f)
-  (as-url [f] (build-uri :file nil nil (:path f) nil))
+  #_(as-url [f] (build-uri :file nil nil (:path f) nil))
 
-  js/goog.Uri
-  (as-url [u] u)
-  (as-file [u] u
+  #_js/goog.Uri
+  #_(as-url [u] u)
+  #_(as-file [u]
     (if (= "file" (.getScheme u))
       (as-file (.getPath u))
       (throw (js/Error. (str "Not a file: " u))))))
@@ -67,11 +67,45 @@
   *err*
   (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
+(defprotocol IOFactory
+  "Factory functions that create ready-to-use versions of
+  the various stream types, on top of anything that can
+  be unequivocally converted to the requested kind of stream.
 
-(defn- fission! [atom f & args]
+  Common options include
+
+    :append   true to open stream in append mode
+    :encoding  string name of encoding to use, e.g. \"UTF-8\".
+
+    Callers should generally prefer the higher level API provided by
+    reader, writer, input-stream, and output-stream."
+  (make-reader [x opts] "Creates an IReader. See also IOFactory docs.")
+  #_(make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
+  #_(make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
+  #_(make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
+
+(extend-protocol IOFactory
+  string
+  (make-reader [s opts]
+    (make-reader (as-file s) opts))
+
+  File
+  (make-reader [file opts]
+    (let [file-reader (js/PLKFileReader.open (:path file))]
+      (Reader.
+        (fn [] (.read file-reader))
+        (fn [] (.close file-reader))))))
+
+(defn reader
+  "Attempts to coerce its argument into an open IReader."
+  [x & opts]
+  (make-reader x (when opts (apply hash-map opts))))
+
+(defn- fission!
   "Breaks an atom's value into two parts. The supplied function should
   return a pair. The first element will be set to be the atom's new
   value and the second element will be returned."
+  [atom f & args]
   (loop []
     (let [old @atom
           [new-in new-out] (apply f old args)]
