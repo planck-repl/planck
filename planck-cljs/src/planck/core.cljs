@@ -86,7 +86,7 @@
 (defn ^:export get-completions [buffer]
   (let [namespace-candidates (map str
                                (keys (:cljs.analyzer/namespaces @planck.core/st)))
-        top-form? (re-find #"^\(\s*[^()]*$" buffer)
+        top-form? (re-find #"^\s*\(\s*[^()]*$" buffer)
         all-candidates (set (concat namespace-candidates
                                     (completion-candidates-for-ns 'cljs.core false)
                                     (completion-candidates-for-ns @current-ns true)
