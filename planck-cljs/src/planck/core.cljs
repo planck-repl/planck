@@ -198,10 +198,8 @@
             doc (if (repl-specials (second expression-form))
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
-                    (let [sym (second expression-form)
-                          var (with-compiler-env st
-                                (resolve env sym))]
-                      (:meta var)))))
+                    (let [sym (second expression-form)]
+                          (with-compiler-env st (resolve env sym))))))
           (prn nil))
         (try
           (cljs/eval-str
