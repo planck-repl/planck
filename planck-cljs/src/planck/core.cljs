@@ -87,7 +87,7 @@
   (let [namespace-candidates (map str
                                (keys (:cljs.analyzer/namespaces @planck.core/st)))
         top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns (second (re-find #"(\b[a-zA-Z-.]+)\/[a-zA-Z-]+$" buffer))
+        typed-ns (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))
         all-candidates (set (if typed-ns
                               (completion-candidates-for-ns (symbol typed-ns) false)
                               (concat namespace-candidates
