@@ -47,8 +47,7 @@
     require        {:arglists ([& args])
                     :doc      "Loads libs, skipping any that are already loaded."}
     require-macros {:arglists ([& args])
-                    :doc      "Similar to the require REPL special function but
-                    only for macros."}
+                    :doc      "Similar to the require REPL special function but\n  only for macros."}
     doc            {:arglists ([name])
                     :doc      "Prints documentation for a var or special form given its name"}})
 
