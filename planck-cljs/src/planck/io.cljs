@@ -38,13 +38,19 @@
       (as-file (.getPath u))
       (throw (js/Error. (str "Not a file: " u))))))
 
+(defprotocol IClosaeable
+  (-close [this]))
+
 (defprotocol IReader
   (-read [this] "Returns available characters as a string or nil of EOF."))
 
 (defrecord Reader [raw-read raw-close]
   IReader
   (-read [_]
-    (raw-read)))
+    (raw-read))
+  IClosaeable
+  (-close [_]
+    (raw-close)))
 
 (defrecord Writer [raw-write raw-flush]
   IWriter
