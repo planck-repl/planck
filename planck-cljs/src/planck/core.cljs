@@ -87,10 +87,13 @@
   (let [namespace-candidates (map str
                                (keys (:cljs.analyzer/namespaces @planck.core/st)))
         top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        all-candidates (set (concat namespace-candidates
-                                    (completion-candidates-for-ns 'cljs.core false)
-                                    (completion-candidates-for-ns @current-ns true)
-                                    (when top-form? (map str repl-specials))))]
+        typed-ns (second (re-find #"(\b[a-zA-Z-.]+)\/[a-zA-Z-]+$" buffer))
+        all-candidates (set (if typed-ns
+                              (completion-candidates-for-ns (symbol typed-ns) false)
+                              (concat namespace-candidates
+                                      (completion-candidates-for-ns 'cljs.core false)
+                                      (completion-candidates-for-ns @current-ns true)
+                                      (when top-form? (map str repl-specials)))))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
           buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
