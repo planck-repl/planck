@@ -1,0 +1,4 @@
+#!/bin/bash
+
+source int-test/script/setup-env
+cp $OUT_ACTUAL/PLANCK-OUT.txt $OUT_EXPECTED/PLANCK-OUT.txt

@@ -5,3 +5,6 @@ foo
 bar
 2
 foo
+Test require REPL special
+nil
+true

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export OUT_EXPECTED=int-test/out-expected
+export OUT_ACTUAL=/tmp
+export PLANCK=build/Release/planck
+export SRC=int-test/src
