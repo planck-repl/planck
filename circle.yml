@@ -1,0 +1,7 @@
+machine:
+  pre:
+    - brew tap caskroom/cask
+    - brew install brew-cask
+    - brew tap caskroom/versions
+    - brew cask install java7
+    - brew install leiningen
