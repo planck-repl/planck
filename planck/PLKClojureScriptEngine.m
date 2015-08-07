@@ -204,7 +204,11 @@
         };
         
         self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            printf("%s", message.UTF8String);
+            fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+        };
+        
+        self.context[@"PLANCK_PRINT_ERR_FN"] = ^(NSString *message) {
+            fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
         };
         
         [self setPrintFnsInContext:self.contextManager.context];
@@ -338,7 +342,7 @@
 -(void)setPrintFnsInContext:(JSContextRef)context
 {
     [ABYUtils evaluateScript:@"cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
-    [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_FN);" inContext:context];
+    [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);" inContext:context];
 }
 
 -(JSValue*)getFunction:(NSString*)name

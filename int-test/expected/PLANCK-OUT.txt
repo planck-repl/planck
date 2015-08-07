@@ -5,6 +5,8 @@ foo
 bar
 2
 foo
+Test print to stderr
+nil
 Test require REPL special
 nil
 true
