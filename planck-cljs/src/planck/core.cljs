@@ -204,9 +204,10 @@
                   (repl/print-doc
                     (let [sym (second expression-form)]
                           (with-compiler-env st (resolve env sym)))))
-            pst (let [sym (or (-> expression-form second second) '*e)
-                      err (with-compiler-env st (resolve env sym))]
-                  (print-error err)))
+            pst (let [sym (or (second expression-form) '*e)]
+                  (read-eval-print (str "(planck.core/print-error " sym ")")
+                                   expression?
+                                   false)))
           (prn nil))
         (try
           (cljs/eval-str
