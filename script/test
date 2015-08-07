@@ -9,6 +9,6 @@ cd ..
 # Xcode
 xcodebuild -project planck.xcodeproj -scheme planck -configuration Release SYMROOT=$(PWD)/build
 
-echo 3 > /tmp/PLANCK_EXPECTED.txt
+echo 2 > /tmp/PLANCK_EXPECTED.txt
 build/Release/planck -e '(+ 1 1)' >  /tmp/PLANCK_OUTPUT.txt
 diff /tmp/PLANCK_EXPECTED.txt /tmp/PLANCK_OUTPUT.txt
