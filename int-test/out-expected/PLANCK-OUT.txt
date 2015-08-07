@@ -11,3 +11,6 @@ true
 Test require-macros REPL special
 nil
 5
+Test in-ns REPL special
+nil
+:foo.bar/a
