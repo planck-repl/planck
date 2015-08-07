@@ -36,7 +36,7 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns require require-macros doc})
+(def repl-specials '#{in-ns require require-macros doc pst})
 
 (defn repl-special? [form]
   (and (seq? form) (repl-specials (first form))))
@@ -49,7 +49,10 @@
     require-macros {:arglists ([& args])
                     :doc      "Similar to the require REPL special function but\n  only for macros."}
     doc            {:arglists ([name])
-                    :doc      "Prints documentation for a var or special form given its name"}})
+                    :doc      "Prints documentation for a var or special form given its name"}
+    pst            {:arglists ([] [e])
+                    :doc      (str "Prints a stack trace of the exception. If none supplied, uses the root cause of the "
+                                   "most recent repl exception (*e)")}})
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
@@ -200,7 +203,10 @@
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
                     (let [sym (second expression-form)]
-                          (with-compiler-env st (resolve env sym))))))
+                          (with-compiler-env st (resolve env sym)))))
+            pst (let [sym (or (-> expression-form second second) '*e)
+                      err (with-compiler-env st (resolve env sym))]
+                  (print-error err)))
           (prn nil))
         (try
           (cljs/eval-str
