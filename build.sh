@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build ClojureScript (currently requires lein)
+# Build ClojureScript
 cd planck-cljs
 script/build
 script/bundle
