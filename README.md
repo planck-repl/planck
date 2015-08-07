@@ -14,12 +14,12 @@ Binaries for manual download are [available](http://planck.fikesfarm.com/downloa
 
 # Building 
 
-![Build Status](https://circleci.com/gh/mfikes/planck.png?circle-token=:circle-token)
-
 ## Release Build
 
 1. `script/build`
 2. Resulting binary is in `build/Release/planck`
+
+![Build Status](https://circleci.com/gh/mfikes/planck.png?circle-token=:circle-token)
 
 ## Development 
 
