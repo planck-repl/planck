@@ -1,8 +1,3 @@
 #!/bin/bash
 
-./script/clean
-./script/build
-
-echo 2 > /tmp/PLANCK_EXPECTED.txt
-build/Release/planck -e '(+ 1 1)' >  /tmp/PLANCK_OUTPUT.txt
-diff /tmp/PLANCK_EXPECTED.txt /tmp/PLANCK_OUTPUT.txt
+int-test/script/run-tests

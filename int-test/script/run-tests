@@ -1,0 +1,7 @@
+#!/bin/bash
+
+OUT_EXPECTED=int-test/out-expected
+OUT_ACTUAL=/tmp
+
+int-test/script/gen-actual > $OUT_ACTUAL/PLANCK-OUT.txt
+diff $OUT_EXPECTED/PLANCK-OUT.txt $OUT_ACTUAL/PLANCK-OUT.txt

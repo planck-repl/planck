@@ -1,0 +1,4 @@
+#!/bin/bash
+PLANCK=build/Release/planck
+
+$PLANCK -e '(+ 1 1)'
