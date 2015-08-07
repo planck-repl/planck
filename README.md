@@ -19,7 +19,7 @@ Binaries for manual download are [available](http://planck.fikesfarm.com/downloa
 1. `script/build`
 2. Resulting binary is in `build/Release/planck`
 
-# Tests
+## Tests
 
 1. `script/test`
 
