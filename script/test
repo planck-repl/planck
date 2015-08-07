@@ -2,8 +2,8 @@
 
 # ClojureScript
 cd planck-cljs
-script/build
-script/bundle
+#script/build
+#script/bundle
 cd ..
 
 # Xcode

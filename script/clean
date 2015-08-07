@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# ClojureScript
+cd planck-cljs
+script/clean
+script/clean-bundle
+cd ..
+
+# Xcode
+rm -rf build
