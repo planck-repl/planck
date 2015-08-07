@@ -2,3 +2,4 @@
 
 source int-test/script/setup-env
 cp $ACTUAL_PATH/PLANCK-OUT.txt $EXPECTED_PATH/PLANCK-OUT.txt
+cp $ACTUAL_PATH/PLANCK-ERR.txt $EXPECTED_PATH/PLANCK-ERR.txt
