@@ -1,5 +1,5 @@
 #!/bin/bash
 
 source int-test/script/setup-env
-int-test/script/gen-actual > $ACTUAL_PATH/PLANCK-OUT.txt
-diff $EXPECTED_PATH/PLANCK-OUT.txt $ACTUAL_PATH/PLANCK-OUT.txt
+int-test/script/gen-actual > $ACTUAL_PATH/PLANCK-OUT.txt 2> $ACTUAL_PATH/PLANCK-ERR.txt
+diff $EXPECTED_PATH/PLANCK-OUT.txt $ACTUAL_PATH/PLANCK-OUT.txt && diff $EXPECTED_PATH/PLANCK-ERR.txt $ACTUAL_PATH/PLANCK-ERR.txt
