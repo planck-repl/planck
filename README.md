@@ -16,7 +16,7 @@ Binaries for manual download are [available](http://planck.fikesfarm.com/downloa
 
 ## Release Build
 
-1. `./build.sh`
+1. `script/build`
 2. Resulting binary is in `build/Release/planck`
 
 ## Development 
