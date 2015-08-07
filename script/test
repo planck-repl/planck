@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# ClojureScript
-cd planck-cljs
-script/build
-script/bundle
-cd ..
-
-# Xcode
-xcodebuild -project planck.xcodeproj -scheme planck -configuration Release SYMROOT=$(PWD)/build
+./script/clean
+./script/build
 
 echo 2 > /tmp/PLANCK_EXPECTED.txt
 build/Release/planck -e '(+ 1 1)' >  /tmp/PLANCK_OUTPUT.txt
