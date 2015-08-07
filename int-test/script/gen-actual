@@ -13,3 +13,10 @@ $PLANCK -s $SRC <<REPL_INPUT
 test-require.core/success
 :cljs/quit
 REPL_INPUT
+
+echo "Test require-macros REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(require-macros 'test-require-macros.core)
+(+ 3 (test-require-macros.core/str->int "2"))
+:cljs/quit
+REPL_INPUT

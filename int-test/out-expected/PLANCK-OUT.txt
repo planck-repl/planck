@@ -8,3 +8,6 @@ foo
 Test require REPL special
 nil
 true
+Test require-macros REPL special
+nil
+5
