@@ -28,7 +28,7 @@ Binaries for manual download are [available](http://planck.fikesfarm.com/downloa
 
 ### Bundling
 
-For development, things are setup so that the on-disk ClojureScript compiler output is used (the `-o` or `--out` parameter). To instead have the output bundled into the binary, run `script/bundle` and then run Planck without the `--out` option.
+For development, things are setup so that the on-disk ClojureScript compiler output is used (the `-o` or `--out` parameter). To instead have the output bundled into the binary, in `planck-cljs`, run `script/bundle` and then run Planck without the `--out` option. (Bundling is done when doing a top-level `script/build` to produce a binary.)
 
 # License
 
