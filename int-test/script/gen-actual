@@ -38,3 +38,12 @@ $PLANCK -s $SRC <<REPL_INPUT
 ::a
 REPL_INPUT
 
+echo "Test doc REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(doc inc)
+(doc when)
+(doc doc)
+(defn f "docstring" [param])
+(doc f)
+REPL_INPUT
+
