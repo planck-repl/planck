@@ -11,27 +11,23 @@ echo "Test print to stderr"
 $PLANCK -s $SRC <<REPL_INPUT
 (binding [*print-fn* *print-err-fn*]
   (println "hello stderr"))
-:cljs/quit
 REPL_INPUT
 
 echo "Test require REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (require 'test-require.core)
 test-require.core/success
-:cljs/quit
 REPL_INPUT
 
 echo "Test require-macros REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (require-macros 'test-require-macros.core)
 (+ 3 (test-require-macros.core/str->int "2"))
-:cljs/quit
 REPL_INPUT
 
 echo "Test in-ns REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (in-ns 'foo.bar)
 ::a
-:cljs/quit
 REPL_INPUT
 
