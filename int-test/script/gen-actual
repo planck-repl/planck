@@ -20,3 +20,11 @@ $PLANCK -s $SRC <<REPL_INPUT
 (+ 3 (test-require-macros.core/str->int "2"))
 :cljs/quit
 REPL_INPUT
+
+echo "Test in-ns REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(in-ns 'foo.bar)
+::a
+:cljs/quit
+REPL_INPUT
+
