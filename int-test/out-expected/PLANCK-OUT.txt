@@ -1,1 +1,7 @@
 2
+Repeated ordered -e and -i, supressing nil
+foo
+:a
+bar
+2
+foo
