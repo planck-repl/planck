@@ -236,4 +236,5 @@
               (when error
                 (print-error error))))
           (catch :default e
+            (set! *e e)
             (print-error e)))))))
