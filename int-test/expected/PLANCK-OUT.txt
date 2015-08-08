@@ -42,3 +42,45 @@ cljs.user/cljs.user/f
 ([param])
   docstring
 nil
+Test pst REPL special
+Invalid arity: 3
+	 cljs$core$symbol (cljs/core.cljs:944:1)
+
+Invalid arity: 3
+	 cljs$core$symbol (cljs/core.cljs:944:1)
+
+nil
+#'cljs.user/e
+Can't call nil at line 1 
+	 cljs$core$ExceptionInfo (cljs/core.cljs:9863:11)
+	 cljs$core$IFn$_invoke$arity$3 (cljs/core.cljs:9896:5)
+	 cljs$core$IFn$_invoke$arity$3 (cljs/analyzer.cljs:994:55)
+	 cljs$core$IFn$_invoke$arity$2 (cljs/analyzer.cljs:990:57)
+	 cljs$core$IFn$_invoke$arity$4 (cljs/analyzer.cljs:4256:56)
+	 cljs$analyzer$analyze_form (cljs/analyzer.cljs:4398:63)
+	 cljs$analyzer$analyze_STAR_ (cljs/analyzer.cljs:4436:37)
+	 cljs$core$IFn$_invoke$arity$4 (cljs/analyzer.cljs:4511:39)
+	 cljs$js$eval_str_STAR__$_compile_loop (cljs/js.cljs:1517:4)
+	 cljs$js$eval_str_STAR_ (cljs/js.cljs:1609:6)
+	 cljs$core$IFn$_invoke$arity$5 (cljs/js.cljs:1712:30)
+	 planck$core$read_eval_print (planck/core.cljs:215:12)
+
+Can't call nil at line 1 
+	 cljs$core$ExceptionInfo (cljs/core.cljs:9863:11)
+	 cljs$core$IFn$_invoke$arity$3 (cljs/core.cljs:9896:5)
+	 cljs$core$IFn$_invoke$arity$3 (cljs/analyzer.cljs:994:55)
+	 cljs$core$IFn$_invoke$arity$2 (cljs/analyzer.cljs:990:57)
+	 cljs$core$IFn$_invoke$arity$4 (cljs/analyzer.cljs:4256:56)
+	 cljs$analyzer$analyze_form (cljs/analyzer.cljs:4398:63)
+	 cljs$analyzer$analyze_STAR_ (cljs/analyzer.cljs:4436:37)
+	 cljs$core$IFn$_invoke$arity$4 (cljs/analyzer.cljs:4511:39)
+	 cljs$js$eval_str_STAR__$_compile_loop (cljs/js.cljs:1517:4)
+	 cljs$js$eval_str_STAR_ (cljs/js.cljs:1609:6)
+	 cljs$core$IFn$_invoke$arity$5 (cljs/js.cljs:1712:30)
+	 planck$core$read_eval_print (planck/core.cljs:215:12)
+
+nil
+Invalid arity: 3
+	 cljs$core$symbol (cljs/core.cljs:944:1)
+
+nil
