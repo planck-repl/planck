@@ -49,10 +49,12 @@ REPL_INPUT
 
 echo "Test pst REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
-(symbol 1 2 3)
+(defn f [] (throw (js/Error. "whoah")))
+(defn g [] (throw (js/Error. "ouch")))
+(f)
 (pst)
 (def e *e)
-(nil)
+(g)
 (pst)
 (pst e)
 REPL_INPUT
