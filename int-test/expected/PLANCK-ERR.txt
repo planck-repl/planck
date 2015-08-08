@@ -1,2 +1,1 @@
 hello stderr
-WARNING: Wrong number of args (3) passed to cljs.core/symbol at line 1 
