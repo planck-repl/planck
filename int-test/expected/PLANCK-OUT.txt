@@ -89,3 +89,17 @@ nil
 whoah
 
 nil
+Spit / slurp
+#'cljs.user/test-file
+nil
+#'cljs.user/test-spit-slurp
+true
+nil
+true
+nil
+true
+nil
+true
+nil
+true
+nil
