@@ -12,6 +12,7 @@
 @property (nonatomic, strong) JSContext* context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
+@property (nonatomic, strong) NSMutableSet* loadedGoogLibs;
 
 @end
 
@@ -83,6 +84,7 @@
             if (outPath) {
                 [self.contextManager setUpAmblyImportScript];
             } else {
+                self.loadedGoogLibs = [[NSMutableSet alloc] init];
                 [self setUpAmblyImportScriptInContext:self.contextManager.context];
             }
         }
@@ -281,18 +283,29 @@
              
              JSStringRef urlStringRef = JSStringCreateWithCFString((__bridge CFStringRef)url);
              
+             BOOL canSkipLoad = NO;
              if ([path hasPrefix:@"goog/../"]) {
                  path = [path substringFromIndex:8];
+             } else {
+                 if ([self.loadedGoogLibs containsObject:path]) {
+                     canSkipLoad = YES;
+                 } else {
+                     [self.loadedGoogLibs addObject:path];
+                 }
              }
-             NSError* error = nil;
-             NSString* sourceText = [self.bundledOut getSourceForPath:path];
              
-             if (!error && sourceText) {
+             if (!canSkipLoad) {
                  
-                 JSValueRef jsError = NULL;
-                 JSStringRef javaScriptStringRef = JSStringCreateWithCFString((__bridge CFStringRef)sourceText);
-                 JSEvaluateScript(ctx, javaScriptStringRef, NULL, urlStringRef, 0, &jsError);
-                 JSStringRelease(javaScriptStringRef);
+                 NSError* error = nil;
+                 NSString* sourceText = [self.bundledOut getSourceForPath:path];
+                 
+                 if (!error && sourceText) {
+                     
+                     JSValueRef jsError = NULL;
+                     JSStringRef javaScriptStringRef = JSStringCreateWithCFString((__bridge CFStringRef)sourceText);
+                     JSEvaluateScript(ctx, javaScriptStringRef, NULL, urlStringRef, 0, &jsError);
+                     JSStringRelease(javaScriptStringRef);
+                 }
              }
              
              JSStringRelease(urlStringRef);
