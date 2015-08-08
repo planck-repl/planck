@@ -63,7 +63,7 @@ Can't call nil at line 1
 	 cljs$js$eval_str_STAR__$_compile_loop (cljs/js.cljs:1517:4)
 	 cljs$js$eval_str_STAR_ (cljs/js.cljs:1609:6)
 	 cljs$core$IFn$_invoke$arity$5 (cljs/js.cljs:1712:30)
-	 planck$core$read_eval_print (planck/core.cljs:215:12)
+	 planck$core$read_eval_print (planck/core.cljs:216:12)
 
 Can't call nil at line 1 
 	 cljs$core$ExceptionInfo (cljs/core.cljs:9863:11)
@@ -77,7 +77,7 @@ Can't call nil at line 1
 	 cljs$js$eval_str_STAR__$_compile_loop (cljs/js.cljs:1517:4)
 	 cljs$js$eval_str_STAR_ (cljs/js.cljs:1609:6)
 	 cljs$core$IFn$_invoke$arity$5 (cljs/js.cljs:1712:30)
-	 planck$core$read_eval_print (planck/core.cljs:215:12)
+	 planck$core$read_eval_print (planck/core.cljs:216:12)
 
 nil
 Invalid arity: 3
