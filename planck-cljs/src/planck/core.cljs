@@ -205,8 +205,9 @@
                           (with-compiler-env st (resolve env sym)))))
             pst (let [expr (or (second expression-form) '*e)]
                   (try (cljs/eval st
-                                  (list 'identity expr)
+                                  expr
                                   {:ns   @current-ns
+                                   :context :expr
                                    :eval cljs/js-eval}
                                   print-error)
                        (catch js/Error e (prn :caught e)))))
