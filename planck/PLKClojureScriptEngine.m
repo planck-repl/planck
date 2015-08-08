@@ -125,11 +125,7 @@
         BOOL debugBuild = NO;
 #endif
         
-        JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:self.context];
-        [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
-                                            @"verbose": @(verbose)}]];
-        
-        self.context[@"PLANCK_LOAD"] = ^(NSString *path) {
+        NSString* (^planckLoad)(NSString* path) = ^(NSString *path) {
             
             // First try in the srcPath
             
@@ -153,6 +149,16 @@
             
             return rv;
         };
+        
+        self.context[@"PLANCK_LOAD"] = planckLoad;
+        
+        JSValue* loadCoreAnalysisCacheFn = [self getValue:@"load-core-analysis-cache" inNamespace:@"planck.core" fromContext:self.context];
+        [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core.cljs.cache.aot.json")]];
+        // [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core$macros.cljc.cache.json")]];
+        
+        JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:self.context];
+        [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
+                                            @"verbose": @(verbose)}]];
         
         self.context[@"PLANCK_READ_FILE"] = ^(NSString *file) {
             return [NSString stringWithContentsOfFile:file
