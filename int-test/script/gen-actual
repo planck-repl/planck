@@ -47,3 +47,12 @@ $PLANCK -s $SRC <<REPL_INPUT
 (doc f)
 REPL_INPUT
 
+echo "Test pst REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(symbol 1 2 3)
+(pst)
+(def e *e)
+(nil)
+(pst)
+(pst e)
+REPL_INPUT
