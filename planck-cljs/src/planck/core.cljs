@@ -51,8 +51,7 @@
     doc            {:arglists ([name])
                     :doc      "Prints documentation for a var or special form given its name"}
     pst            {:arglists ([] [e])
-                    :doc      (str "Prints a stack trace of the exception. If none supplied, uses the root cause of the "
-                                   "most recent repl exception (*e)")}})
+                    :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}})
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
