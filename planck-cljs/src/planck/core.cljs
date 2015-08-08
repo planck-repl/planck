@@ -36,7 +36,7 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns require require-macros doc})
+(def repl-specials '#{in-ns require require-macros doc pst})
 
 (defn repl-special? [form]
   (and (seq? form) (repl-specials (first form))))
@@ -49,7 +49,9 @@
     require-macros {:arglists ([& args])
                     :doc      "Similar to the require REPL special function but\n  only for macros."}
     doc            {:arglists ([name])
-                    :doc      "Prints documentation for a var or special form given its name"}})
+                    :doc      "Prints documentation for a var or special form given its name"}
+    pst            {:arglists ([] [e])
+                    :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}})
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
@@ -200,7 +202,15 @@
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
                     (let [sym (second expression-form)]
-                          (with-compiler-env st (resolve env sym))))))
+                          (with-compiler-env st (resolve env sym)))))
+            pst (let [expr (or (second expression-form) '*e)]
+                  (try (cljs/eval st
+                                  expr
+                                  {:ns   @current-ns
+                                   :context :expr
+                                   :eval cljs/js-eval}
+                                  print-error)
+                       (catch js/Error e (prn :caught e)))))
           (prn nil))
         (try
           (cljs/eval-str
@@ -218,22 +228,21 @@
                  :def-emits-var true}))
             (fn [{:keys [ns value error] :as ret}]
               (if expression?
-                (if-not error
-                  (do
-                    (when (or print-nil-expression?
+                (when-not error
+                  (when (or print-nil-expression?
                             (not (nil? value)))
-                      (prn value))
-                    (when-not
+                    (prn value))
+                  (when-not
                       (or ('#{*1 *2 *3 *e} expression-form)
-                        (ns-form? expression-form))
-                      (set! *3 *2)
-                      (set! *2 *1)
-                      (set! *1 value))
-                    (reset! current-ns ns)
-                    nil)
-                  (do
-                    (set! *e error))))
+                          (ns-form? expression-form))
+                    (set! *3 *2)
+                    (set! *2 *1)
+                    (set! *1 value))
+                  (reset! current-ns ns)
+                  nil))
               (when error
+                (set! *e error)
                 (print-error error))))
           (catch :default e
+            (set! *e e)
             (print-error e)))))))
