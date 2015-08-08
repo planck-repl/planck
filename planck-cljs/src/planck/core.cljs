@@ -189,7 +189,8 @@
   [source expression? print-nil-expression?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
-            r/*data-readers* tags/*cljs-data-readers*]
+            r/*data-readers* tags/*cljs-data-readers*
+            cljs.js/*eval-fn* cljs/js-eval]
     (let [expression-form (and expression? (repl-read-string source))]
       (if (repl-special? expression-form)
         (let [env (assoc (ana/empty-env) :context :expr
@@ -207,8 +208,7 @@
                   (try (cljs/eval st
                                   expr
                                   {:ns   @current-ns
-                                   :context :expr
-                                   :eval cljs/js-eval}
+                                   :context :expr}
                                   print-error)
                        (catch js/Error e (prn :caught e)))))
           (prn nil))
@@ -220,7 +220,6 @@
             (merge
               {:ns         @current-ns
                :load       load
-               :eval       cljs/js-eval
                :source-map false
                :verbose    (:verbose @app-env)}
               (when expression?
