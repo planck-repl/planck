@@ -1,12 +1,14 @@
 (ns planck.core
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
-  (:require [cljs.js :as cljs]
-            [cljs.tagged-literals :as tags]
-            [cljs.tools.reader :as r]
-            [cljs.analyzer :as ana]
+  (:require
+    [cljs.analyzer :as ana]
+    [cljs.tools.reader :as r]
+    [cljs.tagged-literals :as tags]
+    [cljs.source-map :as sm]
+
+            [cljs.js :as cljs]
             [cljs.repl :as repl]
             [cljs.stacktrace :as st]
-            [cljs.source-map :as sm]
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
@@ -136,7 +138,6 @@
 (defn require [macros-ns? sym reload]
   (cljs.js/require
     {:*compiler*     st
-     :*data-readers* tags/*cljs-data-readers*
      :*load-fn*      load
      :*eval-fn*      cljs/js-eval}
     sym
@@ -196,7 +197,7 @@
   [source expression? print-nil-expression?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
-            r/*data-readers* tags/*cljs-data-readers*
+            #_ #_ r/*data-readers* tags/*cljs-data-readers*
             cljs.js/*eval-fn* cljs/js-eval]
     (let [expression-form (and expression? (repl-read-string source))]
       (if (repl-special? expression-form)
