@@ -2,7 +2,8 @@
 
 source int-test/script/setup-env
 
-$PLANCK -e '(+ 1 1)'
+echo "Help output"
+$PLANCK -h
 
 echo "Repeated ordered -e and -i, supressing nil"
 $PLANCK -i $SRC/no-ns/foo.cljs -e ':a' -e 'nil' -i $SRC/no-ns/bar.cljs -e 2 -i $SRC/no-ns/foo.cljs
