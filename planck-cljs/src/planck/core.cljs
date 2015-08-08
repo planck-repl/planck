@@ -7,10 +7,17 @@
             [cljs.repl :as repl]
             [cljs.stacktrace :as st]
             [cljs.source-map :as sm]
+            [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
 
 (defonce st (cljs/empty-state))
+
+(defn ^:export load-core-analysis-cache [json]
+  ;(println "Loading analysis cache")
+  (let [rdr (transit/reader :json)
+        cache (transit/read rdr json)]
+    (cljs.js/load-analysis-cache! st 'cljs.core cache)))
 
 (defonce current-ns (atom 'cljs.user))
 
