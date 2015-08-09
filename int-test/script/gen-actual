@@ -9,14 +9,14 @@ echo "Repeated ordered -e and -i, supressing nil"
 $PLANCK -i $SRC/no-ns/foo.cljs -e ':a' -e 'nil' -i $SRC/no-ns/bar.cljs -e 2 -i $SRC/no-ns/foo.cljs
 
 echo "Test :cljs/quit"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK <<REPL_INPUT
 1
 :cljs/quit
 2
 REPL_INPUT
 
 echo "Test print to stderr"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK <<REPL_INPUT
 (binding [*print-fn* *print-err-fn*]
   (println "hello stderr"))
 REPL_INPUT
@@ -34,13 +34,13 @@ $PLANCK -s $SRC <<REPL_INPUT
 REPL_INPUT
 
 echo "Test in-ns REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK <<REPL_INPUT
 (in-ns 'foo.bar)
 ::a
 REPL_INPUT
 
 echo "Test doc REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK <<REPL_INPUT
 (doc inc)
 #_(doc when) ; Doc for macros temporarily broken
 (doc doc)
@@ -49,7 +49,7 @@ $PLANCK -s $SRC <<REPL_INPUT
 REPL_INPUT
 
 echo "Test pst REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK <<REPL_INPUT
 (defn f [] (throw (js/Error. "whoah")))
 (defn g [] (throw (js/Error. "ouch")))
 (f)
