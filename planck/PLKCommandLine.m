@@ -3,7 +3,7 @@
 #import "PLKExecutive.h"
 #import "PLKScript.h"
 
-#define PLANCK_VERSION "1.3"
+#define PLANCK_VERSION "1.4"
 
 @implementation PLKCommandLine
 
