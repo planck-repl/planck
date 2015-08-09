@@ -106,3 +106,31 @@ nil
 #planck.io.File{:path "abc"}
 #planck.io.File{:path "abc"}
 "abc"
+reader and read-line
+nil
+nil
+#'planck.io/test-read
+nil
+nil
+nil
+nil
+"a"
+nil
+nil
+nil
+"a"
+nil
+nil
+nil
+"a"
+nil
+nil
+nil
+"a"
+"b"
+nil
+nil
+"a"
+"b"
+nil
+nil
