@@ -113,3 +113,23 @@ $PLANCK <<REPL_INPUT
 (test-read "a\nb")
 (test-read "a\nb\n")
 REPL_INPUT
+
+echo "writer"
+$PLANCK <<REPL_INPUT
+(require 'planck.io)
+(in-ns 'planck.io)
+(defn test-write [content]
+  (spit "/tmp/PLANCK_TEST.txt" content)
+  (let [wtr (writer "/tmp/PLANCK_TEST.txt")]
+    (try
+      (-write wtr content)
+      (finally
+        (-close wtr))))
+  (= content (slurp "/tmp/PLANCK_TEST.txt")))
+(test-write "")
+(test-write "a")
+(test-write "a")
+(test-write "a\n")
+(test-write "a\nb")
+(test-write "a\nb\n")
+REPL_INPUT

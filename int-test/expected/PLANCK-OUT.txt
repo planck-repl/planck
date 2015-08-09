@@ -134,3 +134,13 @@ nil
 "b"
 nil
 nil
+writer
+nil
+nil
+#'planck.io/test-write
+true
+true
+true
+true
+true
+true

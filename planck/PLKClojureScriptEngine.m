@@ -4,6 +4,7 @@
 #import "ABYContextManager.h"
 #import "PLKBundledOut.h"
 #import "PLKFileReader.h"
+#import "PLKFileWriter.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -224,6 +225,7 @@
         // Inject Objective-C classes
         
         self.context[@"PLKFileReader"] = [PLKFileReader class];
+        self.context[@"PLKFileWriter"] = [PLKFileWriter class];
         
         // Set up the cljs.user namespace
         
