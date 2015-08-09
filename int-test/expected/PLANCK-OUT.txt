@@ -144,3 +144,25 @@ true
 true
 true
 true
+writer append
+nil
+nil
+#'planck.io/test-write
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
