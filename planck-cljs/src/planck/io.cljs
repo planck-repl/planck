@@ -38,7 +38,7 @@
       (as-file (.getPath u))
       (throw (js/Error. (str "Not a file: " u))))))
 
-(defprotocol IClosaeable
+(defprotocol IClosable
   (-close [this]))
 
 (defprotocol IReader
@@ -48,7 +48,7 @@
   IReader
   (-read [_]
     (raw-read))
-  IClosaeable
+  IClosable
   (-close [_]
     (raw-close)))
 
