@@ -75,3 +75,9 @@ $PLANCK <<REPL_INPUT
 (test-spit-slurp "a\nb")
 (test-spit-slurp "a\nb\n")
 REPL_INPUT
+
+echo "Shell"
+$PLANCK <<REPL_INPUT
+(require 'planck.shell)
+(into (sorted-set) (planck.shell/sh "echo" "hello))
+REPL_INPUT
