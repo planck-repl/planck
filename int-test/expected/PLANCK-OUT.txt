@@ -97,3 +97,12 @@ true
 nil
 true
 nil
+Shell
+nil
+Coercions
+nil
+nil
+nil
+#planck.io.File{:path "abc"}
+#planck.io.File{:path "abc"}
+"abc"
