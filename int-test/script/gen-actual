@@ -133,3 +133,36 @@ $PLANCK <<REPL_INPUT
 (test-write "a\nb")
 (test-write "a\nb\n")
 REPL_INPUT
+
+echo "writer append"
+$PLANCK <<REPL_INPUT
+(require 'planck.io)
+(in-ns 'planck.io)
+(defn test-write [previous-content content]
+  (spit "/tmp/PLANCK_TEST.txt" previous-content)
+  (let [wtr (writer "/tmp/PLANCK_TEST.txt" :append true)]
+    (try
+      (-write wtr content)
+      (finally
+        (-close wtr))))
+  (= (str previous-content content) (slurp "/tmp/PLANCK_TEST.txt")))
+(test-write "" "")
+(test-write "" "a")
+(test-write "" "a")
+(test-write "" "a\n")
+(test-write "" "a\nb")
+(test-write "" "a\nb\n")
+(test-write "x" "")
+(test-write "x" "a")
+(test-write "x" "a")
+(test-write "x" "a\n")
+(test-write "x" "a\nb")
+(test-write "x" "a\nb\n")
+(test-write "x\n" "")
+(test-write "x\n" "a")
+(test-write "x\n" "a")
+(test-write "x\n" "a\n")
+(test-write "x\n" "a\nb")
+(test-write "x\n" "a\nb\n")
+REPL_INPUT
+
