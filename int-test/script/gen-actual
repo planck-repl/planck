@@ -81,3 +81,13 @@ $PLANCK <<REPL_INPUT
 (require 'planck.shell)
 (into (sorted-set) (planck.shell/sh "echo" "hello))
 REPL_INPUT
+
+echo "Coercions"
+$PLANCK <<REPL_INPUT
+(require 'planck.io)
+(in-ns 'planck.io)
+(as-file nil)
+(as-file "abc")
+(as-file (as-file "abc"))
+(.-path (as-file "abc"))
+REPL_INPUT
