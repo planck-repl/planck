@@ -91,3 +91,25 @@ $PLANCK <<REPL_INPUT
 (as-file (as-file "abc"))
 (.-path (as-file "abc"))
 REPL_INPUT
+
+echo "reader and read-line"
+$PLANCK <<REPL_INPUT
+(require 'planck.io)
+(in-ns 'planck.io)
+(defn test-read [content]
+  (spit "/tmp/PLANCK_TEST.txt" content)
+  (let [rdr (reader "/tmp/PLANCK_TEST.txt")]
+    (try
+      (binding [*in* rdr]
+        (prn (read-line))
+        (prn (read-line))
+        (prn (read-line)))
+      (finally
+        (-close rdr)))))
+(test-read "")
+(test-read "a")
+(test-read "a")
+(test-read "a\n")
+(test-read "a\nb")
+(test-read "a\nb\n")
+REPL_INPUT
