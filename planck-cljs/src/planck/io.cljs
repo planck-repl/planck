@@ -52,12 +52,15 @@
   (-close [_]
     (raw-close)))
 
-(defrecord Writer [raw-write raw-flush]
+(defrecord Writer [raw-write raw-flush raw-close]
   IWriter
   (-write [_ s]
     (raw-write s))
   (-flush [_]
-    (raw-flush)))
+    (raw-flush))
+  IClosable
+  (-close [_]
+    (raw-close)))
 
 (defonce
   ^{:doc "A planck.io/IReader representing standard input for read operations."
@@ -65,13 +68,13 @@
   *in*
   (Reader. js/PLANCK_RAW_READ_STDIN nil))
 
-(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT))
+(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
 
 (defonce
   ^{:doc "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
-  (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
+  (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
 
 (defprotocol IOFactory
   "Factory functions that create ready-to-use versions of
@@ -86,26 +89,45 @@
     Callers should generally prefer the higher level API provided by
     reader, writer, input-stream, and output-stream."
   (make-reader [x opts] "Creates an IReader. See also IOFactory docs.")
-  #_(make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
+  (make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
   #_(make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
   #_(make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
+
+(defn- check-utf-8-encoding [encoding]
+  (when (and encoding (not= encoding "UTF-8"))
+    (throw js/Error. (str "Unsupported encoding: " encoding))))
 
 (extend-protocol IOFactory
   string
   (make-reader [s opts]
     (make-reader (as-file s) opts))
+  (make-writer [s opts]
+    (make-writer (as-file s) opts))
 
   File
   (make-reader [file opts]
     (let [file-reader (js/PLKFileReader.open (:path file))]
+      (check-utf-8-encoding (:encoding opts))
       (Reader.
         (fn [] (.read file-reader))
-        (fn [] (.close file-reader))))))
+        (fn [] (.close file-reader)))))
+  (make-writer [file opts]
+    (let [file-writer (js/PLKFileWriter.openAppend (:path file) (:append opts))]
+      (check-utf-8-encoding (:encoding opts))
+      (Writer.
+        (fn [s] (.write file-writer s))
+        (fn [] (.flush file-writer))
+        (fn [] (.close file-writer))))))
 
 (defn reader
   "Attempts to coerce its argument into an open IReader."
   [x & opts]
   (make-reader x (when opts (apply hash-map opts))))
+
+(defn writer
+  "Attempts to coerce its argument into an open IWriter."
+  [x & opts]
+  (make-writer x (when opts (apply hash-map opts))))
 
 (defn- fission!
   "Breaks an atom's value into two parts. The supplied function should
