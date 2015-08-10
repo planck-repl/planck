@@ -27,6 +27,19 @@ $PLANCK -s $SRC <<REPL_INPUT
 test-require.core/success
 REPL_INPUT
 
+echo "Test require :reload"
+mkdir -p /tmp/PLANCK_SRC/foo
+$PLANCK -s /tmp/PLANCK_SRC <<REPL_INPUT
+(require 'planck.io)
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
+(require 'foo.bar)
+foo.bar/x
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :reloaded)")
+(require 'foo.bar :reload)
+foo.bar/x
+REPL_INPUT
+
+
 echo "Test require-macros REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (require-macros 'test-require-macros.core)
