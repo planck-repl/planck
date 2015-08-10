@@ -42,6 +42,14 @@ nil
 Test require REPL special
 nil
 true
+Test require :reload
+nil
+nil
+nil
+:initial
+nil
+nil
+:reloaded
 Test require-macros REPL special
 nil
 5
