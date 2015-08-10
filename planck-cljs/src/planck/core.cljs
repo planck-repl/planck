@@ -133,22 +133,29 @@
         (recur (next extensions)))
       (cb nil))))
 
+(declare print-error)
+
 (defn require [macros-ns? sym reload]
   (cljs/require
-    {:*compiler*     st
-     :*load-fn*      load
-     :*eval-fn*      cljs/js-eval}
-    sym
-    reload
-    {:macros-ns  macros-ns?
-     :verbose    (:verbose @app-env)
-     :source-map true}
-    (fn [res]
-      #_(println "require result:" res))))
+   {:*compiler*     st
+    :*load-fn*      load}
+   sym
+   reload
+   {:macros-ns  macros-ns?
+    :verbose    (:verbose @app-env)
+    :source-map true}
+   (fn [{:keys [error value] :as res}]
+     (cond error (print-error error)
+           (not value) (print-error (js/Error. (str "Unable to load " (second sym))))))))
+
+(defn valid-require? [[ns-form require]]
+  (and (list? ns-form) (= (first ns-form) 'quote)))
 
 (defn require-destructure [macros-ns? args]
-  (let [[[_ sym] reload] args]
-    (require macros-ns? sym reload)))
+  (if (valid-require? args)
+    (let [[[_ sym] reload] args]
+      (require macros-ns? sym reload))
+    (print-error (js/Error. (str "Invalid require form: " (pr-str (cons 'require args)))))))
 
 (defn ^:export run-main [main-ns args]
   (let [main-args (js->clj args)]
