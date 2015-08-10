@@ -148,14 +148,13 @@
      (cond error (print-error error)
            (not value) (print-error (js/Error. (str "Unable to load " (second sym))))))))
 
-(defn valid-require? [[ns-form require]]
-  (and (list? ns-form) (= (first ns-form) 'quote)))
+(defn validate-require! [[_ ns-form require :as expr]]
+  (when-not (and (list? ns-form) (= (first ns-form) 'quote))
+    (println (str "ERROR: Invalid require form: " expr))))
 
 (defn require-destructure [macros-ns? args]
-  (if (valid-require? args)
-    (let [[[_ sym] reload] args]
-      (require macros-ns? sym reload))
-    (print-error (js/Error. (str "Invalid require form: " (pr-str (cons 'require args)))))))
+  (let [[[_ sym] reload] args]
+    (require macros-ns? sym reload)))
 
 (defn ^:export run-main [main-ns args]
   (let [main-args (js->clj args)]
@@ -209,8 +208,10 @@
                                          :ns {:name @current-ns})]
           (case (first expression-form)
             in-ns (reset! current-ns (second (second expression-form)))
-            require (require-destructure false (rest expression-form))
-            require-macros (require-destructure true (rest expression-form))
+            require (do (validate-require! expression-form)
+                        (require-destructure false (rest expression-form)))
+            require-macros (do (validate-require! expression-form)
+                               (require-destructure true (rest expression-form)))
             doc (if (repl-specials (second expression-form))
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
