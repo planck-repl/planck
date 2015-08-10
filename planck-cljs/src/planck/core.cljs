@@ -137,7 +137,6 @@
   (cljs/require
     {:*compiler*     st
      :*load-fn*      load
-     :*eval-fn*      cljs/js-eval}
     sym
     reload
     {:macros-ns  macros-ns?
