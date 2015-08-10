@@ -1,11 +1,9 @@
 (ns planck.core
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
-  (:require
-    [cljs.analyzer :as ana]
-    [cljs.tools.reader :as r]
-    [cljs.tagged-literals :as tags]
-    [cljs.source-map :as sm]
-
+  (:require [cljs.analyzer :as ana]
+            [cljs.tools.reader :as r]
+            [cljs.tagged-literals :as tags]
+            [cljs.source-map :as sm]
             [cljs.js :as cljs]
             [cljs.repl :as repl]
             [cljs.stacktrace :as st]
@@ -19,7 +17,7 @@
   ;(println "Loading analysis cache")
   (let [rdr (transit/reader :json)
         cache (transit/read rdr json)]
-    (cljs.js/load-analysis-cache! st 'cljs.core cache)))
+    (cljs/load-analysis-cache! st 'cljs.core cache)))
 
 (defonce current-ns (atom 'cljs.user))
 
@@ -136,7 +134,7 @@
       (cb nil))))
 
 (defn require [macros-ns? sym reload]
-  (cljs.js/require
+  (cljs/require
     {:*compiler*     st
      :*load-fn*      load
      :*eval-fn*      cljs/js-eval}
@@ -197,8 +195,7 @@
   [source expression? print-nil-expression?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
-            #_ #_ r/*data-readers* tags/*cljs-data-readers*
-            cljs.js/*eval-fn* cljs/js-eval]
+            cljs/*eval-fn* cljs/js-eval]
     (let [expression-form (and expression? (repl-read-string source))]
       (if (repl-special? expression-form)
         (let [env (assoc (ana/empty-env) :context :expr
