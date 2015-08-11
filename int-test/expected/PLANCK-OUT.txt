@@ -39,10 +39,28 @@ Test :cljs/quit
 1
 Test print to stderr
 nil
+Test main
+5
 Test require REPL special
 nil
 true
 Test require :reload
+nil
+nil
+nil
+:initial
+nil
+nil
+:reloaded
+Test require :reload in changing spec
+nil
+nil
+nil
+:initial
+nil
+nil
+:reloaded
+Test require :reload-all
 nil
 nil
 nil

@@ -65,6 +65,67 @@
     :name name-symbol
     :repl-special-function true))
 
+(defn- canonicalize-specs [specs]
+  (letfn [(canonicalize [quoted-spec-or-kw]
+            (if (keyword? quoted-spec-or-kw)
+              quoted-spec-or-kw
+              (as-> (second quoted-spec-or-kw) spec
+                (if (vector? spec) spec [spec]))))]
+    (map canonicalize specs)))
+
+(defn- process-reloads! [specs]
+  (if-let [k (some #{:reload :reload-all} specs)]
+    (let [specs (->> specs (remove #{k}))]
+      (if (= k :reload-all)
+        (reset! cljs.js/*loaded* #{})
+        (apply swap! cljs.js/*loaded* disj (map first specs)))
+      specs)
+    specs))
+
+(defn- self-require? [specs]
+  (some
+    (fn [quoted-spec-or-kw]
+      (and (not (keyword? quoted-spec-or-kw))
+        (let [spec (second quoted-spec-or-kw)
+              ns (if (sequential? spec)
+                   (first spec)
+                   spec)]
+          (= ns @current-ns))))
+    specs))
+
+(declare print-error)
+
+(defn- process-require
+  [macros-ns? cb specs]
+  (try
+    (let [is-self-require? (self-require? specs)
+          [target-ns restore-ns]
+          (if-not is-self-require?
+            [@current-ns nil]
+            ['cljs.user @current-ns])]
+      (cljs/eval
+        st
+        (let [ns-form `(~'ns ~target-ns
+                         (~(if macros-ns?
+                             :require-macros :require)
+                           ~@(-> specs canonicalize-specs process-reloads!)))]
+          (when (:verbose @app-env)
+            (println "Implementing"
+              (if macros-ns?
+                "require-macros"
+                "require")
+              "via ns:\n  "
+              (pr-str ns-form)))
+          ns-form)
+        {:ns      @current-ns
+         :context :expr
+         :verbose (:verbose @app-env)}
+        (fn [_]
+          (when is-self-require?
+            (reset! current-ns restore-ns))
+          (cb))))
+    (catch :default e
+      (print-error e))))
 
 (defn resolve
   "Given an analysis environment resolve a var. Analogous to
@@ -124,7 +185,6 @@
     :loaded))
 
 (defn load [{:keys [name macros path] :as full} cb]
-  #_(prn full)
   (loop [extensions (if macros
                       [".clj" ".cljc"]
                       [".cljs" ".cljc" ".js"])]
@@ -133,42 +193,22 @@
         (recur (next extensions)))
       (cb nil))))
 
-(declare print-error)
-
-(defn require [macros-ns? sym reload]
-  (cljs/require
-   {:*compiler*     st
-    :*load-fn*      load}
-   sym
-   reload
-   {:macros-ns  macros-ns?
-    :verbose    (:verbose @app-env)
-    :source-map true}
-   (fn [{:keys [error value] :as res}]
-     (cond error (print-error error)
-           (not value) (print-error (js/Error. (str "Unable to load " (second sym))))))))
-
-(defn validate-require! [[_ ns-form require :as expr]]
-  (when-not (and (list? ns-form) (= (first ns-form) 'quote))
-    (println (str "ERROR: Invalid require form: " expr))))
-
-(defn require-destructure [macros-ns? args]
-  (let [[[_ sym] reload] args]
-    (require macros-ns? sym reload)))
-
 (defn ^:export run-main [main-ns args]
   (let [main-args (js->clj args)]
-    (require false (symbol main-ns) nil)
-    (cljs/eval-str st
-      (str "(var -main)")
-      nil
-      {:ns         (symbol main-ns)
-       :load       load
-       :eval       cljs/js-eval
-       :source-map true
-       :context    :expr}
-      (fn [{:keys [ns value error] :as ret}]
-        (apply value args)))
+    (binding [cljs/*load-fn* load
+              cljs/*eval-fn* cljs/js-eval]
+      (process-require
+        false
+        (fn [_]
+          (cljs/eval-str st
+            (str "(var -main)")
+            nil
+            {:ns         (symbol main-ns)
+             :source-map true
+             :context    :expr}
+            (fn [{:keys [ns value error] :as ret}]
+              (apply value args))))
+        `[(quote ~(symbol main-ns))]))
     nil))
 
 (defn load-core-source-maps! []
@@ -201,6 +241,7 @@
   [source expression? print-nil-expression?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
+            cljs/*load-fn* load
             cljs/*eval-fn* cljs/js-eval]
     (let [expression-form (and expression? (repl-read-string source))]
       (if (repl-special? expression-form)
@@ -208,10 +249,8 @@
                                          :ns {:name @current-ns})]
           (case (first expression-form)
             in-ns (reset! current-ns (second (second expression-form)))
-            require (do (validate-require! expression-form)
-                        (require-destructure false (rest expression-form)))
-            require-macros (do (validate-require! expression-form)
-                               (require-destructure true (rest expression-form)))
+            require (process-require false identity (rest expression-form))
+            require-macros (process-require true identity (rest expression-form))
             doc (if (repl-specials (second expression-form))
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
@@ -232,7 +271,6 @@
             (if expression? source "File")
             (merge
               {:ns         @current-ns
-               :load       load
                :source-map false
                :verbose    (:verbose @app-env)}
               (when expression?
