@@ -44,6 +44,9 @@ Test main
 Test require REPL special
 nil
 true
+Test require unknown ns
+No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
+nil
 Test require :reload
 nil
 nil
@@ -68,6 +71,9 @@ nil
 nil
 nil
 :reloaded
+Test require-macros unknown ns
+No such namespace: unknown-ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown-ns.core"
+nil
 Test require-macros REPL special
 nil
 5
