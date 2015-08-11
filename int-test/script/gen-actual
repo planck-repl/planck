@@ -30,6 +30,11 @@ $PLANCK -s $SRC <<REPL_INPUT
 test-require.core/success
 REPL_INPUT
 
+echo "Test require unknown ns"
+$PLANCK -s $SRC <<REPL_INPUT
+(require 'unknown_ns.core)
+REPL_INPUT
+
 echo "Test require :reload"
 mkdir -p /tmp/PLANCK_SRC/foo
 $PLANCK -s /tmp/PLANCK_SRC <<REPL_INPUT
@@ -66,6 +71,11 @@ foo.bar/x
 foo.bar/x
 REPL_INPUT
 
+# Note, the output of this will change with #68 / CLJS-1417
+echo "Test require-macros unknown ns"
+$PLANCK -s $SRC <<REPL_INPUT
+(require-macros 'unknown-ns.core)
+REPL_INPUT
 
 echo "Test require-macros REPL special"
 $PLANCK -s $SRC <<REPL_INPUT

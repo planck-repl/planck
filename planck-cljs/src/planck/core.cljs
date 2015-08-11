@@ -120,9 +120,11 @@
         {:ns      @current-ns
          :context :expr
          :verbose (:verbose @app-env)}
-        (fn [_]
+        (fn [{e :error}]
           (when is-self-require?
             (reset! current-ns restore-ns))
+          (when e
+            (print-error e false))
           (cb))))
     (catch :default e
       (print-error e))))
@@ -222,20 +224,24 @@
                                                 (cljson->clj
                                                   (js/PLANCK_LOAD "cljs/core.js.map")))})))
 
-(defn print-error [error]
-  (let [cause (or (.-cause error) error)]
-    (println (.-message cause))
-    (load-core-source-maps!)
-    (let [canonical-stacktrace (st/parse-stacktrace
-                                 {}
-                                 (.-stack cause)
-                                 {:ua-product :safari}
-                                 {:output-dir "file://(/goog/..)?"})]
-      (println
-        (st/mapped-stacktrace-str
-          canonical-stacktrace
-          (or (:source-maps @planck.core/st) {})
-          nil)))))
+(defn print-error
+  ([error]
+    (print-error error true))
+  ([error include-stacktrace?]
+    (let [cause (or (.-cause error) error)]
+      (println (.-message cause))
+      (when include-stacktrace?
+        (load-core-source-maps!)
+        (let [canonical-stacktrace (st/parse-stacktrace
+                                     {}
+                                     (.-stack cause)
+                                     {:ua-product :safari}
+                                     {:output-dir "file://(/goog/..)?"})]
+          (println
+            (st/mapped-stacktrace-str
+              canonical-stacktrace
+              (or (:source-maps @planck.core/st) {})
+              nil)))))))
 
 (defn ^:export read-eval-print
   [source expression? print-nil-expression?]
