@@ -1,3 +1,8 @@
 #!/bin/bash
 
-int-test/script/run-tests && echo "All tests have passed"
+if [ -f build/Release/planck ]
+then
+		int-test/script/run-tests && echo "All tests have passed"
+else
+		echo "ERROR: You must run script/build before running script/test"
+fi
