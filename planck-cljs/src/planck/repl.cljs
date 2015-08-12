@@ -186,14 +186,33 @@
          :source source})
     :loaded))
 
+(defn closure-index []
+  (let [paths-to-provides
+        (map (fn [[_ path provides]]
+               [path (map second
+                       (re-seq #"'(.*?)'" provides))])
+          (re-seq #"\ngoog\.addDependency\('(.*)', \[(.*?)\].*"
+            (js/PLANCK_LOAD "goog/deps.js")))]
+    (into {}
+      (for [[path provides] paths-to-provides
+            provide provides]
+        [(symbol provide) (str "goog/" (second (re-find #"(.*)\.js$" path)))]))))
+
+(def closure-index-mem (memoize closure-index))
+
 (defn load [{:keys [name macros path] :as full} cb]
-  (loop [extensions (if macros
-                      [".clj" ".cljc"]
-                      [".cljs" ".cljc" ".js"])]
-    (if extensions
-      (when-not (load-and-callback! path (first extensions) cb)
-        (recur (next extensions)))
-      (cb nil))))
+  (if (re-matches #"^goog/.*" path)
+    (if-let [goog-path (get (closure-index-mem) name)]
+      (when-not (load-and-callback! goog-path ".js" cb)
+        (cb nil))
+      (cb nil))
+    (loop [extensions (if macros
+                        [".clj" ".cljc"]
+                        [".cljs" ".cljc" ".js"])]
+      (if extensions
+        (when-not (load-and-callback! path (first extensions) cb)
+          (recur (next extensions)))
+        (cb nil)))))
 
 (defn ^:export run-main [main-ns args]
   (let [main-args (js->clj args)]
