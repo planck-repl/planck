@@ -208,3 +208,5 @@ nil
 /private/tmp/PLANCK_FILE_SEQ/A/C/G
 /private/tmp/PLANCK_FILE_SEQ/A/D
 nil
+Test Google Closure index
+nil

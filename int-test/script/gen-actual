@@ -231,3 +231,8 @@ $PLANCK <<REPL_INPUT
 (run! println (map (memfn path) (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ"))))
 REPL_INPUT
 rm -rf /tmp/PLANCK_FILE_SEQ
+
+echo "Test Google Closure index"
+$PLANCK <<REPL_INPUT
+(ns foo.bar (:require clojure.string))
+REPL_INPUT
