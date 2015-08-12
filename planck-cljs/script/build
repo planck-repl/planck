@@ -1,2 +1,7 @@
 #!/bin/bash
+
+# Make sure we fail and exit on the command that actually failed.
+set -e
+set -o pipefail
+
 lein run -m clojure.main script/build.clj
