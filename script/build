@@ -6,5 +6,11 @@ script/build
 script/bundle
 cd ..
 
+
 # Xcode
-xcodebuild -project planck.xcodeproj -scheme planck -configuration Release SYMROOT=$(PWD)/build
+BUILD_DIR=build
+CONFIGURATION=Release
+
+xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR
+
+echo "Binary located at $(PWD)/$BUILD_DIR/$CONFIGURATION/planck"
