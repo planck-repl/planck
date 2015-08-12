@@ -5,6 +5,7 @@
 #import "PLKBundledOut.h"
 #import "PLKFileReader.h"
 #import "PLKFileWriter.h"
+#import "PLKIO.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -182,7 +183,15 @@
             NSDictionary *result = cljs_shell(args, TSTR(arg_in), TSTR(encoding_in), TSTR(encoding_out), env, TSTR(dir));
             return result;
         };
-
+        
+        self.context[@"PLANCK_IO_FILE"] = ^(JSValue* input) {
+            PLKFile *file = [PLKFile file:[ABYUtils valueOfType:[NSString class] fromJSValue:input]];
+            return file;
+        };
+        
+        self.context[@"PLANCK_IO_FILESEQ"] = ^(PLKFile *f) {
+            return cljs_file_seq(f);
+        };
         
         const BOOL isTty = isatty(fileno(stdin));
         

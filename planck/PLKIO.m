@@ -20,6 +20,12 @@
     return aFile;
 }
 
+/* I implemented this to get proper string identification on the repl,
+   but somehow it still just says [object PLKFile] */
+- (NSString*) description {
+    return self.path;
+}
+
 - (void) deleteFile {
     NSFileManager *manager = [NSFileManager defaultManager];
     NSError *error = nil;
