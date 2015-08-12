@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D0A653E1B7B7B6F00D6EA85 /* PLKIO.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0A653D1B7B7B6F00D6EA85 /* PLKIO.m */; };
 		E7FE09C31B713C70009D090C /* PLKScript.m in Sources */ = {isa = PBXBuildFile; fileRef = E7FE09C21B713C70009D090C /* PLKScript.m */; };
 		ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE20E1B70464F0096585B /* PLKRepl.m */; };
 		ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2111B7047B70096585B /* PLKCommandLine.m */; };
@@ -36,6 +37,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D0A653C1B7B7B6F00D6EA85 /* PLKIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKIO.h; sourceTree = "<group>"; };
+		4D0A653D1B7B7B6F00D6EA85 /* PLKIO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKIO.m; sourceTree = "<group>"; };
 		E7FE09C11B713C70009D090C /* PLKScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKScript.h; sourceTree = "<group>"; };
 		E7FE09C21B713C70009D090C /* PLKScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKScript.m; sourceTree = "<group>"; };
 		ED1CE20D1B70464F0096585B /* PLKRepl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKRepl.h; sourceTree = "<group>"; };
@@ -147,6 +150,8 @@
 				ED1CE2271B72C6360096585B /* PLKFileReader.m */,
 				ED8DBF7F1B77732F00BBA2FA /* PLKFileWriter.h */,
 				ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */,
+				4D0A653C1B7B7B6F00D6EA85 /* PLKIO.h */,
+				4D0A653D1B7B7B6F00D6EA85 /* PLKIO.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
@@ -212,6 +217,7 @@
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */,
+				4D0A653E1B7B7B6F00D6EA85 /* PLKIO.m in Sources */,
 				E7FE09C31B713C70009D090C /* PLKScript.m in Sources */,
 				ED1CE2221B72563A0096585B /* PLKSh.m in Sources */,
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,

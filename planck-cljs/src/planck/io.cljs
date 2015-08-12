@@ -173,3 +173,18 @@
   [filename content]
   (js/PLANCK_WRITE_FILE filename content)
   nil)
+
+(defn file
+  "Returns a PLKFile, passing each arg to as-file.  Multiple-arg
+   versions treat the first argument as parent and subsequent args as
+   children relative to the parent."
+  ([arg]                      
+    (js/PLANCK_IO_FILE arg))
+  ([parent & more]
+     (js/PLANCK_IO_FILE (apply str parent more))))
+
+(defn delete-file
+  "Delete file f."
+  [f]
+  (.deleteFile f))
+
