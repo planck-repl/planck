@@ -21,3 +21,5 @@
 @interface PLKFile : NSObject<PLKFile>
 
 @end
+
+NSArray *cljs_file_seq(PLKFile *input);
