@@ -1,4 +1,4 @@
-(ns planck.core
+(ns planck.repl
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
   (:require [cljs.analyzer :as ana]
             [cljs.tools.reader :as r]
@@ -27,7 +27,7 @@
   (reduce-kv (fn [r k v] (assoc r (f k) v)) {} m))
 
 (defn ^:export init-app-env [app-env]
-  (reset! planck.core/app-env (map-keys keyword (cljs.core/js->clj app-env))))
+  (reset! planck.repl/app-env (map-keys keyword (cljs.core/js->clj app-env))))
 
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
@@ -150,14 +150,14 @@
               #(not (:private (:meta (val %)))))
       (apply merge
         ((juxt :defs :macros)
-          (get (:cljs.analyzer/namespaces @planck.core/st) ns-sym))))))
+          (get (:cljs.analyzer/namespaces @planck.repl/st) ns-sym))))))
 
 (defn is-completion? [buffer-match-suffix candidate]
   (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
 
 (defn ^:export get-completions [buffer]
   (let [namespace-candidates (map str
-                               (keys (:cljs.analyzer/namespaces @planck.core/st)))
+                               (keys (:cljs.analyzer/namespaces @planck.repl/st)))
         top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
         typed-ns (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))
         all-candidates (set (if typed-ns
@@ -214,11 +214,11 @@
     nil))
 
 (defn load-core-source-maps! []
-  (when-not (get (:source-maps @planck.core/st) 'planck.core)
-    (swap! st update-in [:source-maps] merge {'planck.core
+  (when-not (get (:source-maps @planck.repl/st) 'planck.repl)
+    (swap! st update-in [:source-maps] merge {'planck.repl
                                               (sm/decode
                                                 (cljson->clj
-                                                  (js/PLANCK_LOAD "planck/core.js.map")))
+                                                  (js/PLANCK_LOAD "planck/repl.js.map")))
                                               'cljs.core
                                               (sm/decode
                                                 (cljson->clj
@@ -240,7 +240,7 @@
           (println
             (st/mapped-stacktrace-str
               canonical-stacktrace
-              (or (:source-maps @planck.core/st) {})
+              (or (:source-maps @planck.repl/st) {})
               nil)))))))
 
 (defn ^:export read-eval-print
@@ -302,8 +302,3 @@
           (catch :default e
             (set! *e e)
             (print-error e)))))))
-
-(defn file-seq
-  "A tree seq on PLKFiles"
-  [dir]
-  (js/PLANCK_IO_FILESEQ dir))

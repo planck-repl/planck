@@ -156,11 +156,11 @@
         
         self.context[@"PLANCK_LOAD"] = planckLoad;
         
-        JSValue* loadCoreAnalysisCacheFn = [self getValue:@"load-core-analysis-cache" inNamespace:@"planck.core" fromContext:self.context];
+        JSValue* loadCoreAnalysisCacheFn = [self getValue:@"load-core-analysis-cache" inNamespace:@"planck.repl" fromContext:self.context];
         [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core.cljs.cache.aot.json")]];
         // [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core$macros.cljc.cache.json")]];
         
-        JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.core" fromContext:self.context];
+        JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.repl" fromContext:self.context];
         [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
                                             @"verbose": @(verbose)}]];
         
@@ -250,7 +250,7 @@
 
 -(void)requireAppNamespaces:(JSContext*)context
 {
-    [context evaluateScript:[NSString stringWithFormat:@"goog.require('%@');", [self munge:@"planck.core"]]];
+    [context evaluateScript:[NSString stringWithFormat:@"goog.require('%@');", [self munge:@"planck.repl"]]];
 }
 
 - (JSValue*)getValue:(NSString*)name inNamespace:(NSString*)namespace fromContext:(JSContext*)context
@@ -378,7 +378,7 @@
 -(JSValue*)getFunction:(NSString*)name
 {
     [self blockUntilEngineReady];
-    JSValue* rv = [self getValue:name inNamespace:@"planck.core" fromContext:self.context];
+    JSValue* rv = [self getValue:name inNamespace:@"planck.repl" fromContext:self.context];
     NSAssert(!rv.isUndefined, name);
     return rv;
 }

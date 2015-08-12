@@ -6,6 +6,7 @@
 @protocol PLKFile <JSExport>
 
 +(PLKFile*)file:(NSString*)path;
+- (NSString*)path;
 - (void) deleteFile;
 
 @end
