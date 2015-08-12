@@ -215,3 +215,19 @@ $PLANCK <<REPL_INPUT
 (test-write "x\n" "a\nb")
 (test-write "x\n" "a\nb\n")
 REPL_INPUT
+
+echo "Test file-seq"
+# The output should be depth-first, as below
+mkdir /tmp/PLANCK_FILE_SEQ
+mkdir /tmp/PLANCK_FILE_SEQ/A
+mkdir /tmp/PLANCK_FILE_SEQ/A/B
+touch /tmp/PLANCK_FILE_SEQ/A/B/E
+touch /tmp/PLANCK_FILE_SEQ/A/B/F
+mkdir /tmp/PLANCK_FILE_SEQ/A/C
+touch /tmp/PLANCK_FILE_SEQ/A/C/G
+touch /tmp/PLANCK_FILE_SEQ/A/D
+$PLANCK <<REPL_INPUT
+(require '[planck.core] '[planck.io])
+(run! println (map (memfn path) (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ"))))
+REPL_INPUT
+rm -rf /tmp/PLANCK_FILE_SEQ

@@ -198,3 +198,13 @@ true
 true
 true
 true
+Test file-seq
+nil
+/private/tmp/PLANCK_FILE_SEQ/A
+/private/tmp/PLANCK_FILE_SEQ/A/B
+/private/tmp/PLANCK_FILE_SEQ/A/B/E
+/private/tmp/PLANCK_FILE_SEQ/A/B/F
+/private/tmp/PLANCK_FILE_SEQ/A/C
+/private/tmp/PLANCK_FILE_SEQ/A/C/G
+/private/tmp/PLANCK_FILE_SEQ/A/D
+nil
