@@ -1,11 +1,3 @@
-//
-//  PLKIO.m
-//  planck
-//
-//  Created by Benedikt Terhechte on 12/08/15.
-//  Copyright © 2015 FikesFarm. All rights reserved.
-//
-
 #import "PLKIO.h"
 
 @interface PLKFile()

@@ -1,11 +1,3 @@
-//
-//  Sh.m
-//  planck
-//
-//  Created by Benedikt Terhechte on 04/08/15.
-//  Copyright (c) 2015 FikesFarm. All rights reserved.
-//
-
 #import "PLKSh.h"
 
 NSStringEncoding encodingFromString(NSString *encoding_in, NSStringEncoding defaultEncoding) {
