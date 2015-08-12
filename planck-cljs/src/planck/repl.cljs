@@ -163,9 +163,9 @@
         all-candidates (set (if typed-ns
                               (completion-candidates-for-ns (symbol typed-ns) false)
                               (concat namespace-candidates
-                                      (completion-candidates-for-ns 'cljs.core false)
-                                      (completion-candidates-for-ns @current-ns true)
-                                      (when top-form? (map str repl-specials)))))]
+                                (completion-candidates-for-ns 'cljs.core false)
+                                (completion-candidates-for-ns @current-ns true)
+                                (when top-form? (map str repl-specials)))))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
           buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
@@ -226,22 +226,22 @@
 
 (defn print-error
   ([error]
-    (print-error error true))
+   (print-error error true))
   ([error include-stacktrace?]
-    (let [cause (or (.-cause error) error)]
-      (println (.-message cause))
-      (when include-stacktrace?
-        (load-core-source-maps!)
-        (let [canonical-stacktrace (st/parse-stacktrace
-                                     {}
-                                     (.-stack cause)
-                                     {:ua-product :safari}
-                                     {:output-dir "file://(/goog/..)?"})]
-          (println
-            (st/mapped-stacktrace-str
-              canonical-stacktrace
-              (or (:source-maps @planck.repl/st) {})
-              nil)))))))
+   (let [cause (or (.-cause error) error)]
+     (println (.-message cause))
+     (when include-stacktrace?
+       (load-core-source-maps!)
+       (let [canonical-stacktrace (st/parse-stacktrace
+                                    {}
+                                    (.-stack cause)
+                                    {:ua-product :safari}
+                                    {:output-dir "file://(/goog/..)?"})]
+         (println
+           (st/mapped-stacktrace-str
+             canonical-stacktrace
+             (or (:source-maps @planck.repl/st) {})
+             nil)))))))
 
 (defn ^:export read-eval-print
   [source expression? print-nil-expression?]
@@ -260,14 +260,17 @@
             doc (if (repl-specials (second expression-form))
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
-                    (let [sym (second expression-form)]
-                          (with-compiler-env st (resolve env sym)))))
+                    (let [sym (second expression-form)
+                          var (with-compiler-env st (resolve env sym))]
+                      (if (= (namespace (:name var)) (str (:ns var)))
+                        (update var :name #(symbol (name %)))
+                        var))))
             pst (let [expr (or (second expression-form) '*e)]
                   (try (cljs/eval st
-                                  expr
-                                  {:ns   @current-ns
-                                   :context :expr}
-                                  print-error)
+                         expr
+                         {:ns      @current-ns
+                          :context :expr}
+                         print-error)
                        (catch js/Error e (prn :caught e)))))
           (prn nil))
         (try
@@ -286,11 +289,11 @@
               (if expression?
                 (when-not error
                   (when (or print-nil-expression?
-                            (not (nil? value)))
+                          (not (nil? value)))
                     (prn value))
                   (when-not
-                      (or ('#{*1 *2 *3 *e} expression-form)
-                          (ns-form? expression-form))
+                    (or ('#{*1 *2 *3 *e} expression-form)
+                      (ns-form? expression-form))
                     (set! *3 *2)
                     (set! *2 *1)
                     (set! *1 value))
