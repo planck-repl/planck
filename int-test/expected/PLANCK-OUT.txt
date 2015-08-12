@@ -82,7 +82,7 @@ nil
 :foo.bar/a
 Test doc REPL special
 -------------------------
-cljs.core/cljs.core/inc
+cljs.core/inc
 ([x])
   Returns a number one greater than num.
 nil
@@ -94,7 +94,7 @@ REPL Special Function
 nil
 #'cljs.user/f
 -------------------------
-cljs.user/cljs.user/f
+cljs.user/f
 ([param])
   docstring
 nil
