@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Make sure we fail and exit on the command that actually failed.
+set -e
+set -o pipefail
+
 echo '#import <Foundation/Foundation.h>' > PLKBundledOut.m
 echo "" > manifest.m
 cd out
