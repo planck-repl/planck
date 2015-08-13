@@ -71,7 +71,7 @@
                     :doc      "Prints documentation for a var or special form given its name"}
     pst            {:arglists ([] [e])
                     :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}
-    load-file      {:arglists  ([file])
+    load-file      {:arglists  ([filename])
                     :doc      "Loads a file"}})
 
 (defn- repl-special-doc [name-symbol]
@@ -137,7 +137,7 @@
             (reset! current-ns restore-ns))
           (when e
             (print-error e false))
-          )))
+          (cb))))
     (catch :default e
       (print-error e))))
 
@@ -147,18 +147,19 @@
   [filename]
   (try
     (let [file-contents (or (js/PLANCK_READ_FILE filename)
-                           (throw (js/Error. (str "Could not load file " filename))))]
+                            (throw (js/Error. (str "Could not load file " filename))))]
       (cljs/eval-str
         st
        file-contents
        filename
         {:ns      @current-ns
-         :context :expr
          :verbose (:verbose @app-env)}
         (fn [{e :error}]
           (when e
             (print-error e false))
           )))
+    (catch js/Error e
+      (print-error e false))
     (catch :default e
       (print-error e))))
 
@@ -325,7 +326,8 @@
                          print-error)
                        (catch js/Error e (prn :caught e))))
             load-file (let [filename (second expression-form)]
-                        (process-load-file filename)))
+                        (process-load-file filename))
+            )
           (prn nil))
         (try
           (cljs/eval-str
