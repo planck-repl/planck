@@ -54,7 +54,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
     return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
 }
 
--(void)runPlainTerminal:(BOOL)plainTerminal usingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
+-(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine plainTerminal:(BOOL)plainTerminal
 {
     NSString* currentNs = @"cljs.user";
     NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO];
