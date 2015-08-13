@@ -51,6 +51,7 @@ space before and after
 Test print to stderr
 nil
 Test main
+5
 Test require REPL special
 nil
 true
@@ -128,11 +129,18 @@ nil
 Test load-file REPL special
 nil
 true
+Test doc support for load-file REPL special
+-------------------------
+load-file
+([filename])
+REPL Special Function
+  Loads a file
+nil
 Test load-file REPL bad filename
 Could not load file int-test/src/test_load_file/nofile.cljs
-	 planck$repl$process_load_file (planck/repl.cljs:160:3)
-	 planck$repl$read_eval_print (planck/repl.cljs:318:26)
-
+nil
+Test load-file REPL error in file
+undefined is not an object (evaluating 'test_load_file.error_in_file.invalid.call')
 nil
 Spit / slurp
 #'cljs.user/test-file

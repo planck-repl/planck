@@ -139,9 +139,19 @@ $PLANCK -s $SRC <<REPL_INPUT
 test-load-file.core/success
 REPL_INPUT
 
+echo "Test doc support for load-file REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(doc load-file)
+REPL_INPUT
+
 echo "Test load-file REPL bad filename"
 $PLANCK -s $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/nofile.cljs")
+REPL_INPUT
+
+echo "Test load-file REPL error in file"
+$PLANCK -s $SRC <<REPL_INPUT
+(load-file "int-test/src/test_load_file/error_in_file.cljs")
 REPL_INPUT
 
 echo "Spit / slurp"
