@@ -133,6 +133,17 @@ $PLANCK <<REPL_INPUT
 (pst e)
 REPL_INPUT
 
+echo "Test load-file REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(load-file "int-test/src/test_load_file/core.cljs")
+test-load-file.core/success
+REPL_INPUT
+
+echo "Test load-file REPL bad filename"
+$PLANCK -s $SRC <<REPL_INPUT
+(load-file "int-test/src/test_load_file/nofile.cljs")
+REPL_INPUT
+
 echo "Spit / slurp"
 $PLANCK <<REPL_INPUT
 (def test-file "/tmp/PLANCK_TEST.txt")
