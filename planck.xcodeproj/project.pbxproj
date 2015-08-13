@@ -19,6 +19,7 @@
 		ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */ = {isa = PBXBuildFile; fileRef = ED4919571B6EB9520084F9C5 /* linenoise.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
+		EDBB07001B7CE23400D8C6C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
 		EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */; };
 		EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */; };
@@ -61,6 +62,7 @@
 		ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKFileWriter.m; sourceTree = "<group>"; };
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABYContextManager.h; path = ambly/ABYContextManager.h; sourceTree = "<group>"; };
 		EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABYContextManager.m; path = ambly/ABYContextManager.m; sourceTree = "<group>"; };
@@ -73,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDBB07001B7CE23400D8C6C6 /* libz.dylib in Frameworks */,
 				EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,6 +86,7 @@
 		35A6B03D755C734C71B409B1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */,
 				EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */,
 			);
 			name = Frameworks;
