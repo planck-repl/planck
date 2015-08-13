@@ -1,1 +1,7 @@
 hello stderr
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 

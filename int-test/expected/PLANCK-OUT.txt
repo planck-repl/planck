@@ -151,8 +151,7 @@ nil
 "abc"
 reader and read-line
 nil
-nil
-#'planck.io/test-read
+#'cljs.user/test-read
 nil
 nil
 nil
@@ -179,8 +178,7 @@ nil
 nil
 writer
 nil
-nil
-#'planck.io/test-write
+#'cljs.user/test-write
 true
 true
 true
@@ -189,8 +187,7 @@ true
 true
 writer append
 nil
-nil
-#'planck.io/test-write
+#'cljs.user/test-write
 true
 true
 true
