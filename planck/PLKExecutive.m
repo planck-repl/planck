@@ -45,7 +45,7 @@
         }
         [self executeScript:script];
     } else if (repl) {
-        [[[PLKRepl alloc] init] runPlainTerminal:plainTerminal usingClojureScriptEngine:self.clojureScriptEngine];
+        [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine plainTerminal:plainTerminal];
     }
 }
 
