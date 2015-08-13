@@ -37,6 +37,17 @@ bar
 foo
 Test :cljs/quit
 1
+Test cope with syntax errors
+Invalid number format [34f]
+
+Invalid token: a:
+
+Multi-line data
+[1 2]
+Multi-line string
+"abc\ndef"
+space before and after
+3
 Test print to stderr
 nil
 Test main
