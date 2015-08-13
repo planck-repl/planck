@@ -15,6 +15,29 @@ $PLANCK <<REPL_INPUT
 2
 REPL_INPUT
 
+echo "Test cope with syntax errors"
+$PLANCK <<REPL_INPUT
+34f
+a:
+REPL_INPUT
+
+echo "Multi-line data"
+$PLANCK <<REPL_INPUT
+[1
+2]
+REPL_INPUT
+
+echo "Multi-line string"
+$PLANCK <<REPL_INPUT
+"abc
+def"
+REPL_INPUT
+
+echo "space before and after"
+$PLANCK <<REPL_INPUT
+ 3 
+REPL_INPUT
+
 echo "Test print to stderr"
 $PLANCK <<REPL_INPUT
 (binding [*print-fn* *print-err-fn*]

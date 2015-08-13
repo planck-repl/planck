@@ -11,6 +11,8 @@
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
 
+(declare print-error)
+
 (defonce st (cljs/empty-state))
 
 (defn ^:export load-core-analysis-cache [json]
@@ -37,8 +39,18 @@
     (try
       (repl-read-string line)
       true
-      (catch :default _
-        false))))
+      (catch :default e
+        (let [message (.-message e)]
+          (if (or
+                (= "EOF while reading" message)
+                (= "EOF while reading string" message))
+            false
+            (if (= "EOF" message)
+              true
+              (do
+                (print-error e false)
+                (println)
+                true))))))))
 
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
@@ -92,8 +104,6 @@
                    spec)]
           (= ns @current-ns))))
     specs))
-
-(declare print-error)
 
 (defn- process-require
   [macros-ns? cb specs]
