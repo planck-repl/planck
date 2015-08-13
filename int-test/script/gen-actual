@@ -138,10 +138,10 @@ $PLANCK <<REPL_INPUT
 (def test-file "/tmp/PLANCK_TEST.txt")
 (require 'planck.io)
 (defn test-spit-slurp [content]
-  (planck.io/spit test-file content)
+  (planck.core/spit test-file content)
   (prn
     (= content
-      (planck.io/slurp test-file))))
+      (planck.core/slurp test-file))))
 (test-spit-slurp "")
 (test-spit-slurp "a")
 (test-spit-slurp "a\n")
@@ -167,8 +167,7 @@ REPL_INPUT
 
 echo "reader and read-line"
 $PLANCK <<REPL_INPUT
-(require 'planck.io)
-(in-ns 'planck.io)
+(require '[planck.core :refer [*in* -close spit read-line]] '[planck.io :refer [reader]])
 (defn test-read [content]
   (spit "/tmp/PLANCK_TEST.txt" content)
   (let [rdr (reader "/tmp/PLANCK_TEST.txt")]
@@ -189,8 +188,7 @@ REPL_INPUT
 
 echo "writer"
 $PLANCK <<REPL_INPUT
-(require 'planck.io)
-(in-ns 'planck.io)
+(require '[planck.core :refer [-close slurp spit]] '[planck.io :refer [reader writer]])
 (defn test-write [content]
   (spit "/tmp/PLANCK_TEST.txt" content)
   (let [wtr (writer "/tmp/PLANCK_TEST.txt")]
@@ -209,8 +207,7 @@ REPL_INPUT
 
 echo "writer append"
 $PLANCK <<REPL_INPUT
-(require 'planck.io)
-(in-ns 'planck.io)
+(require '[planck.core :refer [-close slurp spit]] '[planck.io :refer [reader writer]])
 (defn test-write [previous-content content]
   (spit "/tmp/PLANCK_TEST.txt" previous-content)
   (let [wtr (writer "/tmp/PLANCK_TEST.txt" :append true)]

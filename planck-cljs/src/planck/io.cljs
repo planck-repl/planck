@@ -1,4 +1,5 @@
 (ns planck.io
+  (:require planck.core)
   #_(:import goog.Uri))
 
 (defrecord File [path])
@@ -38,44 +39,6 @@
       (as-file (.getPath u))
       (throw (js/Error. (str "Not a file: " u))))))
 
-(defprotocol IClosable
-  (-close [this]))
-
-(defprotocol IReader
-  (-read [this] "Returns available characters as a string or nil of EOF."))
-
-(defrecord Reader [raw-read raw-close]
-  IReader
-  (-read [_]
-    (raw-read))
-  IClosable
-  (-close [_]
-    (raw-close)))
-
-(defrecord Writer [raw-write raw-flush raw-close]
-  IWriter
-  (-write [_ s]
-    (raw-write s))
-  (-flush [_]
-    (raw-flush))
-  IClosable
-  (-close [_]
-    (raw-close)))
-
-(defonce
-  ^{:doc "A planck.io/IReader representing standard input for read operations."
-    :dynamic true}
-  *in*
-  (Reader. js/PLANCK_RAW_READ_STDIN nil))
-
-(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
-
-(defonce
-  ^{:doc "A cljs.core/IWriter representing standard error for print operations."
-    :dynamic true}
-  *err*
-  (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
-
 (defprotocol IOFactory
   "Factory functions that create ready-to-use versions of
   the various stream types, on top of anything that can
@@ -108,13 +71,13 @@
   (make-reader [file opts]
     (let [file-reader (js/PLKFileReader.open (:path file))]
       (check-utf-8-encoding (:encoding opts))
-      (Reader.
+      (planck.core/Reader.
         (fn [] (.read file-reader))
         (fn [] (.close file-reader)))))
   (make-writer [file opts]
     (let [file-writer (js/PLKFileWriter.openAppend (:path file) (:append opts))]
       (check-utf-8-encoding (:encoding opts))
-      (Writer.
+      (planck.core/Writer.
         (fn [s] (.write file-writer s))
         (fn [] (.flush file-writer))
         (fn [] (.close file-writer))))))
@@ -129,51 +92,6 @@
   [x & opts]
   (make-writer x (when opts (apply hash-map opts))))
 
-(defn- fission!
-  "Breaks an atom's value into two parts. The supplied function should
-  return a pair. The first element will be set to be the atom's new
-  value and the second element will be returned."
-  [atom f & args]
-  (loop []
-    (let [old @atom
-          [new-in new-out] (apply f old args)]
-      (if (compare-and-set! atom old new-in)
-        new-out
-        (recur)))))
-
-(defonce ^:private buffer (atom nil))
-
-(defn read-line
-  "Reads the next line from the current value of planck.io/*in*"
-  []
-  (if-let [buffered @buffer]
-    (let [n (.indexOf buffered "\n")]
-      (if (neg? n)
-        (if-let [next-characters (-read *in*)]
-          (do
-            (swap! buffer (fn [s] (str s next-characters)))
-            (recur))
-          (fission! buffer (fn [s] [nil s])))
-        (fission! buffer (fn [s] [(let [residual (subs s (inc n))]
-                                    (if (= "" residual)
-                                      nil
-                                      residual))
-                                  (subs s 0 n)]))))
-    (when (reset! buffer (-read *in*))
-      (recur))))
-
-(defn slurp
-  "Slurps a file"
-  [filename]
-  (or (js/PLANCK_READ_FILE filename)
-    (throw (js/Error. filename))))
-
-(defn spit
-  "Spits a file"
-  [filename content]
-  (js/PLANCK_WRITE_FILE filename content)
-  nil)
-
 (defn file
   "Returns a PLKFile, passing each arg to as-file.  Multiple-arg
    versions treat the first argument as parent and subsequent args as
@@ -187,4 +105,9 @@
   "Delete file f."
   [f]
   (.deleteFile f))
+
+;; These have been moved
+(def ^:deprecated read-line planck.core/read-line)
+(def ^:deprecated slurp planck.core/slurp)
+(def ^:deprecated spit planck.core/spit)
 
