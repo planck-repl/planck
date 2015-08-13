@@ -16,18 +16,20 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 
 @implementation PLKRepl
 
--(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary
+-(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary plainTerminal:(BOOL)plainTerminal
 {
+    NSString* rv = nil;
     if (!secondary) {
-        return [NSString stringWithFormat:@"%@=> ", currentNs];
+        rv = [NSString stringWithFormat:@"%@=> ", currentNs];
+    } else {
+        if (!plainTerminal) {
+            rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
+                                    withString:@" "
+                               startingAtIndex:0]
+                  stringByAppendingString:@"#_=> "];
+        }
     }
-    if (currentNs.length == 1) {
-        return @"#_=> ";
-    }
-    return [[@"" stringByPaddingToLength:currentNs.length-2
-                              withString:@" "
-                         startingAtIndex:0]
-            stringByAppendingString:@"#_=> "];
+    return rv;
 }
 
 -(NSString *)getInput
@@ -44,8 +46,10 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 
 -(void)displayPrompt:(NSString*)prompt
 {
-    printf("%s", [prompt cStringUsingEncoding:NSUTF8StringEncoding]);
-    fflush(stdout);
+    if (prompt) {
+        printf("%s", [prompt cStringUsingEncoding:NSUTF8StringEncoding]);
+        fflush(stdout);
+    }
 }
 
 -(BOOL)isWhitespace:(NSString*)s
@@ -57,7 +61,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 -(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine plainTerminal:(BOOL)plainTerminal
 {
     NSString* currentNs = @"cljs.user";
-    NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO];
+    NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO plainTerminal:plainTerminal];
     NSString* historyFile = nil;
     
     if (!plainTerminal) {
@@ -145,13 +149,13 @@ void completion(const char *buf, linenoiseCompletions *lc) {
             // Fetch the current namespace and use it to set the prompt
             
             currentNs = [clojureScriptEngine getCurrentNs];
-            currentPrompt = [self formPrompt:currentNs isSecondary:NO];
+            currentPrompt = [self formPrompt:currentNs isSecondary:NO plainTerminal:plainTerminal];
             
         } else {
             
             // Prepare for reading non-1st line of input with secondary prompt
             
-            currentPrompt = [self formPrompt:currentNs isSecondary:YES];
+            currentPrompt = [self formPrompt:currentNs isSecondary:YES plainTerminal:plainTerminal];
         }
         
     }
