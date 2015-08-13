@@ -210,3 +210,6 @@ nil
 nil
 Test Google Closure index
 nil
+Test availability of goog libs
+nil
+#object[Object 20050403]
