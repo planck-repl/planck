@@ -126,6 +126,22 @@ nil
 whoah
 
 nil
+Test load-file REPL special
+nil
+true
+Test doc support for load-file REPL special
+-------------------------
+load-file
+([filename])
+REPL Special Function
+  Loads a file
+nil
+Test load-file REPL bad filename
+Could not load file int-test/src/test_load_file/nofile.cljs
+nil
+Test load-file REPL error in file
+undefined is not an object (evaluating 'test_load_file.error_in_file.invalid.call')
+nil
 Spit / slurp
 #'cljs.user/test-file
 nil
