@@ -4,6 +4,6 @@
 
 @interface PLKRepl : NSObject
 
--(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine plainTerminal:(BOOL)plainTerminal;
+-(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal;
 
 @end

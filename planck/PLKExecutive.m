@@ -17,7 +17,7 @@
        mainNsName:(NSString*)mainNsName
              repl:(BOOL)repl
           outPath:(NSString*)outPath
-    plainTerminal:(BOOL)plainTerminal
+     dumbTerminal:(BOOL)dumbTerminal
              args:(NSArray*)args; {
     
     // Set up our engine
@@ -45,7 +45,7 @@
         }
         [self executeScript:script];
     } else if (repl) {
-        [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine plainTerminal:plainTerminal];
+        [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine dumbTerminal:dumbTerminal];
     }
 }
 

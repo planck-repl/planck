@@ -99,13 +99,13 @@ void highlightCancel() {
 
 @implementation PLKRepl
 
--(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary plainTerminal:(BOOL)plainTerminal
+-(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary dumbTerminal:(BOOL)dumbTerminal
 {
     NSString* rv = nil;
     if (!secondary) {
         rv = [NSString stringWithFormat:@"%@=> ", currentNs];
     } else {
-        if (!plainTerminal) {
+        if (!dumbTerminal) {
             rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
                                     withString:@" "
                                startingAtIndex:0]
@@ -141,13 +141,13 @@ void highlightCancel() {
     return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
 }
 
--(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine plainTerminal:(BOOL)plainTerminal
+-(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal
 {
     NSString* currentNs = @"cljs.user";
-    NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO plainTerminal:plainTerminal];
+    NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:dumbTerminal];
     NSString* historyFile = nil;
     
-    if (!plainTerminal) {
+    if (!dumbTerminal) {
     
         char* homedir = getenv("HOME");
         if (homedir) {
@@ -166,14 +166,14 @@ void highlightCancel() {
     NSString* input = nil;
     previousLines = [[NSMutableArray alloc] init];
     char *line = NULL;
-    while(plainTerminal ||
+    while(dumbTerminal ||
           (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
 
         // Get the current line of input
         
         NSString* inputLine;
 
-        if (plainTerminal) {
+        if (dumbTerminal) {
             [self displayPrompt:currentPrompt];
             inputLine = [self getInput];
             if (inputLine == nil) { // ^D has been pressed
@@ -208,7 +208,7 @@ void highlightCancel() {
         
         // Add input line to history
         
-        if (!plainTerminal && ![self isWhitespace:input]) {
+        if (!dumbTerminal && ![self isWhitespace:input]) {
             linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
             if (historyFile) {
                 linenoiseHistorySave([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -238,13 +238,13 @@ void highlightCancel() {
             // Fetch the current namespace and use it to set the prompt
             
             currentNs = [clojureScriptEngine getCurrentNs];
-            currentPrompt = [self formPrompt:currentNs isSecondary:NO plainTerminal:plainTerminal];
+            currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:dumbTerminal];
             
         } else {
             
             // Prepare for reading non-1st line of input with secondary prompt
             
-            currentPrompt = [self formPrompt:currentNs isSecondary:YES plainTerminal:plainTerminal];
+            currentPrompt = [self formPrompt:currentNs isSecondary:YES dumbTerminal:dumbTerminal];
         }
         
     }

@@ -9,6 +9,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
     -e, --eval string   Evaluate expressions in string; print non-nil values
     -s, --src  path     Use path for source. Default is "src"
     -v, --verbose       Emit verbose diagnostic output.
+    -d, --dumb-terminal Disables line editing / VT100 terminal control.
 
   main options:
     -m, --main ns-name  Call the -main function from a namespace with args
