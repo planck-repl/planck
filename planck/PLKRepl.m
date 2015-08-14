@@ -6,6 +6,7 @@
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
 static NSMutableArray* previousLines = nil;
 void (^highlightRestore)() = nil;
+int32_t highlightRestoreSequence = 0;
 
 NSString* buf2str(const char *buf) {
     NSString* rv = @"";
@@ -56,28 +57,32 @@ void highlight(const char* buf, int pos) {
             
             fflush(stdout);
             
-            highlightRestore = ^(void) {
-                if (numLinesUp) {
-                    fprintf(stdout,"\x1b[%dB", numLinesUp);
+            int highlightRestoreId = OSAtomicAdd32(1, &highlightRestoreSequence);
+            
+            void (^highlightRestoreLocal)() =  ^(void) {
+                
+                if (highlightRestoreId == OSAtomicAdd32(0, &highlightRestoreSequence)) {
+                    
+                    if (numLinesUp) {
+                        fprintf(stdout,"\x1b[%dB", numLinesUp);
+                    }
+                    
+                    if (relativeHoriz < 0) {
+                        fprintf(stdout,"\x1b[%dC", 1 - relativeHoriz);
+                    } else if (relativeHoriz > 0){
+                        fprintf(stdout,"\x1b[%dD", -1 + relativeHoriz);
+                    }
+                    
+                    fflush(stdout);
                 }
                 
-                if (relativeHoriz < 0) {
-                    fprintf(stdout,"\x1b[%dC", 1 - relativeHoriz);
-                } else if (relativeHoriz > 0){
-                    fprintf(stdout,"\x1b[%dD", -1 + relativeHoriz);
-                }
-                
-                fflush(stdout);
             };
+            
+            highlightRestore = highlightRestoreLocal;
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5*NSEC_PER_SEC)),
                            dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                               
-                               if (highlightRestore != nil) {
-                                   highlightRestore();
-                                   highlightRestore = nil;
-                               }
-                               
+                               highlightRestoreLocal();
                            });
             
             
@@ -86,9 +91,9 @@ void highlight(const char* buf, int pos) {
 }
 
 void highlightCancel() {
-    if (highlightRestore != nil) {
+    if (highlightRestore) {
         highlightRestore();
-        highlightRestore = nil;
+        OSAtomicAdd32(1, &highlightRestoreSequence);
     }
 }
 
