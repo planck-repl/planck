@@ -16,11 +16,11 @@
     NSString* mainNsName = nil;
     BOOL repl = NO;
     BOOL verbose = NO;
+    BOOL dumbTerminal = NO;
     
     // Undocumented options, used for development.
     // The defaults set here are for release use.
     NSString* outPath = nil;
-    BOOL plainTerminal = NO;
     
     int option = -1;
     static struct option longopts[] =
@@ -31,17 +31,17 @@
         {"eval", optional_argument, NULL, 'e'},
         {"src", optional_argument, NULL, 's'},
         {"verbose", optional_argument, NULL, 'v'},
+        {"dumb-terminal", optional_argument, NULL, 'd'},
         {"main", optional_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
         
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
-        {"plain-terminal", optional_argument, NULL, 'p'},
-        
+
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?i:e:s:vm:ro:bp";
+    const char *shortopts = "h?i:e:s:vdm:ro:b";
     while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
         switch (option) {
             case '?':
@@ -75,6 +75,11 @@
                 verbose = YES;
                 break;
             }
+            case 'd':
+            {
+                dumbTerminal = YES;
+                break;
+            }
             case 'm':
             {
                 mainNsName = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
@@ -88,11 +93,6 @@
             case 'o':
             {
                 outPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
-                break;
-            }
-            case 'p':
-            {
-                plainTerminal = YES;
                 break;
             }
         }
@@ -127,6 +127,7 @@
             printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
             printf("    -s, --src  path     Use path for source. Default is \"src\"\n");
             printf("    -v, --verbose       Emit verbose diagnostic output.\n");
+            printf("    -d, --dumb-terminal Disables line editing / VT100 terminal control.\n");
             printf("\n");
             printf("  main options:\n");
             printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
@@ -154,7 +155,7 @@
                                          mainNsName:mainNsName
                                                repl:repl
                                             outPath:outPath
-                                      plainTerminal:plainTerminal
+                                      dumbTerminal:dumbTerminal
                                                args:args];
         }
     }

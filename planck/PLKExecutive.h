@@ -8,7 +8,7 @@
        mainNsName:(NSString*)mainNsName
              repl:(BOOL)repl
           outPath:(NSString*)outPath
-    plainTerminal:(BOOL)plainTerminal
+     dumbTerminal:(BOOL)dumbTerminal
              args:(NSArray*)args;
 
 @end
