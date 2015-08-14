@@ -408,4 +408,10 @@
     return [[self getFunction:@"get-completions"] callWithArguments:@[buffer]].toArray;
 }
 
+-(NSArray*)getHighlightCoordsForPos:(int)pos buffer:(NSString*)buffer previousLines:(NSArray*)previousLines
+{
+    return [[self getFunction:@"get-highlight-coords"] callWithArguments:@[@(pos), buffer, previousLines]].toArray;
+}
+
+
 @end

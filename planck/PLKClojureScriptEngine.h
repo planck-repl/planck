@@ -8,5 +8,6 @@
 -(BOOL)isReadable:(NSString*)expression;
 -(NSString*)getCurrentNs;
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer;
+-(NSArray*)getHighlightCoordsForPos:(int)pos buffer:(NSString*)buffer previousLines:(NSArray*)previousLines;
 
 @end

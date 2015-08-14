@@ -4,13 +4,91 @@
 #include "linenoise.h"
 
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
+static NSMutableArray* previousLines = nil;
+void (^highlightRestore)() = nil;
+
+NSString* buf2str(const char *buf) {
+    NSString* rv = @"";
+    if (buf) {
+        NSString* decoded = [NSString stringWithCString:buf
+                                               encoding:NSUTF8StringEncoding];
+        if (decoded) {
+            rv = decoded;
+        }
+    }
+    return rv;
+}
 
 void completion(const char *buf, linenoiseCompletions *lc) {
     
-    NSArray* completions = [s_clojureScriptEngine getCompletionsForBuffer:[NSString stringWithCString:buf
-                                                                                             encoding:NSUTF8StringEncoding]];
+    NSArray* completions = [s_clojureScriptEngine getCompletionsForBuffer:buf2str(buf)];
     for (NSString* completion in completions) {
         linenoiseAddCompletion(lc, [completion cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+}
+
+void highlight(const char* buf, int pos) {
+    
+    char current = buf[pos];
+    
+    if (current == ']' || current == '}' || current == ')') {
+        
+        NSArray* highlightCoords = [s_clojureScriptEngine getHighlightCoordsForPos:pos
+                                                                            buffer:buf2str(buf)
+                                                                     previousLines:previousLines];
+        
+        
+        int numLinesUp = ((NSNumber*)highlightCoords[0]).intValue;
+        int highlightPos = ((NSNumber*)highlightCoords[1]).intValue;
+        
+        if (numLinesUp != -1) {
+            int relativeHoriz = highlightPos - pos;
+            
+            if (numLinesUp) {
+                fprintf(stdout,"\x1b[%dA", numLinesUp);
+            }
+            
+            if (relativeHoriz < 0) {
+                fprintf(stdout,"\x1b[%dD", 1 - relativeHoriz);
+            } else if (relativeHoriz > 0){
+                fprintf(stdout,"\x1b[%dC", -1 + relativeHoriz);
+            }
+            
+            fflush(stdout);
+            
+            highlightRestore = ^(void) {
+                if (numLinesUp) {
+                    fprintf(stdout,"\x1b[%dB", numLinesUp);
+                }
+                
+                if (relativeHoriz < 0) {
+                    fprintf(stdout,"\x1b[%dC", 1 - relativeHoriz);
+                } else if (relativeHoriz > 0){
+                    fprintf(stdout,"\x1b[%dD", -1 + relativeHoriz);
+                }
+                
+                fflush(stdout);
+            };
+            
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5*NSEC_PER_SEC)),
+                           dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                               
+                               if (highlightRestore != nil) {
+                                   highlightRestore();
+                                   highlightRestore = nil;
+                               }
+                               
+                           });
+            
+            
+        }
+    }
+}
+
+void highlightCancel() {
+    if (highlightRestore != nil) {
+        highlightRestore();
+        highlightRestore = nil;
     }
 }
 
@@ -76,9 +154,12 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         
         s_clojureScriptEngine = clojureScriptEngine;
         linenoiseSetCompletionCallback(completion);
+        linenoiseSetHighlightCallback(highlight);
+        linenoiseSetHighlightCancelCallback(highlightCancel);
     }
     
     NSString* input = nil;
+    previousLines = [[NSMutableArray alloc] init];
     char *line = NULL;
     while(plainTerminal ||
           (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
@@ -111,6 +192,8 @@ void completion(const char *buf, linenoiseCompletions *lc) {
         } else {
             input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
         }
+        
+        [previousLines addObject:inputLine];
         
         // Check for explicit exit
         
@@ -145,6 +228,7 @@ void completion(const char *buf, linenoiseCompletions *lc) {
             // Now that we've evaluated the input, reset for next round
             
             input = nil;
+            [previousLines removeAllObjects];
             
             // Fetch the current namespace and use it to set the prompt
             
