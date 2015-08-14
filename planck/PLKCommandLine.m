@@ -36,13 +36,12 @@
         
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
-        {"ambly-server", optional_argument, NULL, 'a'},
         {"plain-terminal", optional_argument, NULL, 'p'},
         
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?i:e:s:vm:ro:bap";
+    const char *shortopts = "h?i:e:s:vm:ro:bp";
     while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
         switch (option) {
             case '?':
