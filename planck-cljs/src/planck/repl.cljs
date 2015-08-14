@@ -1,7 +1,9 @@
 (ns planck.repl
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
-  (:require [cljs.analyzer :as ana]
+  (:require [clojure.string :as s]
+            [cljs.analyzer :as ana]
             [cljs.tools.reader :as r]
+            [cljs.tools.reader.reader-types :as rt]
             [cljs.tagged-literals :as tags]
             [cljs.source-map :as sm]
             [cljs.js :as cljs]
@@ -208,6 +210,53 @@
                    (sort
                      (filter (partial is-completion? buffer-match-suffix)
                        all-candidates))))))))
+
+(defn- is-completely-readable? [source]
+  (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
+    (binding [r/*data-readers* tags/*cljs-data-readers*]
+      (try
+        (r/read {:eof (js-obj) :read-cond :allow :features #{:cljs}} rdr)
+        (nil? (rt/peek-char rdr))
+        (catch :default _
+          false)))))
+
+(defn ^:export get-highlight-coords
+  "Gets the highlight coordinates [line pos] for the previous matching
+  brace. This is done by progressivly expanding source considered
+  until a readable form is encountered with a matching brace on the
+  other end. The coordinate system is such that line 0 is the current
+  buffer line, line 1 is the previous line, and so on, and pos is the
+  position in that line."
+  [pos buffer previous-lines]
+  (let [previous-lines (js->clj previous-lines)
+        previous-source (s/join "\n" previous-lines)
+        total-source (if (empty? previous-lines)
+                       buffer
+                       (str previous-source "\n" buffer))
+        total-pos (+ (if (empty? previous-lines)
+                       0
+                       (inc (count previous-source))) pos)]
+    (let [form-start
+          (some identity
+            (for [n (range (dec total-pos) -1 -1)]
+              (let [candidate-form (subs total-source n (inc total-pos))
+                    first-char (subs candidate-form 0 1)]
+                (if (#{"(" "[" "{" "#"} first-char)
+                  (if (is-completely-readable? candidate-form)
+                    (if (= "#" first-char)
+                      (inc n)
+                      n)
+                    nil)))))]
+      (let [highlight-coords
+            (if form-start
+              (reduce (fn [[line-ndx start-pos] line]
+                        (if (< start-pos (count line))
+                          (reduced [line-ndx start-pos])
+                          [(dec line-ndx) (- start-pos (inc (count line)))]))
+                [(count previous-lines) form-start]
+                previous-lines)
+              [-1 -1])]
+        (clj->js highlight-coords)))))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)

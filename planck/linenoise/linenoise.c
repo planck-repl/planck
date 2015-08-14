@@ -122,6 +122,8 @@
 #define LINENOISE_MAX_LINE 4096
 static char *unsupported_term[] = {"dumb","cons25","emacs",NULL};
 static linenoiseCompletionCallback *completionCallback = NULL;
+static linenoiseHighlightCallback *highlightCallback = NULL;
+static linenoiseHighlightCancelCallback *highlightCancelCallback = NULL;
 
 static struct termios orig_termios; /* In order to restore at exit.*/
 static int rawmode = 0; /* For atexit() function to check if restore is needed*/
@@ -429,6 +431,16 @@ void linenoiseAddCompletion(linenoiseCompletions *lc, const char *str) {
     lc->cvec[lc->len++] = copy;
 }
 
+/* Register a callback function to be called for brace highlighting. */
+void linenoiseSetHighlightCallback(linenoiseHighlightCallback *fn) {
+    highlightCallback = fn;
+}
+
+/* Register a callback function to be called for canceling brace highlighting actions. */
+void linenoiseSetHighlightCancelCallback(linenoiseHighlightCancelCallback *fn) {
+    highlightCancelCallback = fn;
+}
+
 /* =========================== Line editing ================================= */
 
 /* We define a very simple "append buffer" structure, that is an heap
@@ -615,6 +627,11 @@ int linenoiseEditInsert(struct linenoiseState *l, char c) {
             l->buf[l->len] = '\0';
             refreshLine(l);
         }
+        
+        if (highlightCallback != NULL) {
+            highlightCallback(l->buf, l->pos-1);
+        }
+        
     }
     return 0;
 }
@@ -758,6 +775,10 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         nread = read(l.ifd,&c,1);
         if (nread <= 0) return l.len;
 
+        if (highlightCancelCallback != NULL) {
+            highlightCancelCallback();
+        }
+        
         /* Only autocomplete when the callback is set. It returns < 0 when
          * there was an error reading from fd. Otherwise it will return the
          * character that should be handled next. */
