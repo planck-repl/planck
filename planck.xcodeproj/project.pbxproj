@@ -20,6 +20,7 @@
 		ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
 		EDBB07001B7CE23400D8C6C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */; };
+		EDBB07031B7EADE300D8C6C6 /* PLKLegal.m in Sources */ = {isa = PBXBuildFile; fileRef = EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
 		EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */; };
 		EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = EDEEDDA31B6FE2D000DF10C1 /* ABYUtils.m */; };
@@ -63,6 +64,8 @@
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		EDBB07011B7EADE300D8C6C6 /* PLKLegal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKLegal.h; sourceTree = "<group>"; };
+		EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKLegal.m; sourceTree = "<group>"; };
 		EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EDEEDDA01B6FE2D000DF10C1 /* ABYContextManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ABYContextManager.h; path = ambly/ABYContextManager.h; sourceTree = "<group>"; };
 		EDEEDDA11B6FE2D000DF10C1 /* ABYContextManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ABYContextManager.m; path = ambly/ABYContextManager.m; sourceTree = "<group>"; };
@@ -156,6 +159,8 @@
 				ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */,
 				4D0A653C1B7B7B6F00D6EA85 /* PLKIO.h */,
 				4D0A653D1B7B7B6F00D6EA85 /* PLKIO.m */,
+				EDBB07011B7EADE300D8C6C6 /* PLKLegal.h */,
+				EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
@@ -220,6 +225,7 @@
 				ED1CE2281B72C6360096585B /* PLKFileReader.m in Sources */,
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
+				EDBB07031B7EADE300D8C6C6 /* PLKLegal.m in Sources */,
 				ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */,
 				4D0A653E1B7B7B6F00D6EA85 /* PLKIO.m in Sources */,
 				E7FE09C31B713C70009D090C /* PLKScript.m in Sources */,
