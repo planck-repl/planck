@@ -68,7 +68,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--plain-terminal"
+            argument = "--dumb-terminal"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
