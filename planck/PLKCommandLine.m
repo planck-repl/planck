@@ -2,6 +2,7 @@
 #include <getopt.h>
 #import "PLKExecutive.h"
 #import "PLKScript.h"
+#import "PLKLegal.h"
 
 #define PLANCK_VERSION "1.4"
 
@@ -11,6 +12,7 @@
 {
     // Documented options
     BOOL help = NO;
+    BOOL legal = NO;
     NSMutableArray* scripts = [NSMutableArray new]; // of PLKScript
     NSString* srcPath = @"src";
     NSString* mainNsName = nil;
@@ -27,6 +29,7 @@
     {
         // Documented options
         {"help", no_argument, NULL, 'h'},
+        {"legal", no_argument, NULL, 'l'},
         {"init", optional_argument, NULL, 'i'},
         {"eval", optional_argument, NULL, 'e'},
         {"src", optional_argument, NULL, 's'},
@@ -41,7 +44,7 @@
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?i:e:s:vdm:ro:b";
+    const char *shortopts = "h?li:e:s:vdm:ro:b";
     while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
         switch (option) {
             case '?':
@@ -52,6 +55,11 @@
             case 'h':
             {
                 help = YES;
+                break;
+            }
+            case 'l':
+            {
+                legal = YES;
                 break;
             }
             case 'i':
@@ -135,6 +143,7 @@
             printf("    path                Run a script from a file or resource\n");
             printf("    -                   Run a script from standard input\n");
             printf("    -h, -?, --help      Print this help message and exit\n");
+            printf("    -l, --legal         Show legal info (licenses and copyrights)\n");
             printf("\n");
             printf("  operation:\n");
             printf("\n");
@@ -148,6 +157,9 @@
             printf("  any main option.\n");
             printf("\n");
             printf("  Paths may be absolute or relative in the filesystem.\n");
+            printf("\n");
+        } else if (legal) {
+            [PLKLegal displayLegalese];
         } else {
             [[[PLKExecutive alloc] init] runScripts:scripts
                                             srcPath:srcPath
