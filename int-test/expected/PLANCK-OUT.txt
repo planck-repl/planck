@@ -31,6 +31,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
   any main option.
 
   Paths may be absolute or relative in the filesystem.
+
 Legal output
 
 Ambly
