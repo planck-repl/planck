@@ -4,7 +4,7 @@
 #import "PLKScript.h"
 #import "PLKLegal.h"
 
-#define PLANCK_VERSION "1.4"
+#define PLANCK_VERSION "1.5"
 
 @implementation PLKCommandLine
 
