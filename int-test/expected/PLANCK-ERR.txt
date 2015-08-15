@@ -1,4 +1,5 @@
 hello stderr
+WARNING: Use of undeclared Var cljs.user/not-symbol
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 

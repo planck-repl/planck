@@ -50,6 +50,21 @@ REPL_INPUT
 echo "Test main"
 $PLANCK -s $SRC -m test-main.core 3 4
 
+echo "Test in-ns"
+$PLANCK <<REPL_INPUT
+(in-ns not-symbol)
+(in-ns)
+(in-ns 'alpha.beta)
+(def x 3)
+(in-ns (symbol "gamma.delta"))
+(def y 4)
+(ns test.core (:require [clojure.set :as set]))
+(set/intersection #{:a :b} #{:a :c})
+(in-ns 'cljs.user)
+(in-ns 'test.core)
+(set/intersection #{:a :b} #{:a :c})
+REPL_INPUT
+
 echo "Test require REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (require 'test-require.core)
