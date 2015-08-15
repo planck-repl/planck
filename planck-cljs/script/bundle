@@ -115,4 +115,6 @@ rm manifest.m
 mv PLKBundledOut.m ../planck
 # We don't want git to suggest we commit this generated
 # output, so we suppress it here.
-git update-index --assume-unchanged ../planck/PLKBundledOut.m
+if [ -d ../.git ]; then
+  git update-index --assume-unchanged ../planck/PLKBundledOut.m
+fi;
