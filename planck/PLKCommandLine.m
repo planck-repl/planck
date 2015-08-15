@@ -8,8 +8,10 @@
 
 @implementation PLKCommandLine
 
-+(void)processArgsCount:(int)argc vector:(char * const *)argv
++(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
+    int exitValue = EXIT_SUCCESS;
+    
     // Documented options
     BOOL help = NO;
     BOOL legal = NO;
@@ -161,17 +163,18 @@
         } else if (legal) {
             [PLKLegal displayLegalese];
         } else {
-            [[[PLKExecutive alloc] init] runScripts:scripts
-                                            srcPath:srcPath
-                                            verbose:verbose
-                                         mainNsName:mainNsName
-                                               repl:repl
-                                            outPath:outPath
-                                      dumbTerminal:dumbTerminal
-                                               args:args];
+            return [[[PLKExecutive alloc] init] runScripts:scripts
+                                                   srcPath:srcPath
+                                                   verbose:verbose
+                                                mainNsName:mainNsName
+                                                      repl:repl
+                                                   outPath:outPath
+                                              dumbTerminal:dumbTerminal
+                                                      args:args];
         }
     }
     
+    return exitValue;
 }
 
 @end

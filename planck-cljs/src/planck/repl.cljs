@@ -14,6 +14,7 @@
             [planck.io]))
 
 (declare print-error)
+(declare handle-error)
 
 (defonce st (cljs/empty-state))
 
@@ -168,10 +169,10 @@
           (when is-self-require?
             (reset! current-ns restore-ns))
           (when e
-            (print-error e false))
+            (handle-error e false false))
           (cb))))
     (catch :default e
-      (print-error e))))
+      (handle-error e true false))))
 
 (defn- process-load-file
   "Given a filename, sequentially read and evaluate
@@ -188,12 +189,11 @@
          :verbose (:verbose @app-env)}
         (fn [{e :error}]
           (when e
-            (print-error e false))
-          )))
+            (handle-error e false false)))))
     (catch js/Error e
-      (print-error e false))
+      (handle-error e false false))
     (catch :default e
-      (print-error e))))
+      (handle-error e true false))))
 
 (defn resolve
   "Given an analysis environment resolve a var. Analogous to
@@ -326,6 +326,15 @@
           (recur (next extensions)))
         (cb nil)))))
 
+(defn- handle-error [e include-stacktrace? in-exit-context?]
+  (let [cause (or (.-cause e) e)
+        is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
+    (when-not is-planck-exit-exception?
+      (print-error e include-stacktrace?))
+    (if (and in-exit-context? (not is-planck-exit-exception?))
+      (js/PLANCK_SET_EXIT_VALUE 1)
+      (set! *e e))))
+
 (defn ^:export run-main [main-ns args]
   (let [main-args (js->clj args)]
     (binding [cljs/*load-fn* load
@@ -340,7 +349,10 @@
              :source-map true
              :context    :expr}
             (fn [{:keys [ns value error] :as ret}]
-              (apply value args))))
+              (try
+                (apply value args)
+                (catch :default e
+                  (handle-error e true true))))))
         `[(quote ~(symbol main-ns))]))
     nil))
 
@@ -375,7 +387,10 @@
              nil)))))))
 
 (defn ^:export read-eval-print
-  [source expression? print-nil-expression?]
+  "Read/eval/print source
+
+  set in-exit-context? to true if exit handling should be performed"
+  [source expression? print-nil-expression? in-exit-context?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
@@ -433,8 +448,6 @@
                   (reset! current-ns ns)
                   nil))
               (when error
-                (set! *e error)
-                (print-error error))))
+                (handle-error error true in-exit-context?))))
           (catch :default e
-            (set! *e e)
-            (print-error e)))))))
+            (handle-error e true in-exit-context?)))))))

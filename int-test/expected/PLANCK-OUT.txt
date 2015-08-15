@@ -77,6 +77,10 @@ bar
 foo
 Test :cljs/quit
 1
+Exit on first error
+ok
+x
+
 Test cope with syntax errors
 Invalid number format [34f]
 
@@ -92,6 +96,23 @@ Test print to stderr
 nil
 Test main
 5
+0
+Test main zero
+0
+Test main one
+0
+Test main unhandled
+1
+Test main exit
+17
+Test REPL exit
+nil
+118
+Test call fn exit
+nil
+119
+Test run file with exit
+111
 Test in-ns
 Argument to in-ns must be a symbol.
 nil
@@ -109,6 +130,13 @@ nil
 Test require REPL special
 nil
 true
+Test require REPL special exit in file
+nil
+195
+Test require REPL special throws in file
+bye-bye
+nil
+0
 Test require unknown ns
 No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
 nil
@@ -196,6 +224,9 @@ nil
 Test load-file REPL error in file
 undefined is not an object (evaluating 'test_load_file.error_in_file.invalid.call')
 nil
+Test load-file REPL exit in file
+nil
+132
 Spit / slurp
 #'cljs.user/test-file
 nil

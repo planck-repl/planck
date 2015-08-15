@@ -1,5 +1,11 @@
 (ns planck.core)
 
+(defn exit
+  "Causes Planck to terminate with the supplied exit-value."
+  [exit-value]
+  (js/PLANCK_SET_EXIT_VALUE exit-value)
+  (throw (js/Error. "PLANCK_EXIT")))
+
 (defprotocol IClosable
   (-close [this]))
 

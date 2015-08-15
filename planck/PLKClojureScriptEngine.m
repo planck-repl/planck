@@ -15,6 +15,7 @@
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
 @property (nonatomic, strong) NSMutableSet* loadedGoogLibs;
+@property (nonatomic) int exitValue;
 
 @end
 
@@ -231,6 +232,11 @@
         
         [self setPrintFnsInContext:self.contextManager.context];
         
+        __weak typeof(self) weakSelf = self;
+        self.context[@"PLANCK_SET_EXIT_VALUE"] = ^(int exitValue) {
+            weakSelf.exitValue = exitValue;
+        };
+        
         // Inject Objective-C classes
         
         self.context[@"PLKFileReader"] = [PLKFileReader class];
@@ -383,14 +389,18 @@
     return rv;
 }
 
--(void)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression;
+-(int)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
-    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression), @(printNilExpression)]];
+    self.exitValue = EXIT_SUCCESS;
+    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression), @(printNilExpression), @(inExitContext)]];
+    return self.exitValue;
 }
 
--(void)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
+-(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
 {
+    self.exitValue = EXIT_SUCCESS;
     [[self getFunction:@"run-main"] callWithArguments:@[mainNsName, args]];
+    return self.exitValue;
 }
 
 -(BOOL)isReadable:(NSString*)expression
