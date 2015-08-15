@@ -92,6 +92,20 @@ Test print to stderr
 nil
 Test main
 5
+Test in-ns
+Argument to in-ns must be a symbol.
+nil
+Argument to in-ns must be a symbol.
+nil
+nil
+#'alpha.beta/x
+nil
+#'gamma.delta/y
+nil
+#{:a}
+nil
+nil
+#{:a}
 Test require REPL special
 nil
 true

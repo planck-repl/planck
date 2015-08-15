@@ -17,6 +17,9 @@
 
 (defonce st (cljs/empty-state))
 
+(defn- known-namespaces []
+  (keys (:cljs.analyzer/namespaces @st)))
+
 (defn ^:export load-core-analysis-cache [json]
   (let [rdr (transit/reader :json)
         cache (transit/read rdr json)]
@@ -79,6 +82,34 @@
   (assoc (repl-special-doc-map name-symbol)
     :name name-symbol
     :repl-special-function true))
+
+(defn- process-in-ns
+  [argument]
+  (cljs/eval
+    st
+    argument
+    {:ns      @current-ns
+     :context :expr
+     :verbose (:verbose @app-env)}
+    (fn [result]
+      (if (and (map? result) (:error result))
+        (print-error (:error result) false)
+        (let [ns-name result]
+          (if-not (symbol? ns-name)
+            (println "Argument to in-ns must be a symbol.")
+            (if (some (partial = ns-name) (known-namespaces))
+              (reset! current-ns ns-name)
+              (let [ns-form `(~'ns ~ns-name)]
+                (cljs/eval
+                  st
+                  ns-form
+                  {:ns      @current-ns
+                   :context :expr
+                   :verbose (:verbose @app-env)}
+                  (fn [{e :error}]
+                    (if e
+                      (print-error e false)
+                      (reset! current-ns ns-name))))))))))))
 
 (defn- canonicalize-specs [specs]
   (letfn [(canonicalize [quoted-spec-or-kw]
@@ -191,8 +222,7 @@
   (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
 
 (defn ^:export get-completions [buffer]
-  (let [namespace-candidates (map str
-                               (keys (:cljs.analyzer/namespaces @planck.repl/st)))
+  (let [namespace-candidates (map str (known-namespaces))
         top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
         typed-ns (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))
         all-candidates (set (if typed-ns
@@ -355,7 +385,7 @@
         (let [env (assoc (ana/empty-env) :context :expr
                                          :ns {:name @current-ns})]
           (case (first expression-form)
-            in-ns (reset! current-ns (second (second expression-form)))
+            in-ns (process-in-ns (second expression-form))
             require (process-require false identity (rest expression-form))
             require-macros (process-require true identity (rest expression-form))
             doc (if (repl-specials (second expression-form))
