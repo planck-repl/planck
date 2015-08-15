@@ -9,6 +9,7 @@
 #import "PLKFileOutputStream.h"
 #import "ZZArchive.h"
 #import "ZZArchiveEntry.h"
+#include "linenoise.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -121,6 +122,43 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     [self.cacheTasksCondition unlock];
 }
 
+- (void)setUpTimerFunctionality
+{
+    
+    static volatile int32_t counter = 0;
+    
+    NSString* callbackImpl = @"var callbackstore = {};\nvar setTimeout = function( fn, ms ) {\ncallbackstore[setTimeoutFn(ms)] = fn;\n}\nvar runTimeout = function( id ) {\nif( callbackstore[id] )\ncallbackstore[id]();\ncallbackstore[id] = null;\n}\n";
+    
+    [ABYUtils evaluateScript:callbackImpl inContext:self.contextManager.context];
+    
+    [ABYUtils installGlobalFunctionWithBlock:
+     
+     ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+         if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeNumber)
+         {
+             int ms = (int)JSValueToNumber(ctx, argv[0], NULL);
+             
+             int32_t incremented = OSAtomicIncrement32(&counter);
+             
+             NSString *str = [NSString stringWithFormat:@"timer%d", incremented];
+             
+             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, ms * NSEC_PER_MSEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                 [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+             });
+             
+             JSStringRef strRef = JSStringCreateWithCFString((__bridge CFStringRef)str);
+             JSValueRef rv = JSValueMakeString(ctx, strRef);
+             JSStringRelease(strRef);
+             return rv;
+         }
+         
+         return JSValueMakeUndefined(ctx);
+     }
+                                        name:@"setTimeoutFn"
+                                     argList:@"ms"
+                                   inContext:self.contextManager.context];    
+}
+
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
@@ -160,9 +198,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         
         self.contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                  compilerOutputDirectory:outURL];
-        
-        [self.contextManager setUpConsoleLog];
         [self.contextManager setupGlobalContext];
+        [self.contextManager setUpConsoleLog];
+        [self setUpTimerFunctionality];
+                       
         if (!useSimpleOutput) {
             if (outPath) {
                 [self.contextManager setUpAmblyImportScript];
@@ -557,8 +596,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
                  NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
-                 
+
                  fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+                 fflush(stdout);
              }
              
              return JSValueMakeNull(ctx);
