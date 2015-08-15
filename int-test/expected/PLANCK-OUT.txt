@@ -1,5 +1,5 @@
 Help output
-planck 1.4
+planck 1.5
 Usage:  planck [init-opt*] [main-opt] [args]
 
   With no options or args, runs an interactive Read-Eval-Print Loop
