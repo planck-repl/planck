@@ -18,6 +18,9 @@ $PLANCK <<REPL_INPUT
 2
 REPL_INPUT
 
+echo "Exit on first error"
+$PLANCK -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
+
 echo "Test cope with syntax errors"
 $PLANCK <<REPL_INPUT
 34f
@@ -49,6 +52,42 @@ REPL_INPUT
 
 echo "Test main"
 $PLANCK -s $SRC -m test-main.core 3 4
+echo $?
+
+echo "Test main zero"
+$PLANCK -s $SRC -m test-main.zero
+echo $?
+
+echo "Test main one"
+# Return value of main is _not_ the return value
+$PLANCK -s $SRC -m test-main.one
+echo $?
+
+echo "Test main unhandled"
+$PLANCK -s $SRC -m test-main.unhandled > /dev/null
+echo $?
+
+echo "Test main exit"
+$PLANCK -s $SRC -m test-main.exit 
+echo $?
+
+echo "Test REPL exit"
+$PLANCK <<REPL_INPUT
+(require 'planck.core)
+(planck.core/exit 118)
+REPL_INPUT
+echo $?
+
+echo "Test call fn exit"
+$PLANCK -s $SRC <<REPL_INPUT
+(require 'test-exit.core)
+(test-exit.core/please-exit 119)
+REPL_INPUT
+echo $?
+
+echo "Test run file with exit"
+$PLANCK $SRC/test_exit/exit_in_file.cljs
+echo $?
 
 echo "Test in-ns"
 $PLANCK <<REPL_INPUT
@@ -70,6 +109,18 @@ $PLANCK -s $SRC <<REPL_INPUT
 (require 'test-require.core)
 test-require.core/success
 REPL_INPUT
+
+echo "Test require REPL special exit in file"
+$PLANCK -s $SRC <<REPL_INPUT
+(require 'test-require.exit)
+REPL_INPUT
+echo $?
+
+echo "Test require REPL special throws in file"
+$PLANCK -s $SRC <<REPL_INPUT
+(require 'test-require.throw-it)
+REPL_INPUT
+echo $?
 
 echo "Test require unknown ns"
 $PLANCK -s $SRC <<REPL_INPUT
@@ -171,6 +222,12 @@ echo "Test load-file REPL error in file"
 $PLANCK -s $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/error_in_file.cljs")
 REPL_INPUT
+
+echo "Test load-file REPL exit in file"
+$PLANCK -s $SRC <<REPL_INPUT
+(load-file "int-test/src/test_load_file/exit_in_file.cljs")
+REPL_INPUT
+echo $?
 
 echo "Spit / slurp"
 $PLANCK <<REPL_INPUT

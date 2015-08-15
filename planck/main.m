@@ -4,10 +4,8 @@
 int main(int argc,  char * const *argv) {
     
     @autoreleasepool {
-        [PLKCommandLine processArgsCount:argc vector:argv];
+        return [PLKCommandLine processArgsCount:argc vector:argv];
     }
-    
-    return 0;
 }
 
 

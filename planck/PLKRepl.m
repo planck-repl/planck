@@ -141,8 +141,10 @@ void highlightCancel() {
     return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
 }
 
--(void)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal
+-(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal
 {
+    int exitValue = EXIT_SUCCESS;
+    
     NSString* currentNs = @"cljs.user";
     NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:dumbTerminal];
     NSString* historyFile = nil;
@@ -222,7 +224,13 @@ void highlightCancel() {
             
             if (![self isWhitespace:input]) {  // Guard against empty string being read
                 
-                [clojureScriptEngine executeClojureScript:input expression:YES printNilExpression:YES];
+                exitValue = [clojureScriptEngine executeClojureScript:input
+                                                               expression:YES
+                                                       printNilExpression:YES
+                                                            inExitContext:NO];
+                if (exitValue != EXIT_SUCCESS) {
+                    break;
+                }
             
             } else {
 
@@ -249,6 +257,7 @@ void highlightCancel() {
         
     }
     
+    return exitValue;
 }
 
 @end

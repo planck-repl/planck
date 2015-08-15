@@ -2,6 +2,6 @@
 
 @interface PLKCommandLine : NSObject
 
-+(void)processArgsCount:(int)argc vector:(char * const *)argv;
++(int)processArgsCount:(int)argc vector:(char * const *)argv;
 
 @end
