@@ -168,9 +168,8 @@ void highlightCancel() {
     NSString* input = nil;
     previousLines = [[NSMutableArray alloc] init];
     char *line = NULL;
-    while(dumbTerminal ||
-          (line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding])) != NULL) {
-
+    while(true) {
+        
         // Get the current line of input
         
         NSString* inputLine;
@@ -183,6 +182,20 @@ void highlightCancel() {
                 break;
             }
         } else {
+            line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding]);
+            if (line == NULL) {
+                if (errno == EAGAIN) { // Ctrl-C was pressed
+                    errno = 0;
+                    input = nil;
+                    [previousLines removeAllObjects];
+                    currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:NO];
+                    printf("\n");
+                    continue;
+                } else { // Ctrl-D was pressed
+                    break;
+                }
+            }
+
             inputLine = line ? [NSString stringWithCString:line encoding:NSUTF8StringEncoding] : nil;
             // If the input line couldn't be decoded, replace it with emtpy string
             if (inputLine == nil) {
