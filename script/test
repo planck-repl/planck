@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env planck
+(ns planck.test
+  (:require [planck.shell :refer [sh]]
+            [planck.core :refer [exit]]))
 
-if [ -f build/Release/planck ]
-then
-		int-test/script/run-tests && echo "All tests have passed"
-else
-		echo "ERROR: You must run script/build before running script/test"
-fi
+(if (zero? (:exit (sh "ls" "build/Release/planck")))
+  (let [test-results (sh "int-test/script/run-tests")]
+    (if (zero? (:exit test-results))
+      (println "All tests have passed")
+      (do
+        (println (:out test-results))
+        (exit 1))))
+  (println "ERROR: You must run script/build before running script/test"))
