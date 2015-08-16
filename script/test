@@ -9,11 +9,13 @@
 (defn file-exists? [filename]
   (succeeded? (sh "ls" filename)))
 
-(if-not (file-exists? "build/Release/planck")
+(when-not (file-exists? "build/Release/planck")
   (println "ERROR: You must run script/build before running script/test")
-  (let [test-results (sh "int-test/script/run-tests")]
-    (if (succeeded? test-results)
-      (println "All tests have passed")
-      (do
-        (println (:out test-results))
-        (exit (:exit test-results))))))
+  (exit 1))
+
+(let [test-results (sh "int-test/script/run-tests")]
+  (if (succeeded? test-results)
+    (println "All tests have passed")
+    (do
+      (println (:out test-results))
+      (exit (:exit test-results)))))
