@@ -1,9 +1,17 @@
 #!/bin/bash
 
-source int-test/script/setup-env
+#######################################################
+# Take a look at int-test/script/int-tests
+# instead. It is ClojureScript code instead of a big
+# shell script like this test.
+# 
+# Thinking we can migrate these tests there and
+# perhaps even adopt cljs.test if it makes sense
+# for the integration tests. First step is to start
+# using ClojureScript instead of Bash. :)
+######################################################
 
-echo "Help output"
-$PLANCK -h
+source int-test/script/setup-env
 
 echo "Legal output"
 $PLANCK -l
