@@ -44,7 +44,7 @@
     [self.javaScriptEngineReadyCondition unlock];
 }
 
--(void)startInitializationWithSrcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose
+-(void)startInitializationWithSrcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -236,6 +236,8 @@
         self.context[@"PLANCK_SET_EXIT_VALUE"] = ^(int exitValue) {
             weakSelf.exitValue = exitValue;
         };
+        
+        self.context[@"PLANCK_INITIAL_COMMAND_LINE_ARGS"] = boundArgs;
         
         // Inject Objective-C classes
         

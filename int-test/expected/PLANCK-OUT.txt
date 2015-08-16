@@ -325,3 +325,42 @@ nil
 Test availability of goog libs
 nil
 #object[Object 20050403]
+Test empty list of *command-line-args*
+nil
+nil
+Test empty list of *command-line-args* following main opt
+nil
+nil
+Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them
+nil
+("-s" "src" "-e" "(println \"hi\")" "-v")
+Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them
+args from main: (-v -e (println "hi"))
+args from *command-line-args*: (-v -e (println "hi"))
+0
+Treat init opts that follow nice --main=ns-name as *command-line-args* instead of evaluating them
+args from main: (-v -e (println "hi"))
+args from *command-line-args*: (-v -e (println "hi"))
+0
+Treat init opts that follow less nice -mns-name as *command-line-args* instead of evaluating them
+args from main: (-v -e (println "hi"))
+args from *command-line-args*: (-v -e (println "hi"))
+0
+Treat main opts that follow a main opt as *command-line-args* instead of evaluating them
+nil
+("-" "-m" "test-main.args" "-r")
+Test *command-line-args* with nice clumped init opts
+hi
+Implementing require via ns:
+   (ns cljs.user (:require [planck.core]))
+nil
+("here" "are" "some" "args")
+Test *command-line-args* with less nicely clumped init opts
+hi
+Implementing require via ns:
+   (ns cljs.user (:require [planck.core]))
+nil
+("here" "are" "some" "args")
+Test binding of *command-line-args* in file run from command line
+(here are some args)
+0
