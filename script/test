@@ -3,11 +3,17 @@
   (:require [planck.shell :refer [sh]]
             [planck.core :refer [exit]]))
 
-(if (zero? (:exit (sh "ls" "build/Release/planck")))
+(defn succeeded? [result]
+  (zero? (:exit result)))
+
+(defn file-exists? [filename]
+  (succeeded? (sh "ls" filename)))
+
+(if-not (file-exists? "build/Release/planck")
+  (println "ERROR: You must run script/build before running script/test")
   (let [test-results (sh "int-test/script/run-tests")]
-    (if (zero? (:exit test-results))
+    (if (succeeded? test-results)
       (println "All tests have passed")
       (do
         (println (:out test-results))
-        (exit 1))))
-  (println "ERROR: You must run script/build before running script/test"))
+        (exit (:exit test-results))))))
