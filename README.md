@@ -14,6 +14,8 @@ Binaries for manual download are [available](http://planck.fikesfarm.com/downloa
 
 # Building 
 
+Planck's build employs scripts written in ClojureScript executed by Planck, so you will need to install a Planck binary either via Homebrew or manually before building.
+
 ## Release Build
 
 1. `script/build`
