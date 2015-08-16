@@ -1,0 +1,57 @@
+#!/usr/bin/env planck
+(ns planck.int-tests
+  (:require [planck.core :refer [exit]]
+            [planck.shell :refer [sh *sh-dir*]]))
+
+;; Perhaps this file can evolve to be more like
+;; cljs.test, and perhaps it can involve multiple
+;; namespaces, etc.
+;;
+;; For now, all you ned to do to cause the tests
+;; to fail is call `(exit 1)`.
+
+(def planck-exe "build/Release/planck")
+
+(defn check-output
+  [expected shell-output]
+  (when-not (= expected (:out shell-output))
+    (println "Expected:")
+    (println expected)
+    (println "Actual:")
+    (println (:out shell-output))
+    (exit 1)))
+
+(check-output 
+  "planck 1.5
+Usage:  planck [init-opt*] [main-opt] [args]
+
+  With no options or args, runs an interactive Read-Eval-Print Loop
+
+  init options:
+    -i, --init path     Load a file or resource
+    -e, --eval string   Evaluate expressions in string; print non-nil values
+    -s, --src  path     Use path for source. Default is \"src\"
+    -v, --verbose       Emit verbose diagnostic output.
+    -d, --dumb-terminal Disables line editing / VT100 terminal control.
+
+  main options:
+    -m, --main ns-name  Call the -main function from a namespace with args
+    -r, --repl          Run a repl
+    path                Run a script from a file or resource
+    -                   Run a script from standard input
+    -h, -?, --help      Print this help message and exit
+    -l, --legal         Show legal info (licenses and copyrights)
+
+  operation:
+
+    - Enters the cljs.user namespace
+    - Binds *command-line-args* to a seq of strings containing command line
+      args that appear after any main option
+    - Runs all init options in order
+    - Calls a -main function or runs a repl or script if requested
+
+  The init options may be repeated and mixed freely, but must appear before
+  any main option.
+
+  Paths may be absolute or relative in the filesystem.\n\n"
+  (sh planck-exe "-h"))
