@@ -364,3 +364,55 @@ $PLANCK <<REPL_INPUT
 (require 'goog.date.Date)
 (goog.date.Date. 2005 3 3)
 REPL_INPUT
+
+echo "Test empty list of *command-line-args*"
+$PLANCK <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Test empty list of *command-line-args* following main opt"
+$PLANCK -r <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them"
+$PLANCK -r -s src -e '(println "hi")' -v <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them"
+$PLANCK -s $SRC -m test-main.args -v -e '(println "hi")'
+echo $?
+
+echo "Treat init opts that follow nice --main=ns-name as *command-line-args* instead of evaluating them"
+$PLANCK -s $SRC --main=test-main.args -v -e '(println "hi")'
+echo $?
+
+echo "Treat init opts that follow less nice -mns-name as *command-line-args* instead of evaluating them"
+$PLANCK -s $SRC -mtest-main.args -v -e '(println "hi")'
+echo $?
+
+echo "Treat main opts that follow a main opt as *command-line-args* instead of evaluating them"
+$PLANCK -r - -m test-main.args -r <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Test *command-line-args* with nice clumped init opts"
+$PLANCK -ve '(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Test *command-line-args* with less nicely clumped init opts"
+$PLANCK -ve'(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
+
+echo "Test binding of *command-line-args* in file run from command line"
+$PLANCK $SRC/test_args/args_in_file.cljs here are some args
+echo $?

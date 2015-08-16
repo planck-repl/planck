@@ -44,6 +44,12 @@
   *err*
   (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
 
+(defonce
+  ^{:doc "A sequence of the supplied command line arguments, or nil if none were supplied"
+    :dynamic true}
+  *command-line-args*
+  (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
+
 (defn file-seq
   "A tree seq on PLKFiles"
   [dir]

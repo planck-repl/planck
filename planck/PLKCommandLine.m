@@ -11,6 +11,53 @@
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
+
+    int indexOfScriptPathOrHyphen = argc;
+    NSMutableArray* args = [[NSMutableArray alloc] init];
+
+    BOOL (^shouldIgnoreArg)(char*) = ^(char* opt) {
+        if (opt[0] != '-') {
+            return NO;
+        }
+        
+        // safely ignore any long opt
+        if (opt[1] == '-') {
+            return YES;
+        }
+        
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, or s, then this opt
+        // takes an argument.
+        int idx = 0;
+        char c = 0;
+        char last_c = 0;
+        while ((c = opt[idx]) != '\0') {
+            last_c = c;
+            idx++;
+        }
+        
+        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s');
+    };
+
+    // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
+    // by getopt_long(). If one of those two things is found, everything afterward is an earmuff arg.
+    // If neither is found, then the first mainopt will be found with getopt_long, and earmuff args
+    // will begin at optind + 1.
+    for (int i = 1; i < argc; i++) {
+        char* arg = argv[i];
+        
+        if (strcmp("-", arg) == 0) {
+            // A bare dash means "run a script from standard input." Bind everything after the dash to *command-line-args*.
+            indexOfScriptPathOrHyphen = i;
+            break;
+        } else if (arg[0] != '-') {
+            // This could be a script path. If it is, bind everything after the path to *command-line-args*.
+            char* previousOpt = argv[i - 1];
+            if (!shouldIgnoreArg(previousOpt)) {
+                indexOfScriptPathOrHyphen = i;
+                break;
+            }
+        }
+    }
     
     // Documented options
     BOOL help = NO;
@@ -47,7 +94,9 @@
     };
     
     const char *shortopts = "h?li:e:s:vdm:ro:b";
-    while ((option = getopt_long(argc, argv, shortopts, longopts, NULL)) != -1) {
+    BOOL didEncounterMainOpt = NO;
+    // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
+    while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
         switch (option) {
             case '?':
             {
@@ -56,11 +105,13 @@
             }
             case 'h':
             {
+                didEncounterMainOpt = YES;
                 help = YES;
                 break;
             }
             case 'l':
             {
+                didEncounterMainOpt = YES;
                 legal = YES;
                 break;
             }
@@ -92,11 +143,13 @@
             }
             case 'm':
             {
+                didEncounterMainOpt = YES;
                 mainNsName = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
             case 'r':
             {
+                didEncounterMainOpt = YES;
                 repl = YES;
                 break;
             }
@@ -107,10 +160,15 @@
             }
         }
     }
+
+    // By this line, if optind is less than indexOfScriptPathOrHyphen, then there was an explicit
+    // main opt. In that case, the hyphen or script path was not meant to be the main opt, but
+    // rather a part of *command-line-args*.
+    optind = MIN(optind, indexOfScriptPathOrHyphen);
+    
     argc -= optind;
     argv += optind;
     
-    NSMutableArray* args = [[NSMutableArray alloc] init];
     while (argc-- > 0) {
         [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
     }
