@@ -1,3 +1,4 @@
-#!/bin/bash
-
-int-test/script/certify
+#!/usr/bin/env planck
+(ns planck.certify
+  (:require [planck.shell :refer [sh]]))
+(sh "int-test/script/certify")

@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env planck
+(ns planck.clean
+  (:require [planck.shell :refer [sh *sh-dir*]]))
 
-# ClojureScript
-cd planck-cljs
-script/clean
-script/clean-bundle
-cd ..
+; ClojureScript
+(binding [*sh-dir* "planck-cljs"]
+  (sh "script/clean")
+  (sh "script/clean-bundle"))
 
-# Xcode
-rm -rf build
+; Xcode
+(sh "rm" "-rf" "build")

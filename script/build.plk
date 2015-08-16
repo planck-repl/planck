@@ -1,0 +1,31 @@
+#!/usr/bin/env planck
+(ns planck.build
+  (:require [planck.shell :refer [sh *sh-dir*]]
+            [planck.core :refer [exit]]))
+
+(defn check-result [res]
+  (let [exit-value (:exit res)]
+    (if-not (zero? exit-value)
+      (println (:out res))
+      (exit exit-value))))
+
+; ClojureScript
+(binding [*sh-dir* "planck-cljs"]
+  (println "### Building ClojureScript")
+  (-> (sh "script/build")
+    check-result)
+  (println "### Bundling ClojureScript")
+  (-> (sh "script/bundle")
+    check-result))
+
+; Xcode
+(let [build-dir "build"
+      configuration "Release"]
+  (println "### Building Binary")
+  (-> (sh "xcodebuild" "-project" "planck.xcodeproj"
+        "-scheme" "planck"
+        "-configuration" configuration
+        (str "SYMROOT=$(PWD)/" build-dir))
+    check-result)
+  (println "Binary located at" (str (:out (sh "pwd"))) "/" build-dir "/" configuration "/planck"))
+
