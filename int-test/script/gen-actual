@@ -41,7 +41,7 @@ REPL_INPUT
 
 echo "space before and after"
 $PLANCK <<REPL_INPUT
- 3
+ 3 
 REPL_INPUT
 
 echo "Test print to stderr"
@@ -68,7 +68,7 @@ $PLANCK -s $SRC -m test-main.unhandled > /dev/null
 echo $?
 
 echo "Test main exit"
-$PLANCK -s $SRC -m test-main.exit
+$PLANCK -s $SRC -m test-main.exit 
 echo $?
 
 echo "Test REPL exit"
@@ -402,13 +402,13 @@ planck.core/*command-line-args*
 REPL_INPUT
 
 echo "Test *command-line-args* with nice clumped init opts"
-$PLANCK -ve '(println "hi")' -r here are some args <<REPL_INPUT
+$PLANCK -ve '(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
 REPL_INPUT
 
 echo "Test *command-line-args* with less nicely clumped init opts"
-$PLANCK -ve'(println "hi")' -r here are some args <<REPL_INPUT
+$PLANCK -ve'(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
 REPL_INPUT
