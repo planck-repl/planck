@@ -113,7 +113,7 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     
     // Read the data from the task
     NSData *outData = [outPipe.fileHandleForReading readDataToEndOfFile];
-    NSData *errData = [outPipe.fileHandleForReading readDataToEndOfFile];
+    NSData *errData = [errPipe.fileHandleForReading readDataToEndOfFile];
     
     NSStringEncoding encoding = encodingFromString(encoding_out, NSUTF8StringEncoding);
     

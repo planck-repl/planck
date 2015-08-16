@@ -251,6 +251,12 @@ $PLANCK <<REPL_INPUT
 (into (sorted-set) (planck.shell/sh "echo" "hello))
 REPL_INPUT
 
+echo "Shell stderr"
+$PLANCK <<REPL_INPUT
+(require 'planck.shell)
+(into (sorted-set) (planck.shell/sh "$PLANCK" "-e" "(binding [*print-fn* *print-err-fn*] (println \"this is from stderr\"))"))
+REPL_INPUT
+
 echo "Coercions"
 $PLANCK <<REPL_INPUT
 (require 'planck.io)

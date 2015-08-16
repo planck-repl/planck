@@ -243,6 +243,9 @@ true
 nil
 Shell
 nil
+Shell stderr
+nil
+#{[:err "this is from stderr\n"] [:exit 0] [:out ""]}
 Coercions
 nil
 nil
