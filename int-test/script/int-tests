@@ -16,9 +16,9 @@
   [expected shell-output]
   (when-not (= expected (:out shell-output))
     (println "Expected:")
-    (println expected)
+    (prn expected)
     (println "Actual:")
-    (println (:out shell-output))
+    (prn (:out shell-output))
     (exit 1)))
 
 (check-output 
@@ -55,3 +55,30 @@ Usage:  planck [init-opt*] [main-opt] [args]
 
   Paths may be absolute or relative in the filesystem.\n\n"
   (sh planck-exe "-h"))
+
+(defn ensure-output [expected quoted-commands]
+  (check-output
+    (prn-str expected)
+    (apply sh planck-exe (interleave
+                           (repeat "-e")
+                           (map pr-str quoted-commands)))))
+
+;; Ensure clojure.string loads
+(ensure-output "foo quux baz"
+  ['(require '[clojure.string :as s])
+   '(s/replace "foo bar baz" #"bar" "quux")])
+
+;; Ensure clojure.set loads
+(ensure-output #{:b :d}
+  ['(require '[clojure.set :as set])
+   '(set/intersection #{:a :b :c :d} #{:b :d :e})])
+
+;; Ensure clojure.walk loads
+(ensure-output '(5 3 1)
+  ['(require '[clojure.walk :refer [walk]])
+   '(walk first reverse [ [1 2] [3 4] [5 6] ])])
+
+;; Ensure cljs.pprint loads
+(ensure-output "123,456,789"
+  ['(require '[cljs.pprint :refer [cl-format]])
+   '(cl-format nil "~:d" 123456789)])
