@@ -29,8 +29,11 @@
   (let [rdr (transit/reader :json)]
     (transit/read rdr json)))
 
-(defn ^:export load-core-analysis-cache [json]
-  (cljs/load-analysis-cache! st 'cljs.core (transit-json->cljs json)))
+(defn ^:export load-core-analysis-cache []
+  (cljs/load-analysis-cache! st 'cljs.core
+    (transit-json->cljs (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json")))
+  (cljs/load-analysis-cache! st 'cljs.core$macros
+    (transit-json->cljs (js/PLANCK_LOAD "cljs/core$macros.cljc.cache.json"))))
 
 (defonce current-ns (atom 'cljs.user))
 
@@ -424,7 +427,12 @@
                   (repl/print-doc (repl-special-doc (second expression-form)))
                   (repl/print-doc
                     (let [sym (second expression-form)
-                          var (with-compiler-env st (resolve env sym))]
+                          var (with-compiler-env st (resolve env sym))
+                          var (or var
+                                (if-let [macros-var (with-compiler-env st
+                                                      (resolve env (symbol "cljs.core$macros" (name sym))))]
+                                  (update (assoc macros-var :ns 'cljs.core)
+                                    :name #(symbol "cljs.core" (name %)))))]
                       (if (= (namespace (:name var)) (str (:ns var)))
                         (update var :name #(symbol (name %)))
                         var))))

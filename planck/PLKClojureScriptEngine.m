@@ -158,8 +158,7 @@
         self.context[@"PLANCK_LOAD"] = planckLoad;
         
         JSValue* loadCoreAnalysisCacheFn = [self getValue:@"load-core-analysis-cache" inNamespace:@"planck.repl" fromContext:self.context];
-        [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core.cljs.cache.aot.json")]];
-        // [loadCoreAnalysisCacheFn callWithArguments:@[planckLoad(@"cljs/core$macros.cljc.cache.json")]];
+        [loadCoreAnalysisCacheFn callWithArguments:@[]];
         
         JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.repl" fromContext:self.context];
         [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),

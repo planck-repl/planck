@@ -192,7 +192,7 @@ REPL_INPUT
 echo "Test doc REPL special"
 $PLANCK <<REPL_INPUT
 (doc inc)
-#_(doc when) ; Doc for macros temporarily broken
+(doc when)
 (doc doc)
 (defn f "docstring" [param])
 (doc f)
