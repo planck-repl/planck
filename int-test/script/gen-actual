@@ -240,7 +240,7 @@ echo $?
 echo "Spit / slurp"
 $PLANCK <<REPL_INPUT
 (def test-file "/tmp/PLANCK_TEST.txt")
-(require 'planck.io)
+(require 'planck.core)
 (defn test-spit-slurp [content]
   (planck.core/spit test-file content)
   (prn
