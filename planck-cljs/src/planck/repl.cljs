@@ -10,8 +10,7 @@
             [cljs.repl :as repl]
             [cljs.stacktrace :as st]
             [cognitect.transit :as transit]
-            [tailrecursion.cljson :refer [cljson->clj]]
-            [planck.io]))
+            [tailrecursion.cljson :refer [cljson->clj]]))
 
 (defn- println-verbose
   [& args]
@@ -311,10 +310,10 @@
                 (when (and precompiled-js cache-json)
                   (when (:verbose @app-env)
                     (println-verbose "Loading precompiled JS and analysis cache for" full-path))
-                  (when (= path "planck/io")                ; Hack to load dep
-                    (js/eval (js/PLANCK_LOAD "planck/core.js")))
+                  ; cljs.js won't load dependent namespaces, so instead we let Closure do it
+                  (js/goog.require (s/replace path #"/" "."))
                   {:lang   :js
-                   :source precompiled-js
+                   :source ""                               ; Intentionally pass empty source
                    :cache  (transit-json->cljs cache-json)})))))
       :loaded)))
 
@@ -440,7 +439,8 @@
                        (catch js/Error e (prn :caught e))))
             load-file (let [filename (second expression-form)]
                         (process-load-file filename)))
-          (prn nil))
+          (when print-nil-expression?
+            (prn nil)))
         (try
           (cljs/eval-str
             st
