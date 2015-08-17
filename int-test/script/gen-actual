@@ -190,12 +190,22 @@ $PLANCK <<REPL_INPUT
 REPL_INPUT
 
 echo "Test doc REPL special"
-$PLANCK <<REPL_INPUT
+$PLANCK -s $SRC <<REPL_INPUT
 (doc inc)
 (doc when)
 (doc doc)
 (defn f "docstring" [param])
 (doc f)
+(require 'test-doc-source.core)
+(doc test-doc-source.core/my-function)
+REPL_INPUT
+
+echo "Test source REPL special"
+$PLANCK -s $SRC <<REPL_INPUT
+(source inc)
+(source when)
+(require 'test-doc-source.core)
+(source test-doc-source.core/my-function)
 REPL_INPUT
 
 echo "Test pst REPL special"
