@@ -42,17 +42,19 @@ void highlight(const char* buf, int pos) {
         int numLinesUp = ((NSNumber*)highlightCoords[0]).intValue;
         int highlightPos = ((NSNumber*)highlightCoords[1]).intValue;
         
+        int currentPos = pos + 1;
+        
         if (numLinesUp != -1) {
-            int relativeHoriz = highlightPos - pos;
+            int relativeHoriz = highlightPos - currentPos;
             
             if (numLinesUp) {
                 fprintf(stdout,"\x1b[%dA", numLinesUp);
             }
             
             if (relativeHoriz < 0) {
-                fprintf(stdout,"\x1b[%dD", 1 - relativeHoriz);
+                fprintf(stdout,"\x1b[%dD", relativeHoriz);
             } else if (relativeHoriz > 0){
-                fprintf(stdout,"\x1b[%dC", -1 + relativeHoriz);
+                fprintf(stdout,"\x1b[%dC", relativeHoriz);
             }
             
             fflush(stdout);
@@ -68,9 +70,9 @@ void highlight(const char* buf, int pos) {
                     }
                     
                     if (relativeHoriz < 0) {
-                        fprintf(stdout,"\x1b[%dC", 1 - relativeHoriz);
+                        fprintf(stdout,"\x1b[%dC", relativeHoriz);
                     } else if (relativeHoriz > 0){
-                        fprintf(stdout,"\x1b[%dD", -1 + relativeHoriz);
+                        fprintf(stdout,"\x1b[%dD", relativeHoriz);
                     }
                     
                     fflush(stdout);
