@@ -163,6 +163,30 @@ cljs.user/f
 ([param])
   docstring
 nil
+nil
+-------------------------
+test-doc-source.core/my-function
+([x])
+  This is a cool
+  function with a docstring.
+nil
+Test source REPL special
+(defn inc
+  "Returns a number one greater than num."
+  [x] (cljs.core/+ x 1))
+nil
+(core/defmacro when
+     "Evaluates test. If logical true, evaluates body in an implicit do."
+     [test & body]
+     (core/list 'if test (cons 'do body)))
+nil
+nil
+(defn my-function
+  "This is a cool
+  function with a docstring."
+  [x]
+  (* x x))
+nil
 Test pst REPL special
 #'cljs.user/f
 #'cljs.user/g

@@ -69,7 +69,7 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns require require-macros doc pst load-file})
+(def repl-specials '#{in-ns require require-macros doc source pst load-file})
 
 (defn repl-special? [form]
   (and (seq? form) (repl-specials (first form))))
@@ -83,6 +83,8 @@
                     :doc      "Similar to the require REPL special function but\n  only for macros."}
     doc            {:arglists ([name])
                     :doc      "Prints documentation for a var or special form given its name"}
+    source            {:arglists ([name])
+                    :doc      "Prints the source code for the given symbol, if it can find it.\n  This requires that the symbol resolve to a Var defined in a\n  namespace for which the source is available.\n\n  Example: (source filter)"}
     pst            {:arglists ([] [e])
                     :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}
     load-file      {:arglists ([filename])
@@ -406,6 +408,38 @@
              (or (:source-maps @planck.repl/st) {})
              nil)))))))
 
+(defn get-var [env sym]
+  (let [var (with-compiler-env st (resolve env sym))
+        var (or var
+              (if-let [macro-var (with-compiler-env st
+                                    (resolve env (symbol "cljs.core$macros" (name sym))))]
+                (update (assoc macro-var :ns 'cljs.core)
+                  :name #(symbol "cljs.core" (name %)))))]
+    (if (= (namespace (:name var)) (str (:ns var)))
+      (update var :name #(symbol (name %)))
+      var)))
+
+(defn- get-file-source [filepath]
+  (if (symbol? filepath)
+    (let [without-extension (s/replace
+                              (s/replace (name filepath) #"\." "/")
+                              #"-" "_")]
+      (or
+        (js/PLANCK_LOAD (str without-extension ".clj"))
+        (js/PLANCK_LOAD (str without-extension ".cljc"))
+        (js/PLANCK_LOAD (str without-extension ".cljs"))))
+    (let [file-source (js/PLANCK_LOAD filepath)]
+      (or file-source
+        (js/PLANCK_LOAD (s/replace filepath #"^out/" ""))))))
+
+(defn- fetch-source [var]
+  (when-let [filepath (or (:file var) (:file (:meta var)))]
+    (when-let [file-source (get-file-source filepath)]
+      (let [rdr (rt/source-logging-push-back-reader file-source)]
+        (dotimes [_ (dec (:line var))] (rt/read-line rdr))
+        (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
+          meta :source)))))
+
 (defn ^:export read-eval-print
   "Read/eval/print source
 
@@ -425,17 +459,8 @@
             require-macros (process-require true identity (rest expression-form))
             doc (if (repl-specials (second expression-form))
                   (repl/print-doc (repl-special-doc (second expression-form)))
-                  (repl/print-doc
-                    (let [sym (second expression-form)
-                          var (with-compiler-env st (resolve env sym))
-                          var (or var
-                                (if-let [macros-var (with-compiler-env st
-                                                      (resolve env (symbol "cljs.core$macros" (name sym))))]
-                                  (update (assoc macros-var :ns 'cljs.core)
-                                    :name #(symbol "cljs.core" (name %)))))]
-                      (if (= (namespace (:name var)) (str (:ns var)))
-                        (update var :name #(symbol (name %)))
-                        var))))
+                  (repl/print-doc (get-var env (second expression-form))))
+            source (println (fetch-source (get-var env (second expression-form))))
             pst (let [expr (or (second expression-form) '*e)]
                   (try (cljs/eval st
                          expr
