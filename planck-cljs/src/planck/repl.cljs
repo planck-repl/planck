@@ -310,10 +310,8 @@
                 (when (and precompiled-js cache-json)
                   (when (:verbose @app-env)
                     (println-verbose "Loading precompiled JS and analysis cache for" full-path))
-                  ; cljs.js won't load dependent namespaces, so instead we let Closure do it
-                  (js/goog.require (s/replace path #"/" "."))
                   {:lang   :js
-                   :source ""                               ; Intentionally pass empty source
+                   :source precompiled-js
                    :cache  (transit-json->cljs cache-json)})))))
       :loaded)))
 
