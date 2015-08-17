@@ -13,6 +13,11 @@
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.io]))
 
+(defn- println-verbose
+  [& args]
+  (binding [*print-fn* *print-err-fn*]
+    (apply println args)))
+
 (declare print-error)
 (declare handle-error)
 
@@ -21,10 +26,12 @@
 (defn- known-namespaces []
   (keys (:cljs.analyzer/namespaces @st)))
 
+(defn transit-json->cljs [json]
+  (let [rdr (transit/reader :json)]
+    (transit/read rdr json)))
+
 (defn ^:export load-core-analysis-cache [json]
-  (let [rdr (transit/reader :json)
-        cache (transit/read rdr json)]
-    (cljs/load-analysis-cache! st 'cljs.core cache)))
+  (cljs/load-analysis-cache! st 'cljs.core (transit-json->cljs json)))
 
 (defonce current-ns (atom 'cljs.user))
 
@@ -155,7 +162,7 @@
                              :require-macros :require)
                            ~@(-> specs canonicalize-specs process-reloads!)))]
           (when (:verbose @app-env)
-            (println "Implementing"
+            (println-verbose "Implementing"
               (if macros-ns?
                 "require-macros"
                 "require")
@@ -293,10 +300,23 @@
     :clj))
 
 (defn load-and-callback! [path extension cb]
-  (when-let [source (js/PLANCK_LOAD (str path extension))]
-    (cb {:lang   (extension->lang extension)
-         :source source})
-    :loaded))
+  (let [full-path (str path extension)]
+    (when-let [source (js/PLANCK_LOAD full-path)]
+      (cb (merge
+            {:lang   (extension->lang extension)
+             :source source}
+            (when-not (= ".js" extension)
+              (let [precompiled-js (js/PLANCK_LOAD (str path ".js"))
+                    cache-json (js/PLANCK_LOAD (str full-path ".cache.json"))]
+                (when (and precompiled-js cache-json)
+                  (when (:verbose @app-env)
+                    (println-verbose "Loading precompiled JS and analysis cache for" full-path))
+                  (when (= path "planck/io")                ; Hack to load dep
+                    (js/eval (js/PLANCK_LOAD "planck/core.js")))
+                  {:lang   :js
+                   :source precompiled-js
+                   :cache  (transit-json->cljs cache-json)})))))
+      :loaded)))
 
 (defn closure-index []
   (let [paths-to-provides
