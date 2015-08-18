@@ -13,9 +13,20 @@
   (println "ERROR: You must run script/build before running script/test")
   (exit 1))
 
+(println "Running unit tests...")
+
+(when-not (succeeded? (sh "script/unit-test"))
+  (println "Unit tests have failed.")
+  (exit 1))
+
+(println "Unit tests have passed.")
+
+(println "Running integration tests...")
+
 (let [test-results (sh "int-test/script/run-tests")]
   (if (succeeded? test-results)
-    (println "All tests have passed")
+    (println "Integration tests have passed.")
     (do
       (println (:out test-results))
+      (println "Integration tests have failed.")
       (exit (:exit test-results)))))
