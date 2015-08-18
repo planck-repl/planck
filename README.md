@@ -38,4 +38,6 @@ For development, things are setup so that the on-disk ClojureScript compiler out
 
 # License
 
-Distributed under the Eclipse Public License, which is also used by ClojureScript.
+Copyright © 2015 Mike Fikes and Contributors
+
+Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
