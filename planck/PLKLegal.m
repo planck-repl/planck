@@ -5,6 +5,17 @@
 +(void)displayLegalese
 {
     printf("\n");
+    printf("Planck\n");
+    printf("------\n");
+    printf("\n");
+    printf("Copyright © 2015 Mike Fikes and Contributors\n");
+    printf("Distributed under the Eclipse Public License either version 1.0 or (at your\n");
+    printf("option) any later version.\n");
+    printf("\n");
+    printf("\n");
+    printf("Portions of Planck may utilize the following copyrighted material, the use of\n");
+    printf("which is hereby acknowledged.\n");
+    printf("\n");
     printf("Ambly\n");
     printf("-----\n");
     printf("\n");
