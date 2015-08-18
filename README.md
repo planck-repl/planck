@@ -1,6 +1,6 @@
 # Planck
 
-A command line bootstrapped ClojureScript REPL for OS X based on JavaScriptCore.
+A command-line bootstrapped ClojureScript REPL for OS X based on JavaScriptCore.
 
 Home page: [planck.fikesfarm.com](http://planck.fikesfarm.com)
 
