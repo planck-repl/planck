@@ -69,10 +69,92 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
-(def repl-specials '#{in-ns require require-macros doc source pst load-file})
+(def special-doc-map
+  '{.     {:forms [(.instanceMethod instance args*)
+                   (.-instanceField instance)]
+           :doc   "The instance member form works for methods and fields.
+  They all expand into calls to the dot operator at macroexpansion time."}
+    ns    {:forms [(name docstring? attr-map? references*)]
+           :doc   "You must currently use the ns form only with the following caveats
 
-(defn repl-special? [form]
-  (and (seq? form) (repl-specials (first form))))
+    * You must use the :only form of :use
+    * :require supports :as and :refer
+      - both options can be skipped
+      - in this case a symbol can be used as a libspec directly
+        - that is, (:require lib.foo) and (:require [lib.foo]) are both
+          supported and mean the same thing
+      - prefix lists are not supported
+    * The only option for :refer-clojure is :exclude
+    * :import is available for importing Google Closure classes
+      - ClojureScript types and records should be brought in with :use
+        or :require :refer, not :import ed
+    * Macros are written in Clojure, and are referenced via the new
+      :require-macros / :use-macros options to ns
+      - :require-macros and :use-macros support the same forms that
+        :require and :use do
+
+  Implicit macro loading: If a namespace is required or used, and that
+  namespace itself requires or uses macros from its own namespace, then
+  the macros will be implicitly required or used using the same
+  specifications. This oftentimes leads to simplified library usage,
+  such that the consuming namespace need not be concerned about
+  explicitly distinguishing between whether certain vars are functions
+  or macros.
+
+  Inline macro specification: As a convenience, :require can be given
+  either :include-macros true or :refer-macros [syms...]. Both desugar
+  into forms which explicitly load the matching Clojure file containing
+  macros. (This works independently of whether the namespace being
+  required internally requires or uses its own macros.) For example:
+
+  (ns testme.core
+  (:require [foo.core :as foo :refer [foo-fn] :include-macros true]
+            [woz.core :as woz :refer [woz-fn] :refer-macros [app jx]]))
+
+  is sugar for
+
+  (ns testme.core
+  (:require [foo.core :as foo :refer [foo-fn]]
+            [woz.core :as woz :refer [woz-fn]])
+  (:require-macros [foo.core :as foo]
+                   [woz.core :as woz :refer [app jx]]))"}
+    def   {:forms [(def symbol doc-string? init?)]
+           :doc   "Creates and interns a global var with the name
+  of symbol in the current namespace (*ns*) or locates such a var if
+  it already exists.  If init is supplied, it is evaluated, and the
+  root binding of the var is set to the resulting value.  If init is
+  not supplied, the root binding of the var is unaffected."}
+    do    {:forms [(do exprs*)]
+           :doc   "Evaluates the expressions in order and returns the value of
+  the last. If no expressions are supplied, returns nil."}
+    if    {:forms [(if test then else?)]
+           :doc   "Evaluates test. If not the singular values nil or false,
+  evaluates and yields then, otherwise, evaluates and yields else. If
+  else is not supplied it defaults to nil."}
+    new   {:forms [(Constructor. args*) (new Constructor args*)]
+           :url   "java_interop#new"
+           :doc   "The args, if any, are evaluated from left to right, and
+  passed to the JavaScript constructor. The constructed object is
+  returned."}
+    quote {:forms [(quote form)]
+           :doc   "Yields the unevaluated form."}
+    recur {:forms [(recur exprs*)]
+           :doc   "Evaluates the exprs in order, then, in parallel, rebinds
+  the bindings of the recursion point to the values of the exprs.
+  Execution then jumps back to the recursion point, a loop or fn method."}
+    set!  {:forms [(set! var-symbol expr)
+                   (set! (.- instance-expr instanceFieldName-symbol) expr)]
+           :url   "vars#set"
+           :doc   "Used to set vars and JavaScript object fields"}
+    throw {:forms [(throw expr)]
+           :doc   "The expr is evaluated and thrown."}
+    try   {:forms [(try expr* catch-clause* finally-clause?)]
+           :doc   "catch-clause => (catch classname name expr*)
+  finally-clause => (finally expr*)
+  Catches and handles JavaScript exceptions."}
+    var   {:forms [(var symbol)]
+           :doc   "The symbol must resolve to a var, and the Var object
+itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 
 (def repl-special-doc-map
   '{in-ns          {:arglists ([name])
@@ -89,6 +171,14 @@
                     :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}
     load-file      {:arglists ([filename])
                     :doc      "Loads a file"}})
+
+(defn repl-special? [form]
+  (and (seq? form) (repl-special-doc-map (first form))))
+
+(defn- special-doc [name-symbol]
+  (assoc (special-doc-map name-symbol)
+    :name name-symbol
+    :special-form true))
 
 (defn- repl-special-doc [name-symbol]
   (assoc (repl-special-doc-map name-symbol)
@@ -241,7 +331,10 @@
                               (concat namespace-candidates
                                 (completion-candidates-for-ns 'cljs.core false)
                                 (completion-candidates-for-ns @current-ns true)
-                                (when top-form? (map str repl-specials)))))]
+                                (when top-form?
+                                  (concat
+                                    (map str (keys special-doc-map))
+                                    (map str (keys repl-special-doc-map)))))))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
           buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
@@ -452,23 +545,25 @@
     (let [expression-form (and expression? (repl-read-string source))]
       (if (repl-special? expression-form)
         (let [env (assoc (ana/empty-env) :context :expr
-                                         :ns {:name @current-ns})]
+                                         :ns {:name @current-ns})
+              argument (second expression-form)]
           (case (first expression-form)
-            in-ns (process-in-ns (second expression-form))
+            in-ns (process-in-ns argument)
             require (process-require false identity (rest expression-form))
             require-macros (process-require true identity (rest expression-form))
-            doc (if (repl-specials (second expression-form))
-                  (repl/print-doc (repl-special-doc (second expression-form)))
-                  (repl/print-doc (get-var env (second expression-form))))
-            source (println (fetch-source (get-var env (second expression-form))))
-            pst (let [expr (or (second expression-form) '*e)]
+            doc (cond
+                  (special-doc-map argument) (repl/print-doc (special-doc argument))
+                  (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
+                  :else (repl/print-doc (get-var env argument)))
+            source (println (fetch-source (get-var env argument)))
+            pst (let [expr (or argument '*e)]
                   (try (cljs/eval st
                          expr
                          {:ns      @current-ns
                           :context :expr}
                          print-error)
                        (catch js/Error e (prn :caught e))))
-            load-file (let [filename (second expression-form)]
+            load-file (let [filename argument]
                         (process-load-file filename)))
           (when print-nil-expression?
             (prn nil)))
