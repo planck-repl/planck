@@ -193,6 +193,7 @@ echo "Test doc REPL special"
 $PLANCK -s $SRC <<REPL_INPUT
 (doc inc)
 (doc when)
+(doc if)
 (doc doc)
 (defn f "docstring" [param])
 (doc f)
