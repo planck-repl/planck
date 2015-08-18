@@ -435,3 +435,13 @@ REPL_INPUT
 echo "Test binding of *command-line-args* in file run from command line"
 $PLANCK $SRC/test_args/args_in_file.cljs here are some args
 echo $?
+
+echo "Test source paths"
+$PLANCK -s $SRC -s${SRC}2 <<REPL_INPUT
+(require 'test-src-paths.core)
+test-src-paths.core/src-path
+REPL_INPUT
+$PLANCK -s ${SRC}2 -s$SRC <<REPL_INPUT
+(require 'test-src-paths.core)
+test-src-paths.core/src-path
+REPL_INPUT

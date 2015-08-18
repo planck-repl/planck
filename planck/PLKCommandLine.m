@@ -63,7 +63,7 @@
     BOOL help = NO;
     BOOL legal = NO;
     NSMutableArray* scripts = [NSMutableArray new]; // of PLKScript
-    NSString* srcPath = @"src";
+    NSMutableArray* srcPaths = [[NSMutableArray alloc] init];
     NSString* mainNsName = nil;
     BOOL repl = NO;
     BOOL verbose = NO;
@@ -128,7 +128,7 @@
             }
             case 's':
             {
-                srcPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                [srcPaths addObject:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]];
                 break;
             }
             case 'v':
@@ -181,6 +181,10 @@
     
     // Process arguments
     
+    if (![srcPaths count]) {
+        [srcPaths addObject:@"src"];
+    }
+    
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {
@@ -222,7 +226,7 @@
             [PLKLegal displayLegalese];
         } else {
             return [[[PLKExecutive alloc] init] runScripts:scripts
-                                                   srcPath:srcPath
+                                                  srcPaths:srcPaths
                                                    verbose:verbose
                                                 mainNsName:mainNsName
                                                       repl:repl
