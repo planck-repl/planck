@@ -377,3 +377,8 @@ nil
 Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
+Test source paths
+nil
+:src
+nil
+:src2

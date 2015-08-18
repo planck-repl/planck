@@ -44,7 +44,7 @@
     [self.javaScriptEngineReadyCondition unlock];
 }
 
--(void)startInitializationWithSrcPath:(NSString*)srcPath outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -132,19 +132,26 @@
         
         NSString* (^planckLoad)(NSString* path) = ^(NSString *path) {
             
-            // First try in the srcPath
+            NSString* rv = nil;
             
-            NSString* fullPath = [NSURL URLWithString:path
-                                        relativeToURL:[NSURL URLWithString:srcPath]].path;
+            // First try in the srcPaths
             
-            NSString* rv = [NSString stringWithContentsOfFile:fullPath
-                                                     encoding:NSUTF8StringEncoding error:nil];
+            for (NSString* srcPath in srcPaths) {
+                NSString* fullPath = [NSURL URLWithString:path
+                                            relativeToURL:[NSURL URLWithString:srcPath]].path;
+                
+                rv = [NSString stringWithContentsOfFile:fullPath
+                                               encoding:NSUTF8StringEncoding error:nil];
+                if (rv) {
+                    break;
+                }
+            }
             
             // Now try to load the file from the output
             if (!rv) {
                 if (outPath) {
-                    fullPath = [NSURL URLWithString:path
-                                      relativeToURL:[NSURL URLWithString:outPath]].path;
+                    NSString* fullPath = [NSURL URLWithString:path
+                                                relativeToURL:[NSURL URLWithString:outPath]].path;
                     rv = [NSString stringWithContentsOfFile:fullPath
                                                    encoding:NSUTF8StringEncoding error:nil];
                 } else {
