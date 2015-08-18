@@ -15,7 +15,7 @@
 
 
 (println "Building")
-(api/build (api/inputs "src")
+(api/build (api/inputs "src" "test") ;; For now, pre-compile tests
   {:output-dir         "out"
    :output-to          "out/main.js"
    :optimizations      :none
@@ -55,6 +55,14 @@
 (extract-analysis-cache "out/planck/shell.cljs.cache.edn" "out/planck/shell.cljs.cache.json")
 
 (extract-analysis-cache "out/tailrecursion/cljson.cljs.cache.edn" "out/tailrecursion/cljson.cljs.cache.json")
+
+
+;; For now, use pre-compiled tests
+(extract-analysis-cache "out/planck/test_runner.cljs.cache.edn" "out/planck/test_runner.cljs.cache.json")
+(extract-analysis-cache "out/planck/core_test.cljs.cache.edn" "out/planck/core_test.cljs.cache.json")
+(extract-analysis-cache "out/planck/io_test.cljs.cache.edn" "out/planck/io_test.cljs.cache.json")
+(extract-analysis-cache "out/planck/shell_test.cljs.cache.edn" "out/planck/shell_test.cljs.cache.json")
+(extract-analysis-cache "out/planck/repl_test.cljs.cache.edn" "out/planck/repl_test.cljs.cache.json")
 
 (println "Done building")
 (System/exit 0)

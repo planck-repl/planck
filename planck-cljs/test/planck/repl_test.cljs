@@ -1,6 +1,6 @@
-(ns planck.core-test
+(ns planck.repl-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [planck.core]))
+            [planck.repl]))
 
 (deftest a-test
   (testing "Stub passing test"
