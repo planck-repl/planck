@@ -62,8 +62,14 @@
 -(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     NSMutableArray* adjustedSrcPaths = [[NSMutableArray alloc] init];
-    for (NSString* srcPath in srcPaths) {
-        [adjustedSrcPaths addObject:[self ensureTrailingSlash:[self fullyQualify:srcPath]]];
+    for (NSArray* srcPath in srcPaths) {
+        NSString* type = srcPath[0];
+        NSString* path = srcPath[1];
+        path = [self fullyQualify:path];
+        if ([type isEqualToString:@"src"]) {
+            path = [self ensureTrailingSlash:path];
+        }
+        [adjustedSrcPaths addObject:@[type, path]];
     }
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     

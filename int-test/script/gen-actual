@@ -445,3 +445,10 @@ $PLANCK -s ${SRC}2 -s$SRC <<REPL_INPUT
 (require 'test-src-paths.core)
 test-src-paths.core/src-path
 REPL_INPUT
+
+echo "Test JAR support"
+$PLANCK -j $HOME/test-jar.jar <<REPL_INPUT
+(require 'test-jar.core)
+test-jar.core/x
+REPL_INPUT
+

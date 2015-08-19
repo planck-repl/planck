@@ -6,6 +6,8 @@
 #import "PLKFileReader.h"
 #import "PLKFileWriter.h"
 #import "PLKIO.h"
+#import "ZZArchive.h"
+#import "ZZArchiveEntry.h"
 
 @interface PLKClojureScriptEngine()
 
@@ -16,6 +18,7 @@
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
 @property (nonatomic, strong) NSMutableSet* loadedGoogLibs;
 @property (nonatomic) int exitValue;
+@property (nonatomic) NSMutableDictionary* openArchives;
 
 @end
 
@@ -136,12 +139,41 @@
             
             // First try in the srcPaths
             
-            for (NSString* srcPath in srcPaths) {
-                NSString* fullPath = [NSURL URLWithString:path
-                                            relativeToURL:[NSURL URLWithString:srcPath]].path;
+            for (NSArray* srcPath in srcPaths) {
+                NSString* type = srcPath[0];
+                NSString* location = srcPath[1];
                 
-                rv = [NSString stringWithContentsOfFile:fullPath
-                                               encoding:NSUTF8StringEncoding error:nil];
+                if ([type isEqualToString:@"src"]) {
+                    NSString* fullPath = [NSURL URLWithString:path
+                                                relativeToURL:[NSURL URLWithString:location]].path;
+                    
+                    rv = [NSString stringWithContentsOfFile:fullPath
+                                                   encoding:NSUTF8StringEncoding error:nil];
+                } else if ([type isEqualToString:@"jar"]) {
+                    ZZArchive* archive = self.openArchives[path];
+                    if (!archive) {
+                        NSError* err = nil;
+                        archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
+                                                      error:&err];
+                        if (err) {
+                            NSLog(@"%@", err);
+                            self.openArchives[path] = [NSNull null];
+                        } else {
+                            self.openArchives[path] = archive;
+                        }
+                    }
+                    NSData* data = nil;
+                    if (![archive isEqual:[NSNull null]]) {
+                        for (ZZArchiveEntry* entry in archive.entries)
+                            if ([entry.fileName isEqualToString:path]) {
+                                data = [entry newDataWithError:nil];
+                                break;
+                            }
+                    }
+                    if (data) {
+                        rv = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    }
+                }
                 if (rv) {
                     break;
                 }
