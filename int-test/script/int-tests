@@ -31,6 +31,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
     -i, --init path     Load a file or resource
     -e, --eval string   Evaluate expressions in string; print non-nil values
     -s, --src  path     Use path for source. Default is \"src\"
+    -j, --jar  path     Use path for a JAR dependency.
     -v, --verbose       Emit verbose diagnostic output.
     -d, --dumb-terminal Disables line editing / VT100 terminal control.
 

@@ -25,7 +25,7 @@
             return YES;
         }
         
-        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, or s, then this opt
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, s, or j then this opt
         // takes an argument.
         int idx = 0;
         char c = 0;
@@ -35,7 +35,7 @@
             idx++;
         }
         
-        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s');
+        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='j');
     };
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
@@ -82,6 +82,7 @@
         {"init", optional_argument, NULL, 'i'},
         {"eval", optional_argument, NULL, 'e'},
         {"src", optional_argument, NULL, 's'},
+        {"jar", optional_argument, NULL, 'j'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
         {"main", optional_argument, NULL, 'm'},
@@ -93,7 +94,7 @@
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?li:e:s:vdm:ro:b";
+    const char *shortopts = "h?li:e:s:j:vdm:ro:b";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -128,7 +129,12 @@
             }
             case 's':
             {
-                [srcPaths addObject:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]];
+                [srcPaths addObject:@[@"src", [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
+                break;
+            }
+            case 'j':
+            {
+                [srcPaths addObject:@[@"jar", [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
                 break;
             }
             case 'v':
@@ -182,7 +188,7 @@
     // Process arguments
     
     if (![srcPaths count]) {
-        [srcPaths addObject:@"src"];
+        [srcPaths addObject:@[@"src", @"src"]];
     }
     
     if (mainNsName && repl) {
@@ -198,6 +204,7 @@
             printf("    -i, --init path     Load a file or resource\n");
             printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
             printf("    -s, --src  path     Use path for source. Default is \"src\"\n");
+            printf("    -j, --jar  path     Use path for a JAR dependency.\n");
             printf("    -v, --verbose       Emit verbose diagnostic output.\n");
             printf("    -d, --dumb-terminal Disables line editing / VT100 terminal control.\n");
             printf("\n");
