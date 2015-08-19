@@ -5,7 +5,6 @@
  */
 @interface ABYUtils : NSObject
 
-+(id)valueOfType:(Class)type fromJSValue:(JSValue*)value;
 +(NSString*)stringForValue:(JSValueRef)value inContext:(JSContextRef)context;
 +(void)setValue:(JSValueRef)value onObject:(JSObjectRef)object forProperty:(NSString*)property inContext:(JSContextRef)context;
 +(JSValueRef)getValueOnObject:(JSObjectRef)object forProperty:(NSString*)property inContext:(JSContextRef)context;
