@@ -218,13 +218,13 @@
         };
         
         self.context[@"PLANCK_SHELL_SH"] = ^(NSArray *args, JSValue* arg_in, JSValue *encoding_in, JSValue *encoding_out, NSDictionary *env, JSValue *dir) {
-            #define TSTR(av) (NSString*)[ABYUtils valueOfType:[NSString class] fromJSValue:av]
+            #define TSTR(av) (NSString*)[PLKClojureScriptEngine valueOfType:[NSString class] fromJSValue:av]
             NSDictionary *result = cljs_shell(args, TSTR(arg_in), TSTR(encoding_in), TSTR(encoding_out), env, TSTR(dir));
             return result;
         };
         
         self.context[@"PLANCK_IO_FILE"] = ^(JSValue* input) {
-            PLKFile *file = [PLKFile file:[ABYUtils valueOfType:[NSString class] fromJSValue:input]];
+            PLKFile *file = [PLKFile file:[PLKClojureScriptEngine valueOfType:[NSString class] fromJSValue:input]];
             return file;
         };
         
@@ -463,5 +463,11 @@
     return [[self getFunction:@"get-highlight-coords"] callWithArguments:@[@(pos), buffer, previousLines]].toArray;
 }
 
++(id)valueOfType:(Class)type fromJSValue:(JSValue*)value
+{
+    if (value.isUndefined)return nil;
+    if (value.isNull)return nil;
+    return [value toObjectOfClass:type];
+}
 
 @end
