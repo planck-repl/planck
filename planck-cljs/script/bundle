@@ -11,7 +11,9 @@ cd out
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.map' -o -name '*.json'`
 do 
 file=${file:2}
-gzip -9 -k $file
+cp $file $file.bak
+gzip -9 $file
+mv $file.bak $file
 filegz=$file.gz
 xxd -i $filegz >> ../PLKBundledOut.m
 rm $filegz
