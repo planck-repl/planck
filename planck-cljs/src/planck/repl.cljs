@@ -39,11 +39,8 @@
 
 (defonce app-env (atom nil))
 
-(defn map-keys [f m]
-  (reduce-kv (fn [r k v] (assoc r (f k) v)) {} m))
-
-(defn ^:export init-app-env [app-env]
-  (reset! planck.repl/app-env (map-keys keyword (cljs.core/js->clj app-env))))
+(defn ^:export init-app-env [verbose]
+  (reset! planck.repl/app-env (:verbose verbose)))
 
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
@@ -450,7 +447,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
       (js/PLANCK_SET_EXIT_VALUE 1)
       (set! *e e))))
 
-(defn ^:export run-main [main-ns args]
+(defn ^:export run-main [main-ns & args]
   (let [main-args (js->clj args)]
     (binding [cljs/*load-fn* load
               cljs/*eval-fn* cljs/js-eval]

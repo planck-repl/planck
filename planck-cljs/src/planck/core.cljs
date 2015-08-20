@@ -50,10 +50,13 @@
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
 
+(defrecord File [path])
+
 (defn file-seq
-  "A tree seq on PLKFiles"
+  "A tree seq on files"
   [dir]
-  (js/PLANCK_IO_FILESEQ dir))
+  (for [path (js->clj (js/PLANCK_CORE_FILESEQ (:path dir)))]
+    (File. path)))
 
 (defn- fission!
   "Breaks an atom's value into two parts. The supplied function should

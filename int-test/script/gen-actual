@@ -369,7 +369,7 @@ touch /tmp/PLANCK_FILE_SEQ/A/C/G
 touch /tmp/PLANCK_FILE_SEQ/A/D
 $PLANCK <<REPL_INPUT
 (require '[planck.core] '[planck.io])
-(run! println (map (memfn path) (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ"))))
+(run! println (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ")))
 REPL_INPUT
 rm -rf /tmp/PLANCK_FILE_SEQ
 

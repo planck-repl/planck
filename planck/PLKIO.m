@@ -1,43 +1,11 @@
 #import "PLKIO.h"
 
-@interface PLKFile()
-@property (retain) NSString *path;
-@end
-
-@implementation PLKFile
-
-+(PLKFile*)file:(NSString*)path {
-    PLKFile *aFile = [[PLKFile alloc] init];
-    aFile.path = path;
-    return aFile;
-}
-
-/* I implemented this to get proper string identification on the repl,
-   but somehow it still just says [object PLKFile] */
-- (NSString*) description {
-    return self.path;
-}
-
-- (void) deleteFile {
-    NSFileManager *manager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    [manager removeItemAtPath:self.path error:&error];
-    
-    if (error != nil) {
-        // FIXME: Should throw an exception, or return something indicating that there
-        // was an error
-        NSLog(@"Error: %@", error);
-        return;
-    }
-}
-@end
-
-NSArray *cljs_file_seq(PLKFile *input) {
+NSArray *cljs_file_seq(NSString* path) {
     // Create a local file manager instance
     NSFileManager *localFileManager=[[NSFileManager alloc] init];
     
     BOOL isDirectory = NO;
-    BOOL exists = [localFileManager fileExistsAtPath:input.path isDirectory:&isDirectory];
+    BOOL exists = [localFileManager fileExistsAtPath:path isDirectory:&isDirectory];
     
     
     if (!isDirectory || !exists) {
@@ -47,7 +15,7 @@ NSArray *cljs_file_seq(PLKFile *input) {
     
     // Request the two properties the method uses, name and isDirectory
     // Ignore hidden files
-    NSURL *inputURL = [NSURL fileURLWithPath:input.path];
+    NSURL *inputURL = [NSURL fileURLWithPath:path];
     NSDirectoryEnumerator *dirEnumerator = [localFileManager enumeratorAtURL:inputURL
                                                   includingPropertiesForKeys:[NSArray arrayWithObjects:NSURLNameKey,
                                                                               NSURLIsDirectoryKey,nil]
@@ -56,6 +24,7 @@ NSArray *cljs_file_seq(PLKFile *input) {
     
     // An array to store the all the enumerated file names in
     NSMutableArray *theArray=[NSMutableArray array];
+    [theArray addObject:path];
     
     // Enumerate the dirEnumerator results, each value is stored in allURLs
     for (NSURL *theURL in dirEnumerator) {
@@ -69,7 +38,7 @@ NSArray *cljs_file_seq(PLKFile *input) {
         NSNumber *isDirectory;
         [theURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:NULL];
         
-        [theArray addObject: [PLKFile file:theURL.path]];
+        [theArray addObject: theURL.path];
     }
     
     return theArray.copy;
