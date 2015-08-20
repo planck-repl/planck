@@ -31,6 +31,6 @@
 
 - (instancetype)initWithCentralFileHeader:(struct ZZCentralFileHeader*)centralFileHeader
 						  localFileHeader:(struct ZZLocalFileHeader*)localFileHeader
-								 encoding:(NSStringEncoding)encoding NS_DESIGNATED_INITIALIZER;
+								 encoding:(NSStringEncoding)encoding;
 
 @end

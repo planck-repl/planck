@@ -47,7 +47,7 @@ public:
 				free(info);
 			}
 		};
-		return CGDataProviderCreateSequential(dataProvider, &dataProviderCallbacks);
+		return nil;//CGDataProviderCreateSequential(dataProvider, &dataProviderCallbacks);
 	}
 	
 private:

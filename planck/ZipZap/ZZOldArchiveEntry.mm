@@ -132,7 +132,7 @@
 	dateComponents.month = (_centralFileHeader->lastModFileDate & 0x1E0) >> 5;
 	dateComponents.year = ((_centralFileHeader->lastModFileDate & 0xFE00) >> 9) + 1980;
 	
-	return [[[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian] dateFromComponents:dateComponents];
+	return [[[NSCalendar alloc] init] dateFromComponents:dateComponents];
 }
 
 - (NSUInteger)crc32
@@ -400,7 +400,7 @@
 	
 	if (self.compressionMethod == ZZCompressionMethod::stored && _encryptionMode == ZZEncryptionModeNone)
 		// simple data provider that just wraps the data.  Make sure to create a new object since [NSData copy] returns the same object on pre-10.9 systems.
-		return CGDataProviderCreateWithCFData((__bridge CFDataRef)[[NSData alloc] initWithBytes:fileData.bytes length:fileData.length]);
+		return nil;//CGDataProviderCreateWithCFData((__bridge CFDataRef)[[NSData alloc] initWithBytes:fileData.bytes length:fileData.length]);
 	else
 		return ZZDataProvider::create(^
 									  {

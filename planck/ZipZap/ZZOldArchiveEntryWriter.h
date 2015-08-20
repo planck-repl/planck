@@ -14,7 +14,7 @@
 
 - (instancetype)initWithCentralFileHeader:(struct ZZCentralFileHeader*)centralFileHeader
 						  localFileHeader:(struct ZZLocalFileHeader*)localFileHeader
-					  shouldSkipLocalFile:(BOOL)shouldSkipLocalFile NS_DESIGNATED_INITIALIZER;
+					  shouldSkipLocalFile:(BOOL)shouldSkipLocalFile;
 
 - (uint32_t)offsetToLocalFileEnd;
 - (BOOL)writeLocalFileToChannelOutput:(id<ZZChannelOutput>)channelOutput

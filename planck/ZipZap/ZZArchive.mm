@@ -26,7 +26,7 @@ static const size_t ENDOFCENTRALDIRECTORY_MINSEARCH = sizeof(ZZEndOfCentralDirec
 
 - (instancetype)initWithChannel:(id<ZZChannel>)channel
 						options:(NSDictionary*)options
-						  error:(out NSError**)error NS_DESIGNATED_INITIALIZER;
+						  error:(out NSError**)error;
 
 - (BOOL)loadCanMiss:(BOOL)canMiss error:(out NSError**)error;
 

@@ -14,7 +14,7 @@
 
 @property (readonly, nonatomic) NSURL* URL;
 
-- (instancetype)initWithData:(NSData*)data NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithData:(NSData*)data;
 
 - (instancetype)temporaryChannel:(out NSError**)error;
 - (BOOL)replaceWithChannel:(id<ZZChannel>)channel

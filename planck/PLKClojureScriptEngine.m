@@ -186,8 +186,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      NSString* location = srcPath[1];
                      
                      if ([type isEqualToString:@"src"]) {
-                         NSString* fullPath = [NSURL URLWithString:path
-                                                     relativeToURL:[NSURL URLWithString:location]].path;
+                         NSString* fullPath = [location stringByAppendingString:path];
                          
                          rv = [NSString stringWithContentsOfFile:fullPath
                                                         encoding:NSUTF8StringEncoding error:nil];
@@ -224,8 +223,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  // Now try to load the file from the output
                  if (!rv) {
                      if (outPath) {
-                         NSString* fullPath = [NSURL URLWithString:path
-                                                     relativeToURL:[NSURL URLWithString:outPath]].path;
+                         NSString* fullPath = [outPath stringByAppendingString:path];
                          rv = [NSString stringWithContentsOfFile:fullPath
                                                         encoding:NSUTF8StringEncoding error:nil];
                      } else {

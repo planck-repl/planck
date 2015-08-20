@@ -6,4 +6,3 @@ WARNING: planck.io/spit is deprecated. at line 1
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
-WARNING: Use of undeclared Var test-load-file.error-in-file/invalid at line 3 

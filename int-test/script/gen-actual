@@ -239,7 +239,10 @@ REPL_INPUT
 
 echo "Test load-file REPL error in file"
 $PLANCK -s $SRC <<REPL_INPUT
-(load-file "int-test/src/test_load_file/error_in_file.cljs")
+(try
+  (load-file "int-test/src/test_load_file/error_in_file.cljs")
+  (println "failed load-file error in file")
+  (catch :default _))
 REPL_INPUT
 
 echo "Test load-file REPL exit in file"
