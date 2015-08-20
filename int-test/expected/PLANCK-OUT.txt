@@ -267,7 +267,6 @@ Test load-file REPL bad filename
 Could not load file int-test/src/test_load_file/nofile.cljs
 nil
 Test load-file REPL error in file
-undefined is not an object (evaluating 'test_load_file.error_in_file.invalid.call')
 nil
 Test load-file REPL exit in file
 nil

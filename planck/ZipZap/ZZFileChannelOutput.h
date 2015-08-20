@@ -14,7 +14,7 @@
 
 @property (nonatomic) uint32_t offset;
 
-- (instancetype)initWithFileDescriptor:(int)fileDescriptor NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithFileDescriptor:(int)fileDescriptor;
 
 - (uint32_t)offset;
 - (BOOL)seekToOffset:(uint32_t)offset

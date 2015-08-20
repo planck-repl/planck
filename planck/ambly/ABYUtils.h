@@ -1,3 +1,4 @@
+#include <Foundation/Foundation.h>
 #include <JavaScriptCore/JavaScriptCore.h>
 
 /**

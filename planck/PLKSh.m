@@ -12,6 +12,10 @@ NSStringEncoding encodingFromString(NSString *encoding_in, NSStringEncoding defa
     return encoding;
 }
 
+id firstObject(NSArray* arr) {
+    return arr.count ? arr[0] : nil;
+}
+
 NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSString *encoding_out, NSDictionary *env, NSString *dir) {
     
     NSTask *aTask = [[NSTask alloc] init];
@@ -21,10 +25,10 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     for (id argument in args)[stringArgs addObject:[NSString stringWithFormat:@"%@", argument]];
     
     // set the executable, add a path if there isn't one
-    NSString *executable = stringArgs.firstObject;
+    NSString *executable = firstObject(stringArgs);
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:executable])
-        [aTask setLaunchPath:stringArgs.firstObject];
+        [aTask setLaunchPath:firstObject(stringArgs)];
     else {
         NSString* pathString = [[[NSProcessInfo processInfo]environment]objectForKey:@"PATH"];
         NSArray * paths = [pathString componentsSeparatedByString:@":"];
@@ -39,7 +43,7 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
         }
         // If we couldn't find the executable, set it anyway, it may be a built-in shell command
         if (!hasPath) {
-            [aTask setLaunchPath:stringArgs.firstObject];
+            [aTask setLaunchPath:firstObject(stringArgs)];
         }
     }
     

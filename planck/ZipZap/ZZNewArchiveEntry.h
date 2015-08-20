@@ -29,6 +29,6 @@
 				compressionLevel:(NSInteger)compressionLevel
 					   dataBlock:(NSData*(^)(NSError** error))dataBlock
 					 streamBlock:(BOOL(^)(NSOutputStream* stream, NSError** error))streamBlock
-			   dataConsumerBlock:(BOOL(^)(CGDataConsumerRef dataConsumer, NSError** error))dataConsumerBlock NS_DESIGNATED_INITIALIZER;
+			   dataConsumerBlock:(BOOL(^)(CGDataConsumerRef dataConsumer, NSError** error))dataConsumerBlock;
 
 @end

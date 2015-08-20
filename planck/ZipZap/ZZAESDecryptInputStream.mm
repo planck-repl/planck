@@ -71,7 +71,7 @@ static const uint WINZIP_PBKDF2_ROUNDS = 1000;
 			_status = NSStreamStatusNotOpen;
 
 			CCCryptorCreate(kCCEncrypt,
-							kCCAlgorithmAES,
+							kCCAlgorithmAES128,
 							kCCOptionECBMode,
 							derivedKey,
 							keyLength,
