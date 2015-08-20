@@ -3,7 +3,7 @@
 
 @class PLKFileReader;
 
-@protocol PLKFileReader <JSExport>
+@protocol PLKFileReader
 
 +(PLKFileReader*)open:(NSString*)path;
 -(NSString*)read;

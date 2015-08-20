@@ -13,16 +13,57 @@
 
 @property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
 @property (nonatomic) BOOL javaScriptEngineReady;
-@property (nonatomic, strong) JSContext* context;
+@property (nonatomic) JSGlobalContextRef context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
 @property (nonatomic, strong) NSMutableSet* loadedGoogLibs;
 @property (nonatomic) int exitValue;
-@property (nonatomic) NSMutableDictionary* openArchives;
+@property (nonatomic, strong) NSMutableDictionary* openArchives;
+
+@property (nonatomic) int descriptorSequence;
+@property (nonatomic, strong) NSMutableDictionary* descriptorToObject;
 
 @end
 
 @implementation PLKClojureScriptEngine
+
+int JSArrayGetCount(JSContextRef ctx, JSObjectRef arr)
+{
+    JSStringRef pname = JSStringCreateWithUTF8CString("length");
+    JSValueRef val = JSObjectGetProperty(ctx, arr, pname, NULL);
+    JSStringRelease(pname);
+    return JSValueToNumber(ctx, val, NULL);
+}
+
+JSValueRef JSArrayGetValueAtIndex(JSContextRef ctx, JSObjectRef arr, int index)
+{
+    return JSObjectGetPropertyAtIndex(ctx, arr, index, NULL);
+}
+
+JSStringRef JSStringRefFromNSString(NSString* string) {
+    return JSStringCreateWithCFString((__bridge CFStringRef)string);
+}
+
+JSValueRef JSValueMakeStringFromNSString(JSContextRef ctx, NSString* string)
+{
+    return string ? JSValueMakeString(ctx, JSStringRefFromNSString(string)) : JSValueMakeNull(ctx);
+}
+
+NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
+{
+    if (JSValueIsNull(ctx, jsValueRef)) {
+        return nil;
+    }
+    JSStringRef stringRef = JSValueToStringCopy(ctx, jsValueRef, NULL);
+    return (__bridge_transfer NSString *)JSStringCopyCFString(kCFAllocatorDefault, stringRef);
+}
+
+-(JSValueRef)registerAndGetDescriptor:(NSObject*)o
+{
+    NSString* descriptor = [NSString stringWithFormat:@"PLANCK_DESCRIPTOR_%d", ++self.descriptorSequence];
+    [self.descriptorToObject setObject:o forKey:descriptor];
+    return JSValueMakeStringFromNSString(self.context, descriptor);
+}
 
 -(void)initalizeEngineReadyConditionVars
 {
@@ -75,6 +116,8 @@
 
     self.bundledOut = [[PLKBundledOut alloc] init];
 
+    self.descriptorToObject = [[NSMutableDictionary alloc] init];
+    
     // Now, start initializing JavaScriptCore in a background thread and return
     
     [self initalizeEngineReadyConditionVars];
@@ -118,174 +161,473 @@
             }
         }
         
-        self.context = [JSContext contextWithJSGlobalContextRef:self.contextManager.context];
+        self.context = self.contextManager.context;
         
         if (!useSimpleOutput) {
             [self requireAppNamespaces:self.context];
         }
         
         // TODO look into this. Without it thngs won't work.
-        [self.context evaluateScript:@"var window = global;"];
+        [ABYUtils evaluateScript:@"var window = global;" inContext:self.context];
         
-#ifdef DEBUG
-        BOOL debugBuild = YES;
-#else
-        BOOL debugBuild = NO;
-#endif
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 NSString* rv = nil;
+                 
+                 // First try in the srcPaths
+                 
+                 for (NSArray* srcPath in srcPaths) {
+                     NSString* type = srcPath[0];
+                     NSString* location = srcPath[1];
+                     
+                     if ([type isEqualToString:@"src"]) {
+                         NSString* fullPath = [NSURL URLWithString:path
+                                                     relativeToURL:[NSURL URLWithString:location]].path;
+                         
+                         rv = [NSString stringWithContentsOfFile:fullPath
+                                                        encoding:NSUTF8StringEncoding error:nil];
+                     } else if ([type isEqualToString:@"jar"]) {
+                         ZZArchive* archive = self.openArchives[path];
+                         if (!archive) {
+                             NSError* err = nil;
+                             archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
+                                                           error:&err];
+                             if (err) {
+                                 NSLog(@"%@", err);
+                                 self.openArchives[path] = [NSNull null];
+                             } else {
+                                 self.openArchives[path] = archive;
+                             }
+                         }
+                         NSData* data = nil;
+                         if (![archive isEqual:[NSNull null]]) {
+                             for (ZZArchiveEntry* entry in archive.entries)
+                                 if ([entry.fileName isEqualToString:path]) {
+                                     data = [entry newDataWithError:nil];
+                                     break;
+                                 }
+                         }
+                         if (data) {
+                             rv = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                         }
+                     }
+                     if (rv) {
+                         break;
+                     }
+                 }
+                 
+                 // Now try to load the file from the output
+                 if (!rv) {
+                     if (outPath) {
+                         NSString* fullPath = [NSURL URLWithString:path
+                                                     relativeToURL:[NSURL URLWithString:outPath]].path;
+                         rv = [NSString stringWithContentsOfFile:fullPath
+                                                        encoding:NSUTF8StringEncoding error:nil];
+                     } else {
+                         rv = [self.bundledOut getSourceForPath:path];
+                     }
+                 }
+                 
+                 return JSValueMakeStringFromNSString(ctx, rv);
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_LOAD"
+                                         argList:@"path"
+                                       inContext:self.context];
+       
+
+
+        {
+            JSValueRef  arguments[0];
+            JSValueRef result;
+            int num_arguments = 0;
+            result = JSObjectCallAsFunction(self.context, [self getFunction:@"load-core-analysis-cache"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+        }
         
-        NSString* (^planckLoad)(NSString* path) = ^(NSString *path) {
-            
-            NSString* rv = nil;
-            
-            // First try in the srcPaths
-            
-            for (NSArray* srcPath in srcPaths) {
-                NSString* type = srcPath[0];
-                NSString* location = srcPath[1];
-                
-                if ([type isEqualToString:@"src"]) {
-                    NSString* fullPath = [NSURL URLWithString:path
-                                                relativeToURL:[NSURL URLWithString:location]].path;
-                    
-                    rv = [NSString stringWithContentsOfFile:fullPath
-                                                   encoding:NSUTF8StringEncoding error:nil];
-                } else if ([type isEqualToString:@"jar"]) {
-                    ZZArchive* archive = self.openArchives[path];
-                    if (!archive) {
-                        NSError* err = nil;
-                        archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
-                                                      error:&err];
-                        if (err) {
-                            NSLog(@"%@", err);
-                            self.openArchives[path] = [NSNull null];
-                        } else {
-                            self.openArchives[path] = archive;
-                        }
-                    }
-                    NSData* data = nil;
-                    if (![archive isEqual:[NSNull null]]) {
-                        for (ZZArchiveEntry* entry in archive.entries)
-                            if ([entry.fileName isEqualToString:path]) {
-                                data = [entry newDataWithError:nil];
-                                break;
-                            }
-                    }
-                    if (data) {
-                        rv = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                    }
-                }
-                if (rv) {
-                    break;
-                }
-            }
-            
-            // Now try to load the file from the output
-            if (!rv) {
-                if (outPath) {
-                    NSString* fullPath = [NSURL URLWithString:path
-                                                relativeToURL:[NSURL URLWithString:outPath]].path;
-                    rv = [NSString stringWithContentsOfFile:fullPath
-                                                   encoding:NSUTF8StringEncoding error:nil];
-                } else {
-                    rv = [self.bundledOut getSourceForPath:path];
-                }
-            }
-            
-            return rv;
-        };
+        {
+            JSValueRef  arguments[1];
+            JSValueRef result;
+            int num_arguments = 1;
+            arguments[0] = JSValueMakeBoolean(self.context, verbose);
+            result = JSObjectCallAsFunction(self.context, [self getFunction:@"init-app-env"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+        }
         
-        self.context[@"PLANCK_LOAD"] = planckLoad;
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* file = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 return JSValueMakeStringFromNSString(ctx,
+                                                      [NSString stringWithContentsOfFile:file
+                                                                                encoding:NSUTF8StringEncoding error:nil]);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_READ_FILE"
+                                         argList:@"file"
+                                       inContext:self.context];
         
-        JSValue* loadCoreAnalysisCacheFn = [self getValue:@"load-core-analysis-cache" inNamespace:@"planck.repl" fromContext:self.context];
-        [loadCoreAnalysisCacheFn callWithArguments:@[]];
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeString) {
+                 
+                 NSString* file = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* content = NSStringFromJSValueRef(ctx, argv[1]);
+                 
+                 [content writeToFile:file atomically:YES encoding:NSUTF8StringEncoding error:nil];
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_WRITE_FILE"
+                                         argList:@"file, content"
+                                       inContext:self.context];
         
-        JSValue* initAppEnvFn = [self getValue:@"init-app-env" inNamespace:@"planck.repl" fromContext:self.context];
-        [initAppEnvFn callWithArguments:@[@{@"debug-build": @(debugBuild),
-                                            @"verbose": @(verbose)}]];
         
-        self.context[@"PLANCK_READ_FILE"] = ^(NSString *file) {
-            return [NSString stringWithContentsOfFile:file
-                                             encoding:NSUTF8StringEncoding error:nil];
-        };
         
-        self.context[@"PLANCK_WRITE_FILE"] = ^(NSString *file, NSString* content) {
-            [content writeToFile:file atomically:YES encoding:NSUTF8StringEncoding error:nil];
-            return @"";
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 6) {
+                 
+                 int argsCount = JSArrayGetCount(ctx, argv[0]);
+                 NSMutableArray* args = [[NSMutableArray alloc] init];
+                 for (int i=0; i<argsCount; i++) {
+                     [args addObject:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, argv[0], i))];
+                 }
+                 
+                 NSString* arg_in = NSStringFromJSValueRef(ctx, argv[1]);
+                 NSString *encoding_in = NSStringFromJSValueRef(ctx, argv[2]);
+                 NSString *encoding_out = NSStringFromJSValueRef(ctx, argv[3]);
+                 NSDictionary *env; // TODO
+                 NSString *dir = NSStringFromJSValueRef(ctx, argv[5]);
+                 
+                 NSDictionary *result = cljs_shell(args, arg_in, encoding_in, encoding_out, env, dir);
+                 
+                 JSValueRef arguments[3];
+                 arguments[0] = JSValueMakeNumber(self.context, ((NSNumber*)result[@"exit"]).doubleValue);
+                 arguments[1] = JSValueMakeStringFromNSString(self.context, result[@"out"]);
+                 arguments[2] = JSValueMakeStringFromNSString(self.context, result[@"err"]);
+                 
+                 return JSObjectMakeArray(ctx, 3, arguments, NULL);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_SHELL_SH"
+                                         argList:@"args, arg_in, encoding_in, encoding_out, env, dir"
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            // supressing
-        };
+
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+                 
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_DELETE"
+                                         argList:@"path"
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_SHELL_SH"] = ^(NSArray *args, JSValue* arg_in, JSValue *encoding_in, JSValue *encoding_out, NSDictionary *env, JSValue *dir) {
-            #define TSTR(av) (NSString*)[PLKClojureScriptEngine valueOfType:[NSString class] fromJSValue:av]
-            NSDictionary *result = cljs_shell(args, TSTR(arg_in), TSTR(encoding_in), TSTR(encoding_out), env, TSTR(dir));
-            return result;
-        };
-        
-        self.context[@"PLANCK_IO_FILE"] = ^(JSValue* input) {
-            PLKFile *file = [PLKFile file:[PLKClojureScriptEngine valueOfType:[NSString class] fromJSValue:input]];
-            return file;
-        };
-        
-        self.context[@"PLANCK_IO_FILESEQ"] = ^(PLKFile *f) {
-            return cljs_file_seq(f);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                                  
+                 NSArray* seq = cljs_file_seq(path);
+                 
+                 JSValueRef  arguments[seq.count];
+                 int num_arguments = (int)seq.count;
+                 for (int i=0; i<num_arguments; i++) {
+                     arguments[i] = JSValueMakeStringFromNSString(self.context, seq[i]);
+                 }
+                 
+                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
+                 
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_CORE_FILESEQ"
+                                         argList:@"path"
+                                       inContext:self.context];
+
         
         const BOOL isTty = isatty(fileno(stdin));
         
-        self.context[@"PLANCK_RAW_READ_STDIN"] = ^NSString*() {
-            NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
-            NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
-            if (inputData.length) {
-                return [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding];
-            } else {
-                return nil;
-            }
-        };
         
-        self.context[@"PLANCK_RAW_WRITE_STDOUT"] = ^(NSString *s) {
-            fprintf(stdout, "%s", [s cStringUsingEncoding:NSUTF8StringEncoding]);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
+             NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
+             if (inputData.length) {
+                 return JSValueMakeStringFromNSString(ctx,
+                                                      [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding]);
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_READ_STDIN"
+                                         argList:@""
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_RAW_FLUSH_STDOUT"] = ^() {
-            fflush(stdout);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_WRITE_STDOUT"
+                                         argList:@"message"
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_RAW_WRITE_STDERR"] = ^(NSString *s) {
-            fprintf(stderr, "%s", [s cStringUsingEncoding:NSUTF8StringEncoding]);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             fflush(stdout);
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_FLUSH_STDOUT"
+                                         argList:@""
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_RAW_FLUSH_STDERR"] = ^() {
-            fflush(stderr);
-        };
         
-        self.context[@"PLANCK_PRINT_FN"] = ^(NSString *message) {
-            fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_WRITE_STDERR"
+                                         argList:@"message"
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_PRINT_ERR_FN"] = ^(NSString *message) {
-            fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             fflush(stderr);
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_FLUSH_STDERR"
+                                         argList:@""
+                                       inContext:self.context];
+        
+
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_ERR_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
         
         [self setPrintFnsInContext:self.contextManager.context];
         
         __weak typeof(self) weakSelf = self;
-        self.context[@"PLANCK_SET_EXIT_VALUE"] = ^(int exitValue) {
-            weakSelf.exitValue = exitValue;
-        };
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeNumber) {
+                 
+                 weakSelf.exitValue = JSValueToNumber(ctx, argv[0], NULL);
+                 
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_SET_EXIT_VALUE"
+                                         argList:@"exitValue"
+                                       inContext:self.context];
         
-        self.context[@"PLANCK_INITIAL_COMMAND_LINE_ARGS"] = boundArgs;
+        {
+            JSValueRef  arguments[boundArgs.count];
+            int num_arguments = (int)boundArgs.count;
+            for (int i=0; i<num_arguments; i++) {
+                arguments[i] = JSValueMakeStringFromNSString(self.context, boundArgs[i]);
+            }
+            
+            [ABYUtils setValue:JSObjectMakeArray(self.context, num_arguments, arguments, NULL)
+                      onObject:JSContextGetGlobalObject(self.context)
+                   forProperty:@"PLANCK_INITIAL_COMMAND_LINE_ARGS" inContext:self.context];
+        }
         
-        // Inject Objective-C classes
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 return [self registerAndGetDescriptor:[PLKFileReader open:path]];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_READER_OPEN"
+                                         argList:@"path"
+                                       inContext:self.context];
         
-        self.context[@"PLKFileReader"] = [PLKFileReader class];
-        self.context[@"PLKFileWriter"] = [PLKFileWriter class];
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileReader* fileReader = self.descriptorToObject[descriptor];
+                 
+                 return JSValueMakeStringFromNSString(ctx, [fileReader read]);
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_READER_READ"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* desciptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileReader* fileReader = self.descriptorToObject[desciptor];
+                 
+                 [fileReader close];
+                 
+                 [self.descriptorToObject removeObjectForKey:desciptor];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_READER_CLOSE"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeBoolean) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 BOOL append = JSValueToBoolean(ctx, argv[1]);
+                 
+                 return [self registerAndGetDescriptor:[PLKFileWriter open:path append:append]];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_WRITER_OPEN"
+                                         argList:@"path, append"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* content = NSStringFromJSValueRef(ctx, argv[1]);
+                 
+                 PLKFileWriter* fileWriter = self.descriptorToObject[descriptor];
+                 
+                 [fileWriter write:content];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_WRITER_WRITE"
+                                         argList:@"descriptor, content"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* desciptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileWriter* fileWriter = self.descriptorToObject[desciptor];
+                 
+                 [fileWriter close];
+                 
+                 [self.descriptorToObject removeObjectForKey:desciptor];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_WRITER_CLOSE"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
+
         
         // Set up the cljs.user namespace
         
-        [self.context evaluateScript:@"goog.provide('cljs.user')"];
-        [self.context evaluateScript:@"goog.require('cljs.core')"];
+        [ABYUtils evaluateScript:@"goog.provide('cljs.user')" inContext:self.context];
+        [ABYUtils evaluateScript:@"goog.require('cljs.core')" inContext:self.context];
         
         // Go for launch!
         
@@ -294,23 +636,31 @@
     });
 }
 
--(void)requireAppNamespaces:(JSContext*)context
+-(void)requireAppNamespaces:(JSContextRef)context
 {
-    [context evaluateScript:[NSString stringWithFormat:@"goog.require('%@');", [self munge:@"planck.repl"]]];
+    [ABYUtils evaluateScript:[NSString stringWithFormat:@"goog.require('%@');", [self munge:@"planck.repl"]]
+                   inContext:context];
 }
 
-- (JSValue*)getValue:(NSString*)name inNamespace:(NSString*)namespace fromContext:(JSContext*)context
+- (JSValueRef)getValue:(NSString*)name inNamespace:(NSString*)namespace fromContext:(JSGlobalContextRef)context
 {
-    JSValue* namespaceValue = nil;
+    JSValueRef namespaceValue = nil;
     for (NSString* namespaceElement in [namespace componentsSeparatedByString: @"."]) {
         if (namespaceValue) {
-            namespaceValue = namespaceValue[[self munge:namespaceElement]];
+            namespaceValue = [ABYUtils getValueOnObject:JSValueToObject(context, namespaceValue, NULL)
+                                            forProperty:[self munge:namespaceElement]
+                                              inContext:context];
         } else {
-            namespaceValue = context[[self munge:namespaceElement]];
+            
+            namespaceValue = [ABYUtils getValueOnObject:JSContextGetGlobalObject(context)
+                                            forProperty:[self munge:namespaceElement]
+                                              inContext:context];
         }
     }
     
-    return namespaceValue[[self munge:name]];
+    return [ABYUtils getValueOnObject:JSValueToObject(context, namespaceValue, NULL)
+                   forProperty:[self munge:name]
+                     inContext:context];
 }
 
 -(NSString*)munge:(NSString*)s
@@ -421,53 +771,115 @@
     [ABYUtils evaluateScript:@"cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);" inContext:context];
 }
 
--(JSValue*)getFunction:(NSString*)name
+-(JSObjectRef)getFunction:(NSString*)name
 {
-    [self blockUntilEngineReady];
-    JSValue* rv = [self getValue:name inNamespace:@"planck.repl" fromContext:self.context];
-    NSAssert(!rv.isUndefined, name);
-    return rv;
+    JSValueRef rv = [self getValue:name inNamespace:@"planck.repl" fromContext:self.context];
+    NSAssert(!JSValueIsUndefined(self.context, rv) , name);
+    return JSValueToObject(self.context, rv, NULL);
 }
 
 -(int)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
+    [self blockUntilEngineReady];
     self.exitValue = EXIT_SUCCESS;
-    [[self getFunction:@"read-eval-print"] callWithArguments:@[source, @(expression), @(printNilExpression), @(inExitContext)]];
+    
+    JSValueRef  arguments[4];
+    JSValueRef result;
+    int num_arguments = 4;
+    arguments[0] = JSValueMakeStringFromNSString(self.context, source);
+    arguments[1] = JSValueMakeBoolean(self.context, expression);
+    arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
+    arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"read-eval-print"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    
     return self.exitValue;
 }
 
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
 {
+    [self blockUntilEngineReady];
     self.exitValue = EXIT_SUCCESS;
-    [[self getFunction:@"run-main"] callWithArguments:@[mainNsName, args]];
+    
+    JSValueRef  arguments[args.count+1];
+    JSValueRef result;
+    int num_arguments = (int)args.count+1;
+    arguments[0] = JSValueMakeStringFromNSString(self.context, mainNsName);
+    for (int i=1; i<num_arguments; i++) {
+        arguments[i] = JSValueMakeStringFromNSString(self.context, args[i-1]);
+    }
+
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"run-main"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    
     return self.exitValue;
 }
 
 -(BOOL)isReadable:(NSString*)expression
 {
-    return [[self getFunction:@"is-readable?"] callWithArguments:@[expression]].toBool;
+    [self blockUntilEngineReady];
+    JSValueRef  arguments[1];
+    JSValueRef result;
+    int num_arguments = 1;
+    arguments[0] = JSValueMakeStringFromNSString(self.context, expression);
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"is-readable?"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    return JSValueToBoolean(self.context, result);
 }
 
 -(NSString*)getCurrentNs
 {
-    return [[self getFunction:@"get-current-ns"] callWithArguments:@[]].toString;
+    [self blockUntilEngineReady];
+    JSValueRef  arguments[0];
+    JSValueRef result;
+    int num_arguments = 0;
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"get-current-ns"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    JSStringRef currentNsStringRef = JSValueToStringCopy(self.context, result, NULL);
+    NSString* currentNs = (__bridge_transfer NSString *)JSStringCopyCFString(kCFAllocatorDefault, currentNsStringRef);
+    return currentNs;
 }
 
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer
 {
-    return [[self getFunction:@"get-completions"] callWithArguments:@[buffer]].toArray;
+    [self blockUntilEngineReady];
+    
+    JSValueRef  arguments[1];
+    arguments[0] = JSValueMakeStringFromNSString(self.context, buffer);
+    JSValueRef result;
+    int num_arguments = 1;
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"get-completions"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    NSMutableArray* results = [[NSMutableArray alloc] init];
+    for (int i=0; i<JSArrayGetCount(self.context, result); i++) {
+        [results addObject:NSStringFromJSValueRef(self.context, JSArrayGetValueAtIndex(self.context, result, i))];
+    }
+    return results;
 }
 
 -(NSArray*)getHighlightCoordsForPos:(int)pos buffer:(NSString*)buffer previousLines:(NSArray*)previousLines
 {
-    return [[self getFunction:@"get-highlight-coords"] callWithArguments:@[@(pos), buffer, previousLines]].toArray;
+    [self blockUntilEngineReady];
+    JSValueRef  arguments[3];
+    arguments[0] = JSValueMakeNumber(self.context, pos);
+    arguments[1] = JSValueMakeStringFromNSString(self.context, buffer);
+    {
+        JSValueRef prevLines[previousLines.count];
+        for (int i=0; i<previousLines.count; i++) {
+            prevLines[i] = JSValueMakeStringFromNSString(self.context, previousLines[i]);
+        }
+        arguments[2] = JSObjectMakeArray(self.context, previousLines.count, prevLines, NULL);
+    }
+    JSValueRef result;
+    int num_arguments = 3;
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"get-highlight-coords"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    
+    return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
+      @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
 }
 
+#if JSC_OBJC_API_ENABLED
 +(id)valueOfType:(Class)type fromJSValue:(JSValue*)value
 {
     if (value.isUndefined)return nil;
     if (value.isNull)return nil;
     return [value toObjectOfClass:type];
 }
+#endif
 
 @end

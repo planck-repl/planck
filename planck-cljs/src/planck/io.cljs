@@ -2,8 +2,6 @@
   (:require planck.core)
   #_(:import goog.Uri))
 
-(defrecord File [path])
-
 #_(defn build-uri
   "Builds a URI"
   [scheme server-name server-port uri query-string]
@@ -25,10 +23,10 @@
   #_(as-url [_] nil)
 
   string
-  (as-file [s] (File. s))
+  (as-file [s] (planck.core/File. s))
   #_(as-url [s] (Uri. s))
 
-  File
+  planck.core/File
   (as-file [f] f)
   #_(as-url [f] (build-uri :file nil nil (:path f) nil))
 
@@ -67,20 +65,20 @@
   (make-writer [s opts]
     (make-writer (as-file s) opts))
 
-  File
+  planck.core/File
   (make-reader [file opts]
-    (let [file-reader (js/PLKFileReader.open (:path file))]
+    (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file))]
       (check-utf-8-encoding (:encoding opts))
       (planck.core/Reader.
-        (fn [] (.read file-reader))
-        (fn [] (.close file-reader)))))
+        (fn [] (js/PLANCK_FILE_READER_READ file-reader))
+        (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader)))))
   (make-writer [file opts]
-    (let [file-writer (js/PLKFileWriter.openAppend (:path file) (:append opts))]
+    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (:append opts))]
       (check-utf-8-encoding (:encoding opts))
       (planck.core/Writer.
-        (fn [s] (.write file-writer s))
-        (fn [] (.flush file-writer))
-        (fn [] (.close file-writer))))))
+        (fn [s] (js/PLANCK_FILE_WRITER_WRITE file-writer s))
+        (fn [])
+        (fn [] (js/PLANCK_FILE_WRITER_CLOSE file-writer))))))
 
 (defn reader
   "Attempts to coerce its argument into an open IReader."
@@ -93,18 +91,18 @@
   (make-writer x (when opts (apply hash-map opts))))
 
 (defn file
-  "Returns a PLKFile, passing each arg to as-file.  Multiple-arg
+  "Returns a File, passing each arg to as-file.  Multiple-arg
    versions treat the first argument as parent and subsequent args as
    children relative to the parent."
   ([arg]                      
-    (js/PLANCK_IO_FILE arg))
+    (planck.core/File. arg))
   ([parent & more]
-     (js/PLANCK_IO_FILE (apply str parent more))))
+     (planck.core/File. (apply str parent more))))
 
 (defn delete-file
   "Delete file f."
   [f]
-  (.deleteFile f))
+  (js/PLANCK_DELETE (:path f)))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)

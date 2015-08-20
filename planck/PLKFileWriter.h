@@ -3,7 +3,7 @@
 
 @class PLKFileWriter;
 
-@protocol PLKFileWriter <JSExport>
+@protocol PLKFileWriter
 
 +(PLKFileWriter*)open:(NSString*)path append:(BOOL)shouldAppend;
 -(void)write:(NSString*)s;
