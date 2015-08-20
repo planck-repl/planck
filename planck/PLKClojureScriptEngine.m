@@ -512,6 +512,15 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+            return JSValueMakeNumber(ctx, weakSelf.exitValue);
+        }
+                                            name:@"PLANCK_GET_EXIT_VALUE"
+                                            argList:@""
+                                            inContext:self.context];
+
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
@@ -525,6 +534,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_READER_OPEN"
                                          argList:@"path"
                                        inContext:self.context];
+
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -779,7 +789,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
 -(int)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
     [self blockUntilEngineReady];
-    self.exitValue = EXIT_SUCCESS;
+    if (!inExitContext) {
+        // Default return value will indicate non-terminating successful exit
+        self.exitValue = PLANK_EXIT_SUCCESS_NONTERMINATE;
+    } else {
+        self.exitValue = EXIT_SUCCESS;
+    }
     
     JSValueRef  arguments[4];
     JSValueRef result;
@@ -789,7 +804,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"read-eval-print"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-    
+
     return self.exitValue;
 }
 
