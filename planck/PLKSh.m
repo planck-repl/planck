@@ -105,6 +105,18 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
         [aTask setEnvironment:env];
     }
     
+    NSMutableData* outData = [[NSMutableData alloc] init];
+    [[aTask.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
+        NSData *data = [file availableData];
+        [outData appendData:data];
+    }];
+    
+    NSMutableData* errData = [[NSMutableData alloc] init];
+    [[aTask.standardError fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
+        NSData *data = [file availableData];
+        [errData appendData:data];
+    }];
+    
     // We'll block during execution
     @try {
         [aTask launch];
@@ -115,9 +127,8 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
                  @"err": exception.description};
     }
     
-    // Read the data from the task
-    NSData *outData = [outPipe.fileHandleForReading readDataToEndOfFile];
-    NSData *errData = [errPipe.fileHandleForReading readDataToEndOfFile];
+    [[aTask.standardOutput fileHandleForReading] setReadabilityHandler:nil];
+    [[aTask.standardError fileHandleForReading] setReadabilityHandler:nil];
     
     NSStringEncoding encoding = encodingFromString(encoding_out, NSUTF8StringEncoding);
     
