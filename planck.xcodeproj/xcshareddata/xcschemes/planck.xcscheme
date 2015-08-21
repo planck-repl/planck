@@ -64,7 +64,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-s $PROJECT_DIR/planck-cljs/src"
+            argument = "-c $PROJECT_DIR/planck-cljs/src"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
