@@ -5,7 +5,7 @@
             [planck.test-runner]
             [planck.core :refer [exit]]))
 
-;; Note, to run unit tests, scrupt/build must be run
+;; Note, to run unit tests, script/build must be run
 ;; to pre-compile them as we can't yet run cljs.test in
 ;; bootstrapped mode.
 
