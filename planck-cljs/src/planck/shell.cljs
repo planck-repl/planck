@@ -35,7 +35,7 @@
   [& args]
   (let [[cmd opts] (parse-args args)
          {:keys [in in-enc out-enc env dir]} opts]
-    (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js env) dir))]
+    (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
       {:exit exit
        :out out
        :err err})))

@@ -299,16 +299,23 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              
              if (argc == 6) {
                  
-                 int argsCount = JSArrayGetCount(ctx, argv[0]);
+                 int argsCount = JSArrayGetCount(ctx, (JSObjectRef)argv[0]);
                  NSMutableArray* args = [[NSMutableArray alloc] init];
                  for (int i=0; i<argsCount; i++) {
-                     [args addObject:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, argv[0], i))];
+                     [args addObject:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, (JSObjectRef)argv[0], i))];
                  }
                  
                  NSString* arg_in = NSStringFromJSValueRef(ctx, argv[1]);
                  NSString *encoding_in = NSStringFromJSValueRef(ctx, argv[2]);
                  NSString *encoding_out = NSStringFromJSValueRef(ctx, argv[3]);
-                 NSDictionary *env; // TODO
+                 NSMutableDictionary *env = [[NSMutableDictionary alloc] init];
+                 if (!JSValueIsNull(ctx, argv[4])) {
+                     for (int i=0; i<JSArrayGetCount(ctx, (JSObjectRef)argv[4]); i++) {
+                         JSObjectRef keyVal = (JSObjectRef)JSArrayGetValueAtIndex(ctx, (JSObjectRef)argv[4], i);
+                         [env setObject:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, keyVal, 1))
+                                 forKey:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, keyVal, 0))];
+                     }
+                 }
                  NSString *dir = NSStringFromJSValueRef(ctx, argv[5]);
                  
                  NSDictionary *result = cljs_shell(args, arg_in, encoding_in, encoding_out, env, dir);

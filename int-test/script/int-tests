@@ -82,3 +82,8 @@ Usage:  planck [init-opt*] [main-opt] [args]
 (ensure-output "123,456,789"
   ['(require '[cljs.pprint :refer [cl-format]])
    '(cl-format nil "~:d" 123456789)])
+
+;; Ensure cljs.pprint loads
+(ensure-output (into (sorted-map) {:err "", :exit 0, :out "ABC=123\n"})
+  ['(require '[planck.shell :refer [sh]])
+   '(into (sorted-map) (sh "env" :env {"ABC" "123"}))])
