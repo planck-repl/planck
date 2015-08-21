@@ -378,7 +378,7 @@ nil
 nil
 Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them
 nil
-("-s" "src" "-e" "(println \"hi\")" "-v")
+("-c" "src" "-e" "(println \"hi\")" "-v")
 Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them
 args from main: (-v -e (println "hi"))
 args from *command-line-args*: (-v -e (println "hi"))
@@ -405,7 +405,7 @@ nil
 Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
-Test source paths
+Test classpath
 nil
 :src
 nil

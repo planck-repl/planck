@@ -69,8 +69,28 @@
         if ([type isEqualToString:@"src"]) {
             path = [self ensureTrailingSlash:path];
         }
-        [adjustedSrcPaths addObject:@[type, path]];
+        if ([type isEqualToString:@"jar"] && [path hasSuffix:@"*"]) {
+            NSArray *dirFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[path substringToIndex:path.length - 1] error:nil];
+            NSArray *jarFiles = [dirFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self ENDSWITH '.jar'"]];
+            for (NSString* jarFile in jarFiles) {
+                [adjustedSrcPaths addObject:@[type, jarFile]];
+            }
+        } else {
+            [adjustedSrcPaths addObject:@[type, path]];
+        }
     }
+    
+    if (verbose) {
+        fprintf(stderr, "Classpath resolves to:\n");
+        for (NSArray* srcPath in adjustedSrcPaths) {
+            NSString* type = srcPath[0];
+            NSString* location = srcPath[1];
+            fprintf(stderr, "type: %s, location: %s\n",
+                    [type cStringUsingEncoding:NSUTF8StringEncoding],
+                    [location cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+    }
+    
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     
     self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];

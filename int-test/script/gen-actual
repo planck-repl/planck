@@ -59,24 +59,24 @@ $PLANCK <<REPL_INPUT
 REPL_INPUT
 
 echo "Test main"
-$PLANCK -s $SRC -m test-main.core 3 4
+$PLANCK -c $SRC -m test-main.core 3 4
 echo $?
 
 echo "Test main zero"
-$PLANCK -s $SRC -m test-main.zero
+$PLANCK -c $SRC -m test-main.zero
 echo $?
 
 echo "Test main one"
 # Return value of main is _not_ the return value
-$PLANCK -s $SRC -m test-main.one
+$PLANCK -c $SRC -m test-main.one
 echo $?
 
 echo "Test main unhandled"
-$PLANCK -s $SRC -m test-main.unhandled > /dev/null
+$PLANCK -c $SRC -m test-main.unhandled > /dev/null
 echo $?
 
 echo "Test main exit"
-$PLANCK -s $SRC -m test-main.exit 
+$PLANCK -c $SRC -m test-main.exit 
 echo $?
 
 echo "Test REPL exit"
@@ -87,7 +87,7 @@ REPL_INPUT
 echo $?
 
 echo "Test call fn exit"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require 'test-exit.core)
 (test-exit.core/please-exit 119)
 REPL_INPUT
@@ -113,31 +113,31 @@ $PLANCK <<REPL_INPUT
 REPL_INPUT
 
 echo "Test require REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.core)
 test-require.core/success
 REPL_INPUT
 
 echo "Test require REPL special exit in file"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.exit)
 REPL_INPUT
 echo $?
 
 echo "Test require REPL special throws in file"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.throw-it)
 REPL_INPUT
 echo $?
 
 echo "Test require unknown ns"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require 'unknown_ns.core)
 REPL_INPUT
 
 echo "Test require :reload"
 mkdir -p /tmp/PLANCK_SRC/foo
-$PLANCK -s /tmp/PLANCK_SRC <<REPL_INPUT
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
 (require 'foo.bar)
@@ -149,7 +149,7 @@ REPL_INPUT
 
 echo "Test require :reload in changing spec"
 mkdir -p /tmp/PLANCK_SRC/foo
-$PLANCK -s /tmp/PLANCK_SRC <<REPL_INPUT
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
 (require '[foo.bar :as baz])
@@ -161,7 +161,7 @@ REPL_INPUT
 
 echo "Test require :reload-all"
 mkdir -p /tmp/PLANCK_SRC/foo
-$PLANCK -s /tmp/PLANCK_SRC <<REPL_INPUT
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
 (require 'foo.bar)
@@ -173,12 +173,12 @@ REPL_INPUT
 
 # Note, the output of this will change with #68 / CLJS-1417
 echo "Test require-macros unknown ns"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require-macros 'unknown-ns.core)
 REPL_INPUT
 
 echo "Test require-macros REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (require-macros 'test-require-macros.core)
 (+ 3 (test-require-macros.core/str->int "2"))
 REPL_INPUT
@@ -190,7 +190,7 @@ $PLANCK <<REPL_INPUT
 REPL_INPUT
 
 echo "Test doc REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (doc inc)
 (doc when)
 (doc if)
@@ -202,7 +202,7 @@ $PLANCK -s $SRC <<REPL_INPUT
 REPL_INPUT
 
 echo "Test source REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (source inc)
 (source when)
 (require 'test-doc-source.core)
@@ -222,23 +222,23 @@ $PLANCK <<REPL_INPUT
 REPL_INPUT
 
 echo "Test load-file REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/core.cljs")
 test-load-file.core/success
 REPL_INPUT
 
 echo "Test doc support for load-file REPL special"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (doc load-file)
 REPL_INPUT
 
 echo "Test load-file REPL bad filename"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/nofile.cljs")
 REPL_INPUT
 
 echo "Test load-file REPL error in file"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (try
   (load-file "int-test/src/test_load_file/error_in_file.cljs")
   (println "failed load-file error in file")
@@ -246,7 +246,7 @@ $PLANCK -s $SRC <<REPL_INPUT
 REPL_INPUT
 
 echo "Test load-file REPL exit in file"
-$PLANCK -s $SRC <<REPL_INPUT
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/exit_in_file.cljs")
 REPL_INPUT
 echo $?
@@ -400,21 +400,21 @@ planck.core/*command-line-args*
 REPL_INPUT
 
 echo "Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them"
-$PLANCK -r -s src -e '(println "hi")' -v <<REPL_INPUT
+$PLANCK -r -c src -e '(println "hi")' -v <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
 REPL_INPUT
 
 echo "Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them"
-$PLANCK -s $SRC -m test-main.args -v -e '(println "hi")'
+$PLANCK -c $SRC -m test-main.args -v -e '(println "hi")'
 echo $?
 
 echo "Treat init opts that follow nice --main=ns-name as *command-line-args* instead of evaluating them"
-$PLANCK -s $SRC --main=test-main.args -v -e '(println "hi")'
+$PLANCK -c $SRC --main=test-main.args -v -e '(println "hi")'
 echo $?
 
 echo "Treat init opts that follow less nice -mns-name as *command-line-args* instead of evaluating them"
-$PLANCK -s $SRC -mtest-main.args -v -e '(println "hi")'
+$PLANCK -c $SRC -mtest-main.args -v -e '(println "hi")'
 echo $?
 
 echo "Treat main opts that follow a main opt as *command-line-args* instead of evaluating them"
@@ -439,18 +439,18 @@ echo "Test binding of *command-line-args* in file run from command line"
 $PLANCK $SRC/test_args/args_in_file.cljs here are some args
 echo $?
 
-echo "Test source paths"
-$PLANCK -s $SRC -s${SRC}2 <<REPL_INPUT
+echo "Test classpath"
+$PLANCK -c $SRC:${SRC}2 <<REPL_INPUT
 (require 'test-src-paths.core)
 test-src-paths.core/src-path
 REPL_INPUT
-$PLANCK -s ${SRC}2 -s$SRC <<REPL_INPUT
+$PLANCK -c ${SRC}2:$SRC <<REPL_INPUT
 (require 'test-src-paths.core)
 test-src-paths.core/src-path
 REPL_INPUT
 
 echo "Test JAR support"
-$PLANCK -j $HOME/test-jar.jar <<REPL_INPUT
+$PLANCK -c $HOME/test-jar.jar <<REPL_INPUT
 (require 'test-jar.core)
 test-jar.core/x
 REPL_INPUT
