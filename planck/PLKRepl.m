@@ -243,7 +243,7 @@ void highlightCancel() {
                                                                expression:YES
                                                        printNilExpression:YES
                                                             inExitContext:NO];
-                if (exitValue != EXIT_SUCCESS) {
+                if (exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
                     break;
                 }
             
@@ -272,6 +272,11 @@ void highlightCancel() {
         
     }
     
+    // PLANK_EXIT_SUCCESS_NONTERMINATE is for internal use only, so to the rest of the world
+    // it is a standard successful exit
+    if (exitValue == PLANK_EXIT_SUCCESS_NONTERMINATE) {
+        exitValue = EXIT_SUCCESS;
+    }
     return exitValue;
 }
 

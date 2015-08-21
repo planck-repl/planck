@@ -1,5 +1,10 @@
 #import <Foundation/Foundation.h>
 
+// Similar to EXIT_SUCCESS, but use this to
+// indicate an internal success that shouldn't
+// terminate a REPL session
+#define	PLANK_EXIT_SUCCESS_NONTERMINATE	-257
+
 @interface PLKClojureScriptEngine : NSObject
 
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs;
