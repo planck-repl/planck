@@ -385,11 +385,39 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
+             NSMutableData *data=[[NSMutableData alloc] init];
+             
              NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
              NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
              if (inputData.length) {
-                 return JSValueMakeStringFromNSString(ctx,
-                                                      [[NSString alloc] initWithData:inputData encoding:NSUTF8StringEncoding]);
+                 
+                 [data appendData:inputData];
+                 
+                 NSString *string = [[NSString alloc] initWithData:data
+                                                          encoding:NSUTF8StringEncoding];
+                 if (string) {
+                     return JSValueMakeStringFromNSString(ctx, string);
+                 } else {
+                     // Couldn't decode UTF8. Try reading up to 6 more bytes to see if
+                     // we can form a well-formed UTF8 string
+                     int tries = 6;
+                     while (tries-- > 0) {
+                         inputData = [input readDataOfLength:1];
+                         if (inputData.length > 0) {
+                             [data appendData:inputData];
+                             NSString *string = [[NSString alloc] initWithData:data
+                                                                      encoding:NSUTF8StringEncoding];
+                             if (string) {
+                                 return JSValueMakeStringFromNSString(ctx, string);
+                             }
+                         } else {
+                             NSLog(@"Failed to decode.");
+                             return JSValueMakeNull(ctx);
+                         }
+                     }
+                     
+                 }
+                 
              }
              
              return  JSValueMakeNull(ctx);
