@@ -308,8 +308,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  NSString* arg_in = NSStringFromJSValueRef(ctx, argv[1]);
                  NSString *encoding_in = NSStringFromJSValueRef(ctx, argv[2]);
                  NSString *encoding_out = NSStringFromJSValueRef(ctx, argv[3]);
-                 NSMutableDictionary *env = [[NSMutableDictionary alloc] init];
+                 NSMutableDictionary *env = nil;
                  if (!JSValueIsNull(ctx, argv[4])) {
+                     env = [[NSMutableDictionary alloc] init];
                      for (int i=0; i<JSArrayGetCount(ctx, (JSObjectRef)argv[4]); i++) {
                          JSObjectRef keyVal = (JSObjectRef)JSArrayGetValueAtIndex(ctx, (JSObjectRef)argv[4], i);
                          [env setObject:NSStringFromJSValueRef(ctx, JSArrayGetValueAtIndex(ctx, keyVal, 1))
