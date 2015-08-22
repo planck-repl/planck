@@ -2,6 +2,8 @@
   (:require planck.core)
   #_(:import goog.Uri))
 
+(defrecord File [path])
+
 #_(defn build-uri
   "Builds a URI"
   [scheme server-name server-port uri query-string]
@@ -23,10 +25,10 @@
   #_(as-url [_] nil)
 
   string
-  (as-file [s] (planck.core/File. s))
+  (as-file [s] (File. s))
   #_(as-url [s] (Uri. s))
 
-  planck.core/File
+  File
   (as-file [f] f)
   #_(as-url [f] (build-uri :file nil nil (:path f) nil))
 
@@ -65,7 +67,7 @@
   (make-writer [s opts]
     (make-writer (as-file s) opts))
 
-  planck.core/File
+  File
   (make-reader [file opts]
     (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file))]
       (check-utf-8-encoding (:encoding opts))
@@ -73,7 +75,7 @@
         (fn [] (js/PLANCK_FILE_READER_READ file-reader))
         (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader)))))
   (make-writer [file opts]
-    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (:append opts))]
+    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)))]
       (check-utf-8-encoding (:encoding opts))
       (planck.core/Writer.
         (fn [s] (js/PLANCK_FILE_WRITER_WRITE file-writer s))
@@ -95,9 +97,9 @@
    versions treat the first argument as parent and subsequent args as
    children relative to the parent."
   ([arg]                      
-    (planck.core/File. arg))
+    (File. arg))
   ([parent & more]
-     (planck.core/File. (apply str parent more))))
+     (File. (apply str parent more))))
 
 (defn delete-file
   "Delete file f."
@@ -109,3 +111,6 @@
 (def ^:deprecated slurp planck.core/slurp)
 (def ^:deprecated spit planck.core/spit)
 
+(set! planck.core/*reader-fn* reader)
+(set! planck.core/*writer-fn* writer)
+(set! planck.core/*as-file-fn* as-file)

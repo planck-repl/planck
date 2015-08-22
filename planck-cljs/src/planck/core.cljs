@@ -1,4 +1,5 @@
-(ns planck.core)
+(ns planck.core
+  (:import [goog.string StringBuffer]))
 
 (defn exit
   "Causes Planck to terminate with the supplied exit-value."
@@ -50,14 +51,6 @@
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
 
-(defrecord File [path])
-
-(defn file-seq
-  "A tree seq on files"
-  [dir]
-  (for [path (js->clj (js/PLANCK_CORE_FILESEQ (:path dir)))]
-    (File. path)))
-
 (defn- fission!
   "Breaks an atom's value into two parts. The supplied function should
   return a pair. The first element will be set to be the atom's new
@@ -91,14 +84,55 @@
     (when (reset! buffer (-read *in*))
       (recur))))
 
+(defonce
+  ^:dynamic
+  *as-file-fn*
+  (fn [_]
+    (throw (js/Error. "No *as-file-fn* fn set."))))
+
+(defn file-seq
+  "A tree seq on files"
+  [dir]
+  (for [path (js->clj (js/PLANCK_CORE_FILESEQ (:path (*as-file-fn* dir))))]
+    (*as-file-fn* path)))
+
+(defonce
+  ^:dynamic
+  *reader-fn*
+  (fn [_]
+    (throw (js/Error. "No *reader-fn* fn set."))))
+
+(defonce
+  ^:dynamic
+  *writer-fn*
+  (fn [_]
+    (throw (js/Error. "No *writer-fn* fn set."))))
+
 (defn slurp
-  "Slurps a file"
-  [filename]
-  (or (js/PLANCK_READ_FILE filename)
-    (throw (js/Error. filename))))
+  "Opens a reader on f and reads all its contents, returning a string.
+  See planck.io/reader for a complete list of supported arguments."
+  [f & opts]
+  (let [r (apply *reader-fn* f opts)
+        sb (StringBuffer.)]
+    (try
+      (loop [s (-read r)]
+        (if (nil? s)
+          (.toString sb)
+          (do
+            (.append sb s)
+            (recur (-read r)))))
+      (finally
+        (-close r)))))
 
 (defn spit
-  "Spits a file"
-  [filename content]
-  (js/PLANCK_WRITE_FILE filename content)
-  nil)
+  "Opposite of slurp.  Opens f with writer, writes content, then
+  closes f. Options passed to planck.io/writer."
+  [f content & opts]
+  (let [w (apply *writer-fn* f opts)]
+    (try
+      (-write w (str content))
+      (finally
+        (-close w)))))
+
+;; Ensure planck.io is loaded so that its facilities are available
+(js/goog.require "planck.io")

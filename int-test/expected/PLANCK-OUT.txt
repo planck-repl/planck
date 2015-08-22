@@ -294,8 +294,8 @@ Coercions
 nil
 nil
 nil
-#planck.core.File{:path "abc"}
-#planck.core.File{:path "abc"}
+#planck.io.File{:path "abc"}
+#planck.io.File{:path "abc"}
 "abc"
 reader and read-line
 nil
@@ -356,14 +356,14 @@ true
 true
 Test file-seq
 nil
-#planck.core.File{:path /tmp/PLANCK_FILE_SEQ}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/E}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/F}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C/G}
-#planck.core.File{:path /private/tmp/PLANCK_FILE_SEQ/A/D}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/E}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/F}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C/G}
+#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/D}
 nil
 Test Google Closure index
 nil

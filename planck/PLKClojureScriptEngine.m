@@ -274,26 +274,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_READ_FILE"
                                          argList:@"file"
                                        inContext:self.context];
-        
-        [ABYUtils installGlobalFunctionWithBlock:
-         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-             
-             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeString) {
-                 
-                 NSString* file = NSStringFromJSValueRef(ctx, argv[0]);
-                 NSString* content = NSStringFromJSValueRef(ctx, argv[1]);
-                 
-                 [content writeToFile:file atomically:YES encoding:NSUTF8StringEncoding error:nil];
-             }
-             
-             return JSValueMakeNull(ctx);
-         }
-                                            name:@"PLANCK_WRITE_FILE"
-                                         argList:@"file, content"
-                                       inContext:self.context];
-        
-        
-        
+                
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
