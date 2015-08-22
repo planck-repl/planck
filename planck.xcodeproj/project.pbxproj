@@ -17,6 +17,7 @@
 		ED1CE2221B72563A0096585B /* PLKSh.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2211B72563A0096585B /* PLKSh.m */; };
 		ED1CE2281B72C6360096585B /* PLKFileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2271B72C6360096585B /* PLKFileReader.m */; };
 		ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */ = {isa = PBXBuildFile; fileRef = ED4919571B6EB9520084F9C5 /* linenoise.c */; settings = {COMPILER_FLAGS = "-w"; }; };
+		ED4B2E141B88021F00DF622A /* PLKUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4B2E131B88021F00DF622A /* PLKUtils.m */; };
 		ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
 		EDBB07001B7CE23400D8C6C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */; };
@@ -77,6 +78,8 @@
 		ED1CE2271B72C6360096585B /* PLKFileReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKFileReader.m; sourceTree = "<group>"; };
 		ED4919571B6EB9520084F9C5 /* linenoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linenoise.c; path = planck/linenoise/linenoise.c; sourceTree = "<group>"; };
 		ED4919581B6EB9520084F9C5 /* linenoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = linenoise.h; path = planck/linenoise/linenoise.h; sourceTree = "<group>"; };
+		ED4B2E121B88021F00DF622A /* PLKUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKUtils.h; sourceTree = "<group>"; };
+		ED4B2E131B88021F00DF622A /* PLKUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKUtils.m; sourceTree = "<group>"; };
 		ED8DBF7F1B77732F00BBA2FA /* PLKFileWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKFileWriter.h; sourceTree = "<group>"; };
 		ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKFileWriter.m; sourceTree = "<group>"; };
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -224,6 +227,8 @@
 				4D0A653D1B7B7B6F00D6EA85 /* PLKIO.m */,
 				EDBB07011B7EADE300D8C6C6 /* PLKLegal.h */,
 				EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */,
+				ED4B2E121B88021F00DF622A /* PLKUtils.h */,
+				ED4B2E131B88021F00DF622A /* PLKUtils.m */,
 			);
 			path = planck;
 			sourceTree = "<group>";
@@ -341,6 +346,7 @@
 				ED1CE2281B72C6360096585B /* PLKFileReader.m in Sources */,
 				EDEF27AF1B84B79D00F2C7E4 /* ZZStandardDecryptInputStream.mm in Sources */,
 				EDEF27AE1B84B79D00F2C7E4 /* ZZStandardCryptoEngine.cpp in Sources */,
+				ED4B2E141B88021F00DF622A /* PLKUtils.m in Sources */,
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				EDEF27AA1B84B79D00F2C7E4 /* ZZNewArchiveEntry.mm in Sources */,
