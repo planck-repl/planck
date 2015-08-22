@@ -357,13 +357,13 @@ true
 Test file-seq
 nil
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/E}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/B/F}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/C/G}
-#planck.io.File{:path /private/tmp/PLANCK_FILE_SEQ/A/D}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B/E}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B/F}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C/G}
+#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/D}
 nil
 Test Google Closure index
 nil
