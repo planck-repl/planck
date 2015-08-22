@@ -259,9 +259,9 @@ true
 Test doc support for load-file REPL special
 -------------------------
 load-file
-([filename])
+([name])
 REPL Special Function
-  Loads a file
+  Sequentially read and evaluate the set of forms contained in the file.
 nil
 Test load-file REPL bad filename
 Could not load file int-test/src/test_load_file/nofile.cljs
