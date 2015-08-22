@@ -6,7 +6,3 @@ WARNING: planck.io/spit is deprecated. at line 1
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
-mkdir: /tmp/PLANCK_FILE_SEQ: File exists
-mkdir: /tmp/PLANCK_FILE_SEQ/A: File exists
-mkdir: /tmp/PLANCK_FILE_SEQ/A/B: File exists
-mkdir: /tmp/PLANCK_FILE_SEQ/A/C: File exists

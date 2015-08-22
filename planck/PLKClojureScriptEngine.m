@@ -340,28 +340,44 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
                  NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
-                                  
-                 NSArray* seq = cljs_file_seq(path);
                  
-                 JSValueRef  arguments[seq.count];
-                 int num_arguments = (int)seq.count;
-                 for (int i=0; i<num_arguments; i++) {
-                     arguments[i] = JSValueMakeStringFromNSString(self.context, seq[i]);
-                 }
+                 BOOL isDir = NO;
+                 BOOL result = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDir] && isDir;
                  
-                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
-                 
+                 return JSValueMakeBoolean(ctx, result);
              }
              
              return  JSValueMakeNull(ctx);
          }
-                                            name:@"PLANCK_CORE_FILESEQ"
+                                            name:@"PLANCK_IS_DIRECTORY"
                                          argList:@"path"
                                        inContext:self.context];
-
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                
+                 NSArray *dirFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
+                 
+                 JSValueRef  arguments[dirFiles.count];
+                 int num_arguments = (int)dirFiles.count;
+                 for (int i=0; i<num_arguments; i++) {
+                     arguments[i] = JSValueMakeStringFromNSString(self.context, [NSString stringWithFormat:@"%@/%@", path, dirFiles[i]]);
+                 }
+                 
+                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_LIST_FILES"
+                                         argList:@"path"
+                                       inContext:self.context];
         
         const BOOL isTty = isatty(fileno(stdin));
-        
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {

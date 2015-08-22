@@ -93,8 +93,11 @@
 (defn file-seq
   "A tree seq on files"
   [dir]
-  (for [path (js->clj (js/PLANCK_CORE_FILESEQ (:path (*as-file-fn* dir))))]
-    (*as-file-fn* path)))
+  (tree-seq
+    (fn [f] (js/PLANCK_IS_DIRECTORY (:path f)))
+    (fn [d] (map *as-file-fn*
+              (js->clj (js/PLANCK_LIST_FILES (:path d)))))
+    (*as-file-fn* dir)))
 
 (defonce
   ^:dynamic
