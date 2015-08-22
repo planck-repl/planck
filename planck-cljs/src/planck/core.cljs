@@ -11,7 +11,8 @@
   (-close [this]))
 
 (defprotocol IReader
-  (-read [this] "Returns available characters as a string or nil of EOF."))
+  "Protocol for reading."
+  (-read [this] "Returns available characters as a string or nil if EOF."))
 
 (defrecord Reader [raw-read raw-close]
   IReader
@@ -27,6 +28,33 @@
     (raw-write s))
   (-flush [_]
     (raw-flush))
+  IClosable
+  (-close [_]
+    (raw-close)))
+
+(defprotocol IInputStream
+  "Protocol for reading binary data."
+  (-read-bytes [this] "Returns available bytes as an array of unsigned numbers or nil if EOF."))
+
+(defprotocol IOutputStream
+  "Protocol for writing binary data."
+  (-write-bytes [this byte-array] "Writes byte array.")
+  (-flush-bytes [this] "Flushes output."))
+
+(defrecord InputStream [raw-read-bytes raw-close]
+  IInputStream
+  (-read-bytes [_]
+    (raw-read-bytes))
+  IClosable
+  (-close [_]
+    (raw-close)))
+
+(defrecord OutputStream [raw-write-bytes raw-flush-bytes raw-close]
+  IOutputStream
+  (-write-bytes [_ byte-array]
+    (raw-write-bytes byte-array))
+  (-flush-bytes [_]
+    (raw-flush-bytes))
   IClosable
   (-close [_]
     (raw-close)))

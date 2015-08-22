@@ -360,6 +360,32 @@ $PLANCK <<REPL_INPUT
 (test-write "x\n" "a\nb\n")
 REPL_INPUT
 
+echo "Test write and read binary"
+$PLANCK <<REPL_INPUT
+(require '[planck.core :refer [-write-bytes -read-bytes -close]] 
+         '[planck.io :refer [input-stream output-stream delete-file]])
+(def binary-file "/tmp/PLANCK_BINARY.dat")
+(let [os (output-stream binary-file)]
+  (-write-bytes os [1 2 3]) 
+  (-close os))
+(let [is (input-stream binary-file)]
+  (prn (-read-bytes is))
+  (-close is))
+(let [os (output-stream binary-file :append true)]
+  (-write-bytes os [4 5 6]) 
+  (-close os))
+(let [is (input-stream binary-file)]
+  (prn (-read-bytes is))
+  (-close is))
+(let [os (output-stream binary-file :append false)]
+  (-write-bytes os [7 8 9 10]) 
+  (-close os))
+(let [is (input-stream binary-file)]
+  (prn (-read-bytes is))
+  (-close is))
+(delete-file binary-file)
+REPL_INPUT
+
 echo "Test file-seq"
 # The output should be depth-first, as below
 mkdir /tmp/PLANCK_FILE_SEQ

@@ -5,6 +5,8 @@
 #import "PLKBundledOut.h"
 #import "PLKFileReader.h"
 #import "PLKFileWriter.h"
+#import "PLKFileInputStream.h"
+#import "PLKFileOutputStream.h"
 #import "ZZArchive.h"
 #import "ZZArchiveEntry.h"
 
@@ -591,13 +593,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
-                 NSString* desciptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
                  
-                 PLKFileReader* fileReader = self.descriptorToObject[desciptor];
+                 PLKFileReader* fileReader = self.descriptorToObject[descriptor];
                  
                  [fileReader close];
                  
-                 [self.descriptorToObject removeObjectForKey:desciptor];
+                 [self.descriptorToObject removeObjectForKey:descriptor];
              }
              
              return  JSValueMakeNull(ctx);
@@ -627,7 +629,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeString) {
                  
                  NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
                  NSString* content = NSStringFromJSValueRef(ctx, argv[1]);
@@ -648,13 +650,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
-                 NSString* desciptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
                  
-                 PLKFileWriter* fileWriter = self.descriptorToObject[desciptor];
+                 PLKFileWriter* fileWriter = self.descriptorToObject[descriptor];
                  
                  [fileWriter close];
                  
-                 [self.descriptorToObject removeObjectForKey:desciptor];
+                 [self.descriptorToObject removeObjectForKey:descriptor];
              }
              
              return  JSValueMakeNull(ctx);
@@ -663,6 +665,144 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"descriptor"
                                        inContext:self.context];
 
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 return [self registerAndGetDescriptor:[PLKFileInputStream open:path]];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_INPUT_STREAM_OPEN"
+                                         argList:@"path"
+                                       inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileInputStream* fileInputStream = self.descriptorToObject[descriptor];
+                 
+                 NSData* data = [fileInputStream read];
+                 uint8_t buf[data.length];
+                 [data getBytes:buf length:data.length];
+                 
+                 JSValueRef  arguments[data.length];
+                 int num_arguments = (int)data.length;
+                 for (int i=0; i<num_arguments; i++) {
+                     arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+                 }
+                 
+                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
+                 
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_INPUT_STREAM_READ"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileInputStream* fileInputStream = self.descriptorToObject[descriptor];
+                 
+                 [fileInputStream close];
+                 
+                 [self.descriptorToObject removeObjectForKey:descriptor];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_INPUT_STREAM_CLOSE"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeBoolean) {
+                 
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 BOOL append = JSValueToBoolean(ctx, argv[1]);
+                 
+                 return [self registerAndGetDescriptor:[PLKFileOutputStream open:path append:append]];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_OUTPUT_STREAM_OPEN"
+                                         argList:@"path, append"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeObject) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 int count = JSArrayGetCount(ctx, argv[1]);
+                 uint8_t buf[count];
+                 for (int i=0; i<count; i++) {
+                     JSValueRef v = JSArrayGetValueAtIndex(ctx, argv[1], i);
+                     if (JSValueIsNumber(ctx, v)) {
+                         double n = JSValueToNumber(ctx, v, NULL);
+                         if (0 <= n && n <=255) {
+                             buf[i] = n;
+                         } else {
+                             NSLog(@"Output stream value out of range %f", n);
+                         }
+                     } else {
+                          NSLog(@"Output stream value not a number");
+                     }
+                 }
+                 
+                 PLKFileOutputStream* fileOutputStream = self.descriptorToObject[descriptor];
+                 
+                 [fileOutputStream write:[[NSData alloc] initWithBytes:buf length:count]];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_OUTPUT_STREAM_WRITE"
+                                         argList:@"descriptor, content"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKFileOutputStream* fileOutputStream = self.descriptorToObject[descriptor];
+                 
+                 [fileOutputStream close];
+                 
+                 [self.descriptorToObject removeObjectForKey:descriptor];
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FILE_OUTPUT_STREAM_CLOSE"
+                                         argList:@"descriptor"
+                                       inContext:self.context];
         
         // Set up the cljs.user namespace
         
