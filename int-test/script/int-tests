@@ -22,7 +22,7 @@
     (exit 1)))
 
 (check-output 
-  "planck 1.5
+  "planck 1.6
 Usage:  planck [init-opt*] [main-opt] [args]
 
   With no options or args, runs an interactive Read-Eval-Print Loop
