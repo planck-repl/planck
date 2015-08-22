@@ -40,7 +40,7 @@
 (defonce app-env (atom nil))
 
 (defn ^:export init-app-env [verbose]
-  (reset! planck.repl/app-env (:verbose verbose)))
+  (reset! planck.repl/app-env {:verbose verbose}))
 
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
