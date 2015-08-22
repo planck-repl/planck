@@ -53,8 +53,8 @@
     reader, writer, input-stream, and output-stream."
   (make-reader [x opts] "Creates an IReader. See also IOFactory docs.")
   (make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
-  #_(make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
-  #_(make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
+  (make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
+  (make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
 
 (defn- check-utf-8-encoding [encoding]
   (when (and encoding (not= encoding "UTF-8"))
@@ -66,6 +66,10 @@
     (make-reader (as-file s) opts))
   (make-writer [s opts]
     (make-writer (as-file s) opts))
+  (make-input-stream [s opts]
+    (make-input-stream (as-file s) opts))
+  (make-output-stream [s opts]
+    (make-output-stream (as-file s) opts))
 
   File
   (make-reader [file opts]
@@ -80,7 +84,18 @@
       (planck.core/Writer.
         (fn [s] (js/PLANCK_FILE_WRITER_WRITE file-writer s))
         (fn [])
-        (fn [] (js/PLANCK_FILE_WRITER_CLOSE file-writer))))))
+        (fn [] (js/PLANCK_FILE_WRITER_CLOSE file-writer)))))
+  (make-input-stream [file opts]
+    (let [file-input-stream (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
+      (planck.core/InputStream.
+        (fn [] (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-input-stream)))
+        (fn [] (js/PLANCK_FILE_INPUT_STREAM_CLOSE file-input-stream)))))
+  (make-output-stream [file opts]
+    (let [file-output-stream (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
+      (planck.core/OutputStream.
+        (fn [byte-array] (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-output-stream (clj->js byte-array)))
+        (fn [])
+        (fn [] (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-output-stream))))))
 
 (defn reader
   "Attempts to coerce its argument into an open IReader."
@@ -91,6 +106,16 @@
   "Attempts to coerce its argument into an open IWriter."
   [x & opts]
   (make-writer x (when opts (apply hash-map opts))))
+
+(defn input-stream
+  "Attempts to coerce its argument into an open IInputStream."
+  [x & opts]
+  (make-input-stream x (when opts (apply hash-map opts))))
+
+(defn output-stream
+  "Attempts to coerce its argument into an open IOutputStream."
+  [x & opts]
+  (make-output-stream x (when opts (apply hash-map opts))))
 
 (defn file
   "Returns a File, passing each arg to as-file.  Multiple-arg
