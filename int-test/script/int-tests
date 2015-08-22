@@ -88,7 +88,12 @@ Usage:  planck [init-opt*] [main-opt] [args]
   (println "empty env")
   (exit 1))
 
-;; Ensure cljs.pprint loads
+;; Ensure env workd
 (ensure-output (into (sorted-map) {:err "", :exit 0, :out "ABC=123\n"})
   ['(require '[planck.shell :refer [sh]])
    '(into (sorted-map) (sh "env" :env {"ABC" "123"}))])
+
+;; Test import REPL special
+(ensure-output "http"
+  ['(import '[goog Uri])
+   '(.-scheme_ (Uri. "http://foo.bar"))])

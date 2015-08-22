@@ -293,24 +293,29 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
     specs))
 
 (defn- process-require
-  [macros-ns? cb specs]
+  [kind cb specs]
   (try
-    (let [is-self-require? (self-require? specs)
+    (let [is-self-require? (and (= :kind :require) (self-require? specs))
           [target-ns restore-ns]
           (if-not is-self-require?
             [@current-ns nil]
             ['cljs.user @current-ns])]
       (cljs/eval
         st
-        (let [ns-form `(~'ns ~target-ns
-                         (~(if macros-ns?
-                             :require-macros :require)
-                           ~@(-> specs canonicalize-specs process-reloads!)))]
+        (let [ns-form (if (= kind :import)
+                        `(~'ns ~target-ns
+                           (~kind
+                             ~@(map (fn [quoted-spec-or-kw]
+                                      (if (keyword? quoted-spec-or-kw)
+                                        quoted-spec-or-kw
+                                        (second quoted-spec-or-kw)))
+                                 specs)))
+                        `(~'ns ~target-ns
+                           (~kind
+                             ~@(-> specs canonicalize-specs process-reloads!))))]
           (when (:verbose @app-env)
             (println-verbose "Implementing"
-              (if macros-ns?
-                "require-macros"
-                "require")
+              (name kind)
               "via ns:\n  "
               (pr-str ns-form)))
           ns-form)
@@ -506,7 +511,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
     (binding [cljs/*load-fn* load
               cljs/*eval-fn* cljs/js-eval]
       (process-require
-        false
+        :require
         (fn [_]
           (cljs/eval-str st
             (str "(var -main)")
@@ -556,7 +561,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
   (let [var (with-compiler-env st (resolve env sym))
         var (or var
               (if-let [macro-var (with-compiler-env st
-                                    (resolve env (symbol "cljs.core$macros" (name sym))))]
+                                   (resolve env (symbol "cljs.core$macros" (name sym))))]
                 (update (assoc macro-var :ns 'cljs.core)
                   :name #(symbol "cljs.core" (name %)))))]
     (if (= (namespace (:name var)) (str (:ns var)))
@@ -600,8 +605,9 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
               argument (second expression-form)]
           (case (first expression-form)
             in-ns (process-in-ns argument)
-            require (process-require false identity (rest expression-form))
-            require-macros (process-require true identity (rest expression-form))
+            require (process-require :require identity (rest expression-form))
+            require-macros (process-require :require-macros identity (rest expression-form))
+            import (process-require :import identity (rest expression-form))
             doc (cond
                   (special-doc-map argument) (repl/print-doc (special-doc argument))
                   (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
