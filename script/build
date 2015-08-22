@@ -29,7 +29,7 @@ BUILD_DIR=build
 CONFIGURATION=Release
 
 echo "### Building Binary"
-xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR
+xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR -derivedDataPath $BUILD_DIR/DerivedData
 checkCmdSuccess
 
 echo "Binary located at $(PWD)/$BUILD_DIR/$CONFIGURATION/planck"
