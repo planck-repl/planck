@@ -556,17 +556,18 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
                  NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* encoding = NSStringFromJSValueRef(ctx, argv[1]);
                  
-                 return [self registerAndGetDescriptor:[PLKFileReader open:path]];
+                 return [self registerAndGetDescriptor:[PLKFileReader open:path encoding:encoding]];
              }
              
              return  JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_FILE_READER_OPEN"
-                                         argList:@"path"
+                                         argList:@"path, encoding"
                                        inContext:self.context];
 
         
@@ -612,18 +613,19 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeBoolean) {
+             if (argc == 3 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeBoolean) {
                  
                  NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
                  BOOL append = JSValueToBoolean(ctx, argv[1]);
+                 NSString* encoding = NSStringFromJSValueRef(ctx, argv[2]);
                  
-                 return [self registerAndGetDescriptor:[PLKFileWriter open:path append:append]];
+                 return [self registerAndGetDescriptor:[PLKFileWriter open:path append:append encoding:encoding]];
              }
              
              return  JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_FILE_WRITER_OPEN"
-                                         argList:@"path, append"
+                                         argList:@"path, append, encoding"
                                        inContext:self.context];
         
         [ABYUtils installGlobalFunctionWithBlock:

@@ -386,6 +386,15 @@ $PLANCK <<REPL_INPUT
 (delete-file binary-file)
 REPL_INPUT
 
+echo "Test encoding"
+$PLANCK <<REPL_INPUT
+(require '[planck.core :refer [slurp spit]])
+(def content "abc123")
+(def filename "/tmp/PLANCK_TEST_ENCODING.txt")
+(spit filename content :encoding "UTF-16")
+(= content (slurp filename :encoding "UTF-16"))
+REPL_INPUT
+
 echo "Test file-seq"
 # The output should be depth-first, as below
 mkdir /tmp/PLANCK_FILE_SEQ

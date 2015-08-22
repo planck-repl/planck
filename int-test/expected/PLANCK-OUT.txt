@@ -367,6 +367,12 @@ nil
 [7 8 9 10]
 nil
 nil
+Test encoding
+nil
+#'cljs.user/content
+#'cljs.user/filename
+nil
+true
 Test file-seq
 nil
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ}

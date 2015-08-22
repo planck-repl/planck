@@ -1,26 +1,29 @@
 #import "PLKFileReader.h"
+#import "PLKUtils.h"
 
 @interface PLKFileReader()
 
 @property (nonatomic, strong) NSInputStream* inputStream;
+@property (nonatomic) NSStringEncoding encoding;
 
 @end
 
 @implementation PLKFileReader
 
--(id)initWithPath:(NSString*)path
+-(id)initWithPath:(NSString*)path encoding:(NSString*)encoding
 {
     if (self = [super init]) {
         self.inputStream = [NSInputStream inputStreamWithFileAtPath:path];
         [self.inputStream open];
+        self.encoding = encodingFromString(encoding, NSUTF8StringEncoding);
     }
     
     return self;
 }
 
-+(PLKFileReader*)open:(NSString*)path
++(PLKFileReader*)open:(NSString*)path encoding:(NSString*)encoding
 {
-    return [[PLKFileReader alloc] initWithPath:path];
+    return [[PLKFileReader alloc] initWithPath:path encoding:encoding];
 }
 
 -(NSString*)read
@@ -35,19 +38,19 @@
         [data appendBytes:(const void *)buf length:length];
         
         NSString *string = [[NSString alloc] initWithData:data
-                                                 encoding:NSUTF8StringEncoding];
+                                                 encoding:self.encoding];
         if (string) {
             return string;
         } else {
-            // Couldn't decode UTF8. Try reading up to 6 more bytes to see if
-            // we can form a well-formed UTF8 string
-            int tries = 6;
+            // Couldn't decode. Try reading up to 16 more bytes to see if
+            // we can form a well-formed string
+            int tries = 16;
             while (tries-- > 0) {
                 length = [self.inputStream read:buf maxLength:1];
                 if (length > 0) {
                     [data appendBytes:(const void *)buf length:1];
                     NSString *string = [[NSString alloc] initWithData:data
-                                                             encoding:NSUTF8StringEncoding];
+                                                             encoding:self.encoding];
                     if (string) {
                         return string;
                     }
