@@ -2,7 +2,7 @@
 
 @interface PLKFileReader : NSObject
 
-+(PLKFileReader*)open:(NSString*)path;
++(PLKFileReader*)open:(NSString*)path encoding:(NSString*)encoding;
 -(NSString*)read;
 -(void)close;
 

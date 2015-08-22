@@ -56,10 +56,6 @@
   (make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
   (make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
 
-(defn- check-utf-8-encoding [encoding]
-  (when (and encoding (not= encoding "UTF-8"))
-    (throw js/Error. (str "Unsupported encoding: " encoding))))
-
 (extend-protocol IOFactory
   string
   (make-reader [s opts]
@@ -73,14 +69,12 @@
 
   File
   (make-reader [file opts]
-    (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file))]
-      (check-utf-8-encoding (:encoding opts))
+    (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
       (planck.core/Reader.
         (fn [] (js/PLANCK_FILE_READER_READ file-reader))
         (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader)))))
   (make-writer [file opts]
-    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)))]
-      (check-utf-8-encoding (:encoding opts))
+    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (planck.core/Writer.
         (fn [s] (js/PLANCK_FILE_WRITER_WRITE file-writer s))
         (fn [])
