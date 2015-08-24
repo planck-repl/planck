@@ -609,36 +609,38 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
             cljs/*eval-fn* caching-js-eval]
-    (try
-      (if (= "js" lang)
+    (if (= "js" lang)
+      (try
         (js/eval source)
-        (let [expression-form (and expression? (repl-read-string source))]
-          (if (repl-special? expression-form)
-            (let [env (assoc (ana/empty-env) :context :expr
-                                             :ns {:name @current-ns})
-                  argument (second expression-form)]
-              (case (first expression-form)
-                in-ns (process-in-ns argument)
-                require (process-require :require identity (rest expression-form))
-                require-macros (process-require :require-macros identity (rest expression-form))
-                import (process-require :import identity (rest expression-form))
-                doc (cond
-                      (special-doc-map argument) (repl/print-doc (special-doc argument))
-                      (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
-                      :else (repl/print-doc (get-var env argument)))
-                source (println (fetch-source (get-var env argument)))
-                pst (let [expr (or argument '*e)]
-                      (try (cljs/eval st
-                             expr
-                             {:ns      @current-ns
-                              :context :expr}
-                             print-error)
-                           (catch js/Error e (prn :caught e))))
-                load-file (let [filename argument]
-                            (process-load-file filename)))
-              (when print-nil-expression?
-                (prn nil)))
-
+        (catch :default e
+          (handle-error e true in-exit-context?)))
+      (let [expression-form (and expression? (repl-read-string source))]
+        (if (repl-special? expression-form)
+          (let [env (assoc (ana/empty-env) :context :expr
+                                           :ns {:name @current-ns})
+                argument (second expression-form)]
+            (case (first expression-form)
+              in-ns (process-in-ns argument)
+              require (process-require :require identity (rest expression-form))
+              require-macros (process-require :require-macros identity (rest expression-form))
+              import (process-require :import identity (rest expression-form))
+              doc (cond
+                    (special-doc-map argument) (repl/print-doc (special-doc argument))
+                    (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
+                    :else (repl/print-doc (get-var env argument)))
+              source (println (fetch-source (get-var env argument)))
+              pst (let [expr (or argument '*e)]
+                    (try (cljs/eval st
+                           expr
+                           {:ns      @current-ns
+                            :context :expr}
+                           print-error)
+                         (catch js/Error e (prn :caught e))))
+              load-file (let [filename argument]
+                          (process-load-file filename)))
+            (when print-nil-expression?
+              (prn nil)))
+          (try
             (cljs/eval-str
               st
               source
@@ -669,6 +671,6 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
                     (reset! current-ns ns)
                     nil))
                 (when error
-                  (handle-error error true in-exit-context?))))))))
-    (catch :default e
-      (handle-error e true in-exit-context?))))
+                  (handle-error error true in-exit-context?))))
+            (catch :default e
+              (handle-error e true in-exit-context?))))))))
