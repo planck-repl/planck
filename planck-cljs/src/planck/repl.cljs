@@ -219,7 +219,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
   constructor named by closure-namespace to the current namespace. Use :import in the ns
   macro in preference to calling this directly."}
     load-file      {:arglists ([name])
-                    :doc     "Sequentially read and evaluate the set of forms contained in the file."}
+                    :doc      "Sequentially read and evaluate the set of forms contained in the file."}
     doc            {:arglists ([name])
                     :doc      "Prints documentation for a var or special form given its name"}
     source         {:arglists ([name])
