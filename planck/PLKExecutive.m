@@ -12,7 +12,7 @@
 @implementation PLKExecutive
 
 -(int)runScripts:(NSArray*)scripts
-         srcPaths:(NSArray*)srcPaths
+        srcPaths:(NSArray*)srcPaths
          verbose:(BOOL)verbose
       mainNsName:(NSString*)mainNsName
             repl:(BOOL)repl
