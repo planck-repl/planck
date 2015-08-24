@@ -29,6 +29,10 @@
   (let [rdr (transit/reader :json)]
     (transit/read rdr json)))
 
+(defn cljs->transit-json [x]
+  (let [wtr (transit/writer :json)]
+    (transit/write wtr x)))
+
 (defn ^:export load-core-analysis-cache []
   (cljs/load-analysis-cache! st 'cljs.core
     (transit-json->cljs (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json")))
@@ -447,6 +451,13 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
               [-1 -1])]
         (clj->js highlight-coords)))))
 
+(defn caching-js-eval
+  [{:keys [path name source cache]}]
+  (let [cache (or cache (get-in @st [::ana/namespaces name]))] ;; Workaround CLJS-1433
+    (when (and path source cache)
+      (js/PLANCK_CACHE path source (cljs->transit-json cache)))
+    (js/eval source)))
+
 (defn extension->lang [extension]
   (if (= ".js" extension)
     :js
@@ -509,7 +520,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 (defn ^:export run-main [main-ns & args]
   (let [main-args (js->clj args)]
     (binding [cljs/*load-fn* load
-              cljs/*eval-fn* cljs/js-eval]
+              cljs/*eval-fn* caching-js-eval]
       (process-require
         :require
         (fn [_]
@@ -589,68 +600,75 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
-(defn ^:export read-eval-print
-  "Read/eval/print source
+(defn ^:export execute
+  "Execute source
 
   set in-exit-context? to true if exit handling should be performed"
-  [source expression? print-nil-expression? in-exit-context?]
+  [source lang path expression? print-nil-expression? in-exit-context?]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
-            cljs/*eval-fn* cljs/js-eval]
-    (let [expression-form (and expression? (repl-read-string source))]
-      (if (repl-special? expression-form)
-        (let [env (assoc (ana/empty-env) :context :expr
-                                         :ns {:name @current-ns})
-              argument (second expression-form)]
-          (case (first expression-form)
-            in-ns (process-in-ns argument)
-            require (process-require :require identity (rest expression-form))
-            require-macros (process-require :require-macros identity (rest expression-form))
-            import (process-require :import identity (rest expression-form))
-            doc (cond
-                  (special-doc-map argument) (repl/print-doc (special-doc argument))
-                  (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
-                  :else (repl/print-doc (get-var env argument)))
-            source (println (fetch-source (get-var env argument)))
-            pst (let [expr (or argument '*e)]
-                  (try (cljs/eval st
-                         expr
-                         {:ns      @current-ns
-                          :context :expr}
-                         print-error)
-                       (catch js/Error e (prn :caught e))))
-            load-file (let [filename argument]
-                        (process-load-file filename)))
-          (when print-nil-expression?
-            (prn nil)))
-        (try
-          (cljs/eval-str
-            st
-            source
-            (if expression? source "File")
-            (merge
-              {:ns         @current-ns
-               :source-map false
-               :verbose    (:verbose @app-env)}
-              (when expression?
-                {:context       :expr
-                 :def-emits-var true}))
-            (fn [{:keys [ns value error] :as ret}]
-              (if expression?
-                (when-not error
-                  (when (or print-nil-expression?
-                          (not (nil? value)))
-                    (prn value))
-                  (when-not
-                    (or ('#{*1 *2 *3 *e} expression-form)
-                      (ns-form? expression-form))
-                    (set! *3 *2)
-                    (set! *2 *1)
-                    (set! *1 value))
-                  (reset! current-ns ns)
-                  nil))
-              (when error
-                (handle-error error true in-exit-context?))))
-          (catch :default e
-            (handle-error e true in-exit-context?)))))))
+            cljs/*eval-fn* caching-js-eval]
+    (try
+      (if (= "js" lang)
+        (js/eval source)
+        (let [expression-form (and expression? (repl-read-string source))]
+          (if (repl-special? expression-form)
+            (let [env (assoc (ana/empty-env) :context :expr
+                                             :ns {:name @current-ns})
+                  argument (second expression-form)]
+              (case (first expression-form)
+                in-ns (process-in-ns argument)
+                require (process-require :require identity (rest expression-form))
+                require-macros (process-require :require-macros identity (rest expression-form))
+                import (process-require :import identity (rest expression-form))
+                doc (cond
+                      (special-doc-map argument) (repl/print-doc (special-doc argument))
+                      (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
+                      :else (repl/print-doc (get-var env argument)))
+                source (println (fetch-source (get-var env argument)))
+                pst (let [expr (or argument '*e)]
+                      (try (cljs/eval st
+                             expr
+                             {:ns      @current-ns
+                              :context :expr}
+                             print-error)
+                           (catch js/Error e (prn :caught e))))
+                load-file (let [filename argument]
+                            (process-load-file filename)))
+              (when print-nil-expression?
+                (prn nil)))
+
+            (cljs/eval-str
+              st
+              source
+              (if expression? "Expression" "File")
+              (merge
+                {:ns           @current-ns
+                 :source-map   false
+                 :verbose      (:verbose @app-env)
+                 :cache-source (fn [x cb]
+                                 (when (and path (:source x))
+                                   (js/PLANCK_CACHE path (:source x) nil))
+                                 (cb {:value nil}))}
+                (when expression?
+                  {:context       :expr
+                   :def-emits-var true}))
+              (fn [{:keys [ns value error] :as ret}]
+                (if expression?
+                  (when-not error
+                    (when (or print-nil-expression?
+                            (not (nil? value)))
+                      (prn value))
+                    (when-not
+                      (or ('#{*1 *2 *3 *e} expression-form)
+                        (ns-form? expression-form))
+                      (set! *3 *2)
+                      (set! *2 *1)
+                      (set! *1 value))
+                    (reset! current-ns ns)
+                    nil))
+                (when error
+                  (handle-error error true in-exit-context?))))))))
+    (catch :default e
+      (handle-error e true in-exit-context?))))

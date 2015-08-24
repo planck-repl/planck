@@ -241,8 +241,40 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"path"
                                        inContext:self.context];
        
-
-
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 3 &&
+                 JSValueGetType (ctx, argv[0]) == kJSTypeString &&
+                 JSValueGetType (ctx, argv[1]) == kJSTypeString &&
+                 (JSValueGetType (ctx, argv[2]) == kJSTypeString
+                  || JSValueGetType (ctx, argv[2]) == kJSTypeNull)) {
+                     
+                     NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                     NSString* source = NSStringFromJSValueRef(ctx, argv[1]);
+                     NSString* cache = NSStringFromJSValueRef(ctx, argv[2]);
+                     
+                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(){
+                         /*
+                         [source writeToFile:[PLKClojureScriptEngine cacheFileForPath:path]
+                                  atomically:YES
+                                    encoding:NSUTF8StringEncoding
+                                       error:nil];
+                         [cache writeToFile:[PLKClojureScriptEngine cacheFileForPath:
+                                             [path stringByAppendingString:@".cache.json"]]
+                                 atomically:YES
+                                   encoding:NSUTF8StringEncoding
+                                      error:nil];
+                          */
+                 });
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_CACHE"
+                                         argList:@"path, source, cache"
+                                       inContext:self.context];
+        
         {
             JSValueRef  arguments[0];
             JSValueRef result;
@@ -960,7 +992,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeClojureScript:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
+-(int)executeSource:(NSString*)source lang:(NSString*)lang path:(NSString*)path expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
     [self blockUntilEngineReady];
     if (!inExitContext) {
@@ -970,14 +1002,16 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[4];
+    JSValueRef  arguments[6];
     JSValueRef result;
-    int num_arguments = 4;
+    int num_arguments = 6;
     arguments[0] = JSValueMakeStringFromNSString(self.context, source);
-    arguments[1] = JSValueMakeBoolean(self.context, expression);
-    arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
-    arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
-    result = JSObjectCallAsFunction(self.context, [self getFunction:@"read-eval-print"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    arguments[1] = JSValueMakeStringFromNSString(self.context, lang);
+    arguments[2] = JSValueMakeStringFromNSString(self.context, path);
+    arguments[3] = JSValueMakeBoolean(self.context, expression);
+    arguments[4] = JSValueMakeBoolean(self.context, printNilExpression);
+    arguments[5] = JSValueMakeBoolean(self.context, inExitContext);
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
 
     return self.exitValue;
 }
@@ -1068,5 +1102,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return [value toObjectOfClass:type];
 }
 #endif
+
+
++(NSString*)cacheFileForPath:(NSString*)path
+{
+    return [NSString stringWithFormat:@"/tmp/PLANCK_CACHE_%@", [path stringByReplacingOccurrencesOfString:@"/" withString:@"_"]];
+}
 
 @end

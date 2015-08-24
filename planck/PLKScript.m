@@ -11,9 +11,11 @@
     
     _expression = NO;
     _printNilExpression = NO;
-    _content = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    _source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+    _path = path;
+    _lang = [path hasSuffix:@".js"] ? @"js" : @"cljs";
     
-    if (_content == nil) {
+    if (_source == nil) {
         NSLog(@"Could not read file at %@", path);
         exit(1);
     }
@@ -21,7 +23,7 @@
     return self;
 }
 
-- (instancetype)initWithExpression:(NSString *)expression printIfNil:(BOOL)printIfNil
+- (instancetype)initWithExpression:(NSString *)source printIfNil:(BOOL)printIfNil
 {
     self = [super init];
     if (self == nil) {
@@ -30,7 +32,9 @@
     
     _expression = YES;
     _printNilExpression = printIfNil;
-    _content = [expression copy];
+    _source = [source copy];
+    _path = nil;
+    _lang = @"cljs";
     
     return self;
 }
@@ -44,12 +48,14 @@
     
     _expression = NO;
     _printNilExpression = NO;
+    _path = nil;
+    _lang = @"cljs";
     
     NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
     NSData *inputData = [input readDataToEndOfFile];
     if (inputData.length) {
         NSString *inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
-        _content = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+        _source = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     }
     
     return self;
