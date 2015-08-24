@@ -1,4 +1,4 @@
-#!build/Release/planck -s planck-cljs/src -s planck-cljs/test
+#!build/Release/planck -c planck-cljs/src:planck-cljs/test
 ;; ^ Using non-prod planck for now for multiple -s capability
 (ns planck.unit-test
   (:require [cljs.test]
