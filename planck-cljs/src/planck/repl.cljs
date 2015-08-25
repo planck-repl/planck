@@ -600,6 +600,20 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
+(defn- get-requires-from-cache [name]
+  (keys (get-in @st [::ana/namespaces name :requires])))
+
+(defn- add-requires [js-source]
+  (let [[_ ns-name] (re-find #"^goog\.provide\(\"(.*)\"\);.*", js-source)]
+    (if ns-name
+      (str
+        (s/join "\n" (map (fn [name]
+                            (str "goog.require(\"" (str name) "\");"))
+                       (get-requires-from-cache (symbol ns-name))))
+        "\n"
+        js-source)
+      js-source)))
+
 (defn ^:export execute
   "Execute source
 
@@ -651,7 +665,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
                  :verbose      (:verbose @app-env)
                  :cache-source (fn [x cb]
                                  (when (and path (:source x))
-                                   (js/PLANCK_CACHE path (:source x) nil))
+                                   (js/PLANCK_CACHE path (add-requires (:source x)) nil))
                                  (cb {:value nil}))}
                 (when expression?
                   {:context       :expr
