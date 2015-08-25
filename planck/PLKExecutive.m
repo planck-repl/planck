@@ -66,6 +66,8 @@
         exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine dumbTerminal:dumbTerminal];
     }
     
+    [self.clojureScriptEngine awaitShutdown];
+    
     return exitValue;
 }
 

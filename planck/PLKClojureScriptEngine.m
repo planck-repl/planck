@@ -14,6 +14,8 @@
 
 @property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
 @property (nonatomic) BOOL javaScriptEngineReady;
+@property (nonatomic, strong) NSCondition* cacheTasksCondition;
+@property (nonatomic) int cacheTasksOutstanding;
 @property (nonatomic) JSGlobalContextRef context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
@@ -89,6 +91,36 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     [self.javaScriptEngineReadyCondition unlock];
 }
 
+-(void)initalizeCacheTaskConditionVars
+{
+    self.cacheTasksCondition = [[NSCondition alloc] init];
+    self.cacheTasksOutstanding = 0;
+}
+
+-(void)blockUntilCacheTasksComplete
+{
+    [self.cacheTasksCondition lock];
+    while (self.cacheTasksOutstanding > 0)
+        [self.cacheTasksCondition wait];
+    
+    [self.cacheTasksCondition unlock];
+}
+
+-(void)startCacheTask
+{
+    [self.cacheTasksCondition lock];
+    self.cacheTasksOutstanding++;
+    [self.cacheTasksCondition unlock];
+}
+
+-(void)signalCacheTaskComplete
+{
+    [self.cacheTasksCondition lock];
+    self.cacheTasksOutstanding--;
+    [self.cacheTasksCondition signal];
+    [self.cacheTasksCondition unlock];
+}
+
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
@@ -122,6 +154,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     // Now, start initializing JavaScriptCore in a background thread and return
     
     [self initalizeEngineReadyConditionVars];
+    [self initalizeCacheTaskConditionVars];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
         
@@ -254,7 +287,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      NSString* source = NSStringFromJSValueRef(ctx, argv[1]);
                      NSString* cache = NSStringFromJSValueRef(ctx, argv[2]);
                      
+                     [self startCacheTask];
+                     
                      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(){
+                         
                          /*
                          [source writeToFile:[PLKClojureScriptEngine cacheFileForPath:path]
                                   atomically:YES
@@ -265,7 +301,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  atomically:YES
                                    encoding:NSUTF8StringEncoding
                                       error:nil];
-                          */
+                         */
+                         [self signalCacheTaskComplete];
+                         
                  });
              }
              
@@ -848,6 +886,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [self signalEngineReady];
         
     });
+}
+
+-(void)awaitShutdown
+{
+    [self blockUntilCacheTasksComplete];
 }
 
 -(void)requireAppNamespaces:(JSContextRef)context
