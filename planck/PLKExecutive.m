@@ -2,6 +2,7 @@
 #import "PLKClojureScriptEngine.h"
 #import "PLKRepl.h"
 #import "PLKScript.h"
+#import "PLKUtils.h"
 
 @interface PLKExecutive()
 
@@ -49,7 +50,16 @@
         if ([path isEqualToString:@"-"]) {
             script = [[PLKScript alloc] initWithStdIn];
         } else {
-            script = [[PLKScript alloc] initWithPath:[self fullyQualify:path]];
+            path = [self fullyQualify:path];
+            
+            // Use pre-compiled cache file if newer
+            NSString* cacheFile = [PLKClojureScriptEngine cacheFileForPath:path];
+            NSFileManager* fileManager = [NSFileManager defaultManager];
+            if ([fileManager fileExistsAtPath:cacheFile] && fileIsNewer(cacheFile, path)) {
+                path = cacheFile;
+            }
+            
+            script = [[PLKScript alloc] initWithPath:path];
         }
         exitValue = [self executeScript:script];
     } else if (repl) {

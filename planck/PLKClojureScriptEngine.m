@@ -1106,7 +1106,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
 
 +(NSString*)cacheFileForPath:(NSString*)path
 {
-    return [NSString stringWithFormat:@"/tmp/PLANCK_CACHE_%@", [path stringByReplacingOccurrencesOfString:@"/" withString:@"_"]];
+    return [NSString stringWithFormat:@"/tmp/PLANCK_CACHE_%@",
+            [[path stringByReplacingOccurrencesOfString:@"/" withString:@"_"]
+             stringByAppendingString:@".js"]];
 }
 
 @end
