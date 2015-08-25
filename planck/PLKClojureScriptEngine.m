@@ -291,7 +291,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      
                      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(){
                          
-                         /*
+                         
                          [source writeToFile:[PLKClojureScriptEngine cacheFileForPath:path]
                                   atomically:YES
                                     encoding:NSUTF8StringEncoding
@@ -301,7 +301,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  atomically:YES
                                    encoding:NSUTF8StringEncoding
                                       error:nil];
-                         */
+                         
                          [self signalCacheTaskComplete];
                          
                  });

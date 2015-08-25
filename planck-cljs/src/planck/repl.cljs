@@ -30,8 +30,9 @@
     (transit/read rdr json)))
 
 (defn cljs->transit-json [x]
-  (let [wtr (transit/writer :json)]
-    (transit/write wtr x)))
+  (when x
+    (let [wtr (transit/writer :json)]
+      (transit/write wtr x))))
 
 (defn ^:export load-core-analysis-cache []
   (cljs/load-analysis-cache! st 'cljs.core
@@ -600,19 +601,10 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
-(defn- get-requires-from-cache [name]
-  (keys (get-in @st [::ana/namespaces name :requires])))
-
-(defn- add-requires [js-source]
+(defn- get-analysis-cache [js-source]
   (let [[_ ns-name] (re-find #"^goog\.provide\(\"(.*)\"\);.*", js-source)]
-    (if ns-name
-      (str
-        (s/join "\n" (map (fn [name]
-                            (str "goog.require(\"" (str name) "\");"))
-                       (get-requires-from-cache (symbol ns-name))))
-        "\n"
-        js-source)
-      js-source)))
+    (when ns-name
+      (get-in @st [::ana/namespaces (symbol ns-name)]))))
 
 (defn ^:export execute
   "Execute source
@@ -625,6 +617,13 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
             cljs/*eval-fn* caching-js-eval]
     (if (= "js" lang)
       (try
+        #_(cljs/load-analysis-cache! st 'foo.baz
+          (transit-json->cljs
+            (js/PLANCK_READ_FILE "/tmp/PLANCK_CACHE_foo_baz.cache.json.js")))
+        #_(cljs/load-analysis-cache! st 'foo.bar
+          (transit-json->cljs
+            (js/PLANCK_READ_FILE "/tmp/PLANCK_CACHE__Users_mfikes_Desktop_src_foo_bar.cljs.cache.json.js")))
+        #_(js/goog.require "foo.baz")
         (js/eval source)
         (catch :default e
           (handle-error e true in-exit-context?)))
@@ -663,9 +662,9 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
                 {:ns           @current-ns
                  :source-map   false
                  :verbose      (:verbose @app-env)
-                 :cache-source (fn [x cb]
-                                 (when (and path (:source x))
-                                   (js/PLANCK_CACHE path (add-requires (:source x)) nil))
+                 :cache-source (fn [{:keys [source]} cb]
+                                 (when (and path source)
+                                   (js/PLANCK_CACHE path source (cljs->transit-json (get-analysis-cache source))))
                                  (cb {:value nil}))}
                 (when expression?
                   {:context       :expr
