@@ -52,7 +52,7 @@ void highlight(const char* buf, int pos) {
             }
             
             if (relativeHoriz < 0) {
-                fprintf(stdout,"\x1b[%dD", relativeHoriz);
+                fprintf(stdout,"\x1b[%dD", -relativeHoriz);
             } else if (relativeHoriz > 0){
                 fprintf(stdout,"\x1b[%dC", relativeHoriz);
             }
@@ -70,7 +70,7 @@ void highlight(const char* buf, int pos) {
                     }
                     
                     if (relativeHoriz < 0) {
-                        fprintf(stdout,"\x1b[%dC", relativeHoriz);
+                        fprintf(stdout,"\x1b[%dC", -relativeHoriz);
                     } else if (relativeHoriz > 0){
                         fprintf(stdout,"\x1b[%dD", relativeHoriz);
                     }
