@@ -457,6 +457,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
   (let [cache (or cache (get-in @st [::ana/namespaces name]))] ;; Workaround CLJS-1433
     (when (and path source cache)
       (js/PLANCK_CACHE path source (cljs->transit-json cache)))
+    (prn 'caching-js-eval source)
     (js/eval source)))
 
 (defn extension->lang [extension]
@@ -496,6 +497,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 (def closure-index-mem (memoize closure-index))
 
 (defn load [{:keys [name macros path] :as full} cb]
+  (prn full)
   (if (re-matches #"^goog/.*" path)
     (if-let [goog-path (get (closure-index-mem) name)]
       (when-not (load-and-callback! goog-path ".js" cb)
@@ -617,14 +619,21 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
             cljs/*eval-fn* caching-js-eval]
     (if (= "js" lang)
       (try
-        #_(cljs/load-analysis-cache! st 'foo.baz
-          (transit-json->cljs
-            (js/PLANCK_READ_FILE "/tmp/PLANCK_CACHE_foo_baz.cache.json.js")))
-        #_(cljs/load-analysis-cache! st 'foo.bar
-          (transit-json->cljs
-            (js/PLANCK_READ_FILE "/tmp/PLANCK_CACHE__Users_mfikes_Desktop_src_foo_bar.cljs.cache.json.js")))
-        #_(js/goog.require "foo.baz")
-        (js/eval source)
+        (println "path" path)
+        ;; Inspect the analysis cache to see what the JS required.
+        ;; (Note: There won't be an analysis cache if the script didn't specify a namespace)
+        (if-let [cache (transit-json->cljs
+                         (js/PLANCK_READ_FILE (str (subs path 0 (- (count path) 3)) ".cache.json.js")))]
+          ;; Call Load on each of the required namespaces (need to recur over them)
+          (load {:name 'foo.baz :macros nil :path "foo/baz"}
+            (fn [m]
+              (cljs/eval-str
+                st
+                (:source m)
+                (fn [_]
+                  ;; Finally eval the pre-compiled JS
+                  (js/eval source)))))
+          (js/eval source))
         (catch :default e
           (handle-error e true in-exit-context?)))
       (let [expression-form (and expression? (repl-read-string source))]
