@@ -1035,7 +1035,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSource:(NSString*)source lang:(NSString*)lang path:(NSString*)path expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
+-(int)executeSource:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
     [self blockUntilEngineReady];
     if (!inExitContext) {
@@ -1045,15 +1045,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[6];
+    JSValueRef  arguments[4];
     JSValueRef result;
-    int num_arguments = 6;
+    int num_arguments = 4;
     arguments[0] = JSValueMakeStringFromNSString(self.context, source);
-    arguments[1] = JSValueMakeStringFromNSString(self.context, lang);
-    arguments[2] = JSValueMakeStringFromNSString(self.context, path);
-    arguments[3] = JSValueMakeBoolean(self.context, expression);
-    arguments[4] = JSValueMakeBoolean(self.context, printNilExpression);
-    arguments[5] = JSValueMakeBoolean(self.context, inExitContext);
+    arguments[1] = JSValueMakeBoolean(self.context, expression);
+    arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
+    arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
 
     return self.exitValue;

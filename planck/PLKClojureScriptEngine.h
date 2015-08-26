@@ -8,7 +8,7 @@
 @interface PLKClojureScriptEngine : NSObject
 
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs;
--(int)executeSource:(NSString*)source lang:(NSString*)lang path:(NSString*)path expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext;
+-(int)executeSource:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext;
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args;
 -(BOOL)isReadable:(NSString*)expression;
 -(NSString*)getCurrentNs;

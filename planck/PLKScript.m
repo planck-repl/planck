@@ -12,8 +12,6 @@
     _expression = NO;
     _printNilExpression = NO;
     _source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    _path = path;
-    _lang = [path hasSuffix:@".js"] ? @"js" : @"cljs";
     
     if (_source == nil) {
         NSLog(@"Could not read file at %@", path);
@@ -33,8 +31,6 @@
     _expression = YES;
     _printNilExpression = printIfNil;
     _source = [source copy];
-    _path = nil;
-    _lang = @"cljs";
     
     return self;
 }
@@ -48,8 +44,6 @@
     
     _expression = NO;
     _printNilExpression = NO;
-    _path = nil;
-    _lang = @"cljs";
     
     NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
     NSData *inputData = [input readDataToEndOfFile];

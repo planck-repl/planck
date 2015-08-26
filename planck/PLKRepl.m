@@ -240,8 +240,6 @@ void highlightCancel() {
             if (![self isWhitespace:input]) {  // Guard against empty string being read
                 
                 exitValue = [clojureScriptEngine executeSource:input
-                                                          lang:@"cljs"
-                                                          path:nil
                                                     expression:YES
                                             printNilExpression:YES
                                                  inExitContext:NO];
