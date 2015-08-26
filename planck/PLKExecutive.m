@@ -132,8 +132,6 @@
 -(int)executeScript:(PLKScript *)script
 {
     return [self.clojureScriptEngine executeSource:script.source
-                                              lang:script.lang
-                                              path:script.path
                                         expression:script.expression
                                 printNilExpression:script.printNilExpression
                                      inExitContext:YES];
