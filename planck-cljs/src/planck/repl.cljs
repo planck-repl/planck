@@ -457,7 +457,6 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
   (let [cache (or cache (get-in @st [::ana/namespaces name]))] ;; Workaround CLJS-1433
     (when (and path source cache)
       (js/PLANCK_CACHE path source (cljs->transit-json cache)))
-    (prn 'caching-js-eval source)
     (js/eval source)))
 
 (defn extension->lang [extension]
@@ -497,7 +496,6 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 (def closure-index-mem (memoize closure-index))
 
 (defn load [{:keys [name macros path] :as full} cb]
-  (prn full)
   (if (re-matches #"^goog/.*" path)
     (if-let [goog-path (get (closure-index-mem) name)]
       (when-not (load-and-callback! goog-path ".js" cb)
@@ -619,7 +617,6 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
             cljs/*eval-fn* caching-js-eval]
     (if (= "js" lang)
       (try
-        (println "path" path)
         ;; Inspect the analysis cache to see what the JS required.
         ;; (Note: There won't be an analysis cache if the script didn't specify a namespace)
         (if-let [cache (transit-json->cljs
