@@ -170,7 +170,7 @@ nil
 nil
 :reloaded
 Test require-macros unknown ns
-No such namespace: unknown-ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown-ns.core"
+No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
 nil
 Test require-macros REPL special
 nil
