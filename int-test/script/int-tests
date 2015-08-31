@@ -97,3 +97,15 @@ Usage:  planck [init-opt*] [main-opt] [args]
 (ensure-output "http"
   ['(import '[goog Uri])
    '(.-scheme_ (Uri. "http://foo.bar"))])
+
+;; Ensure require merges using alias
+(ensure-output "0123456789"
+  ['(require '[clojure.string :as str :refer [join]])
+   '(require 'clojure.set)
+   '(str/join (range 10))])
+
+;; Ensure require merges using refer
+(ensure-output "0123456789"
+  ['(require '[clojure.string :as str :refer [join]])
+   '(require 'clojure.set)
+   '(join (range 10))])

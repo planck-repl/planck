@@ -307,16 +307,18 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
       (cljs/eval
         st
         (let [ns-form (if (= kind :import)
-                        `(~'ns ~target-ns
-                           (~kind
-                             ~@(map (fn [quoted-spec-or-kw]
-                                      (if (keyword? quoted-spec-or-kw)
-                                        quoted-spec-or-kw
-                                        (second quoted-spec-or-kw)))
-                                 specs)))
-                        `(~'ns ~target-ns
-                           (~kind
-                             ~@(-> specs canonicalize-specs process-reloads!))))]
+                        (with-meta `(~'ns ~target-ns
+                                      (~kind
+                                        ~@(map (fn [quoted-spec-or-kw]
+                                                 (if (keyword? quoted-spec-or-kw)
+                                                   quoted-spec-or-kw
+                                                   (second quoted-spec-or-kw)))
+                                            specs)))
+                          {:merge true :line 1 :column 1})
+                        (with-meta `(~'ns ~target-ns
+                                      (~kind
+                                        ~@(-> specs canonicalize-specs process-reloads!)))
+                          {:merge true :line 1 :column 1}))]
           (when (:verbose @app-env)
             (println-verbose "Implementing"
               (name kind)
