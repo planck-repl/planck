@@ -29,10 +29,12 @@ BUILD_DIR=build
 CONFIGURATION=Release
 
 echo "### Building Binary"
-if [ "$SANDBOX" = true ] ; then
-    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR -derivedDataPath $BUILD_DIR/DerivedData
-else
+OS_VERSION="`sw_vers -productVersion`"
+OS_LION_RE='^10\.7\..*'
+if [[ $OS_VERSION =~ $OS_LION_RE ]] ; then
     xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR
+else
+    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR -derivedDataPath $BUILD_DIR/DerivedData
 fi
 checkCmdSuccess
 
