@@ -8,6 +8,7 @@
       mainNsName:(NSString*)mainNsName
             repl:(BOOL)repl
          outPath:(NSString*)outPath
+       cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
             args:(NSArray*)args;
 

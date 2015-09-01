@@ -18,6 +18,7 @@
       mainNsName:(NSString*)mainNsName
             repl:(BOOL)repl
          outPath:(NSString*)outPath
+       cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
             args:(NSArray*)args; {
     
@@ -28,7 +29,7 @@
         // the first arg will be treated as a path to a file to be executed and should not be bound
         boundArgs = [args subarrayWithRange:NSMakeRange(1, args.count - 1)];
     }
-    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath verbose:verbose boundArgs:boundArgs];
+    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs];
     
     // Process init arguments
     
@@ -50,16 +51,7 @@
         if ([path isEqualToString:@"-"]) {
             script = [[PLKScript alloc] initWithStdIn];
         } else {
-            path = [self fullyQualify:path];
-            
-            // Use pre-compiled cache file if newer
-            NSString* cacheFile = [PLKClojureScriptEngine cacheFileForPath:path];
-            NSFileManager* fileManager = [NSFileManager defaultManager];
-            if ([fileManager fileExistsAtPath:cacheFile] && fileIsNewer(cacheFile, path)) {
-                path = cacheFile;
-            }
-            
-            script = [[PLKScript alloc] initWithPath:path];
+            script = [[PLKScript alloc] initWithPath:[self fullyQualify:path]];
         }
         exitValue = [self executeScript:script];
     } else if (repl) {
@@ -71,7 +63,7 @@
     return exitValue;
 }
 
--(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
+-(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     NSMutableArray* adjustedSrcPaths = [[NSMutableArray alloc] init];
     for (NSArray* srcPath in srcPaths) {
@@ -106,7 +98,7 @@
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     
     self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
-    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath verbose:verbose boundArgs:boundArgs];
+    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs];
 }
 
 -(NSString*)ensureTrailingSlash:(NSString*)s
@@ -131,10 +123,11 @@
 
 -(int)executeScript:(PLKScript *)script
 {
-    return [self.clojureScriptEngine executeSource:script.source
-                                        expression:script.expression
-                                printNilExpression:script.printNilExpression
-                                     inExitContext:YES];
+    return [self.clojureScriptEngine executeSourceType:script.sourceType
+                                                 value:script.sourceValue
+                                            expression:script.expression
+                                    printNilExpression:NO
+                                         inExitContext:YES];
 }
 
 @end

@@ -1,6 +1,7 @@
 (ns planck.repl
   (:require-macros [cljs.env.macros :refer [with-compiler-env]])
   (:require [clojure.string :as s]
+            [goog.string :as gstring]
             [cljs.analyzer :as ana]
             [cljs.tools.reader :as r]
             [cljs.tools.reader.reader-types :as rt]
@@ -43,8 +44,8 @@
 
 (defonce app-env (atom nil))
 
-(defn ^:export init-app-env [verbose]
-  (reset! planck.repl/app-env {:verbose verbose}))
+(defn ^:export init-app-env [verbose cache-path]
+  (reset! planck.repl/app-env {:verbose verbose :cache-path cache-path}))
 
 (defn repl-read-string [line]
   (r/read-string {:read-cond :allow :features #{:cljs}} line))
@@ -337,27 +338,6 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
     (catch :default e
       (handle-error e true false))))
 
-(defn- process-load-file
-  "Given a filename, sequentially read and evaluate
-   the set of forms contained in the file"
-  [filename]
-  (try
-    (let [file-contents (or (js/PLANCK_READ_FILE filename)
-                          (throw (js/Error. (str "Could not load file " filename))))]
-      (cljs/eval-str
-        st
-        file-contents
-        filename
-        {:ns      @current-ns
-         :verbose (:verbose @app-env)}
-        (fn [{e :error}]
-          (when e
-            (handle-error e false false)))))
-    (catch js/Error e
-      (handle-error e false false))
-    (catch :default e
-      (handle-error e true false))))
-
 (defn resolve
   "Given an analysis environment resolve a var. Analogous to
    clojure.core/resolve"
@@ -453,30 +433,43 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
               [-1 -1])]
         (clj->js highlight-coords)))))
 
+(defn- cache-prefix-for-path [path]
+  (str (:cache-path @app-env) "/" (munge path)))
+
 (defn caching-js-eval
   [{:keys [path name source cache]}]
-  (let [cache (or cache (get-in @st [::ana/namespaces name]))] ;; Workaround CLJS-1433
-    (when (and path source cache)
-      (js/PLANCK_CACHE path source (cljs->transit-json cache)))
-    (js/eval source)))
+  (when (and path source cache (:cache-path @app-env))
+    (js/PLANCK_CACHE (cache-prefix-for-path path) source (cljs->transit-json cache)))
+  (js/eval source))
 
 (defn extension->lang [extension]
   (if (= ".js" extension)
     :js
     :clj))
 
-(defn load-and-callback! [path extension cb]
-  (let [full-path (str path extension)]
-    (when-let [source (js/PLANCK_LOAD full-path)]
+(defn add-suffix [file suffix]
+  (let [candidate (s/replace file #".cljs$" suffix)]
+    (if (gstring/endsWith candidate suffix)
+      candidate
+      (str file suffix))))
+
+(defn load-and-callback! [path lang cache-prefix cb]
+  (let [[raw-load source] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
+        [raw-load source] (if source
+                            [raw-load source]
+                            [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path)])]
+    (when source
       (cb (merge
-            {:lang   (extension->lang extension)
+            {:lang   lang
              :source source}
-            (when-not (= ".js" extension)
-              (let [precompiled-js (js/PLANCK_LOAD (str path ".js"))
-                    cache-json (js/PLANCK_LOAD (str full-path ".cache.json"))]
+            (when-not (= :js lang)
+              (let [precompiled-js (or (raw-load (add-suffix path ".js"))
+                                     (js/PLANCK_READ_FILE (str cache-prefix ".js")))
+                    cache-json (or (raw-load (str path ".cache.json"))
+                                 (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
                 (when (and precompiled-js cache-json)
                   (when (:verbose @app-env)
-                    (println-verbose "Loading precompiled JS and analysis cache for" full-path))
+                    (println-verbose "Loading precompiled JS and analysis cache for" path))
                   {:lang   :js
                    :source precompiled-js
                    :cache  (transit-json->cljs cache-json)})))))
@@ -496,19 +489,27 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 
 (def closure-index-mem (memoize closure-index))
 
-(defn load [{:keys [name macros path] :as full} cb]
-  (if (re-matches #"^goog/.*" path)
-    (if-let [goog-path (get (closure-index-mem) name)]
-      (when-not (load-and-callback! goog-path ".js" cb)
-        (cb nil))
+; file here is an alternate parameter denoting a filesystem path
+(defn load [{:keys [name macros path file] :as full} cb]
+  (if file
+    (when-not (load-and-callback! file :clj nil cb)
       (cb nil))
-    (loop [extensions (if macros
-                        [".clj" ".cljc"]
-                        [".cljs" ".cljc" ".js"])]
-      (if extensions
-        (when-not (load-and-callback! path (first extensions) cb)
-          (recur (next extensions)))
-        (cb nil)))))
+    (if (re-matches #"^goog/.*" path)
+      (if-let [goog-path (get (closure-index-mem) name)]
+        (when-not (load-and-callback! (str goog-path ".js") :js nil cb)
+          (cb nil))
+        (cb nil))
+      (loop [extensions (if macros
+                          [".clj" ".cljc"]
+                          [".cljs" ".cljc" ".js"])]
+        (if extensions
+          (when-not (load-and-callback!
+                      (str path (first extensions))
+                      (extension->lang (first extensions))
+                      (cache-prefix-for-path path)
+                      cb)
+            (recur (next extensions)))
+          (cb nil))))))
 
 (defn- handle-error [e include-stacktrace? in-exit-context?]
   (let [cause (or (.-cause e) e)
@@ -602,72 +603,88 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
-(defn ^:export execute
-  "Execute source
-
-  set in-exit-context? to true if exit handling should be performed"
-  [source expression? print-nil-expression? in-exit-context?]
+(defn execute-source
+  [[source-type source-value] {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace?] :as opts}]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
             cljs/*eval-fn* caching-js-eval]
-    (let [expression-form (and expression? (repl-read-string source))]
-      (if (repl-special? expression-form)
-        (let [env (assoc (ana/empty-env) :context :expr
-                                         :ns {:name @current-ns})
-              argument (second expression-form)]
-          (case (first expression-form)
-            in-ns (process-in-ns argument)
-            require (process-require :require identity (rest expression-form))
-            require-macros (process-require :require-macros identity (rest expression-form))
-            import (process-require :import identity (rest expression-form))
-            doc (cond
-                  (special-doc-map argument) (repl/print-doc (special-doc argument))
-                  (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
-                  :else (repl/print-doc (get-var env argument)))
-            source (println (fetch-source (get-var env argument)))
-            pst (let [expr (or argument '*e)]
-                  (try (cljs/eval st
-                         expr
-                         {:ns      @current-ns
-                          :context :expr}
-                         print-error)
-                       (catch js/Error e (prn :caught e))))
-            load-file (let [filename argument]
-                        (process-load-file filename)))
-          (when print-nil-expression?
-            (prn nil)))
-        (try
-          (cljs/eval-str
-            st
-            source
-            (if expression? "Expression" "File")
-            (merge
-              {:ns           @current-ns
-               :source-map   false
-               :verbose      (:verbose @app-env)
-               :cache-source (fn [x cb]
-                               (when (and path (:source x))
-                                 (js/PLANCK_CACHE path (:source x) nil))
-                               (cb {:value nil}))}
-              (when expression?
-                {:context       :expr
-                 :def-emits-var true}))
-            (fn [{:keys [ns value error] :as ret}]
-              (if expression?
-                (when-not error
-                  (when (or print-nil-expression?
-                          (not (nil? value)))
-                    (prn value))
-                  (when-not
-                    (or ('#{*1 *2 *3 *e} expression-form)
-                      (ns-form? expression-form))
-                    (set! *3 *2)
-                    (set! *2 *1)
-                    (set! *1 value))
-                  (reset! current-ns ns)
-                  nil))
-              (when error
-                (handle-error error true in-exit-context?))))
-          (catch :default e
-            (handle-error e true in-exit-context?)))))))
+    (if-not (= "text" source-type)
+      (load {:file source-value}
+        (fn [{:keys [lang source cache]}]
+          (if source
+            (case lang
+              :clj (execute-source ["text" source] opts)
+              :js (js/eval source))
+            (handle-error (js/Error. (str "Could not load file " source-value)) false in-exit-context?))))
+      (let [source-text source-value
+            expression-form (and expression? (repl-read-string source-text))]
+        (if (repl-special? expression-form)
+          (let [env (assoc (ana/empty-env) :context :expr
+                                           :ns {:name @current-ns})
+                argument (second expression-form)]
+            (case (first expression-form)
+              in-ns (process-in-ns argument)
+              require (process-require :require identity (rest expression-form))
+              require-macros (process-require :require-macros identity (rest expression-form))
+              import (process-require :import identity (rest expression-form))
+              doc (cond
+                    (special-doc-map argument) (repl/print-doc (special-doc argument))
+                    (repl-special-doc-map argument) (repl/print-doc (repl-special-doc argument))
+                    :else (repl/print-doc (get-var env argument)))
+              source (println (fetch-source (get-var env argument)))
+              pst (let [expr (or argument '*e)]
+                    (try (cljs/eval st
+                           expr
+                           {:ns      @current-ns
+                            :context :expr}
+                           print-error)
+                         (catch js/Error e (prn :caught e))))
+              load-file (let [filename argument]
+                          (try
+                            (execute-source ["path" filename] opts)
+                            (catch :default e
+                              (handle-error e false in-exit-context?)))))
+            (when print-nil-expression?
+              (prn nil)))
+          (try
+            (cljs/eval-str
+              st
+              source-text
+              (if expression? "Expression" "File")
+              (merge
+                {:ns           @current-ns
+                 :source-map   false
+                 :verbose      (:verbose @app-env)
+                 :cache-source (fn [x cb]
+                                 #_(when (and path (:source x))
+                                     (js/PLANCK_CACHE path (:source x) nil))
+                                 (cb {:value nil}))}
+                (when expression?
+                  {:context       :expr
+                   :def-emits-var true}))
+              (fn [{:keys [ns value error] :as ret}]
+                (if expression?
+                  (when-not error
+                    (when (or print-nil-expression?
+                            (not (nil? value)))
+                      (prn value))
+                    (when-not
+                      (or ('#{*1 *2 *3 *e} expression-form)
+                        (ns-form? expression-form))
+                      (set! *3 *2)
+                      (set! *2 *1)
+                      (set! *1 value))
+                    (reset! current-ns ns)
+                    nil))
+                (when error
+                  (handle-error error include-stacktrace? in-exit-context?))))
+            (catch :default e
+              (handle-error e include-stacktrace? in-exit-context?))))))))
+
+(defn ^:export execute
+  [source expression? print-nil-expression? in-exit-context?]
+  (execute-source source {:expression?           expression?
+                          :print-nil-expression? print-nil-expression?
+                          :in-exit-context?      in-exit-context?
+                          :include-stacktrace?   true}))

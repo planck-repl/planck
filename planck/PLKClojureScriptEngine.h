@@ -7,14 +7,13 @@
 
 @interface PLKClojureScriptEngine : NSObject
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs;
--(int)executeSource:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext;
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs;
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext;
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args;
 -(BOOL)isReadable:(NSString*)expression;
 -(NSString*)getCurrentNs;
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer;
 -(NSArray*)getHighlightCoordsForPos:(int)pos buffer:(NSString*)buffer previousLines:(NSArray*)previousLines;
-+(NSString*)cacheFileForPath:(NSString*)path;
 -(void)awaitShutdown;
 
 @end
