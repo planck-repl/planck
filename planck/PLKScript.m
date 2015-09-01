@@ -2,7 +2,7 @@
 
 @implementation PLKScript
 
-- (instancetype)initWithPath:(NSString *)path
+- (instancetype)initWithPath:(NSString *)sourcePath
 {
     self = [super init];
     if (self == nil) {
@@ -10,18 +10,13 @@
     }
     
     _expression = NO;
-    _printNilExpression = NO;
-    _source = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    
-    if (_source == nil) {
-        NSLog(@"Could not read file at %@", path);
-        exit(1);
-    }
+    _sourceType = @"path";
+    _sourceValue = sourcePath;
     
     return self;
 }
 
-- (instancetype)initWithExpression:(NSString *)source printIfNil:(BOOL)printIfNil
+- (instancetype)initWithExpression:(NSString *)sourceText
 {
     self = [super init];
     if (self == nil) {
@@ -29,8 +24,8 @@
     }
     
     _expression = YES;
-    _printNilExpression = printIfNil;
-    _source = [source copy];
+    _sourceType = @"text";
+    _sourceValue = sourceText;
     
     return self;
 }
@@ -43,13 +38,13 @@
     }
     
     _expression = NO;
-    _printNilExpression = NO;
+    _sourceType = @"text";
     
     NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
     NSData *inputData = [input readDataToEndOfFile];
     if (inputData.length) {
         NSString *inputString = [[NSString alloc] initWithData: inputData encoding:NSUTF8StringEncoding];
-        _source = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
+        _sourceValue = [inputString stringByTrimmingCharactersInSet: [NSCharacterSet newlineCharacterSet]];
     }
     
     return self;

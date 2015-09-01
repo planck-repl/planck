@@ -227,6 +227,12 @@ $PLANCK -c $SRC <<REPL_INPUT
 test-load-file.core/success
 REPL_INPUT
 
+echo "Test load-file from classpath"
+$PLANCK -c $SRC <<REPL_INPUT
+(load-file "test_load_file/core.cljs")
+test-load-file.core/success
+REPL_INPUT
+
 echo "Test doc support for load-file REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (doc load-file)

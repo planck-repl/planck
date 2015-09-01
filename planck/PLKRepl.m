@@ -239,10 +239,11 @@ void highlightCancel() {
             
             if (![self isWhitespace:input]) {  // Guard against empty string being read
                 
-                exitValue = [clojureScriptEngine executeSource:input
-                                                    expression:YES
-                                            printNilExpression:YES
-                                                 inExitContext:NO];
+                exitValue = [clojureScriptEngine executeSourceType:@"text"
+                                                             value:input
+                                                        expression:YES
+                                                printNilExpression:YES
+                                                     inExitContext:NO];
                 if (exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
                     break;
                 }

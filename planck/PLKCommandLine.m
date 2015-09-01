@@ -25,7 +25,7 @@
             return YES;
         }
         
-        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, s, or c then this opt
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, s, c, or k then this opt
         // takes an argument.
         int idx = 0;
         char c = 0;
@@ -35,7 +35,7 @@
             idx++;
         }
         
-        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='c');
+        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='c' || last_c =='k');
     };
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
@@ -72,6 +72,7 @@
     // Undocumented options, used for development.
     // The defaults set here are for release use.
     NSString* outPath = nil;
+    NSString* cachePath = nil;
     
     int option = -1;
     static struct option longopts[] =
@@ -90,11 +91,12 @@
         
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
+        {"cache", optional_argument, NULL, 'k'},
 
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?li:e:s:c:vdm:ro:b";
+    const char *shortopts = "h?li:e:s:c:vdm:ro:bk:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -123,8 +125,7 @@
             }
             case 'e':
             {
-                [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]
-                                                              printIfNil:NO]];
+                [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
                 break;
             }
             case 's':
@@ -172,6 +173,11 @@
             case 'o':
             {
                 outPath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                break;
+            }
+            case 'k':
+            {
+                cachePath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
         }
@@ -247,6 +253,7 @@
                                                 mainNsName:mainNsName
                                                       repl:repl
                                                    outPath:outPath
+                                                 cachePath:cachePath
                                               dumbTerminal:dumbTerminal
                                                       args:args];
         }

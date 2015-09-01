@@ -159,7 +159,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                    inContext:self.contextManager.context];    
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -322,7 +322,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  (JSValueGetType (ctx, argv[2]) == kJSTypeString
                   || JSValueGetType (ctx, argv[2]) == kJSTypeNull)) {
                      
-                     NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                     NSString* cachePrefix = NSStringFromJSValueRef(ctx, argv[0]);
                      NSString* source = NSStringFromJSValueRef(ctx, argv[1]);
                      NSString* cache = NSStringFromJSValueRef(ctx, argv[2]);
                      
@@ -330,17 +330,16 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      
                      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^(){
                          
-                         /*
-                         [source writeToFile:[PLKClojureScriptEngine cacheFileForPath:path]
+                         
+                         [source writeToFile:[cachePrefix stringByAppendingString:@".js"]
                                   atomically:YES
                                     encoding:NSUTF8StringEncoding
                                        error:nil];
-                         [cache writeToFile:[PLKClojureScriptEngine cacheFileForPath:
-                                             [path stringByAppendingString:@".cache.json"]]
+                         [cache writeToFile:[cachePrefix stringByAppendingString:@".cache.json"]
                                  atomically:YES
                                    encoding:NSUTF8StringEncoding
                                       error:nil];
-                         */
+                         
                          [self signalCacheTaskComplete];
                          
                  });
@@ -360,10 +359,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         }
         
         {
-            JSValueRef  arguments[1];
+            JSValueRef  arguments[2];
             JSValueRef result;
-            int num_arguments = 1;
+            int num_arguments = 2;
             arguments[0] = JSValueMakeBoolean(self.context, verbose);
+            arguments[1] = JSValueMakeStringFromNSString(self.context, cachePath);
             result = JSObjectCallAsFunction(self.context, [self getFunction:@"init-app-env"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
@@ -1075,7 +1075,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSource:(NSString*)source expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
 {
     [self blockUntilEngineReady];
     if (!inExitContext) {
@@ -1088,7 +1088,14 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     JSValueRef  arguments[4];
     JSValueRef result;
     int num_arguments = 4;
-    arguments[0] = JSValueMakeStringFromNSString(self.context, source);
+    
+    {
+        JSValueRef  sourceArguments[2];
+        sourceArguments[0] = JSValueMakeStringFromNSString(self.context, sourceType);
+        sourceArguments[1] = JSValueMakeStringFromNSString(self.context, sourceValue);
+        arguments[0] = JSObjectMakeArray(self.context, 2, sourceArguments, NULL);
+    }
+    
     arguments[1] = JSValueMakeBoolean(self.context, expression);
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
@@ -1173,23 +1180,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     
     return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
       @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
-}
-
-#if JSC_OBJC_API_ENABLED
-+(id)valueOfType:(Class)type fromJSValue:(JSValue*)value
-{
-    if (value.isUndefined)return nil;
-    if (value.isNull)return nil;
-    return [value toObjectOfClass:type];
-}
-#endif
-
-
-+(NSString*)cacheFileForPath:(NSString*)path
-{
-    return [NSString stringWithFormat:@"/tmp/PLANCK_CACHE_%@",
-            [[path stringByReplacingOccurrencesOfString:@"/" withString:@"_"]
-             stringByAppendingString:@".js"]];
 }
 
 @end
