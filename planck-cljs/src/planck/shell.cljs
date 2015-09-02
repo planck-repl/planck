@@ -6,8 +6,8 @@
 (defn- parse-args
   [args]
   (let [default-encoding nil
-         default-opts {:out-enc default-encoding :in-enc default-encoding :dir *sh-dir* :env *sh-env*}
-         [cmd opts] (split-with string? args)]
+        default-opts {:out-enc default-encoding :in-enc default-encoding :dir *sh-dir* :env *sh-env*}
+        [cmd opts] (split-with string? args)]
     [cmd (merge default-opts (apply hash-map opts))]))
 
 (defn sh
@@ -34,8 +34,8 @@
     :err  => sub-process's stderr (String via platform default encoding)"
   [& args]
   (let [[cmd opts] (parse-args args)
-         {:keys [in in-enc out-enc env dir]} opts]
+        {:keys [in in-enc out-enc env dir]} opts]
     (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
       {:exit exit
-       :out out
-       :err err})))
+       :out  out
+       :err  err})))

@@ -60,7 +60,7 @@
     (raw-close)))
 
 (defonce
-  ^{:doc "A planck.io/IReader representing standard input for read operations."
+  ^{:doc     "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
   (Reader. js/PLANCK_RAW_READ_STDIN nil))
@@ -68,13 +68,13 @@
 (set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
 
 (defonce
-  ^{:doc "A cljs.core/IWriter representing standard error for print operations."
+  ^{:doc     "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
   (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
 
 (defonce
-  ^{:doc "A sequence of the supplied command line arguments, or nil if none were supplied"
+  ^{:doc     "A sequence of the supplied command line arguments, or nil if none were supplied"
     :dynamic true}
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
