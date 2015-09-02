@@ -19,12 +19,12 @@
         if (opt[0] != '-') {
             return NO;
         }
-        
+
         // safely ignore any long opt
         if (opt[1] == '-') {
             return YES;
         }
-        
+
         // opt is a short opt or clump of short opts. If the clump ends with i, e, m, s, or c then this opt
         // takes an argument.
         int idx = 0;
@@ -34,7 +34,7 @@
             last_c = c;
             idx++;
         }
-        
+
         return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='c');
     };
 
@@ -44,7 +44,7 @@
     // will begin at optind + 1.
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
-        
+
         if (strcmp("-", arg) == 0) {
             // A bare dash means "run a script from standard input." Bind everything after the dash to *command-line-args*.
             indexOfScriptPathOrHyphen = i;
@@ -58,7 +58,7 @@
             }
         }
     }
-    
+
     // Documented options
     BOOL help = NO;
     BOOL legal = NO;
@@ -68,11 +68,11 @@
     BOOL repl = NO;
     BOOL verbose = NO;
     BOOL dumbTerminal = NO;
-    
+
     // Undocumented options, used for development.
     // The defaults set here are for release use.
     NSString* outPath = nil;
-    
+
     int option = -1;
     static struct option longopts[] =
     {
@@ -87,14 +87,14 @@
         {"dumb-terminal", optional_argument, NULL, 'd'},
         {"main", optional_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
-        
+
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
 
         {0, 0, 0, 0}
     };
-    
-    const char *shortopts = "h?li:e:s:c:vdm:ro:b";
+
+    const char *shortopts = "h?li:e:s:c:vdm:ro:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -140,7 +140,7 @@
                     if ([element hasSuffix:@".jar"] || [element hasSuffix:@"*"]) {
                         [srcPaths addObject:@[@"jar", element]];
                     } else if ([element hasSuffix:@"*"]) {
-                        
+
                     } else {
                         [srcPaths addObject:@[@"src", element]];
                     }
@@ -181,26 +181,26 @@
     // main opt. In that case, the hyphen or script path was not meant to be the main opt, but
     // rather a part of *command-line-args*.
     optind = MIN(optind, indexOfScriptPathOrHyphen);
-    
+
     argc -= optind;
     argv += optind;
-    
+
     while (argc-- > 0) {
         [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
     }
-    
+
     // Argument validation
-    
+
     if (scripts.count == 0 && !mainNsName && args.count==0) {
         repl = YES;
     }
-    
+
     // Process arguments
-    
+
     if (![srcPaths count]) {
         [srcPaths addObject:@[@"src", @"."]];
     }
-        
+
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {
@@ -251,7 +251,7 @@
                                                       args:args];
         }
     }
-    
+
     return exitValue;
 }
 
