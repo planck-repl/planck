@@ -96,7 +96,7 @@
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?li:e:s:c:vdm:ro:bk:";
+    const char *shortopts = "h?li:e:s:c:vdm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
