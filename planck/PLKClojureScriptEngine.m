@@ -156,7 +156,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
      }
                                         name:@"setTimeoutFn"
                                      argList:@"ms"
-                                   inContext:self.contextManager.context];    
+                                   inContext:self.contextManager.context];
 }
 
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
@@ -184,9 +184,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     }
     
     // ... and prepare for the "bundled" out location
-
+    
     self.bundledOut = [[PLKBundledOut alloc] init];
-
+    
     self.descriptorToObject = [[NSMutableDictionary alloc] init];
     
     // Now, start initializing JavaScriptCore in a background thread and return
@@ -201,7 +201,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [self.contextManager setupGlobalContext];
         [self.contextManager setUpConsoleLog];
         [self setUpTimerFunctionality];
-                       
+        
         if (!useSimpleOutput) {
             if (outPath) {
                 [self.contextManager setUpAmblyImportScript];
@@ -312,7 +312,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_LOAD"
                                          argList:@"path"
                                        inContext:self.context];
-       
+        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -342,8 +342,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                          
                          [self signalCacheTaskComplete];
                          
-                 });
-             }
+                     });
+                 }
              
              return  JSValueMakeNull(ctx);
          }
@@ -384,7 +384,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_READ_FILE"
                                          argList:@"file"
                                        inContext:self.context];
-                
+        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -426,7 +426,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"args, arg_in, encoding_in, encoding_out, env, dir"
                                        inContext:self.context];
         
-
+        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -469,7 +469,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
                  NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
-                
+                 
                  NSArray *dirFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:nil];
                  
                  JSValueRef  arguments[dirFiles.count];
@@ -588,7 +588,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@""
                                        inContext:self.context];
         
-
+        
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -596,7 +596,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
                  
                  NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
-
+                 
                  fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
                  fflush(stdout);
              }
@@ -615,7 +615,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
                  
                  fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
-
+                 
              }
              
              return JSValueMakeNull(ctx);
@@ -656,12 +656,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-            return JSValueMakeNumber(ctx, weakSelf.exitValue);
-        }
+             return JSValueMakeNumber(ctx, weakSelf.exitValue);
+         }
                                             name:@"PLANCK_GET_EXIT_VALUE"
-                                            argList:@""
-                                            inContext:self.context];
-
+                                         argList:@""
+                                       inContext:self.context];
+        
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -679,7 +679,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_READER_OPEN"
                                          argList:@"path, encoding"
                                        inContext:self.context];
-
+        
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -776,7 +776,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_WRITER_CLOSE"
                                          argList:@"descriptor"
                                        inContext:self.context];
-
+        
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -881,7 +881,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                              NSLog(@"Output stream value out of range %f", n);
                          }
                      } else {
-                          NSLog(@"Output stream value not a number");
+                         NSLog(@"Output stream value not a number");
                      }
                  }
                  
@@ -956,8 +956,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     }
     
     return [ABYUtils getValueOnObject:JSValueToObject(context, namespaceValue, NULL)
-                   forProperty:[self munge:name]
-                     inContext:context];
+                          forProperty:[self munge:name]
+                            inContext:context];
 }
 
 -(NSString*)munge:(NSString*)s
@@ -1100,7 +1100,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-
+    
     return self.exitValue;
 }
 
@@ -1116,7 +1116,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     for (int i=1; i<num_arguments; i++) {
         arguments[i] = JSValueMakeStringFromNSString(self.context, args[i-1]);
     }
-
+    
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"run-main"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return self.exitValue;
@@ -1179,7 +1179,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"get-highlight-coords"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
-      @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
+             @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
 }
 
 @end

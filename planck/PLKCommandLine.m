@@ -11,10 +11,10 @@
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
-
+    
     int indexOfScriptPathOrHyphen = argc;
     NSMutableArray* args = [[NSMutableArray alloc] init];
-
+    
     BOOL (^shouldIgnoreArg)(char*) = ^(char* opt) {
         if (opt[0] != '-') {
             return NO;
@@ -37,7 +37,7 @@
         
         return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='c' || last_c =='k');
     };
-
+    
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
     // by getopt_long(). If one of those two things is found, everything afterward is an earmuff arg.
     // If neither is found, then the first mainopt will be found with getopt_long, and earmuff args
@@ -92,7 +92,7 @@
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
         {"cache", optional_argument, NULL, 'k'},
-
+        
         {0, 0, 0, 0}
     };
     
@@ -182,7 +182,7 @@
             }
         }
     }
-
+    
     // By this line, if optind is less than indexOfScriptPathOrHyphen, then there was an explicit
     // main opt. In that case, the hyphen or script path was not meant to be the main opt, but
     // rather a part of *command-line-args*.
@@ -206,7 +206,7 @@
     if (![srcPaths count]) {
         [srcPaths addObject:@[@"src", @"."]];
     }
-        
+    
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {

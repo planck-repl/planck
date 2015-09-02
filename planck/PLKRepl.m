@@ -152,7 +152,7 @@ void highlightCancel() {
     NSString* historyFile = nil;
     
     if (!dumbTerminal) {
-    
+        
         char* homedir = getenv("HOME");
         if (homedir) {
             historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
@@ -175,7 +175,7 @@ void highlightCancel() {
         // Get the current line of input
         
         NSString* inputLine;
-
+        
         if (dumbTerminal) {
             [self displayPrompt:currentPrompt];
             inputLine = [self getInput];
@@ -197,7 +197,7 @@ void highlightCancel() {
                     break;
                 }
             }
-
+            
             inputLine = line ? [NSString stringWithCString:line encoding:NSUTF8StringEncoding] : nil;
             // If the input line couldn't be decoded, replace it with emtpy string
             if (inputLine == nil) {
@@ -247,9 +247,9 @@ void highlightCancel() {
                 if (exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
                     break;
                 }
-            
+                
             } else {
-
+                
                 printf("\n");
                 
             }
