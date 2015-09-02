@@ -16,6 +16,6 @@
           test-state (atom :foo)]
       (js/setTimeout (fn []
                        (reset! test-state :bar))
-                     100)
+        100)
       (while (< (now) (+ t 500)))
       (is (= :bar @test-state)))))

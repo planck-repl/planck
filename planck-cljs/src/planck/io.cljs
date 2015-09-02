@@ -5,14 +5,14 @@
 (defrecord File [path])
 
 #_(defn build-uri
-  "Builds a URI"
-  [scheme server-name server-port uri query-string]
-  (doto (Uri.)
-    (.setScheme (name (or scheme "http")))
-    (.setDomain server-name)
-    (.setPort server-port)
-    (.setPath uri)
-    (.setQuery query-string true)))
+    "Builds a URI"
+    [scheme server-name server-port uri query-string]
+    (doto (Uri.)
+      (.setScheme (name (or scheme "http")))
+      (.setDomain server-name)
+      (.setPort server-port)
+      (.setPath uri)
+      (.setQuery query-string true)))
 
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
@@ -35,9 +35,9 @@
   #_js/goog.Uri
   #_(as-url [u] u)
   #_(as-file [u]
-    (if (= "file" (.getScheme u))
-      (as-file (.getPath u))
-      (throw (js/Error. (str "Not a file: " u))))))
+      (if (= "file" (.getScheme u))
+        (as-file (.getPath u))
+        (throw (js/Error. (str "Not a file: " u))))))
 
 (defprotocol IOFactory
   "Factory functions that create ready-to-use versions of
@@ -115,10 +115,10 @@
   "Returns a File, passing each arg to as-file.  Multiple-arg
    versions treat the first argument as parent and subsequent args as
    children relative to the parent."
-  ([arg]                      
-    (File. arg))
+  ([arg]
+   (File. arg))
   ([parent & more]
-     (File. (apply str parent more))))
+   (File. (apply str parent more))))
 
 (defn delete-file
   "Delete file f."
