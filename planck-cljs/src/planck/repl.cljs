@@ -71,6 +71,12 @@
 (defn ns-form? [form]
   (and (seq? form) (= 'ns (first form))))
 
+(defn extract-namespace
+  [source]
+  (let [first-form (repl-read-string source)]
+    (when (ns-form? first-form)
+      (second first-form))))
+
 (def special-doc-map
   '{.     {:forms [(.instanceMethod instance args*)
                    (.-instanceField instance)]
@@ -436,6 +442,15 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 (defn- cache-prefix-for-path [path]
   (str (:cache-path @app-env) "/" (munge path)))
 
+(defn- extract-cache-metadata [source]
+  (let [file-namespace (extract-namespace source)
+        relpath (if file-namespace
+                  (cljs/ns->relpath file-namespace)
+                  "cljs/user")]
+    [file-namespace relpath]))
+
+(def extract-cache-metadata-mem (memoize extract-cache-metadata))
+
 (defn caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env))
@@ -463,16 +478,20 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
             {:lang   lang
              :source source}
             (when-not (= :js lang)
-              (let [precompiled-js (or (raw-load (add-suffix path ".js"))
+              (let [cache-prefix (if (= :calculate-cache-prefix cache-prefix)
+                                   (cache-prefix-for-path (second (extract-cache-metadata-mem source)))
+                                   cache-prefix)
+                    precompiled-js (or (raw-load (add-suffix path ".js"))
                                      (js/PLANCK_READ_FILE (str cache-prefix ".js")))
                     cache-json (or (raw-load (str path ".cache.json"))
                                  (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
-                (when (and precompiled-js cache-json)
+                (when precompiled-js
                   (when (:verbose @app-env)
-                    (println-verbose "Loading precompiled JS and analysis cache for" path))
-                  {:lang   :js
-                   :source precompiled-js
-                   :cache  (transit-json->cljs cache-json)})))))
+                    (println-verbose "Loading precompiled JS" (if cache-json "and analysis cache" "") "for" path))
+                  (merge {:lang   :js
+                          :source precompiled-js}
+                    (when cache-json
+                      {:cache (transit-json->cljs cache-json)})))))))
       :loaded)))
 
 (defn closure-index []
@@ -492,7 +511,7 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 ; file here is an alternate parameter denoting a filesystem path
 (defn load [{:keys [name macros path file] :as full} cb]
   (if file
-    (when-not (load-and-callback! file :clj nil cb)
+    (when-not (load-and-callback! file :clj :calculate-cache-prefix cb)
       (cb nil))
     (if (re-matches #"^goog/.*" path)
       (if-let [goog-path (get (closure-index-mem) name)]
@@ -603,6 +622,41 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
+(defn- run-async!
+  "Like cljs.core/run!, but for an async procedure, and with the
+  ability to break prior to processing the entire collection.
+
+  Chains successive calls to the supplied procedure for items in
+  the collection. The procedure should accept an item from the
+  collection and a callback of one argument. If the break? predicate,
+  when applied to the procedure callback value, yields a truthy
+  result, terminates early calling the supplied cb with the callback
+  value. Otherwise, when complete, calls cb with nil."
+  [proc coll break? cb]
+  (if (seq coll)
+    (proc (first coll)
+      (fn [res]
+        (if (break? res)
+          (cb res)
+          (run-async! proc (rest coll) break? cb))))
+    (cb nil)))
+
+(defn- process-deps
+  [names opts cb]
+  (run-async! (fn [name cb]
+                (cljs/require name opts cb))
+    names
+    :error
+    cb))
+
+(defn- process-macros-deps
+  [cache cb]
+  (process-deps (distinct (vals (:require-macros cache))) {:macros-ns true} cb))
+
+(defn- process-libs-deps
+  [cache cb]
+  (process-deps (distinct (concat (vals (:requires cache)) (vals (:imports cache)))) {} cb))
+
 (defn execute-source
   [[source-type source-value] {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace?] :as opts}]
   (binding [ana/*cljs-ns* @current-ns
@@ -615,7 +669,15 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
           (if source
             (case lang
               :clj (execute-source ["text" source] opts)
-              :js (js/eval source))
+              :js (process-macros-deps cache
+                    (fn [res]
+                      (if-let [error (:error res)]
+                        (handle-error (js/Error. error) false in-exit-context?)
+                        (process-libs-deps cache
+                          (fn [res]
+                            (if-let [error (:error res)]
+                              (handle-error (js/Error. error) false in-exit-context?)
+                              (js/eval source))))))))
             (handle-error (js/Error. (str "Could not load file " source-value)) false in-exit-context?))))
       (let [source-text source-value
             expression-form (and expression? (repl-read-string source-text))]
@@ -653,16 +715,21 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
               source-text
               (if expression? "Expression" "File")
               (merge
-                {:ns           @current-ns
-                 :source-map   false
-                 :verbose      (:verbose @app-env)
-                 :cache-source (fn [x cb]
-                                 #_(when (and path (:source x))
-                                     (js/PLANCK_CACHE path (:source x) nil))
-                                 (cb {:value nil}))}
-                (when expression?
+                {:ns         @current-ns
+                 :source-map false
+                 :verbose    (:verbose @app-env)}
+                (if expression?
                   {:context       :expr
-                   :def-emits-var true}))
+                   :def-emits-var true}
+                  (when (:cache-path @app-env)
+                    {:cache-source (fn [x cb]
+                                     (when (and (= "File" (:name x)) (:source x))
+                                       (let [source (:source x)
+                                             [file-namespace relpath] (extract-cache-metadata-mem source-text)]
+                                         (js/PLANCK_CACHE (cache-prefix-for-path relpath) source
+                                           (when file-namespace
+                                             (cljs->transit-json (get-in @st [:cljs.analyzer/namespaces file-namespace]))))))
+                                     (cb {:value nil}))})))
               (fn [{:keys [ns value error] :as ret}]
                 (if expression?
                   (when-not error
