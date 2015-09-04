@@ -508,27 +508,43 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 
 (def closure-index-mem (memoize closure-index))
 
+(defn- skip-load? [{:keys [name macros]}]
+  (cond
+    (= name 'cljs.core) true
+    (and (= name 'cljs.pprint) macros) true
+    :else false))
+
+(defn- load-file [file cb]
+  (when-not (load-and-callback! file :clj :calculate-cache-prefix cb)
+    (cb nil)))
+
+(defn- load-goog [name cb]
+  (if-let [goog-path (get (closure-index-mem) name)]
+    (when-not (load-and-callback! (str goog-path ".js") :js nil cb)
+      (cb nil))
+    (cb nil)))
+
+(defn- load-other [path macros cb]
+  (loop [extensions (if macros
+                      [".clj" ".cljc"]
+                      [".cljs" ".cljc" ".js"])]
+    (if extensions
+      (when-not (load-and-callback!
+                  (str path (first extensions))
+                  (extension->lang (first extensions))
+                  (cache-prefix-for-path path)
+                  cb)
+        (recur (next extensions)))
+      (cb nil))))
+
 ; file here is an alternate parameter denoting a filesystem path
 (defn load [{:keys [name macros path file] :as full} cb]
-  (if file
-    (when-not (load-and-callback! file :clj :calculate-cache-prefix cb)
-      (cb nil))
-    (if (re-matches #"^goog/.*" path)
-      (if-let [goog-path (get (closure-index-mem) name)]
-        (when-not (load-and-callback! (str goog-path ".js") :js nil cb)
-          (cb nil))
-        (cb nil))
-      (loop [extensions (if macros
-                          [".clj" ".cljc"]
-                          [".cljs" ".cljc" ".js"])]
-        (if extensions
-          (when-not (load-and-callback!
-                      (str path (first extensions))
-                      (extension->lang (first extensions))
-                      (cache-prefix-for-path path)
-                      cb)
-            (recur (next extensions)))
-          (cb nil))))))
+  (cond
+    (skip-load? full) (cb {:lang   :js
+                           :source ""})
+    file (load-file file cb)
+    (re-matches #"^goog/.*" path) (load-goog name cb)
+    :else (load-other path macros cb)))
 
 (defn- handle-error [e include-stacktrace? in-exit-context?]
   (let [cause (or (.-cause e) e)
