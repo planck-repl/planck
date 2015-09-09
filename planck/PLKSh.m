@@ -123,10 +123,19 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     
     // sh docs say sub-process's stdout (as byte[] or String), however we'll always return string
     NSString *outString = [[NSString alloc] initWithData:outData encoding:encoding];
-    
+    if (outString == nil) {
+        outString = [[NSString alloc] initWithData:outData encoding:NSASCIIStringEncoding];
+    }
+
     // sub-process's stderr (String via platform default encoding)
     NSString *errString = [[NSString alloc] initWithData:errData encoding:NSUTF8StringEncoding];
+    if (errString == nil) {
+        errString = [[NSString alloc] initWithData:errData encoding:NSASCIIStringEncoding];
+    }
     
+    outString = outString ? outString : @"";
+    errString = errString ? errString : @"";
+
     return @{@"exit": @(aTask.terminationStatus),
              @"out": outString,
              @"err": errString};
