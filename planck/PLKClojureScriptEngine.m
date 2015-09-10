@@ -690,7 +690,14 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  PLKFileReader* fileReader = self.descriptorToObject[descriptor];
                  
-                 return JSValueMakeStringFromNSString(ctx, [fileReader read]);
+                 NSError* readError = nil;
+                 NSString* result = [fileReader readWithError:&readError];
+
+                 JSValueRef arguments[2];
+                 arguments[0] = JSValueMakeStringFromNSString(ctx, result);
+                 arguments[1] = JSValueMakeStringFromNSString(ctx, readError.localizedDescription);
+
+                 return JSObjectMakeArray(ctx, 2, arguments, NULL);
              }
              
              return  JSValueMakeNull(ctx);
@@ -740,7 +747,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-             
+             NSError* writeError = nil;
              if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString && JSValueGetType (ctx, argv[1]) == kJSTypeString) {
                  
                  NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
@@ -748,10 +755,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  PLKFileWriter* fileWriter = self.descriptorToObject[descriptor];
                  
-                 [fileWriter write:content];
+                 [fileWriter write:content error:&writeError];
              }
              
-             return  JSValueMakeNull(ctx);
+             return JSValueMakeStringFromNSString(ctx, writeError.localizedDescription);
          }
                                             name:@"PLANCK_FILE_WRITER_WRITE"
                                          argList:@"descriptor, content"
