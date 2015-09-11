@@ -21,7 +21,7 @@
     (prn (:out shell-output))
     (exit 1)))
 
-(check-output 
+(check-output
   "planck 1.7
 Usage:  planck [init-opt*] [main-opt] [args]
 
@@ -109,3 +109,17 @@ Usage:  planck [init-opt*] [main-opt] [args]
   ['(require '[clojure.string :as str :refer [join]])
    '(require 'clojure.set)
    '(join (range 10))])
+
+;; Ensure slurp throws an error for failed read
+(sh "rm" "-f" "/tmp/no-such-animal")
+(ensure-output "SONIC BOOOOOOOOM!"
+  ['(require '[planck.core :refer [slurp]])
+   '(try (slurp "/tmp/no-such-animal") (catch js/Error e "SONIC BOOOOOOOOM!"))])
+
+;; Ensure spit throws an error for failed write
+(sh "touch" "/tmp/readonly")
+(sh "chmod" "444" "/tmp/readonly")
+(ensure-output "SONIC BOOOOOOOOM!"
+  ['(require '[planck.core :refer [spit]])
+   '(try (spit "/tmp/readonly" "foo") (catch js/Error e "SONIC BOOOOOOOOM!"))])
+(sh "rm" "-f" "/tmp/readonly")
