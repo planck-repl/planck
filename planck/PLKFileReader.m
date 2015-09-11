@@ -26,13 +26,14 @@
     return [[PLKFileReader alloc] initWithPath:path encoding:encoding];
 }
 
--(NSString*)read
+-(NSString*)readWithError:(out NSError**)error
 {
     NSMutableData *data=[[NSMutableData alloc] init];
     
     NSUInteger maxLength = 1024;
     uint8_t buf[maxLength];
     NSInteger length = [self.inputStream read:buf maxLength:maxLength];
+    *error = [self.inputStream streamError];
     if (length > 0) {
         
         [data appendBytes:(const void *)buf length:length];
