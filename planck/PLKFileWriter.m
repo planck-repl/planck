@@ -26,12 +26,13 @@
     return [[PLKFileWriter alloc] initWithPath:path append:shouldAppend encoding:encoding];
 }
 
--(void)write:(NSString *)s
+-(void)write:(NSString *)s error:(out NSError**)error
 {
     NSData* data = [s dataUsingEncoding:self.encoding];
     uint8_t buf[data.length];
     [data getBytes:buf length:data.length];
     [self.outputStream write:buf maxLength:data.length];
+    *error = [self.outputStream streamError];
 }
 
 -(void)flush
