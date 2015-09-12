@@ -146,6 +146,7 @@ foo.bar/x
 (require 'foo.bar :reload)
 foo.bar/x
 REPL_INPUT
+rm -rf /tmp/PLANCK_SRC/foo
 
 echo "Test require :reload in changing spec"
 mkdir -p /tmp/PLANCK_SRC/foo
@@ -158,6 +159,7 @@ baz/x
 (require '[foo.bar :as quux] :reload)
 quux/x
 REPL_INPUT
+rm -rf /tmp/PLANCK_SRC/foo
 
 echo "Test require :reload-all"
 mkdir -p /tmp/PLANCK_SRC/foo
@@ -170,6 +172,24 @@ foo.bar/x
 (require 'foo.bar :reload-all)
 foo.bar/x
 REPL_INPUT
+rm -rf /tmp/PLANCK_SRC/foo
+
+echo "Test require :reload with cache"
+mkdir -p /tmp/PLANCK_SRC/foo
+mkdir -p /tmp/PLANCK_CACHE
+$PLANCK -k /tmp/PLANCK_CACHE -c /tmp/PLANCK_SRC <<REPL_INPUT
+(require 'planck.io)
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
+(require 'foo.bar)
+foo.bar/x
+(require 'foo.bar :reload)
+foo.bar/x
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :reloaded)")
+(require 'foo.bar :reload)
+foo.bar/x
+REPL_INPUT
+rm -rf /tmp/PLANCK_CACHE
+rm -rf /tmp/PLANCK_SRC/foo
 
 # Note, the output of this will change with #68 / CLJS-1417
 echo "Test require-macros unknown ns"

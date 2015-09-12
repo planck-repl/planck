@@ -23,6 +23,7 @@
 @property (nonatomic, strong) NSMutableSet* loadedGoogLibs;
 @property (nonatomic) int exitValue;
 @property (nonatomic, strong) NSMutableDictionary* openArchives;
+@property (nonatomic, strong) NSMutableDictionary* openArchiveModificationDates;
 
 @property (nonatomic) int descriptorSequence;
 @property (nonatomic, strong) NSMutableDictionary* descriptorToObject;
@@ -159,6 +160,20 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                    inContext:self.contextManager.context];
 }
 
+-(NSDate*)getModificationDateForFile:(NSString*)path
+{
+    NSDate* fileModificationDate = nil;
+    
+    NSError* error = nil;
+    NSDictionary* attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
+    if (attrs && !error)
+    {
+        fileModificationDate = [attrs fileModificationDate];
+    }
+    
+    return fileModificationDate;
+}
+
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
 {
     // By default we expect :none, but this can be set if :simple
@@ -243,6 +258,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         // TODO look into this. Without it thngs won't work.
         [ABYUtils evaluateScript:@"var window = global;" inContext:self.context];
         
+        self.openArchives = [[NSMutableDictionary alloc] init];
+        self.openArchiveModificationDates = [[NSMutableDictionary alloc] init];
+        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -250,7 +268,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
                  
-                 NSString* rv = nil;
+                 NSString* source = nil;
+                 NSDate* sourceFileModified = nil;
                  
                  // First try in the srcPaths
                  
@@ -261,8 +280,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      if ([type isEqualToString:@"src"]) {
                          NSString* fullPath = [location stringByAppendingString:path];
                          
-                         rv = [NSString stringWithContentsOfFile:fullPath
-                                                        encoding:NSUTF8StringEncoding error:nil];
+                         source = [NSString stringWithContentsOfFile:fullPath
+                                                            encoding:NSUTF8StringEncoding error:nil];
+                         if (source) {
+                             sourceFileModified = [self getModificationDateForFile:fullPath];
+                         }
                      } else if ([type isEqualToString:@"jar"]) {
                          ZZArchive* archive = self.openArchives[path];
                          if (!archive) {
@@ -274,6 +296,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  self.openArchives[path] = [NSNull null];
                              } else {
                                  self.openArchives[path] = archive;
+                                 self.openArchiveModificationDates[path] = [self getModificationDateForFile:location];
                              }
                          }
                          NSData* data = nil;
@@ -285,26 +308,36 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  }
                          }
                          if (data) {
-                             rv = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                             source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                             sourceFileModified = self.openArchiveModificationDates[path];
                          }
                      }
-                     if (rv) {
+                     if (source) {
                          break;
                      }
                  }
                  
                  // Now try to load the file from the output
-                 if (!rv) {
+                 if (!source) {
                      if (outPath) {
                          NSString* fullPath = [outPath stringByAppendingString:path];
-                         rv = [NSString stringWithContentsOfFile:fullPath
-                                                        encoding:NSUTF8StringEncoding error:nil];
+                         source = [NSString stringWithContentsOfFile:fullPath
+                                                            encoding:NSUTF8StringEncoding error:nil];
+                         sourceFileModified = [self getModificationDateForFile:fullPath];
                      } else {
-                         rv = [self.bundledOut getSourceForPath:path];
+                         source = [self.bundledOut getSourceForPath:path];
+                         sourceFileModified = [NSDate dateWithTimeIntervalSince1970:0];
                      }
                  }
                  
-                 return JSValueMakeStringFromNSString(ctx, rv);
+                 if (source) {
+                     JSValueRef arguments[2];
+                     arguments[0] = JSValueMakeStringFromNSString(ctx, source);
+                     arguments[1] = JSValueMakeNumber(ctx, [sourceFileModified timeIntervalSince1970]);
+                     
+                     return JSObjectMakeArray(ctx, 2, arguments, NULL);
+                 }
+
              }
              
              return  JSValueMakeNull(ctx);
@@ -374,9 +407,16 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  NSString* file = NSStringFromJSValueRef(ctx, argv[0]);
                  
-                 return JSValueMakeStringFromNSString(ctx,
-                                                      [NSString stringWithContentsOfFile:file
-                                                                                encoding:NSUTF8StringEncoding error:nil]);
+                 NSString* contents = [NSString stringWithContentsOfFile:file
+                                                                encoding:NSUTF8StringEncoding error:nil];
+                 if (contents) {
+                     
+                     JSValueRef arguments[2];
+                     arguments[0] = JSValueMakeStringFromNSString(ctx, contents);
+                     arguments[1] = JSValueMakeNumber(ctx, [[self getModificationDateForFile:file] timeIntervalSince1970]);
+                     
+                     return JSObjectMakeArray(ctx, 2, arguments, NULL);
+                 }
              }
              
              return JSValueMakeNull(ctx);

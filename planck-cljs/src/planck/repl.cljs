@@ -41,9 +41,9 @@
 (defn ^:export load-core-analysis-cache
   []
   (cljs/load-analysis-cache! st 'cljs.core
-    (transit-json->cljs (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json")))
+    (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json"))))
   (cljs/load-analysis-cache! st 'cljs.core$macros
-    (transit-json->cljs (js/PLANCK_LOAD "cljs/core$macros.cljc.cache.json"))))
+    (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core$macros.cljc.cache.json")))))
 
 (defonce current-ns (atom 'cljs.user))
 
@@ -336,10 +336,22 @@
 
 (def extract-cache-metadata-mem (memoize extract-cache-metadata))
 
+(defn compiled-by-string
+  ([] (compiled-by-string nil))
+  ([opts]
+   (str "// Compiled by ClojureScript "
+     *clojurescript-version*
+     (when opts
+       (str " " (pr-str opts))))))
+
+(defn extract-clojurescript-compiler-version
+  [js-source]
+  (second (re-find #"// Compiled by ClojureScript (\S*)" js-source)))
+
 (defn caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env))
-    (js/PLANCK_CACHE (cache-prefix-for-path path) source (cljs->transit-json cache)))
+    (js/PLANCK_CACHE (cache-prefix-for-path path) (str (compiled-by-string) "\n" source) (cljs->transit-json cache)))
   (js/eval source))
 
 (defn extension->lang
@@ -355,35 +367,42 @@
       candidate
       (str file suffix))))
 
+(defn cached-js-valid?
+  [js-source js-modified source-file-modified]
+  (and js-source
+    (or (= 0 js-modified source-file-modified)              ;; 0 means bundled
+      (and (> js-modified source-file-modified)
+        (= *clojurescript-version* (extract-clojurescript-compiler-version js-source))))))
+
 (defn- cached-callback-data
-  [path cache-prefix source raw-load]
+  [path cache-prefix source source-modified raw-load]
   (let [cache-prefix (if (= :calculate-cache-prefix cache-prefix)
                        (cache-prefix-for-path (second (extract-cache-metadata-mem source)))
                        cache-prefix)
-        precompiled-js (or (raw-load (add-suffix path ".js"))
-                         (js/PLANCK_READ_FILE (str cache-prefix ".js")))
-        cache-json (or (raw-load (str path ".cache.json"))
-                     (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
-    (when precompiled-js
+        [js-source js-modified] (or (raw-load (add-suffix path ".js"))
+                                  (js/PLANCK_READ_FILE (str cache-prefix ".js")))
+        [cache-json _] (or (raw-load (str path ".cache.json"))
+                         (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
+    (when (cached-js-valid? js-source js-modified source-modified)
       (when (:verbose @app-env)
         (println-verbose "Loading precompiled JS" (if cache-json "and analysis cache" "") "for" path))
       (merge {:lang   :js
-              :source precompiled-js}
+              :source js-source}
         (when cache-json
           {:cache (transit-json->cljs cache-json)})))))
 
 (defn load-and-callback!
   [path lang cache-prefix cb]
-  (let [[raw-load source] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
-        [raw-load source] (if source
-                            [raw-load source]
-                            [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path)])]
+  (let [[raw-load [source modified]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
+        [raw-load [source modified]] (if source
+                                       [raw-load [source modified]]
+                                       [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path)])]
     (when source
       (cb (merge
             {:lang   lang
              :source source}
             (when-not (= :js lang)
-              (cached-callback-data path cache-prefix source raw-load))))
+              (cached-callback-data path cache-prefix source modified raw-load))))
       :loaded)))
 
 (defn closure-index
@@ -393,7 +412,7 @@
                [path (map second
                        (re-seq #"'(.*?)'" provides))])
           (re-seq #"\ngoog\.addDependency\('(.*)', \[(.*?)\].*"
-            (js/PLANCK_LOAD "goog/deps.js")))]
+            (first (js/PLANCK_LOAD "goog/deps.js"))))]
     (into {}
       (for [[path provides] paths-to-provides
             provide provides]
@@ -482,11 +501,11 @@
     (swap! st update-in [:source-maps] merge {'planck.repl
                                               (sm/decode
                                                 (cljson->clj
-                                                  (js/PLANCK_LOAD "planck/repl.js.map")))
+                                                  (first (js/PLANCK_LOAD "planck/repl.js.map"))))
                                               'cljs.core
                                               (sm/decode
                                                 (cljson->clj
-                                                  (js/PLANCK_LOAD "cljs/core.js.map")))})))
+                                                  (first (js/PLANCK_LOAD "cljs/core.js.map"))))})))
 
 (defn print-error
   ([error]
@@ -526,12 +545,12 @@
                               (s/replace (name filepath) #"\." "/")
                               #"-" "_")]
       (or
-        (js/PLANCK_LOAD (str without-extension ".clj"))
-        (js/PLANCK_LOAD (str without-extension ".cljc"))
-        (js/PLANCK_LOAD (str without-extension ".cljs"))))
-    (let [file-source (js/PLANCK_LOAD filepath)]
+        (first (js/PLANCK_LOAD (str without-extension ".clj")))
+        (first (js/PLANCK_LOAD (str without-extension ".cljc")))
+        (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
+    (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
-        (js/PLANCK_LOAD (s/replace filepath #"^out/" ""))))))
+        (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))))))
 
 (defn- fetch-source
   [var]
@@ -653,7 +672,7 @@
     (when (and (= "File" (:name x)) (:source x))
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)]
-        (js/PLANCK_CACHE (cache-prefix-for-path relpath) source
+        (js/PLANCK_CACHE (cache-prefix-for-path relpath) (str (compiled-by-string) "\n" source)
           (when file-namespace
             (cljs->transit-json (get-in @st [:cljs.analyzer/namespaces file-namespace]))))))
     (cb {:value nil})))
