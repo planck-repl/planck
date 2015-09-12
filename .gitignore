@@ -3,3 +3,5 @@ xcuserdata
 build
 .planck_history
 planck-cljs/sandbox-m2
+int-test/cache/*.js
+int-test/cache/*.json

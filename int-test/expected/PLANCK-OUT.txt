@@ -169,6 +169,16 @@ nil
 nil
 nil
 :reloaded
+Test require :reload with cache
+nil
+nil
+nil
+:initial
+nil
+:initial
+nil
+nil
+:reloaded
 Test require-macros unknown ns
 No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
 nil

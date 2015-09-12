@@ -1,4 +1,4 @@
-#!/usr/bin/env planck
+#!build/Release/planck -k int-test/cache
 (ns planck.int-tests
   (:require [planck.core :refer [exit]]
             [planck.shell :refer [sh *sh-dir*]]))
