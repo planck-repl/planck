@@ -167,6 +167,7 @@ void highlightCancel() {
         linenoiseSetHighlightCancelCallback(highlightCancel);
     }
     
+    NSSet *exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", nil];
     NSString* input = nil;
     previousLines = [[NSMutableArray alloc] init];
     char *line = NULL;
@@ -219,7 +220,7 @@ void highlightCancel() {
         
         // Check for explicit exit
         
-        if ([input isEqualToString:@":cljs/quit"]) {
+        if ([exitCommands containsObject:input]) {
             break;
         }
         
