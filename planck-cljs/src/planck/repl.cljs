@@ -550,7 +550,8 @@
         (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
-        (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))))))
+          (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
+          (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))))))
 
 (defn- fetch-source
   [var]
