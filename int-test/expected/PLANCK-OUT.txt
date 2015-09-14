@@ -82,6 +82,10 @@ bar
 foo
 Test :cljs/quit
 1
+Test quit
+1
+Test exit
+1
 Exit on first error
 ok
 x

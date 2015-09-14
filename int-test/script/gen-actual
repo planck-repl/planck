@@ -26,6 +26,20 @@ $PLANCK <<REPL_INPUT
 2
 REPL_INPUT
 
+echo "Test quit"
+$PLANCK <<REPL_INPUT
+1
+quit
+2
+REPL_INPUT
+
+echo "Test exit"
+$PLANCK <<REPL_INPUT
+1
+exit
+2
+REPL_INPUT
+
 echo "Exit on first error"
 $PLANCK -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
 
