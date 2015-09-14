@@ -227,6 +227,8 @@ $PLANCK -c $SRC <<REPL_INPUT
 (source when)
 (require 'test-doc-source.core)
 (source test-doc-source.core/my-function)
+(require 'planck.core)
+(source planck.core/*reader-fn*)
 REPL_INPUT
 
 echo "Test pst REPL special"

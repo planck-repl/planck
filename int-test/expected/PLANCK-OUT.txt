@@ -246,6 +246,13 @@ nil
   [x]
   (* x x))
 nil
+nil
+(defonce
+  ^:dynamic
+  *reader-fn*
+  (fn [_]
+    (throw (js/Error. "No *reader-fn* fn set."))))
+nil
 Test pst REPL special
 #'cljs.user/f
 #'cljs.user/g
