@@ -132,7 +132,7 @@
 	dateComponents.month = (_centralFileHeader->lastModFileDate & 0x1E0) >> 5;
 	dateComponents.year = ((_centralFileHeader->lastModFileDate & 0xFE00) >> 9) + 1980;
 	
-	return [[[NSCalendar alloc] init] dateFromComponents:dateComponents];
+    return nil; // (Not supported) [[[NSCalendar alloc] init] dateFromComponents:dateComponents];
 }
 
 - (NSUInteger)crc32
