@@ -8,7 +8,7 @@
   (testing "exit sets global exit code"
     (is (= 112 (js/PLANCK_GET_EXIT_VALUE)))))
 
-(deftest setTimeout-can-be-used
+#_(deftest setTimeout-can-be-used
   "This test is intentionally a bit naieve since async macros wouldn't work at time of writing"
   (testing "setTimeout actually gets called and does something"
     (let [now #(.getTime (js/Date.))
