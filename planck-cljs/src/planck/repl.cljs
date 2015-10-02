@@ -422,10 +422,11 @@
 
 (defn- skip-load?
   [{:keys [name macros]}]
-  (cond
-    (= name 'cljs.core) true
-    (and (= name 'cljs.pprint) macros) true
-    :else false))
+  (or
+    (= name 'cljs.core)
+    (and (= name 'cljs.pprint) macros)
+    (and (= name 'cljs.test) macros)
+    (and (= name 'clojure.template) macros)))
 
 (defn- do-load-file
   [file cb]
