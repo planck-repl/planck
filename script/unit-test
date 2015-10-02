@@ -1,4 +1,4 @@
-#!/usr/bin/env planck -c planck-cljs/src:planck-cljs/test
+#!build/Release/planck
 (ns planck.unit-test
   (:require [cljs.test]
             [planck.test-runner]
