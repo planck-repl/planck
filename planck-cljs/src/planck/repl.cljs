@@ -248,6 +248,7 @@
          (completion-candidates-for-ns (symbol typed-ns) false)
          (concat namespace-candidates
            (completion-candidates-for-ns 'cljs.core false)
+           (completion-candidates-for-ns 'cljs.core$macros false)
            (completion-candidates-for-ns @current-ns true)
            (when top-form?
              (concat
