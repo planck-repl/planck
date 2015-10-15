@@ -3,6 +3,8 @@
   (:require [planck.core :refer [exit]]
             [planck.shell :refer [sh *sh-dir*]]))
 
+(def planck-version "1.7")
+
 ;; Perhaps this file can evolve to be more like
 ;; cljs.test, and perhaps it can involve multiple
 ;; namespaces, etc.
@@ -22,7 +24,8 @@
     (exit 1)))
 
 (check-output
-  "planck 1.7
+  (str
+    "planck " planck-version "
 Usage:  planck [init-opt*] [main-opt] [args]
 
   With no options or args, runs an interactive Read-Eval-Print Loop
@@ -53,7 +56,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
   The init options may be repeated and mixed freely, but must appear before
   any main option.
 
-  Paths may be absolute or relative in the filesystem.\n\n"
+  Paths may be absolute or relative in the filesystem.\n\n")
   (sh planck-exe "-h"))
 
 (defn ensure-output [expected quoted-commands]
@@ -62,6 +65,11 @@ Usage:  planck [init-opt*] [main-opt] [args]
     (apply sh planck-exe (interleave
                            (repeat "-e")
                            (map pr-str quoted-commands)))))
+
+;; Check *planck-version*
+(ensure-output planck-version
+  ['(require 'planck.core)
+   'planck.core/*planck-version*])
 
 ;; Ensure clojure.string loads
 (ensure-output "foo quux baz"

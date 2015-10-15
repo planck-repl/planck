@@ -20,7 +20,8 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
-            args:(NSArray*)args; {
+            args:(NSArray*)args
+   planckVersion:(NSString*)planckVersion {
     
     int exitValue = EXIT_SUCCESS;
     
@@ -29,7 +30,7 @@
         // the first arg will be treated as a path to a file to be executed and should not be bound
         boundArgs = [args subarrayWithRange:NSMakeRange(1, args.count - 1)];
     }
-    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs];
+    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs planckVersion:planckVersion];
     
     // Process init arguments
     
@@ -63,7 +64,7 @@
     return exitValue;
 }
 
--(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
+-(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
 {
     NSMutableArray* adjustedSrcPaths = [[NSMutableArray alloc] init];
     for (NSArray* srcPath in srcPaths) {
@@ -98,7 +99,7 @@
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     
     self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
-    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs];
+    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose boundArgs:boundArgs planckVersion:planckVersion];
 }
 
 -(NSString*)ensureTrailingSlash:(NSString*)s

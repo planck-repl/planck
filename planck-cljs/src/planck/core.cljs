@@ -1,6 +1,8 @@
 (ns planck.core
   (:import [goog.string StringBuffer]))
 
+(def *planck-version* js/PLANCK_VERSION)
+
 (defn exit
   "Causes Planck to terminate with the supplied exit-value."
   [exit-value]

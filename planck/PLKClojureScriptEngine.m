@@ -174,7 +174,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -257,6 +257,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         
         // TODO look into this. Without it thngs won't work.
         [ABYUtils evaluateScript:@"var window = global;" inContext:self.context];
+        
+        [ABYUtils setValue:JSValueMakeStringFromNSString(self.context, planckVersion)
+                  onObject:JSContextGetGlobalObject(self.context)
+               forProperty:@"PLANCK_VERSION"
+                 inContext:self.context];
         
         self.openArchives = [[NSMutableDictionary alloc] init];
         self.openArchiveModificationDates = [[NSMutableDictionary alloc] init];

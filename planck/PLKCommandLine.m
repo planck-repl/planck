@@ -255,7 +255,9 @@
                                                    outPath:outPath
                                                  cachePath:cachePath
                                               dumbTerminal:dumbTerminal
-                                                      args:args];
+                                                      args:args
+                                             planckVersion:[NSString stringWithCString:PLANCK_VERSION
+                                                                              encoding:NSUTF8StringEncoding]];
         }
     }
     
