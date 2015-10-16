@@ -84,6 +84,7 @@
         {"eval", optional_argument, NULL, 'e'},
         {"src", optional_argument, NULL, 's'},
         {"classpath", optional_argument, NULL, 'c'},
+        {"cache", optional_argument, NULL, 'k'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
         {"main", optional_argument, NULL, 'm'},
@@ -91,8 +92,7 @@
         
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
-        {"cache", optional_argument, NULL, 'k'},
-        
+    
         {0, 0, 0, 0}
     };
     
@@ -220,6 +220,7 @@
             printf("    -i, --init path     Load a file or resource\n");
             printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
             printf("    -c, --classpath cp  Use colon-delimited cp for source directories and JARs\n");
+            printf("    -k, --cache path    Cache analysis/compilation artifacts in specified path\n");
             printf("    -v, --verbose       Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal Disables line editing / VT100 terminal control\n");
             printf("\n");

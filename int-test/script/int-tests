@@ -34,6 +34,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
     -i, --init path     Load a file or resource
     -e, --eval string   Evaluate expressions in string; print non-nil values
     -c, --classpath cp  Use colon-delimited cp for source directories and JARs
+    -k, --cache path    Cache analysis/compilation artifacts in specified path
     -v, --verbose       Emit verbose diagnostic output
     -d, --dumb-terminal Disables line editing / VT100 terminal control
 
