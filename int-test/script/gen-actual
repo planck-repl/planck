@@ -231,16 +231,18 @@ $PLANCK -c $SRC <<REPL_INPUT
 (doc doc)
 (defn f "docstring" [param])
 (doc f)
-(require 'test-doc-source.core)
+(require '[test-doc-source.core :as tds])
 (doc test-doc-source.core/my-function)
+(doc tds/my-function)
 REPL_INPUT
 
 echo "Test source REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (source inc)
 (source when)
-(require 'test-doc-source.core)
+(require '[test-doc-source.core :as tds])
 (source test-doc-source.core/my-function)
+(source tds/my-function)
 (require 'planck.core)
 (source planck.core/*reader-fn*)
 REPL_INPUT

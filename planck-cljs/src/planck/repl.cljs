@@ -28,6 +28,16 @@
   []
   (keys (:cljs.analyzer/namespaces @st)))
 
+(defn- get-namespace
+  [sym]
+  (get-in @st [:cljs.analyzer/namespaces sym]))
+
+(defn- get-aenv
+  []
+  (assoc (ana/empty-env)
+    :ns (get-namespace @current-ns)
+    :context :expr))
+
 (defn transit-json->cljs
   [json]
   (let [rdr (transit/reader :json)]
@@ -236,7 +246,7 @@
               #(not (:private (:meta (val %)))))
       (apply merge
         ((juxt :defs :macros)
-          (get (:cljs.analyzer/namespaces @planck.repl/st) ns-sym))))))
+          (get-namespace ns-sym))))))
 
 (defn is-completion?
   [buffer-match-suffix candidate]
@@ -620,11 +630,11 @@
         (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
 
 (defn- process-doc
-  [env sym]
+  [sym]
   (cond
     (special-doc-map sym) (repl/print-doc (special-doc sym))
     (repl-special-doc-map sym) (repl/print-doc (repl-special-doc sym))
-    :else (repl/print-doc (get-var env sym))))
+    :else (repl/print-doc (get-var (get-aenv) sym))))
 
 (defn- process-pst
   [expr]
@@ -645,16 +655,14 @@
 
 (defn- process-repl-special
   [expression-form {:keys [print-nil-expression? in-exit-context?] :as opts}]
-  (let [env (assoc (ana/empty-env) :context :expr
-                                   :ns {:name @current-ns})
-        argument (second expression-form)]
+  (let [argument (second expression-form)]
     (case (first expression-form)
       in-ns (process-in-ns argument)
       require (process-require :require identity (rest expression-form))
       require-macros (process-require :require-macros identity (rest expression-form))
       import (process-require :import identity (rest expression-form))
-      doc (process-doc env argument)
-      source (println (fetch-source (get-var env argument)))
+      doc (process-doc argument)
+      source (println (fetch-source (get-var (get-aenv) argument)))
       pst (process-pst argument)
       load-file (process-load-file argument opts))
     (when print-nil-expression?
@@ -677,7 +685,7 @@
             [file-namespace relpath] (extract-cache-metadata-mem source-text)]
         (js/PLANCK_CACHE (cache-prefix-for-path relpath) (str (compiled-by-string) "\n" source)
           (when file-namespace
-            (cljs->transit-json (get-in @st [:cljs.analyzer/namespaces file-namespace]))))))
+            (cljs->transit-json (get-namespace file-namespace))))))
     (cb {:value nil})))
 
 (defn- process-execute-source
