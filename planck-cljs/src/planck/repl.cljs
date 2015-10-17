@@ -24,6 +24,8 @@
 
 (defonce st (cljs/empty-state))
 
+(defonce current-ns (atom 'cljs.user))
+
 (defn- known-namespaces
   []
   (keys (:cljs.analyzer/namespaces @st)))
@@ -54,8 +56,6 @@
     (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json"))))
   (cljs/load-analysis-cache! st 'cljs.core$macros
     (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core$macros.cljc.cache.json")))))
-
-(defonce current-ns (atom 'cljs.user))
 
 (defonce app-env (atom nil))
 
