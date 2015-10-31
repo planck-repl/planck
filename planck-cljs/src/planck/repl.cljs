@@ -435,6 +435,7 @@
   [{:keys [name macros]}]
   (or
     (= name 'cljs.core)
+    (= name 'cljs.analyzer)
     (and (= name 'cljs.pprint) macros)
     (and (= name 'cljs.test) macros)
     (and (= name 'clojure.template) macros)))
