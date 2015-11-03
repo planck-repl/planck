@@ -10,6 +10,7 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
+       staticFns:(BOOL)staticFns
             args:(NSArray*)args
 planckVersion:(NSString*)planckVersion;
 

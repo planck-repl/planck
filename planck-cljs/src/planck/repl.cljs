@@ -60,8 +60,10 @@
 (defonce app-env (atom nil))
 
 (defn ^:export init-app-env
-  [verbose cache-path]
-  (reset! planck.repl/app-env {:verbose verbose :cache-path cache-path}))
+  [verbose cache-path static-fns]
+  (reset! planck.repl/app-env {:verbose    verbose
+                               :cache-path cache-path
+                               :static-fns static-fns}))
 
 (defn repl-read-string
   [line]
@@ -117,9 +119,10 @@
 
 (defn- make-base-eval-opts
   []
-  {:ns      @current-ns
-   :context :expr
-   :verbose (:verbose @app-env)})
+  {:ns         @current-ns
+   :context    :expr
+   :verbose    (:verbose @app-env)
+   :static-fns (:static-fns @app-env)})
 
 (defn- process-in-ns
   [argument]
@@ -699,7 +702,8 @@
       (merge
         {:ns         @current-ns
          :source-map false
-         :verbose    (:verbose @app-env)}
+         :verbose    (:verbose @app-env)
+         :static-fns (:static-fns @app-env)}
         (if expression?
           {:context       :expr
            :def-emits-var true}

@@ -25,7 +25,7 @@
             return YES;
         }
         
-        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, s, c, or k then this opt
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, or k then this opt
         // takes an argument.
         int idx = 0;
         char c = 0;
@@ -35,7 +35,7 @@
             idx++;
         }
         
-        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='s' || last_c =='c' || last_c =='k');
+        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='c' || last_c =='k');
     };
     
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
@@ -68,6 +68,7 @@
     BOOL repl = NO;
     BOOL verbose = NO;
     BOOL dumbTerminal = NO;
+    BOOL staticFns = NO;
     
     // Undocumented options, used for development.
     // The defaults set here are for release use.
@@ -82,13 +83,13 @@
         {"legal", no_argument, NULL, 'l'},
         {"init", optional_argument, NULL, 'i'},
         {"eval", optional_argument, NULL, 'e'},
-        {"src", optional_argument, NULL, 's'},
         {"classpath", optional_argument, NULL, 'c'},
         {"cache", optional_argument, NULL, 'k'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
         {"main", optional_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
+        {"static-fns", optional_argument, NULL, 's'},
         
         // Undocumented options used for development
         {"out", optional_argument, NULL, 'o'},
@@ -96,7 +97,7 @@
         {0, 0, 0, 0}
     };
     
-    const char *shortopts = "h?li:e:s:c:vdm:ro:k:";
+    const char *shortopts = "h?li:e:c:vdsm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -126,12 +127,6 @@
             case 'e':
             {
                 [scripts addObject:[[PLKScript alloc] initWithExpression:[NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
-                break;
-            }
-            case 's':
-            {
-                fprintf(stderr, "The -s / --src option is deprecated. Use -c / --classpath instead.\n" );
-                [srcPaths addObject:@[@"src", [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding]]];
                 break;
             }
             case 'c':
@@ -180,6 +175,11 @@
                 cachePath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
+            case 's':
+            {
+                staticFns = YES;
+                break;
+            }
         }
     }
     
@@ -223,6 +223,7 @@
             printf("    -k, --cache path    Cache analysis/compilation artifacts in specified path\n");
             printf("    -v, --verbose       Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal Disables line editing / VT100 terminal control\n");
+            printf("    -s, --static-fns    Generate static dispatch function calls\n");
             printf("\n");
             printf("  main options:\n");
             printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
@@ -256,6 +257,7 @@
                                                    outPath:outPath
                                                  cachePath:cachePath
                                               dumbTerminal:dumbTerminal
+                                                 staticFns:staticFns
                                                       args:args
                                              planckVersion:[NSString stringWithCString:PLANCK_VERSION
                                                                               encoding:NSUTF8StringEncoding]];

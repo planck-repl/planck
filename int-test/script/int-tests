@@ -37,6 +37,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
     -k, --cache path    Cache analysis/compilation artifacts in specified path
     -v, --verbose       Emit verbose diagnostic output
     -d, --dumb-terminal Disables line editing / VT100 terminal control
+    -s, --static-fns    Generate static dispatch function calls
 
   main options:
     -m, --main ns-name  Call the -main function from a namespace with args

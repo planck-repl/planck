@@ -174,7 +174,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -397,11 +397,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         }
         
         {
-            JSValueRef  arguments[2];
+            JSValueRef  arguments[3];
             JSValueRef result;
-            int num_arguments = 2;
+            int num_arguments = 3;
             arguments[0] = JSValueMakeBoolean(self.context, verbose);
             arguments[1] = JSValueMakeStringFromNSString(self.context, cachePath);
+            arguments[2] = JSValueMakeBoolean(self.context, staticFns);
             result = JSObjectCallAsFunction(self.context, [self getFunction:@"init-app-env"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
