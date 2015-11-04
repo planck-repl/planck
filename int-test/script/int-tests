@@ -133,3 +133,7 @@ Usage:  planck [init-opt*] [main-opt] [args]
   ['(require '[planck.core :refer [spit]])
    '(try (spit "/tmp/readonly" "foo") (catch js/Error e "SONIC BOOOOOOOOM!"))])
 (sh "rm" "-f" "/tmp/readonly")
+
+;; Check that 0 evaluates to true
+(ensure-output :truthy
+  ['(if 0 :truthy :falsey)])
