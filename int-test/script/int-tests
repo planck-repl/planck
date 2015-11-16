@@ -31,21 +31,25 @@ Usage:  planck [init-opt*] [main-opt] [args]
   With no options or args, runs an interactive Read-Eval-Print Loop
 
   init options:
-    -i, --init path     Load a file or resource
-    -e, --eval string   Evaluate expressions in string; print non-nil values
-    -c, --classpath cp  Use colon-delimited cp for source directories and JARs
-    -k, --cache path    Cache analysis/compilation artifacts in specified path
-    -v, --verbose       Emit verbose diagnostic output
-    -d, --dumb-terminal Disables line editing / VT100 terminal control
-    -s, --static-fns    Generate static dispatch function calls
+    -i path, --init=path     Load a file or resource
+    -e string, --eval=string Evaluate expressions in string; print non-nil
+                             values
+    -c cp, --classpath=cp    Use colon-delimited cp for source directories and
+                             JARs
+    -k path, --cache=path    Cache analysis/compilation artifacts in specified
+                             path
+    -v, --verbose            Emit verbose diagnostic output
+    -d, --dumb-terminal      Disables line editing / VT100 terminal control
+    -s, --static-fns         Generate static dispatch function calls
 
   main options:
-    -m, --main ns-name  Call the -main function from a namespace with args
-    -r, --repl          Run a repl
-    path                Run a script from a file or resource
-    -                   Run a script from standard input
-    -h, -?, --help      Print this help message and exit
-    -l, --legal         Show legal info (licenses and copyrights)
+    -m ns-name, --main=ns-name Call the -main function from a namespace with
+                               args
+    -r, --repl                 Run a repl
+    path                       Run a script from a file or resource
+    -                          Run a script from standard input
+    -h, -?, --help             Print this help message and exit
+    -l, --legal                Show legal info (licenses and copyrights)
 
   operation:
 
