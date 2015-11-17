@@ -470,3 +470,6 @@ nil
 Test JAR support
 nil
 "Hello, from JAR"
+Test reader/tag literals
+#js [1 2]
+#inst "2015-08-18T01:53:14.614-00:00"

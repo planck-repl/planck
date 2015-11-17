@@ -534,3 +534,8 @@ $PLANCK -c $HOME/test-jar.jar <<REPL_INPUT
 test-jar.core/x
 REPL_INPUT
 
+echo "Test reader/tag literals"
+$PLANCK <<REPL_INPUT
+#js [1 2]
+#inst "2015-08-18T01:53:14.614-00:00"
+REPL_INPUT

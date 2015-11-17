@@ -728,7 +728,8 @@
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
-            cljs/*eval-fn* caching-js-eval]
+            cljs/*eval-fn* caching-js-eval
+            r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value opts)
       (let [source-text source-value
