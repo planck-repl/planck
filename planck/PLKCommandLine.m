@@ -81,18 +81,18 @@
         // Documented options
         {"help", no_argument, NULL, 'h'},
         {"legal", no_argument, NULL, 'l'},
-        {"init", optional_argument, NULL, 'i'},
-        {"eval", optional_argument, NULL, 'e'},
-        {"classpath", optional_argument, NULL, 'c'},
-        {"cache", optional_argument, NULL, 'k'},
+        {"init", required_argument, NULL, 'i'},
+        {"eval", required_argument, NULL, 'e'},
+        {"classpath", required_argument, NULL, 'c'},
+        {"cache", required_argument, NULL, 'k'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
-        {"main", optional_argument, NULL, 'm'},
+        {"main", required_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
         {"static-fns", optional_argument, NULL, 's'},
 
         // Undocumented options used for development
-        {"out", optional_argument, NULL, 'o'},
+        {"out", required_argument, NULL, 'o'},
 
         {0, 0, 0, 0}
     };
