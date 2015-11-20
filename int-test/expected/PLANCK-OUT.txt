@@ -149,7 +149,7 @@ nil
 Test require unknown ns
 No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
 nil
-Test require :reload
+Test require :reload with const
 nil
 nil
 nil

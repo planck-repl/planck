@@ -157,13 +157,24 @@
                 (if (vector? spec) spec [spec]))))]
     (map canonicalize specs)))
 
+(defn- purge-analysis-cache!
+  [state ns]
+  (swap! state (fn [m]
+                 (assoc m ::ana/namespaces (dissoc (::ana/namespaces m) ns)))))
+
+(defn- purge!
+  [names]
+  (doseq [name names]
+    (purge-analysis-cache! st name))
+  (apply swap! cljs.js/*loaded* disj names))
+
 (defn- process-reloads!
   [specs]
   (if-let [k (some #{:reload :reload-all} specs)]
     (let [specs (->> specs (remove #{k}))]
       (if (= k :reload-all)
-        (reset! cljs.js/*loaded* #{})
-        (apply swap! cljs.js/*loaded* disj (map first specs)))
+        (purge! @cljs.js/*loaded*)
+        (purge! (map first specs)))
       specs)
     specs))
 
