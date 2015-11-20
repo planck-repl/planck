@@ -567,7 +567,8 @@
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
         (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))))))
+        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))
+        (first (js/PLANCK_LOAD (s/replace filepath #"^/.*/planck-cljs/src/" "")))))))
 
 (defn- fetch-source
   [var]
