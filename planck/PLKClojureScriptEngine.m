@@ -278,47 +278,51 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  // First try in the srcPaths
                  
-                 for (NSArray* srcPath in srcPaths) {
-                     NSString* type = srcPath[0];
-                     NSString* location = srcPath[1];
+                 if (![path isEqualToString:@"cljs/core.cljs.cache.aot.json"] &&
+                     ![path isEqualToString:@"cljs/core$macros.cljc.cache.json"]) {
                      
-                     if ([type isEqualToString:@"src"]) {
-                         NSString* fullPath = [location stringByAppendingString:path];
+                     for (NSArray* srcPath in srcPaths) {
+                         NSString* type = srcPath[0];
+                         NSString* location = srcPath[1];
                          
-                         source = [NSString stringWithContentsOfFile:fullPath
-                                                            encoding:NSUTF8StringEncoding error:nil];
-                         if (source) {
-                             sourceFileModified = [self getModificationDateForFile:fullPath];
-                         }
-                     } else if ([type isEqualToString:@"jar"]) {
-                         ZZArchive* archive = self.openArchives[path];
-                         if (!archive) {
-                             NSError* err = nil;
-                             archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
-                                                           error:&err];
-                             if (err) {
-                                 NSLog(@"%@", err);
-                                 self.openArchives[path] = [NSNull null];
-                             } else {
-                                 self.openArchives[path] = archive;
-                                 self.openArchiveModificationDates[path] = [self getModificationDateForFile:location];
+                         if ([type isEqualToString:@"src"]) {
+                             NSString* fullPath = [location stringByAppendingString:path];
+                             
+                             source = [NSString stringWithContentsOfFile:fullPath
+                                                                encoding:NSUTF8StringEncoding error:nil];
+                             if (source) {
+                                 sourceFileModified = [self getModificationDateForFile:fullPath];
+                             }
+                         } else if ([type isEqualToString:@"jar"]) {
+                             ZZArchive* archive = self.openArchives[path];
+                             if (!archive) {
+                                 NSError* err = nil;
+                                 archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
+                                                               error:&err];
+                                 if (err) {
+                                     NSLog(@"%@", err);
+                                     self.openArchives[path] = [NSNull null];
+                                 } else {
+                                     self.openArchives[path] = archive;
+                                     self.openArchiveModificationDates[path] = [self getModificationDateForFile:location];
+                                 }
+                             }
+                             NSData* data = nil;
+                             if (![archive isEqual:[NSNull null]]) {
+                                 for (ZZArchiveEntry* entry in archive.entries)
+                                     if ([entry.fileName isEqualToString:path]) {
+                                         data = [entry newDataWithError:nil];
+                                         break;
+                                     }
+                             }
+                             if (data) {
+                                 source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                 sourceFileModified = self.openArchiveModificationDates[path];
                              }
                          }
-                         NSData* data = nil;
-                         if (![archive isEqual:[NSNull null]]) {
-                             for (ZZArchiveEntry* entry in archive.entries)
-                                 if ([entry.fileName isEqualToString:path]) {
-                                     data = [entry newDataWithError:nil];
-                                     break;
-                                 }
+                         if (source) {
+                             break;
                          }
-                         if (data) {
-                             source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                             sourceFileModified = self.openArchiveModificationDates[path];
-                         }
-                     }
-                     if (source) {
-                         break;
                      }
                  }
                  
