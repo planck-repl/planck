@@ -65,6 +65,8 @@ void highlight(const char* buf, int pos) {
                 
                 if (highlightRestoreId == OSAtomicAdd32(0, &highlightRestoreSequence)) {
                     
+                    OSAtomicAdd32(1, &highlightRestoreSequence);
+                    
                     if (numLinesUp) {
                         fprintf(stdout,"\x1b[%dB", numLinesUp);
                     }
@@ -95,7 +97,6 @@ void highlight(const char* buf, int pos) {
 void highlightCancel() {
     if (highlightRestore) {
         highlightRestore();
-        OSAtomicAdd32(1, &highlightRestoreSequence);
     }
 }
 
