@@ -149,7 +149,7 @@ nil
 Test require unknown ns
 No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
 nil
-Test require :reload
+Test require :reload with const
 nil
 nil
 nil
@@ -470,3 +470,6 @@ nil
 Test JAR support
 nil
 "Hello, from JAR"
+Test reader/tag literals
+#js [1 2]
+#inst "2015-08-18T01:53:14.614-00:00"

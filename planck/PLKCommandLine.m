@@ -11,20 +11,20 @@
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
-    
+
     int indexOfScriptPathOrHyphen = argc;
     NSMutableArray* args = [[NSMutableArray alloc] init];
-    
+
     BOOL (^shouldIgnoreArg)(char*) = ^(char* opt) {
         if (opt[0] != '-') {
             return NO;
         }
-        
+
         // safely ignore any long opt
         if (opt[1] == '-') {
             return YES;
         }
-        
+
         // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, or k then this opt
         // takes an argument.
         int idx = 0;
@@ -34,17 +34,17 @@
             last_c = c;
             idx++;
         }
-        
+
         return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='c' || last_c =='k');
     };
-    
+
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
     // by getopt_long(). If one of those two things is found, everything afterward is an earmuff arg.
     // If neither is found, then the first mainopt will be found with getopt_long, and earmuff args
     // will begin at optind + 1.
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
-        
+
         if (strcmp("-", arg) == 0) {
             // A bare dash means "run a script from standard input." Bind everything after the dash to *command-line-args*.
             indexOfScriptPathOrHyphen = i;
@@ -58,7 +58,7 @@
             }
         }
     }
-    
+
     // Documented options
     BOOL help = NO;
     BOOL legal = NO;
@@ -69,34 +69,34 @@
     BOOL verbose = NO;
     BOOL dumbTerminal = NO;
     BOOL staticFns = NO;
-    
+
     // Undocumented options, used for development.
     // The defaults set here are for release use.
     NSString* outPath = nil;
     NSString* cachePath = nil;
-    
+
     int option = -1;
     static struct option longopts[] =
     {
         // Documented options
         {"help", no_argument, NULL, 'h'},
         {"legal", no_argument, NULL, 'l'},
-        {"init", optional_argument, NULL, 'i'},
-        {"eval", optional_argument, NULL, 'e'},
-        {"classpath", optional_argument, NULL, 'c'},
-        {"cache", optional_argument, NULL, 'k'},
+        {"init", required_argument, NULL, 'i'},
+        {"eval", required_argument, NULL, 'e'},
+        {"classpath", required_argument, NULL, 'c'},
+        {"cache", required_argument, NULL, 'k'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
-        {"main", optional_argument, NULL, 'm'},
+        {"main", required_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
         {"static-fns", optional_argument, NULL, 's'},
-        
+
         // Undocumented options used for development
-        {"out", optional_argument, NULL, 'o'},
-    
+        {"out", required_argument, NULL, 'o'},
+
         {0, 0, 0, 0}
     };
-    
+
     const char *shortopts = "h?li:e:c:vdsm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
@@ -136,7 +136,7 @@
                     if ([element hasSuffix:@".jar"] || [element hasSuffix:@"*"]) {
                         [srcPaths addObject:@[@"jar", element]];
                     } else if ([element hasSuffix:@"*"]) {
-                        
+
                     } else {
                         [srcPaths addObject:@[@"src", element]];
                     }
@@ -182,31 +182,31 @@
             }
         }
     }
-    
+
     // By this line, if optind is less than indexOfScriptPathOrHyphen, then there was an explicit
     // main opt. In that case, the hyphen or script path was not meant to be the main opt, but
     // rather a part of *command-line-args*.
     optind = MIN(optind, indexOfScriptPathOrHyphen);
-    
+
     argc -= optind;
     argv += optind;
-    
+
     while (argc-- > 0) {
         [args addObject:[NSString stringWithCString:*argv++ encoding:NSUTF8StringEncoding]];
     }
-    
+
     // Argument validation
-    
+
     if (scripts.count == 0 && !mainNsName && args.count==0) {
         repl = YES;
     }
-    
+
     // Process arguments
-    
+
     if (![srcPaths count]) {
         [srcPaths addObject:@[@"src", @"."]];
     }
-    
+
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {
@@ -217,21 +217,25 @@
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
             printf("\n");
             printf("  init options:\n");
-            printf("    -i, --init path     Load a file or resource\n");
-            printf("    -e, --eval string   Evaluate expressions in string; print non-nil values\n");
-            printf("    -c, --classpath cp  Use colon-delimited cp for source directories and JARs\n");
-            printf("    -k, --cache path    Cache analysis/compilation artifacts in specified path\n");
-            printf("    -v, --verbose       Emit verbose diagnostic output\n");
-            printf("    -d, --dumb-terminal Disables line editing / VT100 terminal control\n");
-            printf("    -s, --static-fns    Generate static dispatch function calls\n");
+            printf("    -i path, --init=path     Load a file or resource\n");
+            printf("    -e string, --eval=string Evaluate expressions in string; print non-nil\n");
+            printf("                             values\n");
+            printf("    -c cp, --classpath=cp    Use colon-delimited cp for source directories and\n");
+            printf("                             JARs\n");
+            printf("    -k path, --cache=path    Cache analysis/compilation artifacts in specified\n");
+            printf("                             path\n");
+            printf("    -v, --verbose            Emit verbose diagnostic output\n");
+            printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
+            printf("    -s, --static-fns         Generate static dispatch function calls\n");
             printf("\n");
             printf("  main options:\n");
-            printf("    -m, --main ns-name  Call the -main function from a namespace with args\n");
-            printf("    -r, --repl          Run a repl\n");
-            printf("    path                Run a script from a file or resource\n");
-            printf("    -                   Run a script from standard input\n");
-            printf("    -h, -?, --help      Print this help message and exit\n");
-            printf("    -l, --legal         Show legal info (licenses and copyrights)\n");
+            printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
+            printf("                               args\n");
+            printf("    -r, --repl                 Run a repl\n");
+            printf("    path                       Run a script from a file or resource\n");
+            printf("    -                          Run a script from standard input\n");
+            printf("    -h, -?, --help             Print this help message and exit\n");
+            printf("    -l, --legal                Show legal info (licenses and copyrights)\n");
             printf("\n");
             printf("  operation:\n");
             printf("\n");
@@ -263,7 +267,7 @@
                                                                               encoding:NSUTF8StringEncoding]];
         }
     }
-    
+
     return exitValue;
 }
 

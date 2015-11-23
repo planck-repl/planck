@@ -157,13 +157,24 @@
                 (if (vector? spec) spec [spec]))))]
     (map canonicalize specs)))
 
+(defn- purge-analysis-cache!
+  [state ns]
+  (swap! state (fn [m]
+                 (assoc m ::ana/namespaces (dissoc (::ana/namespaces m) ns)))))
+
+(defn- purge!
+  [names]
+  (doseq [name names]
+    (purge-analysis-cache! st name))
+  (apply swap! cljs.js/*loaded* disj names))
+
 (defn- process-reloads!
   [specs]
   (if-let [k (some #{:reload :reload-all} specs)]
     (let [specs (->> specs (remove #{k}))]
       (if (= k :reload-all)
-        (reset! cljs.js/*loaded* #{})
-        (apply swap! cljs.js/*loaded* disj (map first specs)))
+        (purge! @cljs.js/*loaded*)
+        (purge! (map first specs)))
       specs)
     specs))
 
@@ -567,7 +578,8 @@
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
         (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))))))
+        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))
+        (first (js/PLANCK_LOAD (s/replace filepath #"^/.*/planck-cljs/src/" "")))))))
 
 (defn- fetch-source
   [var]
@@ -728,7 +740,8 @@
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
-            cljs/*eval-fn* caching-js-eval]
+            cljs/*eval-fn* caching-js-eval
+            r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value opts)
       (let [source-text source-value

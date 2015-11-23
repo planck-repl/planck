@@ -149,14 +149,14 @@ $PLANCK -c $SRC <<REPL_INPUT
 (require 'unknown_ns.core)
 REPL_INPUT
 
-echo "Test require :reload"
+echo "Test require :reload with const"
 mkdir -p /tmp/PLANCK_SRC/foo
 $PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
-(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :initial)")
 (require 'foo.bar)
 foo.bar/x
-(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :reloaded)")
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :reloaded)")
 (require 'foo.bar :reload)
 foo.bar/x
 REPL_INPUT
@@ -534,3 +534,8 @@ $PLANCK -c $HOME/test-jar.jar <<REPL_INPUT
 test-jar.core/x
 REPL_INPUT
 
+echo "Test reader/tag literals"
+$PLANCK <<REPL_INPUT
+#js [1 2]
+#inst "2015-08-18T01:53:14.614-00:00"
+REPL_INPUT
