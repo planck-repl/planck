@@ -220,6 +220,19 @@ doc
 REPL Special Function
   Prints documentation for a var or special form given its name
 nil
+-------------------------
+cljs.core/IWriter
+Protocol
+  Protocol for writing. Currently only implemented by StringBufferWriter.
+
+  -write
+  ([writer s])
+  Writes s with writer and returns the result.
+
+  -flush
+  ([writer])
+  Flush writer.
+nil
 #'cljs.user/f
 -------------------------
 cljs.user/f

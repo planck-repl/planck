@@ -229,6 +229,7 @@ $PLANCK -c $SRC <<REPL_INPUT
 (doc when)
 (doc if)
 (doc doc)
+(doc IWriter)
 (defn f "docstring" [param])
 (doc f)
 (require '[test-doc-source.core :as tds])
