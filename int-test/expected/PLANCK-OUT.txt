@@ -252,6 +252,11 @@ test-doc-source.core/my-function
   This is a cool
   function with a docstring.
 nil
+-------------------------
+test-doc-source.core
+  This is the namespace
+  docstring for test-doc-source.core
+nil
 Test source REPL special
 (defn inc
   "Returns a number one greater than num."

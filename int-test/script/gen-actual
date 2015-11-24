@@ -235,6 +235,7 @@ $PLANCK -c $SRC <<REPL_INPUT
 (require '[test-doc-source.core :as tds])
 (doc test-doc-source.core/my-function)
 (doc tds/my-function)
+(doc test-doc-source.core)
 REPL_INPUT
 
 echo "Test source REPL special"
