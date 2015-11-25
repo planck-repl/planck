@@ -25,7 +25,7 @@
             return YES;
         }
 
-        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, or k then this opt
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, n, or k then this opt
         // takes an argument.
         int idx = 0;
         char c = 0;
@@ -35,7 +35,7 @@
             idx++;
         }
 
-        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='c' || last_c =='k');
+        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='c' || last_c =='n' || last_c =='k');
     };
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
@@ -68,6 +68,8 @@
     BOOL repl = NO;
     BOOL verbose = NO;
     BOOL dumbTerminal = NO;
+    NSString* socketAddr = nil;
+    int socketPort = 0;
     BOOL staticFns = NO;
 
     // Undocumented options, used for development.
@@ -87,6 +89,7 @@
         {"cache", required_argument, NULL, 'k'},
         {"verbose", optional_argument, NULL, 'v'},
         {"dumb-terminal", optional_argument, NULL, 'd'},
+        {"socket-repl", required_argument, NULL, 'n'},
         {"main", required_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
         {"static-fns", optional_argument, NULL, 's'},
@@ -97,7 +100,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?li:e:c:vdsm:ro:k:";
+    const char *shortopts = "h?li:e:c:vdn:sm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -151,6 +154,26 @@
             case 'd':
             {
                 dumbTerminal = YES;
+                break;
+            }
+            case 'n':
+            {
+                NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+                numberFormatter.numberStyle = NSNumberFormatterDecimalStyle;
+                NSString* bindParams = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
+                NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+                if ([bindParams rangeOfCharacterFromSet:notDigits].location == NSNotFound) {
+                    socketPort = [numberFormatter numberFromString:bindParams].intValue;
+                } else {
+                    NSUInteger colonLocation = [bindParams rangeOfString:@":" options:NSBackwardsSearch].location;
+                    if (colonLocation != NSNotFound) {
+                        socketAddr = [bindParams substringToIndex:colonLocation];
+                        socketPort = [numberFormatter numberFromString:[bindParams substringFromIndex:colonLocation + 1]].intValue;
+                    } else {
+                        printf("Could not parse socket REPL params.");
+                        socketPort = 0;
+                    }
+                }
                 break;
             }
             case 'm':
@@ -226,6 +249,7 @@
             printf("                             path\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
+            printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port.\n");
             printf("    -s, --static-fns         Generate static dispatch function calls\n");
             printf("\n");
             printf("  main options:\n");
@@ -261,6 +285,8 @@
                                                    outPath:outPath
                                                  cachePath:cachePath
                                               dumbTerminal:dumbTerminal
+                                                socketAddr:socketAddr
+                                                socketPort:socketPort
                                                  staticFns:staticFns
                                                       args:args
                                              planckVersion:[NSString stringWithCString:PLANCK_VERSION

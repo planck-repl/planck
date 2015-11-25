@@ -2,9 +2,19 @@
 #import "PLKClojureScriptEngine.h"
 #include <stdio.h>
 #include "linenoise.h"
+#include <CoreFoundation/CoreFoundation.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
-static NSMutableArray* previousLines = nil;
+static NSMutableArray* s_previousLines; // Used when using linenoise
+static BOOL s_shouldKeepRunning;
+
+// Need to keep a map, one per session
+int32_t socketReplSessionIdSequence = 0;
+static NSMutableDictionary* s_socketRepls;
+
 void (^highlightRestore)() = nil;
 int32_t highlightRestoreSequence = 0;
 
@@ -36,7 +46,7 @@ void highlight(const char* buf, int pos) {
         
         NSArray* highlightCoords = [s_clojureScriptEngine getHighlightCoordsForPos:pos
                                                                             buffer:buf2str(buf)
-                                                                     previousLines:previousLines];
+                                                                     previousLines:s_previousLines];
         
         
         int numLinesUp = ((NSNumber*)highlightCoords[0]).intValue;
@@ -100,15 +110,46 @@ void highlightCancel() {
     }
 }
 
+@interface PLKRepl()
+
+@property (nonatomic) int socketReplSessionId;
+
+@property (strong, nonatomic) NSInputStream* inputStream;
+@property (strong, nonatomic) NSOutputStream* outputStream;
+
+@property (strong, nonatomic) NSMutableData* inputBuffer;
+@property (atomic) NSUInteger inputBufferBytesScanned;
+
+@property (strong, nonatomic) NSMutableArray* previousLines;
+
+@property (strong, nonatomic) NSSet *exitCommands;
+@property (strong, nonatomic) NSString* input;
+
+@property (strong, nonatomic) NSString* currentNs;
+@property (strong, nonatomic) NSString* currentPrompt;
+
+@property (nonatomic) int exitValue;
+
+@property (strong, nonatomic) NSString* historyFile;
+
+// Data currently being sent. (In flight iff dataBeingSent != nil)
+@property (strong, atomic) NSData* dataBeingSent;
+@property (atomic) NSUInteger dataBytesSent;
+
+// Subsequent data to be transmitted in FIFO order
+@property (strong, nonatomic) NSMutableArray* queuedData;
+
+@end
+
 @implementation PLKRepl
 
--(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary dumbTerminal:(BOOL)dumbTerminal
+-(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary richTerminal:(BOOL)richTerminal
 {
     NSString* rv = nil;
     if (!secondary) {
         rv = [NSString stringWithFormat:@"%@=> ", currentNs];
     } else {
-        if (!dumbTerminal) {
+        if (richTerminal) {
             rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
                                     withString:@" "
                                startingAtIndex:0]
@@ -144,34 +185,283 @@ void highlightCancel() {
     return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
 }
 
--(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal
+void handleConnect (
+                    CFSocketRef s,
+                    CFSocketCallBackType callbackType,
+                    CFDataRef address,
+                    const void *data,
+                    void *info
+                    )
 {
-    int exitValue = EXIT_SUCCESS;
-    
-    NSString* currentNs = @"cljs.user";
-    NSString* currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:dumbTerminal];
-    NSString* historyFile = nil;
-    
-    if (!dumbTerminal) {
+    if( callbackType & kCFSocketAcceptCallBack)
+    {
+        CFReadStreamRef clientInput = NULL;
+        CFWriteStreamRef clientOutput = NULL;
         
-        char* homedir = getenv("HOME");
-        if (homedir) {
-            historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
-            linenoiseHistoryLoad([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
+        CFSocketNativeHandle nativeSocketHandle = *(CFSocketNativeHandle *)data;
+        
+        CFStreamCreatePairWithSocket(kCFAllocatorDefault, nativeSocketHandle, &clientInput, &clientOutput);
+        
+        CFReadStreamSetProperty(clientInput, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+        CFWriteStreamSetProperty(clientOutput, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+        
+        PLKRepl* server = [[PLKRepl alloc] init];
+
+        server.socketReplSessionId = OSAtomicAdd32(1, &socketReplSessionIdSequence);
+        
+        [s_socketRepls setObject:server forKey:@(server.socketReplSessionId)];
+        
+        server.previousLines = [[NSMutableArray alloc] init];
+        
+        server.exitValue = EXIT_SUCCESS;
+        
+        server.currentNs = @"cljs.user";
+        server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO richTerminal:NO];
+        server.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", @":repl/quit", nil];
+        server.input = nil;
+        
+        NSInputStream* inputStream = (__bridge NSInputStream*)clientInput;
+        NSOutputStream* outputStream = (__bridge NSOutputStream*)clientOutput;
+        
+        [PLKRepl setUpStream:inputStream server:server];
+        [PLKRepl setUpStream:outputStream server:server];
+        
+        server.inputStream = inputStream;
+        server.outputStream = outputStream;
+        
+        [server sendData:[@"cljs.user=> " dataUsingEncoding:NSUTF8StringEncoding]];
+    }
+}
+
+-(void)processInputBuffer:(NSUInteger)newlineIndex
+{
+    // Read the bytes in the input buffer, up to the first \n
+    char* bytes = malloc(newlineIndex + 1);
+    strncpy(bytes, self.inputBuffer.bytes, newlineIndex);
+    bytes[newlineIndex] = 0;
+    if (newlineIndex && bytes[newlineIndex -1] == '\r'){
+        bytes[newlineIndex-1] = 0;
+    }
+    NSString* read = [NSString stringWithUTF8String:bytes];
+    
+    // Discard initial segment of the buffer up to and including the \n character
+    NSMutableData* newBuffer = [NSMutableData dataWithBytes:bytes + newlineIndex + 1
+                                                     length:self.inputBuffer.length - newlineIndex - 1];
+    self.inputBuffer = newBuffer;
+    
+    BOOL tearDown = [self processLine:read richTerminal:NO];
+    if (tearDown) {
+        [self tearDown];
+    }
+}
+
+- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)eventCode
+{
+    if (eventCode == NSStreamEventHasBytesAvailable) {
+        if(!self.inputBuffer) {
+            self.inputBuffer = [NSMutableData data];
+            self.inputBufferBytesScanned = 0;
         }
-        
-        linenoiseSetMultiLine(1);
-        
-        s_clojureScriptEngine = clojureScriptEngine;
-        linenoiseSetCompletionCallback(completion);
-        linenoiseSetHighlightCallback(highlight);
-        linenoiseSetHighlightCancelCallback(highlightCancel);
+        const size_t BUFFER_SIZE = 1024;
+        uint8_t buf[BUFFER_SIZE];
+        NSInteger len = 0;
+        len = [(NSInputStream *)stream read:buf maxLength:BUFFER_SIZE];
+        if (len == -1) {
+            NSLog(@"Error reading from REPL input stream");
+        } else if (len > 0) {
+            [self.inputBuffer appendBytes:(const void *)buf length:len];
+            
+            BOOL found = NO;
+            for (size_t i=0; i<len; i++) {
+                if (buf[i] == '\n') {
+                    found = YES;
+                    [self processInputBuffer:self.inputBufferBytesScanned + i];
+                    break;
+                }
+            }
+            if (found) {
+                self.inputBufferBytesScanned = 0;
+            } else {
+                self.inputBufferBytesScanned += len;
+            }
+        }
+    } else if (eventCode == NSStreamEventHasSpaceAvailable) {
+        if (self.dataBeingSent) {
+            if (self.dataBytesSent < self.dataBeingSent.length) {
+                [self sendDataBytes];
+            } else {
+                [self sendNextData];
+            }
+        }
+    } else if (eventCode == NSStreamEventEndEncountered) {
+        [self tearDown];
+    }
+}
+
+-(void)sendData:(NSData*)data
+{
+    if (self.dataBeingSent == nil) {
+        self.dataBeingSent = data;
+        self.dataBytesSent = 0;
+        if (self.outputStream.hasSpaceAvailable) {
+            [self sendDataBytes];
+        }
+    } else {
+        // Something is in flight. Queue data.
+        if (!self.queuedData) {
+            self.queuedData = [[NSMutableArray alloc] init];
+        }
+        [self.queuedData addObject:data];
+    }
+}
+
+-(void)dequeAndSend
+{
+    if (self.queuedData.count) {
+        NSData* data = self.queuedData[0];
+        [self.queuedData removeObjectAtIndex:0];
+        [self sendData:data];
+    }
+}
+
+- (void)sendNextData
+{
+    self.dataBeingSent = nil;
+    [self dequeAndSend];
+}
+
+-(void)sendDataBytes
+{
+    NSInteger result = 0;
+    if (self.dataBeingSent.length) {
+        result = [self.outputStream write:self.dataBeingSent.bytes + self.dataBytesSent
+                                maxLength:self.dataBeingSent.length - self.dataBytesSent];
     }
     
-    NSSet *exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", nil];
-    NSString* input = nil;
-    previousLines = [[NSMutableArray alloc] init];
-    char *line = NULL;
+    if (result < 0) {
+        NSLog(@"Error writing bytes to REPL output stream");
+    } else {
+        self.dataBytesSent += result;
+    }
+    
+    if (self.dataBytesSent == self.dataBeingSent.length) {
+        [self sendNextData];
+    }
+}
+
++(void)setUpStream:(NSStream*)stream server:(PLKRepl*)server
+{
+    [stream setDelegate:server];
+    [stream  scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [stream  open];
+}
+
++(void)tearDownStream:(NSStream*)stream
+{
+    [stream close];
+    [stream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [stream setDelegate:nil];
+}
+
+-(void)tearDown
+{
+    if (self.inputStream) {
+        [PLKRepl tearDownStream:self.inputStream];
+        self.inputStream = nil;
+    }
+    
+    if (self.outputStream) {
+        [PLKRepl tearDownStream:self.outputStream];
+        self.outputStream = nil;
+    }
+    
+    [s_socketRepls removeObjectForKey:@(self.socketReplSessionId)];
+}
+
+-(BOOL)processLine:(NSString*)inputLine richTerminal:(BOOL)richTerminal
+{
+    // Accumulate input lines
+    
+    if (self.input == nil) {
+        self.input = inputLine;
+    } else {
+        self.input = [NSString stringWithFormat:@"%@\n%@", self.input, inputLine];
+    }
+    
+    [self.previousLines addObject:inputLine];
+    
+    // Check for explicit exit
+    
+    if ([self.exitCommands containsObject:self.input]) {
+        return YES;
+    }
+    
+    // Add input line to history
+    
+    if (self.historyFile && ![self isWhitespace:self.input]) {
+        linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
+        linenoiseHistorySave([self.historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    
+    // Check if we now have a readable form
+    // and if so, evaluate it.
+    
+    if ([s_clojureScriptEngine isReadable:self.input]) {
+        
+        if (![self isWhitespace:self.input]) {  // Guard against empty string being read
+            
+            if (self.outputStream) {
+                [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
+                    [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
+                }];
+            }
+            self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
+                                                                value:self.input
+                                                           expression:YES
+                                                   printNilExpression:YES
+                                                        inExitContext:NO
+                                                                setNs:self.currentNs];
+            if (self.outputStream) {
+                [s_clojureScriptEngine setToPrintOnSender:nil];
+            }
+            if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
+                return YES;
+            }
+            
+        } else {
+            
+            printf("\n");
+            
+        }
+        
+        // Now that we've evaluated the input, reset for next round
+        
+        self.input = nil;
+        [self.previousLines removeAllObjects];
+        
+        // Fetch the current namespace and use it to set the prompt
+        
+        self.currentNs = [s_clojureScriptEngine getCurrentNs];
+        self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:richTerminal];
+        
+    } else {
+        
+        // Prepare for reading non-1st line of input with secondary prompt
+        
+        self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
+    }
+    
+    if (self.outputStream && self.currentPrompt) {
+        [self sendData:[self.currentPrompt dataUsingEncoding:NSUTF8StringEncoding]];
+        //[self.outputStream write:self.currentPrompt.cString maxLength:self.currentPrompt.cStringLength];
+    }
+    
+    return NO;
+}
+
+
+-(void)runCommandLineLoopDumbTerminal:(BOOL)dumbTerminal
+{
     while(true) {
         
         // Get the current line of input
@@ -179,20 +469,20 @@ void highlightCancel() {
         NSString* inputLine;
         
         if (dumbTerminal) {
-            [self displayPrompt:currentPrompt];
+            [self displayPrompt:self.currentPrompt];
             inputLine = [self getInput];
             if (inputLine == nil) { // ^D has been pressed
                 printf("\n");
                 break;
             }
         } else {
-            line = linenoise([currentPrompt cStringUsingEncoding:NSUTF8StringEncoding]);
+            char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding]);
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C was pressed
                     errno = 0;
-                    input = nil;
-                    [previousLines removeAllObjects];
-                    currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:NO];
+                    self.input = nil;
+                    [self.previousLines removeAllObjects];
+                    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:YES];
                     printf("\n");
                     continue;
                 } else { // Ctrl-D was pressed
@@ -209,78 +499,126 @@ void highlightCancel() {
             free(line);
         }
         
-        // Accumulate input lines
-        
-        if (input == nil) {
-            input = inputLine;
-        } else {
-            input = [NSString stringWithFormat:@"%@\n%@", input, inputLine];
-        }
-        
-        [previousLines addObject:inputLine];
-        
-        // Check for explicit exit
-        
-        if ([exitCommands containsObject:input]) {
+        BOOL breakOut = [self processLine:inputLine richTerminal:!dumbTerminal];
+        if (breakOut) {
             break;
         }
         
-        // Add input line to history
+    }
+}
+
+-(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
+                     dumbTerminal:(BOOL)dumbTerminal
+                       socketAddr:(NSString*)socketAddr
+                       socketPort:(int)socketPort
+{
+    s_clojureScriptEngine = clojureScriptEngine;
+    s_socketRepls = [[NSMutableDictionary alloc] init];
+    
+    self.previousLines = [[NSMutableArray alloc] init];
+    s_previousLines = self.previousLines;
+    
+    self.exitValue = EXIT_SUCCESS;
+    
+    self.currentNs = @"cljs.user";
+    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:!dumbTerminal];
+    self.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", nil];
+    self.input = nil;
+    
+    // Per-type initialization
+    
+    if (!dumbTerminal) {
         
-        if (!dumbTerminal && ![self isWhitespace:input]) {
-            linenoiseHistoryAdd([inputLine cStringUsingEncoding:NSUTF8StringEncoding]);
-            if (historyFile) {
-                linenoiseHistorySave([historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
-            }
+        char* homedir = getenv("HOME");
+        if (homedir) {
+            self.historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
+            linenoiseHistoryLoad([self.historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
         }
         
-        // Check if we now have a readable form
-        // and if so, evaluate it.
+        linenoiseSetMultiLine(1);
+        linenoiseSetCompletionCallback(completion);
+        linenoiseSetHighlightCallback(highlight);
+        linenoiseSetHighlightCancelCallback(highlightCancel);
+    }
+    
+    if (socketPort != 0) {
         
-        if ([clojureScriptEngine isReadable:input]) {
-            
-            if (![self isWhitespace:input]) {  // Guard against empty string being read
-                
-                exitValue = [clojureScriptEngine executeSourceType:@"text"
-                                                             value:input
-                                                        expression:YES
-                                                printNilExpression:YES
-                                                     inExitContext:NO];
-                if (exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
-                    break;
-                }
-                
-            } else {
-                
-                printf("\n");
-                
-            }
-            
-            // Now that we've evaluated the input, reset for next round
-            
-            input = nil;
-            [previousLines removeAllObjects];
-            
-            // Fetch the current namespace and use it to set the prompt
-            
-            currentNs = [clojureScriptEngine getCurrentNs];
-            currentPrompt = [self formPrompt:currentNs isSecondary:NO dumbTerminal:dumbTerminal];
-            
+        CFSocketContext socketCtxt = {0, (__bridge void *)self, NULL, NULL, NULL};
+        
+        CFSocketRef myipv4cfsock = CFSocketCreate(
+                                                  kCFAllocatorDefault,
+                                                  PF_INET,
+                                                  SOCK_STREAM,
+                                                  IPPROTO_TCP,
+                                                  kCFSocketAcceptCallBack, handleConnect, &socketCtxt);
+        
+        struct sockaddr_in sin;
+        
+        memset(&sin, 0, sizeof(sin));
+        sin.sin_len = sizeof(sin);
+        sin.sin_family = AF_INET; /* Address family */
+        sin.sin_port = htons(socketPort);
+        if (socketAddr) {
+            inet_aton([socketAddr cStringUsingEncoding:NSUTF8StringEncoding], &sin.sin_addr);
         } else {
-            
-            // Prepare for reading non-1st line of input with secondary prompt
-            
-            currentPrompt = [self formPrompt:currentNs isSecondary:YES dumbTerminal:dumbTerminal];
+            sin.sin_addr.s_addr= INADDR_ANY;
         }
+        CFDataRef sincfd = CFDataCreate(
+                                        kCFAllocatorDefault,
+                                        (UInt8 *)&sin,
+                                        sizeof(sin));
+        
+        CFSocketSetAddress(myipv4cfsock, sincfd);
+        CFRelease(sincfd);
+        
+    
+        CFRunLoopSourceRef socketsource = CFSocketCreateRunLoopSource(
+                                                                      kCFAllocatorDefault,
+                                                                      myipv4cfsock,
+                                                                      0);
+        
+        CFRunLoopAddSource(
+                           CFRunLoopGetCurrent(),
+                           socketsource,
+                           kCFRunLoopDefaultMode);
+        
+    
         
     }
     
+    // Now we run the loop
+    
+    if (socketPort != 0) {
+        
+        dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
+        dispatch_async(thread, ^{
+            
+            [self runCommandLineLoopDumbTerminal:dumbTerminal];
+            
+            s_shouldKeepRunning = NO;
+            
+        });
+        
+        printf("Planck socket REPL listening.\n");
+        s_shouldKeepRunning = YES;
+        
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        while (s_shouldKeepRunning &&
+               [runLoop runMode:NSDefaultRunLoopMode
+                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
+        
+    } else {
+        
+        [self runCommandLineLoopDumbTerminal:dumbTerminal];
+    }
+
+    
     // PLANK_EXIT_SUCCESS_NONTERMINATE is for internal use only, so to the rest of the world
     // it is a standard successful exit
-    if (exitValue == PLANK_EXIT_SUCCESS_NONTERMINATE) {
-        exitValue = EXIT_SUCCESS;
+    if (self.exitValue == PLANK_EXIT_SUCCESS_NONTERMINATE) {
+        self.exitValue = EXIT_SUCCESS;
     }
-    return exitValue;
+    return self.exitValue;
 }
 
 @end

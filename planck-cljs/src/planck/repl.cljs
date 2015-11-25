@@ -760,7 +760,7 @@
       (handle-error e include-stacktrace? in-exit-context?))))
 
 (defn execute-source
-  [[source-type source-value] {:keys [expression?] :as opts}]
+  [[source-type source-value] {:keys [expression? expression-ns] :as opts}]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
             cljs/*load-fn* load
@@ -775,7 +775,9 @@
           (process-execute-source source-text expression-form opts))))))
 
 (defn ^:export execute
-  [source expression? print-nil-expression? in-exit-context?]
+  [source expression? print-nil-expression? in-exit-context? set-ns]
+  (when set-ns
+    (reset! current-ns (symbol set-ns)))
   (execute-source source {:expression?           expression?
                           :print-nil-expression? print-nil-expression?
                           :in-exit-context?      in-exit-context?

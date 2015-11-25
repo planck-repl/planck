@@ -10,6 +10,8 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
+      socketAddr:(NSString*)socketAddr
+      socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
             args:(NSArray*)args
 planckVersion:(NSString*)planckVersion;

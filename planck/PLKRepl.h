@@ -2,8 +2,11 @@
 
 @class PLKClojureScriptEngine;
 
-@interface PLKRepl : NSObject
+@interface PLKRepl : NSObject<NSStreamDelegate>
 
--(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine dumbTerminal:(BOOL)dumbTerminal;
+-(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
+                     dumbTerminal:(BOOL)dumbTerminal
+                       socketAddr:(NSString*)socketAddr
+                       socketPort:(int)socketPort;
 
 @end

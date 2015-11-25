@@ -1132,7 +1132,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs
 {
     [self blockUntilEngineReady];
     if (!inExitContext) {
@@ -1142,9 +1142,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[4];
+    JSValueRef  arguments[5];
     JSValueRef result;
-    int num_arguments = 4;
+    int num_arguments = 5;
     
     {
         JSValueRef  sourceArguments[2];
@@ -1156,6 +1156,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     arguments[1] = JSValueMakeBoolean(self.context, expression);
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
+    arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return self.exitValue;
@@ -1237,6 +1238,47 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     
     return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
              @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
+}
+
+
+-(void)setToPrintOnSender:(void (^)(NSString*))sender {
+    
+    if (sender) {
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 sender(message);
+                 
+                // [outputStream write:message.cString maxLength:message.cStringLength];
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
+    } else {
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+                 fflush(stdout);
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
+    }
 }
 
 @end

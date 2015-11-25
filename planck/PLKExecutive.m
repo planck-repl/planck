@@ -20,6 +20,8 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
+      socketAddr:(NSString*)socketAddr
+      socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
             args:(NSArray*)args
    planckVersion:(NSString*)planckVersion {
@@ -57,7 +59,10 @@
         }
         exitValue = [self executeScript:script];
     } else if (repl) {
-        exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine dumbTerminal:dumbTerminal];
+        exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine
+                                                           dumbTerminal:dumbTerminal
+                                                             socketAddr:socketAddr
+                                                             socketPort:socketPort];
     }
     
     [self.clojureScriptEngine awaitShutdown];
@@ -129,7 +134,8 @@
                                                  value:script.sourceValue
                                             expression:script.expression
                                     printNilExpression:NO
-                                         inExitContext:YES];
+                                         inExitContext:YES
+                                                 setNs:nil];
 }
 
 @end
