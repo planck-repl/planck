@@ -6,7 +6,7 @@
 (defn- parse-args
   [args]
   (let [default-encoding nil
-        default-opts {:out-enc default-encoding :in-enc default-encoding :dir *sh-dir* :env *sh-env*}
+        default-opts     {:out-enc default-encoding :in-enc default-encoding :dir *sh-dir* :env *sh-env*}
         [cmd opts] (split-with string? args)]
     [cmd (merge default-opts (apply hash-map opts))]))
 

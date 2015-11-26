@@ -183,11 +183,11 @@
   (some
     (fn [quoted-spec-or-kw]
       (and (not (keyword? quoted-spec-or-kw))
-        (let [spec (second quoted-spec-or-kw)
-              ns (if (sequential? spec)
-                   (first spec)
-                   spec)]
-          (= ns @current-ns))))
+           (let [spec (second quoted-spec-or-kw)
+                 ns   (if (sequential? spec)
+                        (first spec)
+                        spec)]
+             (= ns @current-ns))))
     specs))
 
 (defn- make-ns-form
@@ -282,10 +282,10 @@
 (defn ^:export get-completions
   [buffer]
   (let [namespace-candidates (map str (known-namespaces))
-        top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+        top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
+        typed-ns             (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
-          buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+          buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
                  []
                  (map #(str buffer-prefix %)
@@ -308,7 +308,7 @@
   (some identity
     (for [n (range (dec total-pos) -1 -1)]
       (let [candidate-form (subs total-source n (inc total-pos))
-            first-char (subs candidate-form 0 1)]
+            first-char     (subs candidate-form 0 1)]
         (if (#{"(" "[" "{" "#"} first-char)
           (if (is-completely-readable? candidate-form)
             (if (= "#" first-char)
@@ -335,14 +335,14 @@
   buffer line, line 1 is the previous line, and so on, and pos is the
   position in that line."
   [pos buffer previous-lines]
-  (let [previous-lines (js->clj previous-lines)
+  (let [previous-lines  (js->clj previous-lines)
         previous-source (s/join "\n" previous-lines)
-        total-source (if (empty? previous-lines)
-                       buffer
-                       (str previous-source "\n" buffer))
-        total-pos (+ (if (empty? previous-lines)
-                       0
-                       (inc (count previous-source))) pos)]
+        total-source    (if (empty? previous-lines)
+                          buffer
+                          (str previous-source "\n" buffer))
+        total-pos       (+ (if (empty? previous-lines)
+                             0
+                             (inc (count previous-source))) pos)]
     (->> (form-start total-source total-pos)
       (reduce-highlight-coords previous-lines)
       clj->js)))
@@ -354,9 +354,9 @@
 (defn- extract-cache-metadata
   [source]
   (let [file-namespace (extract-namespace source)
-        relpath (if file-namespace
-                  (cljs/ns->relpath file-namespace)
-                  "cljs/user")]
+        relpath        (if file-namespace
+                         (cljs/ns->relpath file-namespace)
+                         "cljs/user")]
     [file-namespace relpath]))
 
 (def extract-cache-metadata-mem (memoize extract-cache-metadata))
@@ -395,9 +395,9 @@
 (defn cached-js-valid?
   [js-source js-modified source-file-modified]
   (and js-source
-    (or (= 0 js-modified source-file-modified)              ;; 0 means bundled
-      (and (> js-modified source-file-modified)
-        (= *clojurescript-version* (extract-clojurescript-compiler-version js-source))))))
+       (or (= 0 js-modified source-file-modified)           ;; 0 means bundled
+           (and (> js-modified source-file-modified)
+                (= *clojurescript-version* (extract-clojurescript-compiler-version js-source))))))
 
 (defn- cached-callback-data
   [path cache-prefix source source-modified raw-load]
@@ -405,9 +405,9 @@
                        (cache-prefix-for-path (second (extract-cache-metadata-mem source)))
                        cache-prefix)
         [js-source js-modified] (or (raw-load (add-suffix path ".js"))
-                                  (js/PLANCK_READ_FILE (str cache-prefix ".js")))
+                                    (js/PLANCK_READ_FILE (str cache-prefix ".js")))
         [cache-json _] (or (raw-load (str path ".cache.json"))
-                         (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
+                           (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))]
     (when (cached-js-valid? js-source js-modified source-modified)
       (when (:verbose @app-env)
         (println-verbose "Loading precompiled JS" (if cache-json "and analysis cache" "") "for" path))
@@ -492,7 +492,7 @@
 
 (defn- handle-error
   [e include-stacktrace? in-exit-context?]
-  (let [cause (or (.-cause e) e)
+  (let [cause                     (or (.-cause e) e)
         is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
     (when-not is-planck-exit-exception?
       (print-error e include-stacktrace?))
@@ -557,10 +557,10 @@
   [env sym]
   (let [var (with-compiler-env st (resolve env sym))
         var (or var
-              (if-let [macro-var (with-compiler-env st
-                                   (resolve env (symbol "cljs.core$macros" (name sym))))]
-                (update (assoc macro-var :ns 'cljs.core)
-                  :name #(symbol "cljs.core" (name %)))))]
+                (if-let [macro-var (with-compiler-env st
+                                     (resolve env (symbol "cljs.core$macros" (name sym))))]
+                  (update (assoc macro-var :ns 'cljs.core)
+                    :name #(symbol "cljs.core" (name %)))))]
     (if (= (namespace (:name var)) (str (:ns var)))
       (update var :name #(symbol (name %)))
       var)))
@@ -577,7 +577,7 @@
         (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
-        (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
+          (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
         (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))
         (first (js/PLANCK_LOAD (s/replace filepath #"^/.*/planck-cljs/src/" "")))))))
 
@@ -712,7 +712,7 @@
   [expression-form value]
   (when-not
     (or ('#{*1 *2 *3 *e} expression-form)
-      (ns-form? expression-form))
+        (ns-form? expression-form))
     (set! *3 *2)
     (set! *2 *1)
     (set! *1 value)))
@@ -749,7 +749,7 @@
         (if expression?
           (when-not error
             (when (or print-nil-expression?
-                    (not (nil? value)))
+                      (not (nil? value)))
               (prn value))
             (process-1-2-3 expression-form value)
             (reset! current-ns ns)
@@ -768,7 +768,7 @@
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value opts)
-      (let [source-text source-value
+      (let [source-text     source-value
             expression-form (and expression? (repl-read-string source-text))]
         (if (repl-special? expression-form)
           (process-repl-special expression-form opts)

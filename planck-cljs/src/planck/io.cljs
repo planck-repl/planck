@@ -72,15 +72,15 @@
     (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
       (planck.core/Reader.
         (fn [] (let [[result err] (js/PLANCK_FILE_READER_READ file-reader)]
-                (if err
-                  (throw (js/Error. err)))
-                result))
+                 (if err
+                   (throw (js/Error. err)))
+                 result))
         (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader)))))
   (make-writer [file opts]
     (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (planck.core/Writer.
         (fn [s] (if-let [err (js/PLANCK_FILE_WRITER_WRITE file-writer s)]
-                 (throw (js/Error. err)))
+                  (throw (js/Error. err)))
           nil)
         (fn [])
         (fn [] (js/PLANCK_FILE_WRITER_CLOSE file-writer)))))

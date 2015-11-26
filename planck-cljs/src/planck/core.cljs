@@ -145,7 +145,7 @@
   "Opens a reader on f and reads all its contents, returning a string.
   See planck.io/reader for a complete list of supported arguments."
   [f & opts]
-  (let [r (apply *reader-fn* f opts)
+  (let [r  (apply *reader-fn* f opts)
         sb (StringBuffer.)]
     (try
       (loop [s (-read r)]
