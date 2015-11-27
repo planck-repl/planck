@@ -537,51 +537,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"path"
                                        inContext:self.context];
         
-        const BOOL isTty = isatty(fileno(stdin));
-        
-        [ABYUtils installGlobalFunctionWithBlock:
-         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-             
-             NSMutableData *data=[[NSMutableData alloc] init];
-             
-             NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
-             NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
-             if (inputData.length) {
-                 
-                 [data appendData:inputData];
-                 
-                 NSString *string = [[NSString alloc] initWithData:data
-                                                          encoding:NSUTF8StringEncoding];
-                 if (string) {
-                     return JSValueMakeStringFromNSString(ctx, string);
-                 } else {
-                     // Couldn't decode UTF8. Try reading up to 6 more bytes to see if
-                     // we can form a well-formed UTF8 string
-                     int tries = 6;
-                     while (tries-- > 0) {
-                         inputData = [input readDataOfLength:1];
-                         if (inputData.length > 0) {
-                             [data appendData:inputData];
-                             NSString *string = [[NSString alloc] initWithData:data
-                                                                      encoding:NSUTF8StringEncoding];
-                             if (string) {
-                                 return JSValueMakeStringFromNSString(ctx, string);
-                             }
-                         } else {
-                             NSLog(@"Failed to decode.");
-                             return JSValueMakeNull(ctx);
-                         }
-                     }
-                     
-                 }
-                 
-             }
-             
-             return  JSValueMakeNull(ctx);
-         }
-                                            name:@"PLANCK_RAW_READ_STDIN"
-                                         argList:@""
-                                       inContext:self.context];
+        // Set up to read from stdin
+        [self setToReadFrom:nil];
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -1281,6 +1238,68 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     }
     
     [self setPrintFnsInContext:self.contextManager.context];
+}
+
+-(void)setToReadFrom:(NSString* (^)())input {
+    
+    if (input) {
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             NSString* string = input();
+             return JSValueMakeStringFromNSString(ctx, string);
+             //return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_READ_STDIN"
+                                         argList:@""
+                                       inContext:self.context];
+    } else {
+        const BOOL isTty = isatty(fileno(stdin));
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             NSMutableData *data=[[NSMutableData alloc] init];
+             
+             NSFileHandle *input = [NSFileHandle fileHandleWithStandardInput];
+             NSData *inputData = [input readDataOfLength:isTty ? 1 : 1024];
+             if (inputData.length) {
+                 
+                 [data appendData:inputData];
+                 
+                 NSString *string = [[NSString alloc] initWithData:data
+                                                          encoding:NSUTF8StringEncoding];
+                 if (string) {
+                     return JSValueMakeStringFromNSString(ctx, string);
+                 } else {
+                     // Couldn't decode UTF8. Try reading up to 6 more bytes to see if
+                     // we can form a well-formed UTF8 string
+                     int tries = 6;
+                     while (tries-- > 0) {
+                         inputData = [input readDataOfLength:1];
+                         if (inputData.length > 0) {
+                             [data appendData:inputData];
+                             NSString *string = [[NSString alloc] initWithData:data
+                                                                      encoding:NSUTF8StringEncoding];
+                             if (string) {
+                                 return JSValueMakeStringFromNSString(ctx, string);
+                             }
+                         } else {
+                             NSLog(@"Failed to decode.");
+                             return JSValueMakeNull(ctx);
+                         }
+                     }
+                     
+                 }
+                 
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_RAW_READ_STDIN"
+                                         argList:@""
+                                       inContext:self.context];
+    }
 }
 
 @end

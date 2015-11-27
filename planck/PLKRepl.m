@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "MKBlockingQueue.h"
 
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
 static NSMutableArray* s_previousLines; // Used when using linenoise
@@ -119,6 +120,8 @@ void highlightCancel() {
 
 @property (strong, nonatomic) NSMutableData* inputBuffer;
 @property (atomic) NSUInteger inputBufferBytesScanned;
+@property (atomic) BOOL evaluating;
+@property (strong, nonatomic) MKBlockingQueue* readQueue;
 
 @property (strong, nonatomic) NSMutableArray* previousLines;
 
@@ -249,9 +252,16 @@ void handleConnect (
                                                      length:self.inputBuffer.length - newlineIndex - 1];
     self.inputBuffer = newBuffer;
     
-    BOOL tearDown = [self processLine:read richTerminal:NO];
-    if (tearDown) {
-        [self tearDown];
+    if (self.evaluating) {
+        [self.readQueue enqueue:[NSString stringWithFormat:@"%@\n", read]];
+    } else {
+        // Dispatch to the background so we can continue to read
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            BOOL tearDown = [self processLine:read richTerminal:NO];
+            if (tearDown) {
+                [self tearDown];
+            }
+        });
     }
 }
 
@@ -411,19 +421,37 @@ void handleConnect (
         if (![self isWhitespace:self.input]) {  // Guard against empty string being read
             
             if (self.outputStream) {
+                self.evaluating = YES;
+                self.readQueue = [[MKBlockingQueue alloc] init];
+                
                 [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
                     [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
                 }];
+                
+                [s_clojureScriptEngine setToReadFrom:^NSString *{
+                    while (self.evaluating) {
+                        return (NSString*)[self.readQueue dequeue];
+                    }
+                    return nil;
+                }];
             }
+            
             self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
                                                                 value:self.input
                                                            expression:YES
                                                    printNilExpression:YES
                                                         inExitContext:NO
                                                                 setNs:self.currentNs];
+            
             if (self.outputStream) {
                 [s_clojureScriptEngine setToPrintOnSender:nil];
+                
+                [s_clojureScriptEngine setToReadFrom:nil];
+                
+                self.evaluating = NO;
+                [self.readQueue enqueue:@""];
             }
+            
             if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
                 return YES;
             }

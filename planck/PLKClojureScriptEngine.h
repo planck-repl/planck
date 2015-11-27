@@ -17,5 +17,6 @@
 -(void)awaitShutdown;
 
 -(void)setToPrintOnSender:(void (^)(NSString*))sender;
+-(void)setToReadFrom:(NSString* (^)())input;
 
 @end
