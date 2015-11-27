@@ -639,42 +639,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                        inContext:self.context];
         
         
-        
-        [ABYUtils installGlobalFunctionWithBlock:
-         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-             
-             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
-                 
-                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
-                 
-                 fprintf(stdout, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
-                 fflush(stdout);
-             }
-             
-             return JSValueMakeNull(ctx);
-         }
-                                            name:@"PLANCK_PRINT_FN"
-                                         argList:@"message"
-                                       inContext:self.context];
-        
-        [ABYUtils installGlobalFunctionWithBlock:
-         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
-             
-             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
-                 
-                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
-                 
-                 fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
-                 
-             }
-             
-             return JSValueMakeNull(ctx);
-         }
-                                            name:@"PLANCK_PRINT_ERR_FN"
-                                         argList:@"message"
-                                       inContext:self.context];
-        
-        [self setPrintFnsInContext:self.contextManager.context];
+        // Set up printing to occur on stdout and stderr by passing nil.
+        [self setToPrintOnSender:nil];
         
         __weak typeof(self) weakSelf = self;
         [ABYUtils installGlobalFunctionWithBlock:
@@ -1253,7 +1219,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  sender(message);
                  
-                // [outputStream write:message.cString maxLength:message.cStringLength];
              }
              
              return JSValueMakeNull(ctx);
@@ -1261,7 +1226,25 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_PRINT_FN"
                                          argList:@"message"
                                        inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 sender(message);
+                 
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_ERR_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
     } else {
+        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -1278,7 +1261,26 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_PRINT_FN"
                                          argList:@"message"
                                        inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 fprintf(stderr, "%s", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+                 
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_PRINT_ERR_FN"
+                                         argList:@"message"
+                                       inContext:self.context];
     }
+    
+    [self setPrintFnsInContext:self.contextManager.context];
 }
 
 @end
