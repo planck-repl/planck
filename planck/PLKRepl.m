@@ -136,6 +136,8 @@ void highlightCancel() {
 
 @property (strong, nonatomic) NSString* historyFile;
 
+@property (strong, nonatomic) NSObject* sendLock;
+
 // Data currently being sent. (In flight iff dataBeingSent != nil)
 @property (strong, atomic) NSData* dataBeingSent;
 @property (atomic) NSUInteger dataBytesSent;
@@ -223,6 +225,7 @@ void handleConnect (
         server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO richTerminal:NO];
         server.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", @":repl/quit", nil];
         server.input = nil;
+        server.sendLock = @"";
         
         NSInputStream* inputStream = (__bridge NSInputStream*)clientInput;
         NSOutputStream* outputStream = (__bridge NSOutputStream*)clientOutput;
@@ -297,11 +300,13 @@ void handleConnect (
             }
         }
     } else if (eventCode == NSStreamEventHasSpaceAvailable) {
-        if (self.dataBeingSent) {
-            if (self.dataBytesSent < self.dataBeingSent.length) {
-                [self sendDataBytes];
-            } else {
-                [self sendNextData];
+        @synchronized(self.sendLock) {
+            if (self.dataBeingSent) {
+                if (self.dataBytesSent < self.dataBeingSent.length) {
+                    [self sendDataBytes];
+                } else {
+                    [self sendNextData];
+                }
             }
         }
     } else if (eventCode == NSStreamEventEndEncountered) {
@@ -350,7 +355,7 @@ void handleConnect (
     }
     
     if (result < 0) {
-        NSLog(@"Error writing bytes to REPL output stream");
+        // NSLog(@"Error writing bytes to REPL output stream");
     } else {
         self.dataBytesSent += result;
     }
@@ -428,7 +433,9 @@ void handleConnect (
                 self.readQueue = [[MKBlockingQueue alloc] init];
                 
                 [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
-                    [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
+                    @synchronized(self.sendLock) {
+                        [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
+                    }
                 }];
                 
                 [s_clojureScriptEngine setToReadFrom:^NSString *{
@@ -486,8 +493,9 @@ void handleConnect (
     }
     
     if (self.outputStream && self.currentPrompt) {
-        [self sendData:[self.currentPrompt dataUsingEncoding:NSUTF8StringEncoding]];
-        //[self.outputStream write:self.currentPrompt.cString maxLength:self.currentPrompt.cStringLength];
+        @synchronized(self.sendLock) {
+            [self sendData:[self.currentPrompt dataUsingEncoding:NSUTF8StringEncoding]];
+        }
     }
     
     return NO;
