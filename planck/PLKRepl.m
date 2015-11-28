@@ -11,6 +11,7 @@
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
 static NSMutableArray* s_previousLines; // Used when using linenoise
 static BOOL s_shouldKeepRunning;
+static NSLock* s_evalLock;
 
 // Need to keep a map, one per session
 int32_t socketReplSessionIdSequence = 0;
@@ -420,6 +421,8 @@ void handleConnect (
         
         if (![self isWhitespace:self.input]) {  // Guard against empty string being read
             
+            [s_evalLock lock];
+            
             if (self.outputStream) {
                 self.evaluating = YES;
                 self.readQueue = [[MKBlockingQueue alloc] init];
@@ -443,6 +446,7 @@ void handleConnect (
                                                         inExitContext:NO
                                                                 setNs:self.currentNs];
             
+            
             if (self.outputStream) {
                 [s_clojureScriptEngine setToPrintOnSender:nil];
                 
@@ -451,6 +455,8 @@ void handleConnect (
                 self.evaluating = NO;
                 [self.readQueue enqueue:@""];
             }
+            
+            [s_evalLock unlock];
             
             if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
                 return YES;
@@ -541,7 +547,10 @@ void handleConnect (
                        socketPort:(int)socketPort
 {
     s_clojureScriptEngine = clojureScriptEngine;
-    s_socketRepls = [[NSMutableDictionary alloc] init];
+    if (socketPort) {
+        s_socketRepls = [[NSMutableDictionary alloc] init];
+        s_evalLock = [[NSLock alloc] init];
+    }
     
     self.previousLines = [[NSMutableArray alloc] init];
     s_previousLines = self.previousLines;
