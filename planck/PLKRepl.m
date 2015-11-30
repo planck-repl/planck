@@ -471,7 +471,13 @@ void handleConnect (
             
         } else {
             
-            printf("\n");
+            if (self.outputStream) {
+                @synchronized(self.sendLock) {
+                    [self sendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                }
+            } else {
+                printf("\n");
+            }
             
         }
         
