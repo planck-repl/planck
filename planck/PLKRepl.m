@@ -250,6 +250,13 @@ void handleConnect (
         bytes[newlineIndex-1] = 0;
     }
     NSString* read = [NSString stringWithUTF8String:bytes];
+
+    if (read == nil) {
+        @synchronized(self.sendLock) {
+            [self sendData:[@"#<failed to decode input line>\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        read = @"";
+    }
     
     // Discard initial segment of the buffer up to and including the \n character
     NSMutableData* newBuffer = [NSMutableData dataWithBytes:bytes + newlineIndex + 1
