@@ -51,7 +51,9 @@ JSValueRef BlockFunctionCallAsFunction(JSContextRef ctx, JSObjectRef function, J
         jsBlockFunctionClass = JSClassCreate(&blockFunctionClassDef);
     }
     
-    return JSObjectMake(context, jsBlockFunctionClass, (void*)CFBridgingRetain(block));
+    JSObjectRef jsObj = JSObjectMake(context, jsBlockFunctionClass, (void*)CFBridgingRetain(block));
+    CFBridgingRelease((__bridge CFTypeRef _Nullable)(block));
+    return jsObj;
 }
 
 +(void)installGlobalFunctionWithBlock:(JSValueRef (^)(JSContextRef ctx, size_t argc, const JSValueRef argv[]))block name:(NSString*)name argList:(NSString*)argList inContext:(JSContextRef)context
