@@ -21,7 +21,8 @@
    :optimizations      :none
    :static-fns         true
    :optimize-constants false
-   :dump-core          false})
+   :dump-core          false
+   :parallel-build     true})
 
 (extract-analysis-cache (io/resource "cljs/core.cljs.cache.aot.edn") "out/cljs/core.cljs.cache.aot.json")
 
