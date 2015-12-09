@@ -736,31 +736,50 @@
 (defn- process-execute-source
   [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace?] :as opts}]
   (try
-    (cljs/eval-str
-      st
-      source-text
-      (if expression? "Expression" "File")
-      (merge
-        {:ns         @current-ns
-         :source-map false
-         :verbose    (:verbose @app-env)
-         :static-fns (:static-fns @app-env)}
-        (if expression?
-          {:context       :expr
-           :def-emits-var true}
-          (when (:cache-path @app-env)
-            {:cache-source (cache-source-fn source-text)})))
-      (fn [{:keys [ns value error] :as ret}]
-        (if expression?
-          (when-not error
-            (when (or print-nil-expression?
+    (let [initial-ns @current-ns]
+      ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
+      (when (and expression?
+                 (:verbose @app-env))
+        (cljs/eval-str
+          (atom @st)
+          source-text
+          "Expression"
+          (merge
+            {:ns            initial-ns
+             :source-map    false
+             :verbose       true
+             :static-fns    (:static-fns @app-env)
+             :context       :expr
+             :def-emits-var false
+             :eval          identity})
+          identity))
+      ;; Now eval-str for true side effects
+      (cljs/eval-str
+        st
+        source-text
+        (if expression? "Expression" "File")
+        (merge
+          {:ns         initial-ns
+           :source-map false
+           :verbose    (and (not expression?)
+                            (:verbose @app-env))
+           :static-fns (:static-fns @app-env)}
+          (if expression?
+            {:context       :expr
+             :def-emits-var true}
+            (when (:cache-path @app-env)
+              {:cache-source (cache-source-fn source-text)})))
+        (fn [{:keys [ns value error] :as ret}]
+          (if expression?
+            (when-not error
+              (when (or print-nil-expression?
                       (not (nil? value)))
-              (prn value))
-            (process-1-2-3 expression-form value)
-            (reset! current-ns ns)
-            nil))
-        (when error
-          (handle-error error include-stacktrace? in-exit-context?))))
+                (prn value))
+              (process-1-2-3 expression-form value)
+              (reset! current-ns ns)
+              nil))
+          (when error
+            (handle-error error include-stacktrace? in-exit-context?)))))
     (catch :default e
       (handle-error e include-stacktrace? in-exit-context?))))
 

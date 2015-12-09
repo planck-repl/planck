@@ -491,3 +491,6 @@ nil
 Test reader/tag literals
 #js [1 2]
 #inst "2015-08-18T01:53:14.614-00:00"
+Test verbose w/o var code
+#'cljs.user/a
+#'cljs.user/b

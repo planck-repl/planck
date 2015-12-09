@@ -541,3 +541,9 @@ $PLANCK <<REPL_INPUT
 #js [1 2]
 #inst "2015-08-18T01:53:14.614-00:00"
 REPL_INPUT
+
+echo "Test verbose w/o var code"
+$PLANCK -v <<REPL_INPUT
+(def a 3)
+(def b (+ 2 3))
+REPL_INPUT
