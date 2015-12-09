@@ -8,8 +8,6 @@ WARNING: planck.io/spit is deprecated. at line 1
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
 WARNING: planck.io/spit is deprecated. at line 1 
-Classpath resolves to:
-type: src, location: /Users/mfikes/Projects/planck/./
 Evaluating Expression
 cljs.user.a = (3)
 Evaluating Expression

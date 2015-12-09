@@ -91,7 +91,7 @@
         }
     }
     
-    if (verbose) {
+    if (verbose && [adjustedSrcPaths count]) {
         fprintf(stderr, "Classpath resolves to:\n");
         for (NSArray* srcPath in adjustedSrcPaths) {
             NSString* type = srcPath[0];

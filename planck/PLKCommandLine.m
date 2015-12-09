@@ -226,10 +226,6 @@
 
     // Process arguments
 
-    if (![srcPaths count]) {
-        [srcPaths addObject:@[@"src", @"."]];
-    }
-
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {
