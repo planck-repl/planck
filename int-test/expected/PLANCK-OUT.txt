@@ -494,3 +494,7 @@ Test reader/tag literals
 Test verbose w/o var code
 #'cljs.user/a
 #'cljs.user/b
+Test restore state when require fails
+Referred var clojure.set/diff does not exist
+nil
+nil

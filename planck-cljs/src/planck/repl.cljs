@@ -216,26 +216,29 @@
 
 (defn- process-require
   [kind cb specs]
-  (try
-    (let [is-self-require? (and (= :kind :require) (self-require? specs))
-          [target-ns restore-ns]
-          (if-not is-self-require?
-            [@current-ns nil]
-            ['cljs.user @current-ns])]
-      (cljs/eval
-        st
-        (let [ns-form (make-ns-form kind specs target-ns)]
-          (log-ns-form kind ns-form)
-          ns-form)
-        (make-base-eval-opts)
-        (fn [{e :error}]
-          (when is-self-require?
-            (reset! current-ns restore-ns))
-          (when e
-            (handle-error e false false))
-          (cb))))
-    (catch :default e
-      (handle-error e true false))))
+  (let [current-st @st]
+    (try
+      (let [is-self-require? (and (= :kind :require) (self-require? specs))
+            [target-ns restore-ns]
+            (if-not is-self-require?
+              [@current-ns nil]
+              ['cljs.user @current-ns])]
+        (cljs/eval
+          st
+          (let [ns-form (make-ns-form kind specs target-ns)]
+            (log-ns-form kind ns-form)
+            ns-form)
+          (make-base-eval-opts)
+          (fn [{e :error}]
+            (when is-self-require?
+              (reset! current-ns restore-ns))
+            (when e
+              (handle-error e false false)
+              (reset! st current-st))
+            (cb))))
+      (catch :default e
+        (handle-error e true false)
+        (reset! st current-st)))))
 
 (defn resolve
   "Given an analysis environment resolve a var. Analogous to

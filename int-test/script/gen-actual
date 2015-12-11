@@ -547,3 +547,9 @@ $PLANCK -v <<REPL_INPUT
 (def a 3)
 (def b (+ 2 3))
 REPL_INPUT
+
+echo "Test restore state when require fails"
+$PLANCK << REPL_INPUT
+(require '[clojure.set :refer [diff]])
+(require '[clojure.set])
+REPL_INPUT
