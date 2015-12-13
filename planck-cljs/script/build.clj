@@ -28,7 +28,9 @@
 
 (extract-analysis-cache "out/clojure/set.cljs.cache.edn" "out/clojure/set.cljs.cache.json")
 (extract-analysis-cache "out/clojure/string.cljs.cache.edn" "out/clojure/string.cljs.cache.json")
+(extract-analysis-cache "out/clojure/data.cljs.cache.edn" "out/clojure/data.cljs.cache.json")
 (extract-analysis-cache "out/clojure/walk.cljs.cache.edn" "out/clojure/walk.cljs.cache.json")
+(extract-analysis-cache "out/clojure/zip.cljs.cache.edn" "out/clojure/zip.cljs.cache.json")
 
 (extract-analysis-cache "out/cljs/analyzer.cljc.cache.edn" "out/cljs/analyzer.cljc.cache.json")
 (extract-analysis-cache "out/cljs/compiler.cljc.cache.edn" "out/cljs/compiler.cljc.cache.json")

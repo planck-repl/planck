@@ -1,6 +1,8 @@
 ;; A namespace used to cause additional libs to be included in out for bundling.
 (ns planck.bundle
   (:require
+    clojure.zip
+    clojure.data
     cljs.pprint
     cljs.test
     goog.Delay
@@ -49,6 +51,7 @@
     goog.date.relative.Unit
     goog.date.relativeWithPlurals
     goog.date.weekDay
+    goog.debug.Console
     goog.format
     goog.format.EmailAddress
     goog.format.HtmlPrettyPrinter
