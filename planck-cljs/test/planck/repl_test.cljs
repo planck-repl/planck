@@ -68,3 +68,10 @@
     (testing "returns error"
       (is (not (= nil result)))))
   (js/PLANCK_SET_EXIT_VALUE 0))
+
+(deftest get-root-cause
+  (let [root (ex-info "baz" {:z 3})
+        full (ex-info "foo" {:x 1}
+               (ex-info "bar" {:y 2}
+                 root))]
+    (is (= root (planck.repl/get-root-cause full)))))

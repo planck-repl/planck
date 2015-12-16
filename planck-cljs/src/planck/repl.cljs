@@ -542,12 +542,30 @@
                                                 (cljson->clj
                                                   (first (js/PLANCK_LOAD "cljs/core.js.map"))))})))
 
+(defn- get-root-cause
+  "Recursively gets the root cause of an exception."
+  [e]
+  (if-let [c (.-cause e)]
+    (recur c)
+    e))
+
+(defn- strip-if-reader-analysis
+  "Takes an ex-info and returns just the message
+  if the data indicates a reader or analysis issue."
+  [e]
+  {:pre [(instance? ExceptionInfo e)]}
+  (if (#{{:tag :cljs/analysis-error} {:type :reader-exception}} (.-data e))
+    (.-message e)
+    e))
+
 (defn print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
-   (let [cause (or (.-cause error) error)]
-     (println (.-message cause))
+   (let [cause (get-root-cause error)]
+     (println (if (instance? ExceptionInfo cause)
+                (strip-if-reader-analysis cause)
+                (.-message cause)))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
