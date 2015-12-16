@@ -554,8 +554,8 @@
   if the data indicates a reader or analysis issue."
   [e]
   {:pre [(instance? ExceptionInfo e)]}
-  (if (#{{:tag :cljs/analysis-error} {:type :reader-exception}} (.-data e))
-    (.-message e)
+  (if (#{{:tag :cljs/analysis-error} {:type :reader-exception}} (ex-data e))
+    (ex-message e)
     e))
 
 (defn print-error
