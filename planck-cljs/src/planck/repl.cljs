@@ -549,12 +549,19 @@
     (recur c)
     e))
 
+(defn- is-reader-or-analysis?
+  "Indicates if an ExceptionInfo data map pertains to
+  a reader or analysis issue."
+  [data]
+  {:pre [(map? data)]}
+  (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} data))
+
 (defn- strip-if-reader-analysis
   "Takes an ex-info and returns just the message
   if the data indicates a reader or analysis issue."
   [e]
   {:pre [(instance? ExceptionInfo e)]}
-  (if (#{{:tag :cljs/analysis-error} {:type :reader-exception}} (ex-data e))
+  (if (is-reader-or-analysis? (ex-data e))
     (ex-message e)
     e))
 

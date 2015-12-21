@@ -553,3 +553,9 @@ $PLANCK << REPL_INPUT
 (require '[clojure.set :refer [diff]])
 (require '[clojure.set])
 REPL_INPUT
+
+echo "Test reader and analysis diagnostics"
+$PLANCK << REPL_INPUT
+(require '[foo.bar :quu])
+)
+REPL_INPUT

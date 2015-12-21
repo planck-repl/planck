@@ -498,3 +498,8 @@ Test restore state when require fails
 Referred var clojure.set/diff does not exist
 nil
 nil
+Test reader and analysis diagnostics
+Only :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 
+nil
+Unmatched delimiter )
+
