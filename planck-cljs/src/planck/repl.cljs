@@ -51,39 +51,42 @@
   (let [wtr (transit/writer :json)]
     (transit/write wtr x)))
 
-(defn ^:export load-core-analysis-cache
-  []
-  (let [load (fn [key] (transit-json->cljs (first (js/PLANCK_LOAD (str "cljs/core.cljs.cache.aot." (munge key) ".json")))))]
-    (cljs/load-analysis-cache! st 'cljs.core
-      (lazy-map
-        {:use-macros              (load :use-macros)
-         :excludes                (load :excludes)
-         :name                    (load :name)
-         :imports                 (load :imports)
-         :requires                (load :requires)
-         :uses                    (load :uses)
-         :defs                    (load :defs)
-         :require-macros          (load :require-macros)
-         :cljs.analyzer/constants (load :cljs.analyzer/constants)
-         :doc                     (load :doc)})))
-  (let [load (fn [key] (transit-json->cljs (first (js/PLANCK_LOAD (str "cljs/core$macros.cljc.cache." (munge key) ".json")))))]
-    (cljs/load-analysis-cache! st 'cljs.core$macros
-      (lazy-map
-        {:use-macros              (load :use-macros)
-         :excludes                (load :excludes)
-         :name                    (load :name)
-         :imports                 (load :imports)
-         :requires                (load :requires)
-         :uses                    (load :uses)
-         :defs                    (load :defs)
-         :require-macros          (load :require-macros)
-         :cljs.analyzer/constants (load :cljs.analyzer/constants)
-         :doc                     (load :doc)}))))
+(defn- load-core-analysis-cache
+  [eager ns-sym file-prefix]
+  (let [keys        [:use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
+        load-single (fn [key]
+                      (transit-json->cljs (first (js/PLANCK_LOAD (str file-prefix (munge key) ".json")))))
+        load-all    (fn []
+                      (zipmap keys (map load-single keys)))
+        load        (fn [key]
+                      (let [cache (load-all)]
+                        (cljs/load-analysis-cache! st ns-sym cache)
+                        (key cache)))]
+    (cljs/load-analysis-cache! st ns-sym
+      (if eager
+        (load-all)
+        (lazy-map
+          {:use-macros              (load :use-macros)
+           :excludes                (load :excludes)
+           :name                    (load :name)
+           :imports                 (load :imports)
+           :requires                (load :requires)
+           :uses                    (load :uses)
+           :defs                    (load :defs)
+           :require-macros          (load :require-macros)
+           :cljs.analyzer/constants (load :cljs.analyzer/constants)
+           :doc                     (load :doc)})))))
+
+(defn- load-core-analysis-caches
+  [eager]
+  (load-core-analysis-cache eager 'cljs.core "cljs/core.cljs.cache.aot.")
+  (load-core-analysis-cache eager 'cljs.core$macros "cljs/core$macros.cljc.cache."))
 
 (defonce app-env (atom nil))
 
-(defn ^:export init-app-env
-  [verbose cache-path static-fns]
+(defn ^:export init
+  [repl verbose cache-path static-fns]
+  (load-core-analysis-caches repl)
   (reset! planck.repl/app-env {:verbose    verbose
                                :cache-path cache-path
                                :static-fns static-fns}))

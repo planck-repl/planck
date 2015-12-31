@@ -174,7 +174,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath repl:(BOOL)repl verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -393,23 +393,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"path, source, cache"
                                        inContext:self.context];
         
-        {
-            JSValueRef  arguments[0];
-            JSValueRef result;
-            int num_arguments = 0;
-            result = JSObjectCallAsFunction(self.context, [self getFunction:@"load-core-analysis-cache"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-        }
-        
-        {
-            JSValueRef  arguments[3];
-            JSValueRef result;
-            int num_arguments = 3;
-            arguments[0] = JSValueMakeBoolean(self.context, verbose);
-            arguments[1] = JSValueMakeStringFromNSString(self.context, cachePath);
-            arguments[2] = JSValueMakeBoolean(self.context, staticFns);
-            result = JSObjectCallAsFunction(self.context, [self getFunction:@"init-app-env"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-        }
-        
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -537,8 +520,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@"path"
                                        inContext:self.context];
         
-        // Set up to read from stdin
-        [self setToReadFrom:nil];
         
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -595,9 +576,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@""
                                        inContext:self.context];
         
-        
-        // Set up printing to occur on stdout and stderr by passing nil.
-        [self setToPrintOnSender:nil];
         
         __weak typeof(self) weakSelf = self;
         [ABYUtils installGlobalFunctionWithBlock:
@@ -895,6 +873,22 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_OUTPUT_STREAM_CLOSE"
                                          argList:@"descriptor"
                                        inContext:self.context];
+        
+        // Set up to read from stdin
+        [self setToReadFrom:nil];
+        
+        // Set up printing to occur on stdout and stderr by passing nil.
+        [self setToPrintOnSender:nil];
+        
+        {
+            JSValueRef  arguments[4];
+            int num_arguments = 4;
+            arguments[0] = JSValueMakeBoolean(self.context, repl);
+            arguments[1] = JSValueMakeBoolean(self.context, verbose);
+            arguments[2] = JSValueMakeStringFromNSString(self.context, cachePath);
+            arguments[3] = JSValueMakeBoolean(self.context, staticFns);
+            JSObjectCallAsFunction(self.context, [self getFunction:@"init"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+        }
         
         // Set up the cljs.user namespace
         
