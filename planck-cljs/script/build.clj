@@ -4,15 +4,15 @@
             [cognitect.transit :as transit])
   (:import [java.io ByteArrayOutputStream]))
 
-(defn extract-analysis-cache [res out-path]
+(defn write-cache [cache out-path]
   (let [out (ByteArrayOutputStream. 1000000)
-        writer (transit/writer out :json)
-        cache (read-string
-                (slurp res))]
+        writer (transit/writer out :json)]
     (transit/write writer cache)
     (spit (io/file out-path) (.toString out))))
 
-
+(defn extract-analysis-cache [res out-path]
+  (let [cache (read-string (slurp res))]
+    (write-cache cache out-path)))
 
 (println "Building")
 (api/build (api/inputs "src" "test") ;; For now, pre-compile tests
@@ -24,7 +24,15 @@
    :dump-core          false
    :parallel-build     true})
 
-(extract-analysis-cache (io/resource "cljs/core.cljs.cache.aot.edn") "out/cljs/core.cljs.cache.aot.json")
+(let [res (io/resource "cljs/core.cljs.cache.aot.edn")
+      cache (read-string (slurp res))]
+  (doseq [key (keys cache)]
+    (write-cache (key cache) (str "out/cljs/core.cljs.cache.aot." (munge key) ".json"))))
+
+(let [res "out/cljs/core$macros.cljc.cache.edn"
+      cache (read-string (slurp res))]
+  (doseq [key (keys cache)]
+    (write-cache (key cache) (str "out/cljs/core$macros.cljc.cache." (munge key) ".json"))))
 
 (extract-analysis-cache "out/clojure/set.cljs.cache.edn" "out/clojure/set.cljs.cache.json")
 (extract-analysis-cache "out/clojure/string.cljs.cache.edn" "out/clojure/string.cljs.cache.json")
@@ -34,7 +42,6 @@
 
 (extract-analysis-cache "out/cljs/analyzer.cljc.cache.edn" "out/cljs/analyzer.cljc.cache.json")
 (extract-analysis-cache "out/cljs/compiler.cljc.cache.edn" "out/cljs/compiler.cljc.cache.json")
-(extract-analysis-cache "out/cljs/core$macros.cljc.cache.edn" "out/cljs/core$macros.cljc.cache.json")
 (extract-analysis-cache "out/cljs/env.cljc.cache.edn" "out/cljs/env.cljc.cache.json")
 (extract-analysis-cache "out/cljs/js.cljs.cache.edn" "out/cljs/js.cljs.cache.json")
 (extract-analysis-cache "out/cljs/pprint.cljs.cache.edn" "out/cljs/pprint.cljs.cache.json")

@@ -12,7 +12,8 @@
             [cljs.stacktrace :as st]
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
-            [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]))
+            [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
+            [lazy-map.core :refer-macros [lazy-map]]))
 
 (defn- println-verbose
   [& args]
@@ -52,10 +53,32 @@
 
 (defn ^:export load-core-analysis-cache
   []
-  (cljs/load-analysis-cache! st 'cljs.core
-    (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core.cljs.cache.aot.json"))))
-  (cljs/load-analysis-cache! st 'cljs.core$macros
-    (transit-json->cljs (first (js/PLANCK_LOAD "cljs/core$macros.cljc.cache.json")))))
+  (let [load (fn [key] (transit-json->cljs (first (js/PLANCK_LOAD (str "cljs/core.cljs.cache.aot." (munge key) ".json")))))]
+    (cljs/load-analysis-cache! st 'cljs.core
+      (lazy-map
+        {:use-macros              (load :use-macros)
+         :excludes                (load :excludes)
+         :name                    (load :name)
+         :imports                 (load :imports)
+         :requires                (load :requires)
+         :uses                    (load :uses)
+         :defs                    (load :defs)
+         :require-macros          (load :require-macros)
+         :cljs.analyzer/constants (load :cljs.analyzer/constants)
+         :doc                     (load :doc)})))
+  (let [load (fn [key] (transit-json->cljs (first (js/PLANCK_LOAD (str "cljs/core$macros.cljc.cache." (munge key) ".json")))))]
+    (cljs/load-analysis-cache! st 'cljs.core$macros
+      (lazy-map
+        {:use-macros              (load :use-macros)
+         :excludes                (load :excludes)
+         :name                    (load :name)
+         :imports                 (load :imports)
+         :requires                (load :requires)
+         :uses                    (load :uses)
+         :defs                    (load :defs)
+         :require-macros          (load :require-macros)
+         :cljs.analyzer/constants (load :cljs.analyzer/constants)
+         :doc                     (load :doc)}))))
 
 (defonce app-env (atom nil))
 
