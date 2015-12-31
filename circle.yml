@@ -1,5 +1,6 @@
 machine:
   pre:
+    - brew uninstall --force brew-cask
     - brew tap caskroom/cask
     - brew tap caskroom/versions
     - brew update
