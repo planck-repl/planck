@@ -7,6 +7,7 @@
             [cljs.tools.reader.reader-types :as rt]
             [cljs.tagged-literals :as tags]
             [cljs.source-map :as sm]
+            [cljs.env :as env]
             [cljs.js :as cljs]
             [cljs.repl :as repl]
             [cljs.stacktrace :as st]
@@ -93,7 +94,11 @@
 
 (defn repl-read-string
   [line]
-  (r/read-string {:read-cond :allow :features #{:cljs}} line))
+  (binding [ana/*cljs-ns* @current-ns
+            env/*compiler* st
+            r/*data-readers* tags/*cljs-data-readers*
+            r/resolve-symbol ana/resolve-symbol]
+    (r/read-string {:read-cond :allow :features #{:cljs}} line)))
 
 (defn- eof-while-reading?
   [message]
@@ -103,19 +108,18 @@
 
 (defn ^:export is-readable?
   [line]
-  (binding [r/*data-readers* tags/*cljs-data-readers*]
-    (try
-      (repl-read-string line)
-      true
-      (catch :default e
-        (let [message (.-message e)]
-          (cond
-            (eof-while-reading? message) false
-            (= "EOF" message) true
-            :else (do
-                    (print-error e false)
-                    (println)
-                    true)))))))
+  (try
+    (repl-read-string line)
+    true
+    (catch :default e
+      (let [message (.-message e)]
+        (cond
+          (eof-while-reading? message) false
+          (= "EOF" message) true
+          :else (do
+                  (print-error e false)
+                  (println)
+                  true))))))
 
 (defn ns-form?
   [form]
@@ -325,7 +329,10 @@
 (defn- is-completely-readable?
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
-    (binding [r/*data-readers* tags/*cljs-data-readers*]
+    (binding [ana/*cljs-ns* @current-ns
+              env/*compiler* st
+              r/*data-readers* tags/*cljs-data-readers*
+              r/resolve-symbol ana/resolve-symbol]
       (try
         (r/read {:eof (js-obj) :read-cond :allow :features #{:cljs}} rdr)
         (nil? (rt/peek-char rdr))
