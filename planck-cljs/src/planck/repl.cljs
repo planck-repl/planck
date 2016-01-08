@@ -161,9 +161,9 @@
     argument
     (make-base-eval-opts)
     (fn [result]
-      (if (and (map? result) (:error result))
+      (if (:error result)
         (print-error (:error result) false)
-        (let [ns-name result]
+        (let [ns-name (:value result)]
           (if-not (symbol? ns-name)
             (println "Argument to in-ns must be a symbol.")
             (if (some (partial = ns-name) (known-namespaces))
@@ -748,7 +748,8 @@
     (try (cljs/eval st
            expr
            (make-base-eval-opts)
-           print-error)
+           (fn [{:keys [value]}]
+             (print-error value)))
          (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file
