@@ -623,10 +623,14 @@
   [env sym]
   (let [var (with-compiler-env st (resolve env sym))
         var (or var
-                (if-let [macro-var (with-compiler-env st
-                                     (resolve env (symbol "cljs.core$macros" (name sym))))]
-                  (update (assoc macro-var :ns 'cljs.core)
-                    :name #(symbol "cljs.core" (name %)))))]
+              (if-let [macro-var (with-compiler-env st
+                                   (resolve env (symbol "cljs.core$macros" (name sym))))]
+                (update (assoc macro-var :ns 'cljs.core)
+                  :name #(symbol "cljs.core" (name %))))
+              (if-let [macro-var (with-compiler-env st
+                                   (resolve env (symbol "planck.repl$macros" (name sym))))]
+                (update (assoc macro-var :ns 'planck.core)
+                  :name #(symbol "planck.repl" (name %)))))]
     (if (= (namespace (:name var)) (str (:ns var)))
       (update var :name #(symbol (name %)))
       var)))
@@ -711,7 +715,7 @@
                           (js/eval source))))))))
         (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
 
-(defn- process-doc
+(defn doc*
   [sym]
   (cond
 
@@ -742,15 +746,20 @@
                                   :arglists (seq sigs)}]))
                    (into {}))))))))
 
-(defn- process-pst
-  [expr]
-  (let [expr (or expr '*e)]
-    (try (cljs/eval st
-           expr
-           (make-base-eval-opts)
-           (fn [{:keys [value]}]
+(defn source*
+  [sym]
+  (println (fetch-source (get-var (get-aenv) sym))))
+
+(defn pst*
+  ([]
+   (pst* '*e))
+  ([expr]
+   (try (cljs/eval st
+          expr
+          (make-base-eval-opts)
+          (fn [{:keys [value]}]
              (print-error value)))
-         (catch js/Error e (prn :caught e)))))
+        (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file
   [argument {:keys [in-exit-context?] :as opts}]
@@ -768,9 +777,6 @@
       require (process-require :require identity (rest expression-form))
       require-macros (process-require :require-macros identity (rest expression-form))
       import (process-require :import identity (rest expression-form))
-      doc (process-doc argument)
-      source (println (fetch-source (get-var (get-aenv) argument)))
-      pst (process-pst argument)
       load-file (process-load-file argument opts))
     (when print-nil-expression?
       (prn nil))))

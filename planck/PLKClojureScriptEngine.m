@@ -174,7 +174,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath repl:(BOOL)repl verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -576,7 +576,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@""
                                        inContext:self.context];
         
-        
         __weak typeof(self) weakSelf = self;
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -873,13 +872,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_OUTPUT_STREAM_CLOSE"
                                          argList:@"descriptor"
                                        inContext:self.context];
-        
+
         // Set up to read from stdin
         [self setToReadFrom:nil];
-        
-        // Set up printing to occur on stdout and stderr by passing nil.
-        [self setToPrintOnSender:nil];
-        
+        [self setToPrintOnSender:^(NSString* msg){}];
+
         {
             JSValueRef  arguments[4];
             int num_arguments = 4;
@@ -890,14 +887,28 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
             JSObjectCallAsFunction(self.context, [self getFunction:@"init"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
+        // Set up REPL requires
+        if (repl) {
+            [self executeSourceType:@"text"
+                              value:@"(require '[planck.repl :refer-macros [doc source pst]])"
+                         expression:YES
+                 printNilExpression:NO
+                      inExitContext:NO
+                              setNs:@"cljs.user"
+                    blockUntilReady:NO];
+        }
+
+        [self setToPrintOnSender:nil];
+        
         // Set up the cljs.user namespace
         
         [ABYUtils evaluateScript:@"goog.provide('cljs.user')" inContext:self.context];
         [ABYUtils evaluateScript:@"goog.require('cljs.core')" inContext:self.context];
-        
+
         // Go for launch!
         
         [self signalEngineReady];
+        
         
     });
 }
@@ -1049,9 +1060,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs blockUntilReady:(BOOL)blockUntilReady
 {
-    [self blockUntilEngineReady];
+    if (blockUntilReady) {
+        [self blockUntilEngineReady];
+    }
+    
     if (!inExitContext) {
         // Default return value will indicate non-terminating successful exit
         self.exitValue = PLANK_EXIT_SUCCESS_NONTERMINATE;

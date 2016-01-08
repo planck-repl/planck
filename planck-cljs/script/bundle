@@ -4,11 +4,13 @@
 set -e
 set -o pipefail
 
+cp src/planck/repl.clj out/planck
+
 echo '#import <Foundation/Foundation.h>' > PLKBundledOut.m
 echo '#import "zlib.h"' >> PLKBundledOut.m
 echo "" > manifest.m
 cd out
-for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.map' -o -name '*.json'`
+for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json'`
 do 
 file=${file:2}
 cp $file $file.bak

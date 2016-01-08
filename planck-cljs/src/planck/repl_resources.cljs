@@ -149,10 +149,4 @@ itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
   constructor named by closure-namespace to the current namespace. Use :import in the ns
   macro in preference to calling this directly."}
     load-file      {:arglists ([name])
-                    :doc      "Sequentially read and evaluate the set of forms contained in the file."}
-    doc            {:arglists ([name])
-                    :doc      "Prints documentation for a var or special form given its name"}
-    source         {:arglists ([name])
-                    :doc      "Prints the source code for the given symbol, if it can find it.\n  This requires that the symbol resolve to a Var defined in a\n  namespace for which the source is available.\n\n  Example: (source filter)"}
-    pst            {:arglists ([] [e])
-                    :doc      "Prints a stack trace of the exception.\n  If none supplied, uses the root cause of the most recent repl exception (*e)"}})
+                    :doc      "Sequentially read and evaluate the set of forms contained in the file."}})

@@ -458,7 +458,8 @@ void handleConnect (
                                                            expression:YES
                                                    printNilExpression:YES
                                                         inExitContext:NO
-                                                                setNs:self.currentNs];
+                                                                setNs:self.currentNs
+                                                      blockUntilReady:YES];
             
             
             if (self.outputStream) {

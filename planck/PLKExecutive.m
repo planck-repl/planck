@@ -33,7 +33,7 @@
         // the first arg will be treated as a path to a file to be executed and should not be bound
         boundArgs = [args subarrayWithRange:NSMakeRange(1, args.count - 1)];
     }
-    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath repl:repl verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion];
+    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl];
     
     // Process init arguments
     
@@ -70,7 +70,7 @@
     return exitValue;
 }
 
--(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath repl:(BOOL)repl verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion
+-(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl
 {
     NSMutableArray* adjustedSrcPaths = [[NSMutableArray alloc] init];
     for (NSArray* srcPath in srcPaths) {
@@ -105,7 +105,7 @@
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     
     self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
-    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath repl:repl verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion];
+    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl];
 }
 
 -(NSString*)ensureTrailingSlash:(NSString*)s
@@ -135,7 +135,8 @@
                                             expression:script.expression
                                     printNilExpression:NO
                                          inExitContext:YES
-                                                 setNs:nil];
+                                                 setNs:nil
+                                       blockUntilReady:YES];
 }
 
 @end

@@ -215,9 +215,9 @@ Special Form
   Please see http://clojure.org/special_forms#if
 nil
 -------------------------
-doc
-([name])
-REPL Special Function
+planck.core/doc
+(quote ([sym]))
+Macro
   Prints documentation for a var or special form given its name
 nil
 -------------------------
