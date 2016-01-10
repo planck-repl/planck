@@ -260,7 +260,7 @@
             printf("  operation:\n");
             printf("\n");
             printf("    - Enters the cljs.user namespace\n");
-            printf("    - Binds *command-line-args* to a seq of strings containing command line\n");
+            printf("    - Binds planck.core/*command-line-args* to a seq of strings containing command line\n");
             printf("      args that appear after any main option\n");
             printf("    - Runs all init options in order\n");
             printf("    - Calls a -main function or runs a repl or script if requested\n");
