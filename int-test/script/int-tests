@@ -55,8 +55,8 @@ Usage:  planck [init-opt*] [main-opt] [args]
   operation:
 
     - Enters the cljs.user namespace
-    - Binds *command-line-args* to a seq of strings containing command line
-      args that appear after any main option
+    - Binds planck.core/*command-line-args* to a seq of strings containing
+      command line args that appear after any main option
     - Runs all init options in order
     - Calls a -main function or runs a repl or script if requested
 
