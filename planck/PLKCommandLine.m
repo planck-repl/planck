@@ -231,7 +231,7 @@
     } else {
         if (help) {
             printf("planck %s\n", PLANCK_VERSION);
-            printf("Usage:  planck [init-opt*] [main-opt] [args]\n");
+            printf("Usage:  planck [init-opt*] [main-opt] [arg*]\n");
             printf("\n");
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
             printf("\n");
