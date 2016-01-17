@@ -88,9 +88,10 @@
 (defn ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
-  (reset! planck.repl/app-env {:verbose    verbose
-                               :cache-path cache-path
-                               :static-fns static-fns}))
+  (reset! planck.repl/app-env (merge {:verbose    verbose
+                                      :cache-path cache-path}
+                                (when static-fns
+                                  {:static-fns true}))))
 
 (defn repl-read-string
   [line]
@@ -397,17 +398,29 @@
 
 (def extract-cache-metadata-mem (memoize extract-cache-metadata))
 
-(defn compiled-by-string
-  ([] (compiled-by-string nil))
+(defn form-compiled-by-string
+  ([] (form-compiled-by-string nil))
   ([opts]
    (str "// Compiled by ClojureScript "
      *clojurescript-version*
      (when opts
        (str " " (pr-str opts))))))
 
-(defn extract-clojurescript-compiler-version
+(defn read-build-affecting-options
+  [source]
+  (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
+    (binding [r/*data-readers* tags/*cljs-data-readers*]
+      (try
+        (r/read {:eof (js-obj)} rdr)
+        (catch :default _
+          nil)))))
+
+(defn extract-source-build-info
   [js-source]
-  (second (re-find #"// Compiled by ClojureScript (\S*)" js-source)))
+  (let [[cljs-ver build-affecting-options] (rest (re-find #"// Compiled by ClojureScript (\S*)(.*)?" js-source))
+        build-affecting-options (when build-affecting-options
+                                  (read-build-affecting-options build-affecting-options))]
+    [cljs-ver build-affecting-options]))
 
 (defn is-macros?
   [cache]
@@ -417,11 +430,19 @@
   [name]
   (not= name 'planck.repl))
 
+(defn form-build-affecting-options
+  []
+  (let [m (select-keys @app-env [:static-fns])]
+    (if (empty? m)
+      nil
+      m)))
+
 (defn caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env) (cache-eligible? name))
     (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
-      (str (compiled-by-string) "\n" source) (cljs->transit-json cache)))
+      (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
+      (cljs->transit-json cache)))
   (js/eval source))
 
 (defn extension->lang
@@ -442,7 +463,9 @@
   (and js-source
        (or (= 0 js-modified source-file-modified)           ;; 0 means bundled
            (and (> js-modified source-file-modified)
-                (= *clojurescript-version* (extract-clojurescript-compiler-version js-source))))))
+                (let [[cljs-ver build-affecting-options] (extract-source-build-info js-source)]
+                  (and (= *clojurescript-version* cljs-ver)
+                       (= build-affecting-options (form-build-affecting-options))))))))
 
 (defn- cached-callback-data
   [path cache-prefix source source-modified raw-load]
@@ -791,7 +814,8 @@
     (when (and (= "File" (:name x)) (:source x))
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)]
-        (js/PLANCK_CACHE (cache-prefix-for-path relpath false) (str (compiled-by-string) "\n" source)
+        (js/PLANCK_CACHE (cache-prefix-for-path relpath false)
+          (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
           (when file-namespace
             (cljs->transit-json (get-namespace file-namespace))))))
     (cb {:value nil})))
