@@ -620,7 +620,7 @@
                   :name #(symbol "cljs.core" (name %))))
               (if-let [macro-var (with-compiler-env st
                                    (resolve env (symbol "planck.repl$macros" (name sym))))]
-                (update (assoc macro-var :ns 'planck.core)
+                (update (assoc macro-var :ns 'planck.repl)
                   :name #(symbol "planck.repl" (name %)))))]
     (if (= (namespace (:name var)) (str (:ns var)))
       (update var :name #(symbol (name %)))
