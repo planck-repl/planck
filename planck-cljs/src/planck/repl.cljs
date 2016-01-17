@@ -413,9 +413,13 @@
   [cache]
   (s/ends-with? (str (:name cache)) "$macros"))
 
+(defn cache-eligible?
+  [name]
+  (not= name 'planck.repl))
+
 (defn caching-js-eval
   [{:keys [path name source cache]}]
-  (when (and path source cache (:cache-path @app-env))
+  (when (and path source cache (:cache-path @app-env) (cache-eligible? name))
     (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
       (str (compiled-by-string) "\n" source) (cljs->transit-json cache)))
   (js/eval source))
