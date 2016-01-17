@@ -583,30 +583,21 @@
     e))
 
 (defn- is-reader-or-analysis?
-  "Indicates if an ExceptionInfo data map pertains to
-  a reader or analysis issue."
-  [data]
-  {:pre [(map? data)]}
-  (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} data))
-
-(defn- strip-if-reader-analysis
-  "Takes an ex-info and returns just the message
-  if the data indicates a reader or analysis issue."
+  "Indicates if an exception is a reader or analysis exception."
   [e]
-  {:pre [(instance? ExceptionInfo e)]}
-  (if (is-reader-or-analysis? (ex-data e))
-    (ex-message e)
-    e))
+  (and (instance? ExceptionInfo e)
+       (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
 
 (defn print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
    (let [cause (get-root-cause error)]
-     (println (if (instance? ExceptionInfo cause)
-                (strip-if-reader-analysis cause)
+     (println (if (is-reader-or-analysis? cause)
+                (ex-message cause)
                 (.-message cause)))
-     (when include-stacktrace?
+     (when (and (not (is-reader-or-analysis? cause))
+                include-stacktrace?)
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
                                     {}
