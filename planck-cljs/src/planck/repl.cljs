@@ -28,13 +28,25 @@
 
 (defonce current-ns (atom 'cljs.user))
 
-(defn- known-namespaces
+(defn- all-ns
+  "Returns a sequence of all namespaces."
   []
   (keys (:cljs.analyzer/namespaces @st)))
 
 (defn- get-namespace
-  [sym]
-  (get-in @st [:cljs.analyzer/namespaces sym]))
+  "Gets the AST for a given namespace."
+  [ns]
+  {:pre [(symbol? ns)]}
+  (get-in @st [:cljs.analyzer/namespaces ns]))
+
+(defn- public-syms
+  "Returns a sequence of the public symbols in a namespace."
+  [ns]
+  {:pre [(symbol? ns)]}
+  (->> (get-namespace ns)
+    :defs
+    (filter (comp not :private second))
+    (map key)))
 
 (defn- get-aenv
   []
@@ -167,7 +179,7 @@
         (let [ns-name (:value result)]
           (if-not (symbol? ns-name)
             (println "Argument to in-ns must be a symbol.")
-            (if (some (partial = ns-name) (known-namespaces))
+            (if (some (partial = ns-name) (all-ns))
               (reset! current-ns ns-name)
               (let [ns-form `(~'ns ~ns-name)]
                 (cljs/eval
@@ -315,7 +327,7 @@
 
 (defn ^:export get-completions
   [buffer]
-  (let [namespace-candidates (map str (known-namespaces))
+  (let [namespace-candidates (map str (all-ns))
         top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
         typed-ns             (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
     (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
