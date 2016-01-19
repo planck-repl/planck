@@ -1,5 +1,12 @@
 (ns planck.repl)
 
+(defmacro apropos
+  "Given a regular expression or stringable thing, return a seq of all
+  public definitions in all currently-loaded namespaces that match the
+  str-or-pattern."
+  [str-or-pattern]
+  `(planck.repl/apropos* '~str-or-pattern))
+
 (defmacro doc
   "Prints documentation for a var or special form given its name"
   [sym]

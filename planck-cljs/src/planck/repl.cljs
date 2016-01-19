@@ -745,6 +745,20 @@
                           (js/eval source))))))))
         (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
 
+(defn apropos*
+  [str-or-pattern]
+  (let [matches? (if (instance? js/RegExp str-or-pattern)
+                   #(re-find str-or-pattern (str %))
+                   #(s/includes? (str %) (str str-or-pattern)))]
+    (sort (mapcat (fn [ns]
+                    (let [ns-name (str ns)
+                          ns-name (if (s/ends-with? ns-name "$macros")
+                                    (apply str (drop-last 7 ns-name))
+                                    ns-name)]
+                      (map #(symbol ns-name (str %))
+                        (filter matches? (public-syms ns)))))
+            (all-ns)))))
+
 (defn doc*
   [sym]
   (cond

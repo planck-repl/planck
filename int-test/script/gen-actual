@@ -223,6 +223,18 @@ $PLANCK <<REPL_INPUT
 ::a
 REPL_INPUT
 
+echo "Test apropos"
+$PLANCK <<REPL_INPUT
+(ns foo.bar)
+(def xfirst 3)
+(def ^:private nfirst 4)
+(def macro-crazy 10)
+(in-ns 'cljs.user)
+(apropos #"[a-z]+first")
+(apropos "macro")
+(apropos macroexpand)
+REPL_INPUT
+
 echo "Test doc REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (doc inc)
