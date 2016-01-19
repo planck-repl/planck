@@ -1,0 +1,4 @@
+(ns load-me.core)
+
+(def a 3)
+(def b 4)

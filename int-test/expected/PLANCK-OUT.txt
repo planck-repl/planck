@@ -314,11 +314,12 @@ whoah
 
 nil
 Test load-file REPL special
-#'test-load-file.core/success
 nil
 true
+nil
+3
+4
 Test load-file from classpath
-#'test-load-file.core/success
 nil
 true
 Test doc support for load-file REPL special

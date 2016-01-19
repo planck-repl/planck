@@ -277,6 +277,9 @@ echo "Test load-file REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/core.cljs")
 test-load-file.core/success
+(load-file "int-test/src/load-me")
+load-me.core/a
+load-me.core/b
 REPL_INPUT
 
 echo "Test load-file from classpath"

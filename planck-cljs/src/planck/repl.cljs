@@ -821,7 +821,7 @@
       require (process-require :require identity (rest expression-form))
       require-macros (process-require :require-macros identity (rest expression-form))
       import (process-require :import identity (rest expression-form))
-      load-file (process-load-file argument opts))
+      load-file (process-load-file argument (assoc opts :expression? false)))
     (when print-nil-expression?
       (prn nil))))
 
