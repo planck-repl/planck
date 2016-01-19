@@ -11,7 +11,7 @@
     [cmd (merge default-opts (apply hash-map opts))]))
 
 (defn sh
-  "Passes the given strings to Runtime.exec() to launch a sub-process.
+  "Launches a sub-process with the supplied arguments.
   Options are
   :in      may be given followed by a string of one of the following formats:
            String conforming to URL Syntax: 'file:///tmp/test.txt'
