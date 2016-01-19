@@ -105,13 +105,21 @@
                                 (when static-fns
                                   {:static-fns true}))))
 
+(defn- read-chars
+  [reader]
+  (lazy-seq
+    (when-let [ch (rt/read-char reader)]
+      (cons ch (read-chars reader)))))
+
 (defn repl-read-string
-  [line]
+  "Returns a vector of the first read form, and any balance text."
+  [source]
   (binding [ana/*cljs-ns* @current-ns
             env/*compiler* st
             r/*data-readers* tags/*cljs-data-readers*
             r/resolve-symbol ana/resolve-symbol]
-    (r/read-string {:read-cond :allow :features #{:cljs}} line)))
+    (let [reader (rt/string-push-back-reader source)]
+      [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))])))
 
 (defn- eof-while-reading?
   [message]
@@ -120,19 +128,20 @@
     (= "EOF while reading string" message)))
 
 (defn ^:export is-readable?
-  [line]
+  "Returns a string representing any text after the first readible form,
+  nor nil if nothing readible."
+  [source]
   (try
-    (repl-read-string line)
-    true
+    (second (repl-read-string source))
     (catch :default e
       (let [message (.-message e)]
         (cond
-          (eof-while-reading? message) false
-          (= "EOF" message) true
+          (eof-while-reading? message) nil
+          (= "EOF" message) ""
           :else (do
                   (print-error e false)
                   (println)
-                  true))))))
+                  ""))))))
 
 (defn ns-form?
   [form]
@@ -140,7 +149,7 @@
 
 (defn extract-namespace
   [source]
-  (let [first-form (repl-read-string source)]
+  (let [first-form (first (repl-read-string source))]
     (when (ns-form? first-form)
       (second first-form))))
 
@@ -906,7 +915,7 @@
     (if-not (= "text" source-type)
       (process-execute-path source-value opts)
       (let [source-text     source-value
-            expression-form (and expression? (repl-read-string source-text))]
+            expression-form (and expression? (first (repl-read-string source-text)))]
         (if (repl-special? expression-form)
           (process-repl-special expression-form opts)
           (process-execute-source source-text expression-form opts))))))

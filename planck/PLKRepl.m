@@ -426,84 +426,97 @@ void handleConnect (
         linenoiseHistorySave([self.historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
     }
     
-    // Check if we now have a readable form
-    // and if so, evaluate it.
+    // Check if we now have readable forms
+    // and if so, evaluate them.
     
-    if ([s_clojureScriptEngine isReadable:self.input]) {
-        
-        if (![self isWhitespace:self.input]) {  // Guard against empty string being read
+    BOOL done = NO;
+    NSString* balanceText = nil;
+    
+    while (!done) {
+        if ((balanceText = [s_clojureScriptEngine isReadable:self.input]) != nil) {
             
-            [s_evalLock lock];
+            self.input = [self.input substringToIndex:[self.input length] - [balanceText length]];
             
-            if (self.outputStream) {
-                self.evaluating = YES;
-                self.readQueue = [[MKBlockingQueue alloc] init];
+            if (![self isWhitespace:self.input]) {  // Guard against empty string being read
                 
-                [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
+                [s_evalLock lock];
+                
+                if (self.outputStream) {
+                    self.evaluating = YES;
+                    self.readQueue = [[MKBlockingQueue alloc] init];
+                    
+                    [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
+                        @synchronized(self.sendLock) {
+                            [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
+                        }
+                    }];
+                    
+                    [s_clojureScriptEngine setToReadFrom:^NSString *{
+                        while (self.evaluating) {
+                            return (NSString*)[self.readQueue dequeue];
+                        }
+                        return nil;
+                    }];
+                }
+                
+                self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
+                                                                    value:self.input
+                                                               expression:YES
+                                                       printNilExpression:YES
+                                                            inExitContext:NO
+                                                                    setNs:self.currentNs
+                                                          blockUntilReady:YES];
+                
+                
+                if (self.outputStream) {
+                    [s_clojureScriptEngine setToPrintOnSender:nil];
+                    
+                    [s_clojureScriptEngine setToReadFrom:nil];
+                    
+                    self.evaluating = NO;
+                    [self.readQueue enqueue:@""];
+                }
+                
+                [s_evalLock unlock];
+                
+                if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
+                    return YES;
+                }
+                
+            } else {
+                
+                if (self.outputStream) {
                     @synchronized(self.sendLock) {
-                        [self sendData:[msg dataUsingEncoding:NSUTF8StringEncoding]];
+                        [self sendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
                     }
-                }];
+                } else {
+                    printf("\n");
+                }
                 
-                [s_clojureScriptEngine setToReadFrom:^NSString *{
-                    while (self.evaluating) {
-                        return (NSString*)[self.readQueue dequeue];
-                    }
-                    return nil;
-                }];
             }
             
-            self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
-                                                                value:self.input
-                                                           expression:YES
-                                                   printNilExpression:YES
-                                                        inExitContext:NO
-                                                                setNs:self.currentNs
-                                                      blockUntilReady:YES];
+            // Now that we've evaluated the input, reset for next round
             
+            self.input = balanceText;
+            [self.previousLines removeAllObjects];
             
-            if (self.outputStream) {
-                [s_clojureScriptEngine setToPrintOnSender:nil];
-                
-                [s_clojureScriptEngine setToReadFrom:nil];
-                
-                self.evaluating = NO;
-                [self.readQueue enqueue:@""];
-            }
+            // Fetch the current namespace and use it to set the prompt
             
-            [s_evalLock unlock];
+            self.currentNs = [s_clojureScriptEngine getCurrentNs];
+            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:richTerminal];
             
-            if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
-                return YES;
+            if ([self isWhitespace:balanceText]) {
+                done = YES;
+                self.input = nil;
             }
             
         } else {
             
-            if (self.outputStream) {
-                @synchronized(self.sendLock) {
-                    [self sendData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]];
-                }
-            } else {
-                printf("\n");
-            }
+            // Prepare for reading non-1st line of input with secondary prompt
             
+            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
+            done = YES;
         }
-        
-        // Now that we've evaluated the input, reset for next round
-        
-        self.input = nil;
-        [self.previousLines removeAllObjects];
-        
-        // Fetch the current namespace and use it to set the prompt
-        
-        self.currentNs = [s_clojureScriptEngine getCurrentNs];
-        self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:richTerminal];
-        
-    } else {
-        
-        // Prepare for reading non-1st line of input with secondary prompt
-        
-        self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
     }
     
     if (self.outputStream && self.currentPrompt) {
