@@ -785,6 +785,8 @@
     :else
     (repl/print-doc
       (let [var (get-var (get-aenv) sym)
+            var (cond-> var
+                  (:macro var) (assoc :arglists (-> var :meta :arglists second)))
             m   (select-keys var
                   [:ns :name :doc :forms :arglists :macro :url])]
         (cond-> (update-in m [:name] name)
