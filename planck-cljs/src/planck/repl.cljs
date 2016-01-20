@@ -754,6 +754,13 @@
                           (js/eval source))))))))
         (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
 
+(defn dir*
+  [nsname]
+  (run! prn
+    (distinct (sort (concat
+                      (public-syms nsname)
+                      (public-syms (symbol (str (name nsname) "$macros"))))))))
+
 (defn apropos*
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)

@@ -201,6 +201,18 @@ nil
 (cljs.core/ffirst cljs.core/nfirst foo.bar/xfirst)
 (cljs.core/defmacro cljs.core/find-macros-ns cljs.core/macroexpand cljs.core/macroexpand-1 foo.bar/macro-crazy)
 (cljs.core/macroexpand cljs.core/macroexpand-1)
+Test dir
+nil
+#'foo.bar/xfirst
+#'foo.bar/nfirst
+#'foo.bar/macro-crazy
+nil
+true
+nil
+macro-crazy
+somemacro
+xfirst
+nil
 Test doc REPL special
 -------------------------
 cljs.core/inc

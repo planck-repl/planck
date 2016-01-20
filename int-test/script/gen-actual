@@ -235,6 +235,18 @@ $PLANCK <<REPL_INPUT
 (apropos macroexpand)
 REPL_INPUT
 
+echo "Test dir"
+$PLANCK <<REPL_INPUT
+(ns foo.bar)
+(def xfirst 3)
+(def ^:private nfirst 4)
+(def macro-crazy 10)
+(ns foo.bar$macros)
+(defmacro somemacro [])
+(in-ns 'cljs.user)
+(dir foo.bar)
+REPL_INPUT
+
 echo "Test doc REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (doc inc)

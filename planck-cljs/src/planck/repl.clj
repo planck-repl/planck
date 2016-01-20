@@ -7,6 +7,11 @@
   [str-or-pattern]
   `(planck.repl/apropos* '~str-or-pattern))
 
+(defmacro dir
+  "Prints a sorted directory of public vars in a namespace"
+  [nsname]
+  `(planck.repl/dir* '~nsname))
+
 (defmacro doc
   "Prints documentation for a var or special form given its name"
   [sym]
