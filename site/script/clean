@@ -1,0 +1,6 @@
+#!/usr/bin/env planck
+(ns planck.clean
+  (:require [planck.shell :refer [sh]]))
+
+; Xcode
+(sh "rm" "-rf" "target")

@@ -1,0 +1,198 @@
+@font-face {
+    font-family: 'core_sans_e';
+    src: url('http://fonts.fikesfarm.com/coresanse45-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/coresanse45-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/coresanse45-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/coresanse45-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/coresanse45-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/coresanse45-webfont.svg#core_sans_e45_regular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'core_sans_e';
+    src: url('http://fonts.fikesfarm.com/coresanse45it-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/coresanse45it-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/coresanse45it-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/coresanse45it-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/coresanse45it-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/coresanse45it-webfont.svg#core_sans_e45_regular_italic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'core_sans_e';
+    src: url('http://fonts.fikesfarm.com/coresanse65-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/coresanse65-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/coresanse65-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/coresanse65-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/coresanse65-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/coresanse65-webfont.svg#core_sans_e65_bold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'core_sans_e';
+    src: url('http://fonts.fikesfarm.com/coresanse65it-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/coresanse65it-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/coresanse65it-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/coresanse65it-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/coresanse65it-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/coresanse65it-webfont.svg#core_sans_e65_bold_italic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'eco_coding';
+    src: url('http://fonts.fikesfarm.com/EcoCoding-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/EcoCoding-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/EcoCoding-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/EcoCoding-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/EcoCoding-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/EcoCoding-webfont.svg#eco_codingregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'eco_coding';
+    src: url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/EcoCodingItalic-webfont.svg#eco_codingitalic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+
+}
+
+@font-face {
+    font-family: 'eco_coding';
+    src: url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/EcoCodingBold-webfont.svg#eco_codingbold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'eco_coding';
+    src: url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.eot');
+    src: url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.woff2') format('woff2'),
+         url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.woff') format('woff'),
+         url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.ttf') format('truetype'),
+         url('http://fonts.fikesfarm.com/EcoCodingBoldItalic-webfont.svg#eco_codingbold_italic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+
+}
+
+body {
+    font-size: 16px;
+    color: #3A3A3A;
+    font-family: 'core_sans_e', sans-serif;
+    padding: 40px;
+    max-width: 42em;
+}
+
+blockquote {
+    font-size: 15px;
+    font-family: 'core_sans_e', sans-serif;
+}
+
+code {
+    font-size: 14px;
+    font-family: 'eco_coding', sans-serif;
+    color: #101010;
+}
+
+pre code {
+    font-size: 14px;
+}
+
+blockquote code {
+    font-size: 13px;
+}
+
+#wrapper.container {
+    margin: auto;
+    padding-top: 50px;
+    min-height: 100%;
+    position: relative;
+}
+
+.row {
+    padding-bottom: 100px;
+}
+
+footer {
+    width:100%;
+    height:70px;
+    position:absolute;
+    bottom:0;
+    left:0;
+    text-align: center;
+    font-size: 11px;
+}
+
+nav h1 {
+    margin: 0;
+}
+
+#sidebar {
+    font-size: 13px;
+    background-color: #fff;
+    border: 0px solid #cecece;
+    border-radius: 8px;
+    padding:15px;
+}
+
+content {
+    background-color: #fff;
+    border: 0px solid #cecece;
+    border-radius: 8px;
+    padding:10px;
+}
+
+#prev-next {
+    padding: 10px;
+    text-align: center;
+}
+
+#post-header {
+    margin-bottom: 53px;
+}
+#post-header h2 {
+    font-size: 32px;
+    margin-bottom: -15px;
+}
+#post-header #post-meta {
+    font-size: 13px;
+    float: right;
+    margin-top: 25px;
+}
+#page-header {
+    margin-bottom: 30px;
+}
+#page-header h2 {
+    font-size: 32px;
+    margin-bottom: -15px;
+}
+pre {
+    background-color: #f0f0f0;
+}

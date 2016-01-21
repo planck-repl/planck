@@ -270,6 +270,8 @@
             printf("\n");
             printf("  Paths may be absolute or relative in the filesystem.\n");
             printf("\n");
+            printf("  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n");
+            printf("\n");
         } else if (legal) {
             [PLKLegal displayLegalese];
         } else {

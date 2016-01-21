@@ -63,7 +63,9 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
   The init options may be repeated and mixed freely, but must appear before
   any main option.
 
-  Paths may be absolute or relative in the filesystem.\n\n")
+  Paths may be absolute or relative in the filesystem.
+
+  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n\n")
   (sh planck-exe "-h"))
 
 (defn ensure-output [expected quoted-commands]

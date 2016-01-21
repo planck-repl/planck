@@ -9,3 +9,7 @@
 
 ; Xcode
 (sh "rm" "-rf" "build")
+
+; Site
+(binding [*sh-dir* "site"]
+  (sh "script/clean"))

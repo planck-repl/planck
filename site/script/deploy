@@ -1,0 +1,21 @@
+#!/usr/bin/env planck
+(ns deploy.core
+ (:require [planck.core :refer [exit]]
+           [planck.shell :refer [sh *sh-dir*]]))
+
+(def ^:dynamic *destination* nil)
+
+(defn ensure-succeeded! [x]
+  (when-not (zero? (:exit x))
+    (print (:out x))
+    (print (:err x))
+    (exit (:exit x))))
+
+(defn do! [& args]
+  (ensure-succeeded! (apply sh args)))
+
+(binding [*destination* "planck-repl.org"
+          *sh-dir*      "target"]
+  (do! "tar" "cf" "public.tar" "public")
+  (do! "scp" "public.tar" (str *destination* ":"))
+  (do! "ssh" *destination* "tar" "xf" "public.tar" "-C" "/var/planck-repl"))
