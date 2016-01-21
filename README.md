@@ -2,7 +2,7 @@
 
 A command-line bootstrapped ClojureScript REPL for OS X based on JavaScriptCore.
 
-Home page: [planck.fikesfarm.com](http://planck.fikesfarm.com)
+Home page: [planck-repl.org](http://planck-repl.org)
 
 # Installing
 
@@ -10,7 +10,7 @@ Home page: [planck.fikesfarm.com](http://planck.fikesfarm.com)
 brew install planck
 ```
 
-Binaries for manual download are [available](http://planck.fikesfarm.com/download.html).
+Binaries for manual download are [available](http://planck-repl.org/download.html).
 
 # Building 
 
