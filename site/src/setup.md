@@ -31,7 +31,7 @@ You can download Planck. It ships as a single-file binary so it is as easy as pu
 $ chmod +x planck
 ```
 
-You can download Planck (including older releases) at [http://planck.fikesfarm.com/download.html](http://planck.fikesfarm.com/download.html).
+You can download Planck (including older releases) at [http://planck-repl.org/download.html](download.html).
 
 Planck 1.9 supports OS X versions 10.7 Lion through 10.11 El Capitan.
 
