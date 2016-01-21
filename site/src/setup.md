@@ -15,23 +15,23 @@ $ brew install planck
 
 Homebrew installation is currently supported for OS X 10.9 Mavericks through OS X 10.11 El Capitan.
 
-If you'd like to install the latest unreleased version of Planck (directly from master in the GitHub repository), you can do the following
+If you'd like to install the latest unreleased version of Planck (directly from master in the GitHub repository), you can do the following:
 
 ```sh
 $ brew install --HEAD planck
 ```
 
-> To do this requires that you have the tools installed which are needed to build Planck. This includes `Java`, `lein` and `Xcode`.
+> To do this requires that you have the tools installed which are needed by Homebrew to build Planck. This includes `Java`, `lein` and `Xcode`.
 
 ### Download
 
-You can download Planck. It ships as a single-file binary so it is as easy as putting it in your path then making it executable:
+You can download Planck. It ships as a single-file binary, so it is as easy as putting it in your path then making it executable:
 
 ```
 $ chmod +x planck
 ```
 
-You can download Planck (including older releases) at [http://planck-repl.org/download.html](download.html).
+You can download Planck binaries (including older releases) at [http://planck-repl.org/download.html](download.html).
 
 Planck 1.9 supports OS X versions 10.7 Lion through 10.11 El Capitan.
 

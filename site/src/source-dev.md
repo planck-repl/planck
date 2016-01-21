@@ -1,7 +1,7 @@
 ## Source Dev
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/source-dev.jpg">
-When launching Planck, you can use the `-c` or `--classpath` option to specify a colon-delimited list of source directories and JARs to search in when loading code using `require` and `require-macros`.
+When launching Planck, you can use the `-c` or `-​-​classpath` option to specify a colon-delimited list of source directories and JARs to search in when loading code using `require` and `require-macros`.
 
 For example, you can put this code in `src/foo/core.cljs`:
 
@@ -12,6 +12,7 @@ For example, you can put this code in `src/foo/core.cljs`:
   [x]
   (* x x))
 ```
+
 Then, if you launch Planck specfying the `src` directory:
 
 ```

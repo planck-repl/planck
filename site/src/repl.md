@@ -1,7 +1,7 @@
 ## REPL
 
 <img width="130" align="right" style="margin: 0ex 1em" src="img/repl.jpg">
-If you don't provide any `-i` or `-e` options or args to `planck` when launching it (or if you explicitly specify `-r` or `--repl` as the _main-opt_), Planck will enter an interactive Read-Eval-Print Loop, or REPL.
+If you don't provide any `-i` or `-e` options or args to `planck` when launching it (or if you explicitly specify `-r` or `-​-​repl` as the _main-opt_), Planck will enter an interactive Read-Eval-Print Loop, or REPL.
 
 ```
 $ planck
@@ -17,10 +17,10 @@ You can enter forms to be evaluated in the REPL, and any printed output will be 
 You can hit return prior to typing a complete form and input will continue on the next line. A `#_=>` prompt will be used (padded to line up with the initial `=>`) for secondary input lines. Multi-line input can continue this way until a full form is entered:
 
 ```clojure-repl
-cljs.user=> [1
-       #_=> 2
-       #_=> (+ 1 2)]
-[1 2 3]
+cljs.user=> (defn square
+       #_=>   [x]
+       #_=>   (* x x))
+#'cljs.user/square
 ```
 
 You can enter multiple forms on a line and they will be evaluated serially:
@@ -34,17 +34,25 @@ cljs.user=> (def x 1) (def y 2) (+ x y)
 
 At any point in entering a form, Ctrl-C can be hit to discard form entry and start with a fresh prompt.
 
-As you type close delimeters (`)`, `]`, and `}`), the cursor will temporarily hop to the matching opening dlimiter.
+As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily hop to the matching opening delimiter.
 
 ###  Line Editing
-You can use the up and down arrow keys to navigate to previously-entered lines. The line history includes lines entered in previous Planck sessions, with the last 1000 lines saved in the `.planck_history` file in your home directory.
+
+#### Arrow Keys
+
+You can use the up and down arrow keys to navigate through previously-entered lines. The line history includes lines entered in previous Planck sessions, with the last 100 lines saved in the `.planck_history` file in your home directory.
+
+#### Tab Completion
 
 You can use the tab key to auto-complete. Try typing `(map` and then hitting the tab key. You will be presented choices like `map-indexed`, `map?`, `mapcat`, _etc._ Hitting shift-tab returns to the originally entered text. Tab completion works aginst core names and also against names you introduce. If you do
 
 ```clj
 (def supercalifragilisticexpialidocious "something quite atrocious")
 ```
+
 then `su` followed by tab will yield `subs`, and other choices, including the gem above.
+
+#### Control Keys
 
 Planck employs the line editing library [Linenoise](https://github.com/antirez/linenoise), which provides control characters that you may expect:
 
@@ -62,7 +70,7 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 * Ctrl-U: Undo all typing on current line
 
 ###  Dumb Terminal
-Normally, Planck employs the use of VT100 codes to perform brace matching and line editing features. If you are using Planck in an environment where these codes are not supported, or you would prefer to disable them, you can pass `-d` or `--dumb-terminal` when starting Planck.
+Normally, Planck employs the use of VT100 codes to perform brace matching and other line editing features. If you are using Planck in an environment where these codes are not supported, or you would prefer to disable them, you can pass `-d` or `--dumb-terminal` when starting Planck.
 
 ###  Exit
 You can exit the REPL by typeing Ctrl-D, `exit`, `quit`, or `:cljs/quit`.
@@ -73,11 +81,17 @@ If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you 
 
 ### REPL Specials
 
-REPL specials are, in essence, special forms that exist only in the REPL. (They can't be used in regular ClojureScript code.)
+REPL specials are, in essence, special forms that exist only in the REPL. (They can't be used in regular ClojureScript code and must be entered as top-level forms.)
 
 #### `in-ns` 
 
 Planck supports `in-ns`, which will switch you to a new namespace, creating it if it doesn't already exist.
+
+```clojure-repl
+cljs.user=> (in-ns 'bar.core)
+nil
+bar.core=> ▊
+```
 
 As in Clojure, Planck's `in-ns` REPL special accepts any expression, so long as it evaluates to a symbol, so you can do someting like this
 
@@ -91,9 +105,19 @@ foo.core=> ▊
 
 #### `require`, `require-macros`, `import`
 
-The `require`, `require-macros` REPL specials make it possible to load namespaces into Planck. These work on the namespaces that ship with Planck like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `--classpath` comand-line option.
+The `require`, `require-macros`, and  `import` REPL specials make it possible to load namespaces and Google Closure code into Planck. These work on the namespaces and Google Closure code that ships with Planck, like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `-​-​classpath` comand-line option.
 
-The import REPL special works like the one in ClojureScript, importing Google Closure code.
+
+```clojure-repl
+cljs.user=> (require '[planck.core :as planck])
+nil
+cljs.user=> planck/*planck-version*
+"1.9"
+cljs.user=> (import '[goog.events EventType])
+nil
+cljs.user=> EventType.CLICK
+"click"
+```
 
 > These REPL specials are implemented in terms of the `ns` special form, just as is done in regular ClojureScript REPLs.
 

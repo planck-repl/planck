@@ -11,7 +11,7 @@ But, if you have scripts that don't change frequently, or are making use of larg
 
 This means that if you re-run Planck and use namespaces that have been cached, the JavaScript representing those namespaces is simply loaded into JavaScriptCore. 
 
-To enable compilation caching in Planck, you simply need to pass the `-k` or `--cache` option, specifying a directory into which Planck can write cache files. Here's an example: Let's say you have a foo.cljs script file that you run via
+To enable compilation caching in Planck, you simply need to pass the `-k` or `-​-​cache` option, specifying a directory into which Planck can write cache files. Here's an example: Let's say you have a foo.cljs script file that you run via
 
 ```sh
 planck foo.cljs
@@ -31,7 +31,7 @@ planck -k cache foo.cljs
 
 The first time you run Planck this way, it will save the results of compilation into your cache directory. Then subsequent executions will use the cached results instead.
 
-In addition to caching compiled JavaScript, the associated analysis metadata is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, etc., without having to consult the original source. For additional speed, this analysis metadata is written using Transit instead of, say, edn as is currently done today by the ClojureScript compiler.
+In addition to caching compiled JavaScript, the associated analysis metadata is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, _etc._, without having to consult the original source. For additional speed, this analysis metadata is written using Transit instead of, say, **edn** as is currently done today by the ClojureScript compiler.
 
 This caching works for
 
@@ -39,7 +39,7 @@ This caching works for
 * ClojureScript files in a source directory
 * code obtained from JARs
 
-The caching mechanism works whether your are running planck to execute a script, or if you are invoking require in an interactive REPL session.
+The caching mechanism works whether your are running `planck` to execute a script, or if you are invoking `require` in an interactive REPL session.
 
 Planck uses a (naïve) file timestamp mechanism to know if cache files are stale, and it additionally looks at comments like the following
 
@@ -53,5 +53,29 @@ Planck's cache invalidation strategy is _naïve_ because it doesn’t attempt to
 
 ### Static Dispatch
 
-Also works around bad bug
+Planck supports the `:static-fns` ClojureScript compiler option via the `-s` or `-​-​static-fns` command-line flag.
+
+With `:static-fns` disabled (the default), the generated JavaScript for `(foo 1 2)` will look like 
+
+```js
+cljs.user.foo.call(null,1,2)
+```
+
+and with it enabled you will get
+
+```js
+cljs.user.foo(1,2)
+```
+
+David Nolen [commented](https://groups.google.com/forum/m/#!msg/clojurescript/holhVap5Rjc/f9bUE26waakJ) on the differences
+
+> It's an option mostly because of REPL development to allow for redefinition. For example if `:static-fns` `true` we statically dispatch to specific fn arities—but what if you redef to a different set of arities? What if you change the var to store a deftype instance that implements `IFn`. That kind of thing.
+
+
+> So for compilation `:static-fns` can nearly always be `true`, but for the REPL it's not desirable.
+
+
+In short, enabling it can lead to performance benefits, being more amenable to inlining, _etc._, but usually you want to leave it turned off during dev.
+
+And—importantly for Planck—it can be used to work around a particularly severe JavaScriptCore perf [bug](http://dev.clojure.org/jira/browse/CLJS-910) that you can encounter when evaluating the JavaScript generated for lengthy literal list forms.
 

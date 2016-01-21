@@ -10,7 +10,7 @@ These namespaces comprise
 * `planck.io`
 * `planck.shell`
 
-You can always evaluate `(ns-interns 'planck.core)`, for example, to see the symbols in 'planck.core, and then use the `doc` macro to see the docs for any of the symbols.
+To explore these namespaces, you can evaluate `(dir planck.core)`, for example, to see the symbols in `planck.core`, and then use the `doc` macro to see the docs for any of the symbols.
 
 ### `planck.core`
 

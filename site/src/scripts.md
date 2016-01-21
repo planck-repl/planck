@@ -71,5 +71,3 @@ then this works:
 $ planck -m foo.core ClojureScript
 Hello ClojureScript!
 ```
-
-> We have placed the file in `foo/core.cljs` because, by default, Planck will search in the current working directory when loading namespaces. See the Dependencies section for more details.
