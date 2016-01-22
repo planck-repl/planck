@@ -544,6 +544,7 @@ nil
 5
 #'cljs.user/addition-list2
 3
+4
 Test resolve
 nil
 #'cljs.core/+

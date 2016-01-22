@@ -607,6 +607,7 @@ lucky-number
 ((eval (eval +)) 2 3)
 (def addition-list2 (list (fn [a b] (+ a b)) 1 2))
 (eval addition-list2)
+(eval (list #'inc 3))
 REPL_INPUT
 
 echo "Test resolve"

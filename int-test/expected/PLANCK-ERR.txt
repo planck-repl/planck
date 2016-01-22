@@ -14,4 +14,152 @@ Evaluating Expression
 cljs.user.a = (3)
 Evaluating Expression
 cljs.user.b = ((2) + (3))
+WARNING: Cannot invoke value #object[cljs$core$_PLUS_ "function cljs$core$_PLUS_(var_args){
+var args8351 = [];
+var len__6794__auto___8357 = arguments.length;
+var i__6795__auto___8358 = (0);
+while(true){
+if((i__6795__auto___8358 < len__6794__auto___8357)){
+args8351.push((arguments[i__6795__auto___8358]));
+
+var G__8359 = (i__6795__auto___8358 + (1));
+i__6795__auto___8358 = G__8359;
+continue;
+} else {
+}
+break;
+}
+
+var G__8356 = args8351.length;
+switch (G__8356) {
+case 0:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$0();
+
+break;
+case 1:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
+
+break;
+case 2:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
+
+break;
+default:
+var argseq__6813__auto__ = (new cljs.core.IndexedSeq(args8351.slice((2)),(0)));
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__6813__auto__);
+
+}
+}"] as function
+WARNING: Cannot invoke value #object[cljs$core$_PLUS_ "function cljs$core$_PLUS_(var_args){
+var args8351 = [];
+var len__6794__auto___8357 = arguments.length;
+var i__6795__auto___8358 = (0);
+while(true){
+if((i__6795__auto___8358 < len__6794__auto___8357)){
+args8351.push((arguments[i__6795__auto___8358]));
+
+var G__8359 = (i__6795__auto___8358 + (1));
+i__6795__auto___8358 = G__8359;
+continue;
+} else {
+}
+break;
+}
+
+var G__8356 = args8351.length;
+switch (G__8356) {
+case 0:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$0();
+
+break;
+case 1:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
+
+break;
+case 2:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
+
+break;
+default:
+var argseq__6813__auto__ = (new cljs.core.IndexedSeq(args8351.slice((2)),(0)));
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__6813__auto__);
+
+}
+}"] as function
+WARNING: Cannot invoke value #object[cljs$core$_PLUS_ "function cljs$core$_PLUS_(var_args){
+var args8351 = [];
+var len__6794__auto___8357 = arguments.length;
+var i__6795__auto___8358 = (0);
+while(true){
+if((i__6795__auto___8358 < len__6794__auto___8357)){
+args8351.push((arguments[i__6795__auto___8358]));
+
+var G__8359 = (i__6795__auto___8358 + (1));
+i__6795__auto___8358 = G__8359;
+continue;
+} else {
+}
+break;
+}
+
+var G__8356 = args8351.length;
+switch (G__8356) {
+case 0:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$0();
+
+break;
+case 1:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
+
+break;
+case 2:
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
+
+break;
+default:
+var argseq__6813__auto__ = (new cljs.core.IndexedSeq(args8351.slice((2)),(0)));
+return cljs.core._PLUS_.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),argseq__6813__auto__);
+
+}
+}"] as function
+WARNING: Cannot invoke value #object[cljs$core$comp "function cljs$core$comp(var_args){
+var args8965 = [];
+var len__6794__auto___8992 = arguments.length;
+var i__6795__auto___8993 = (0);
+while(true){
+if((i__6795__auto___8993 < len__6794__auto___8992)){
+args8965.push((arguments[i__6795__auto___8993]));
+
+var G__8994 = (i__6795__auto___8993 + (1));
+i__6795__auto___8993 = G__8994;
+continue;
+} else {
+}
+break;
+}
+
+var G__8971 = args8965.length;
+switch (G__8971) {
+case 0:
+return cljs.core.comp.cljs$core$IFn$_invoke$arity$0();
+
+break;
+case 1:
+return cljs.core.comp.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
+
+break;
+case 2:
+return cljs.core.comp.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
+
+break;
+case 3:
+return cljs.core.comp.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(arguments[(1)]),(arguments[(2)]));
+
+break;
+default:
+var argseq__6813__auto__ = (new cljs.core.IndexedSeq(args8965.slice((3)),(0)));
+return cljs.core.comp.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),(arguments[(1)]),(arguments[(2)]),argseq__6813__auto__);
+
+}
+}"] as function
 WARNING: + already refers to: cljs.core/+ being replaced by: foo.bar/+ at line 1 

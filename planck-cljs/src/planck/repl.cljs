@@ -956,9 +956,16 @@
   [n]
   (get @fn-refs n))
 
-(defmethod comp/emit-constant (type (fn []))
-  [f]
+(defn- emit-fn [f]
   (print "planck.repl.get_fn(" (put-fn f) ")"))
+
+(defmethod comp/emit-constant js/Function
+  [f]
+  (emit-fn f))
+
+(defmethod comp/emit-constant cljs.core/Var
+  [f]
+  (emit-fn f))
 
 (defn ^:export execute
   [source expression? print-nil-expression? in-exit-context? set-ns]
