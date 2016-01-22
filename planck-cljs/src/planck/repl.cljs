@@ -992,9 +992,6 @@
            (reset! result value))))
      @result)))
 
-
-
-
 (defn ns-resolve
   [ns sym]
   (eval `(~'var ~sym) ns))
