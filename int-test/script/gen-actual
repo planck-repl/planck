@@ -627,3 +627,20 @@ $PLANCK << REPL_INPUT
 (ns-resolve 'cljs.user '+)
 (ns-resolve 'foo.bar '+)
 REPL_INPUT
+
+echo "Test intern"
+$PLANCK << REPL_INPUT
+(ns foo.core)
+(in-ns 'cljs.user)
+(require '[planck.core :refer [intern]])
+(intern 'foo.core 'a 3)
+(ns-interns 'foo.core)
+foo.core/a
+(intern 'foo.core (with-meta 'b {:alpha 17}) 12)
+(:alpha (meta #'foo.core/b))
+(intern (find-ns 'foo.core) 'd 18)
+foo.core/d
+(intern 'foo.core 'c)
+(exists? foo.core/c)
+(intern 'bar.core 'x)
+REPL_INPUT

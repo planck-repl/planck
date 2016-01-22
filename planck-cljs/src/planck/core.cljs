@@ -185,5 +185,17 @@
   [sym]
   (repl/resolve sym))
 
+(defn intern
+  "Finds or creates a var named by the symbol name in the namespace
+  ns (which can be a symbol or a namespace), setting its root binding
+  to val if supplied. The namespace must exist. The var will adopt any
+  metadata from the name symbol.  Returns the var."
+  ([ns name]
+   (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+     (repl/eval `(def ~name) (ns-name the-ns))))
+  ([ns name val]
+   (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+     (repl/eval `(def ~name ~val) (ns-name the-ns)))))
+
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")

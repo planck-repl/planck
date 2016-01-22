@@ -557,3 +557,17 @@ nil
 nil
 #'cljs.core/+
 #'foo.bar/+
+Test intern
+nil
+nil
+nil
+#'foo.core/a
+{a #'foo.core/a}
+3
+#'foo.core/b
+17
+#'foo.core/d
+18
+#'foo.core/c
+false
+nil
