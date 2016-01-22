@@ -525,3 +525,34 @@ Only :as alias and :refer (names) options supported in :require; offending spec:
 nil
 Unmatched delimiter )
 
+Test eval
+nil
+1
+3
+#'cljs.user/a
+3
+17
+#'cljs.user/a
+#'cljs.user/addition-list
+3
+13
+#'cljs.user/lucky-number
+13
+#'cljs.user/square
+#'cljs.user/cube
+64
+5
+#'cljs.user/addition-list2
+3
+Test resolve
+nil
+#'cljs.core/+
+#'cljs.user/f
+1000
+Test ns-resolve
+nil
+nil
+#'foo.bar/+
+nil
+#'cljs.core/+
+#'foo.bar/+

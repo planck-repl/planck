@@ -1,4 +1,5 @@
 (ns planck.core
+  (:require [planck.repl :as repl])
   (:import [goog.string StringBuffer]))
 
 (def *planck-version* js/PLANCK_VERSION)
@@ -166,6 +167,23 @@
       (-write w (str content))
       (finally
         (-close w)))))
+
+(defn eval
+  "Evaluates the form data structure (not text!) and returns the result."
+  [form]
+  (repl/eval form))
+
+(defn ns-resolve
+  "Returns the var to which a symbol will be resolved in the namespace,
+  else nil."
+  [ns sym]
+  (repl/ns-resolve ns sym))
+
+(defn resolve
+  "Returns the var to which a symbol will be resolved in the current
+  namespace, else nil."
+  [sym]
+  (repl/resolve sym))
 
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")

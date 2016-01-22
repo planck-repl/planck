@@ -586,3 +586,43 @@ $PLANCK << REPL_INPUT
 (require '[foo.bar :quu])
 )
 REPL_INPUT
+
+echo "Test eval"
+$PLANCK << REPL_INPUT
+(require '[planck.core :refer [eval]])
+(eval 1)
+(eval '(+ 1 2))
+(def a 3)
+(eval a)
+(eval '(let [a 10] (+ 3 4 a)))
+(eval '(def a 1))
+(def addition-list (list + 1 2))
+(eval addition-list)
+(eval (concat addition-list [10]))
+(eval (list 'def 'lucky-number (concat addition-list [10])))
+lucky-number
+(defn square [x] (* x x))
+(defn cube [x] (* x x x))
+((eval (list comp square cube)) 2)
+((eval (eval +)) 2 3)
+(def addition-list2 (list (fn [a b] (+ a b)) 1 2))
+(eval addition-list2)
+REPL_INPUT
+
+echo "Test resolve"
+$PLANCK << REPL_INPUT
+(require '[planck.core :refer [resolve]])
+(resolve '+)
+(defn f [n] (* n n n))
+((resolve (symbol "f")) 10)
+REPL_INPUT
+
+echo "Test ns-resolve"
+$PLANCK << REPL_INPUT
+(require '[planck.core :refer [ns-resolve]])
+(ns foo.bar)
+(def + 3)
+(in-ns 'cljs.user)
+(ns-resolve 'cljs.user '+)
+(ns-resolve 'foo.bar '+)
+REPL_INPUT

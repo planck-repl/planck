@@ -3,6 +3,7 @@
   (:require [clojure.string :as s]
             [goog.string :as gstring]
             [cljs.analyzer :as ana]
+            [cljs.compiler :as comp]
             [cljs.tools.reader :as r]
             [cljs.tools.reader.reader-types :as rt]
             [cljs.tagged-literals :as tags]
@@ -292,7 +293,7 @@
         (handle-error e true false)
         (reset! st current-st)))))
 
-(defn resolve
+(defn resolve-var
   "Given an analysis environment resolve a var. Analogous to
    clojure.core/resolve"
   [env sym]
@@ -539,6 +540,7 @@
   (or
     (= name 'cljs.core)
     (= name 'cljs.analyzer)
+    (and (= name 'cljs.js) macros)
     (and (= name 'cljs.pprint) macros)
     (and (= name 'cljs.test) macros)
     (and (= name 'clojure.template) macros)))
@@ -660,14 +662,14 @@
 
 (defn get-var
   [env sym]
-  (let [var (with-compiler-env st (resolve env sym))
+  (let [var (with-compiler-env st (resolve-var env sym))
         var (or var
               (if-let [macro-var (with-compiler-env st
-                                   (resolve env (symbol "cljs.core$macros" (name sym))))]
+                                   (resolve-var env (symbol "cljs.core$macros" (name sym))))]
                 (update (assoc macro-var :ns 'cljs.core)
                   :name #(symbol "cljs.core" (name %))))
               (if-let [macro-var (with-compiler-env st
-                                   (resolve env (symbol "planck.repl$macros" (name sym))))]
+                                   (resolve-var env (symbol "planck.repl$macros" (name sym))))]
                 (update (assoc macro-var :ns 'planck.repl)
                   :name #(symbol "planck.repl" (name %)))))]
     (if (= (namespace (:name var)) (str (:ns var)))
@@ -929,11 +931,67 @@
           (process-repl-special expression-form opts)
           (process-execute-source source-text expression-form opts))))))
 
+
+;; The following atoms and fns set up a scheme to
+;; emit function values into JavaScript as numeric
+;; references that are looked up.
+
+(defonce fn-index (atom 0))
+(defonce fn-refs (atom {}))
+
+(defn clear-fns!
+  "Clears saved functions."
+  []
+  (reset! fn-refs {}))
+
+(defn put-fn
+  "Saves a function, returning a numeric representation."
+  [f]
+  (let [n (swap! fn-index inc)]
+    (swap! fn-refs assoc n f)
+    n))
+
+(defn get-fn
+  "Gets a function, given its numeric representation."
+  [n]
+  (get @fn-refs n))
+
+(defmethod comp/emit-constant (type (fn []))
+  [f]
+  (print "planck.repl.get_fn(" (put-fn f) ")"))
+
 (defn ^:export execute
   [source expression? print-nil-expression? in-exit-context? set-ns]
+  (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
   (execute-source source {:expression?           expression?
                           :print-nil-expression? print-nil-expression?
                           :in-exit-context?      in-exit-context?
                           :include-stacktrace?   true}))
+
+(defn eval
+  ([form]
+   (eval form @current-ns))
+  ([form ns]
+   (let [result (atom nil)]
+     (cljs/eval st form
+       {:ns            ns
+        :context       :expr
+        :def-emits-var true}
+       (fn [{:keys [value error]}]
+         (if error
+           (handle-error error true false)
+           (reset! result value))))
+     @result)))
+
+
+
+
+(defn ns-resolve
+  [ns sym]
+  (eval `(~'var ~sym) ns))
+
+(defn resolve
+  [sym]
+  (ns-resolve @current-ns sym))

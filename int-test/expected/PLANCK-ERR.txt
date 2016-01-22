@@ -14,3 +14,4 @@ Evaluating Expression
 cljs.user.a = (3)
 Evaluating Expression
 cljs.user.b = ((2) + (3))
+WARNING: + already refers to: cljs.core/+ being replaced by: foo.bar/+ at line 1 
