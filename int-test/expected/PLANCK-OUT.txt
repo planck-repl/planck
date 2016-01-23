@@ -87,9 +87,10 @@ Test quit
 Test exit
 1
 Exit on first error
+true
 ok
+ERROR
 x
-
 Test cope with syntax errors
 Invalid number format [34f]
 
@@ -143,6 +144,7 @@ Test require REPL special exit in file
 nil
 195
 Test require REPL special throws in file
+ERROR
 bye-bye
 nil
 0
@@ -312,21 +314,23 @@ nil
     (throw (js/Error. "No *reader-fn* fn set."))))
 nil
 Test pst special
+nil
+true
 #'cljs.user/f
 #'cljs.user/g
+ERROR
 whoah
-
+ERROR
 whoah
-
 nil
 #'cljs.user/e
+ERROR
 ouch
-
+ERROR
 ouch
-
 nil
+ERROR
 whoah
-
 nil
 Test load-file REPL special
 nil
@@ -520,10 +524,12 @@ Test verbose w/o var code
 #'cljs.user/a
 #'cljs.user/b
 Test restore state when require fails
+Could not parse ns form cljs.user
 Invalid :refer, var var clojure.set/diff does not exist
 nil
 nil
 Test reader and analysis diagnostics
+Could not eval (ns cljs.user (:require [foo.bar :quu]))
 Only :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 
 nil
 Unmatched delimiter )

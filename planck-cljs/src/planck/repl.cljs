@@ -625,40 +625,32 @@
                                                 (cljson->clj
                                                   (first (js/PLANCK_LOAD "cljs/core.js.map"))))})))
 
-(defn- get-root-cause
-  "Recursively gets the root cause of an exception."
-  [e]
-  (if-let [c (.-cause e)]
-    (recur c)
-    e))
-
-(defn- is-reader-or-analysis?
-  "Indicates if an exception is a reader or analysis exception."
-  [e]
-  (and (instance? ExceptionInfo e)
-       (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
+(defonce ^:dynamic *planck-integration-tests* false)
 
 (defn print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
-   (let [cause (get-root-cause error)]
-     (println (if (is-reader-or-analysis? cause)
-                (ex-message cause)
-                (.-message cause)))
-     (when (and (not (is-reader-or-analysis? cause))
-                include-stacktrace?)
+   (let [include-stacktrace? (if *planck-integration-tests*
+                               false
+                               include-stacktrace?)]
+     (println (if (instance? ExceptionInfo error)
+                (ex-message error)
+                (.-message error)))
+     (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
                                     {}
-                                    (.-stack cause)
+                                    (.-stack error)
                                     {:ua-product :safari}
                                     {:output-dir "file://(/goog/..)?"})]
          (println
            (st/mapped-stacktrace-str
              canonical-stacktrace
              (or (:source-maps @planck.repl/st) {})
-             nil)))))))
+             nil))))
+     (when-let [cause (.-cause error)]
+       (recur cause include-stacktrace?)))))
 
 (defn get-var
   [env sym]

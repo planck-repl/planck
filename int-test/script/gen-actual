@@ -41,7 +41,7 @@ exit
 REPL_INPUT
 
 echo "Exit on first error"
-$PLANCK -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
+$PLANCK -e"(require 'planck.repl)" -e'(set! planck.repl/*planck-integration-tests* true)' -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
 
 echo "Test cope with syntax errors"
 $PLANCK <<REPL_INPUT
@@ -277,6 +277,8 @@ REPL_INPUT
 
 echo "Test pst special"
 $PLANCK <<REPL_INPUT
+(require 'planck.repl)
+(set! planck.repl/*planck-integration-tests* true)
 (defn f [] (throw (js/Error. "whoah")))
 (defn g [] (throw (js/Error. "ouch")))
 (f)
