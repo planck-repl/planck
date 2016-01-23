@@ -664,17 +664,18 @@
   [env sym]
   (let [var (with-compiler-env st (resolve-var env sym))
         var (or var
-              (if-let [macro-var (with-compiler-env st
-                                   (resolve-var env (symbol "cljs.core$macros" (name sym))))]
-                (update (assoc macro-var :ns 'cljs.core)
-                  :name #(symbol "cljs.core" (name %))))
-              (if-let [macro-var (with-compiler-env st
-                                   (resolve-var env (symbol "planck.repl$macros" (name sym))))]
-                (update (assoc macro-var :ns 'planck.repl)
-                  :name #(symbol "planck.repl" (name %)))))]
-    (if (= (namespace (:name var)) (str (:ns var)))
-      (update var :name #(symbol (name %)))
-      var)))
+                (if-let [macro-var (with-compiler-env st
+                                     (resolve-var env (symbol "cljs.core$macros" (name sym))))]
+                  (update (assoc macro-var :ns 'cljs.core)
+                    :name #(symbol "cljs.core" (name %))))
+                (if-let [macro-var (with-compiler-env st
+                                     (resolve-var env (symbol "planck.repl$macros" (name sym))))]
+                  (update (assoc macro-var :ns 'planck.repl)
+                    :name #(symbol "planck.repl" (name %)))))]
+    (when var
+      (if (= (namespace (:name var)) (str (:ns var)))
+        (update var :name #(symbol (name %)))
+        var))))
 
 (defn- get-file-source
   [filepath]
@@ -791,7 +792,7 @@
     (cljs.repl/print-doc
       (select-keys (get-namespace sym) [:name :doc]))
 
-    :else
+    (get-var (get-aenv) sym)
     (repl/print-doc
       (let [var (get-var (get-aenv) sym)
             var (cond-> var
@@ -812,7 +813,8 @@
 
 (defn source*
   [sym]
-  (println (fetch-source (get-var (get-aenv) sym))))
+  (println (or (fetch-source (get-var (get-aenv) sym))
+               "Source not found")))
 
 (defn pst*
   ([]

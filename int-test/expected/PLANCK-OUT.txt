@@ -213,7 +213,8 @@ macro-crazy
 somemacro
 xfirst
 nil
-Test doc REPL special
+Test doc special
+nil
 -------------------------
 cljs.core/inc
 ([x])
@@ -278,7 +279,9 @@ test-doc-source.core
   This is the namespace
   docstring for test-doc-source.core
 nil
-Test source REPL special
+Test source
+Source not found
+nil
 (defn inc
   "Returns a number one greater than num."
   [x] (cljs.core/+ x 1))
@@ -308,7 +311,7 @@ nil
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))
 nil
-Test pst REPL special
+Test pst special
 #'cljs.user/f
 #'cljs.user/g
 whoah

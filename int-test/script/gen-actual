@@ -247,8 +247,9 @@ $PLANCK <<REPL_INPUT
 (dir foo.bar)
 REPL_INPUT
 
-echo "Test doc REPL special"
+echo "Test doc special"
 $PLANCK -c $SRC <<REPL_INPUT
+(doc bogus)
 (doc inc)
 (doc when)
 (doc if)
@@ -262,8 +263,9 @@ $PLANCK -c $SRC <<REPL_INPUT
 (doc test-doc-source.core)
 REPL_INPUT
 
-echo "Test source REPL special"
+echo "Test source"
 $PLANCK -c $SRC <<REPL_INPUT
+(source bogus)
 (source inc)
 (source when)
 (require '[test-doc-source.core :as tds])
@@ -273,7 +275,7 @@ $PLANCK -c $SRC <<REPL_INPUT
 (source planck.core/*reader-fn*)
 REPL_INPUT
 
-echo "Test pst REPL special"
+echo "Test pst special"
 $PLANCK <<REPL_INPUT
 (defn f [] (throw (js/Error. "whoah")))
 (defn g [] (throw (js/Error. "ouch")))
