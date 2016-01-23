@@ -627,11 +627,31 @@
 
 (defonce ^:dynamic *planck-integration-tests* false)
 
+(defn- skip-cljsjs-eval-error
+  [error]
+  (cond-> error
+    (and (instance? ExceptionInfo error)
+         (= :cljs/analysis-error (:tag (ex-data error)))
+         (or (= "ERROR" (ex-message error))
+             (= "Could not eval Expression" (ex-message error)))
+      (ex-cause error))
+    ex-cause))
+
+(defn- is-reader-or-analysis?
+  "Indicates if an exception is a reader or analysis exception."
+  [e]
+  (and (instance? ExceptionInfo e)
+       (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
+
 (defn print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
-   (let [include-stacktrace? (if *planck-integration-tests*
+   (let [error               (skip-cljsjs-eval-error error)
+         include-stacktrace? (or (= include-stacktrace? :pst)
+                                 (and include-stacktrace?
+                                      (not (is-reader-or-analysis? error))))
+         include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)]
      (println (if (instance? ExceptionInfo error)
@@ -816,7 +836,7 @@
           expr
           (make-base-eval-opts)
           (fn [{:keys [value]}]
-             (print-error value)))
+             (print-error value :pst)))
         (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file

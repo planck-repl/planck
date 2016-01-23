@@ -89,7 +89,6 @@ Test exit
 Exit on first error
 true
 ok
-ERROR
 x
 Test cope with syntax errors
 Invalid number format [34f]
@@ -144,7 +143,6 @@ Test require REPL special exit in file
 nil
 195
 Test require REPL special throws in file
-ERROR
 bye-bye
 nil
 0
@@ -318,18 +316,13 @@ nil
 true
 #'cljs.user/f
 #'cljs.user/g
-ERROR
 whoah
-ERROR
 whoah
 nil
 #'cljs.user/e
-ERROR
 ouch
-ERROR
 ouch
 nil
-ERROR
 whoah
 nil
 Test load-file REPL special
