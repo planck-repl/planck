@@ -358,15 +358,18 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 3 &&
+             if (argc == 4 &&
                  JSValueGetType (ctx, argv[0]) == kJSTypeString &&
                  JSValueGetType (ctx, argv[1]) == kJSTypeString &&
                  (JSValueGetType (ctx, argv[2]) == kJSTypeString
-                  || JSValueGetType (ctx, argv[2]) == kJSTypeNull)) {
+                  || JSValueGetType (ctx, argv[2]) == kJSTypeNull) &&
+                 (JSValueGetType (ctx, argv[3]) == kJSTypeString
+                  || JSValueGetType (ctx, argv[3]) == kJSTypeNull)) {
                      
                      NSString* cachePrefix = NSStringFromJSValueRef(ctx, argv[0]);
                      NSString* source = NSStringFromJSValueRef(ctx, argv[1]);
                      NSString* cache = NSStringFromJSValueRef(ctx, argv[2]);
+                     NSString* sourcemap = NSStringFromJSValueRef(ctx, argv[3]);
                      
                      [self startCacheTask];
                      
@@ -381,6 +384,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  atomically:YES
                                    encoding:NSUTF8StringEncoding
                                       error:nil];
+                         [sourcemap writeToFile:[cachePrefix stringByAppendingString:@".js.map.json"]
+                                     atomically:YES
+                                       encoding:NSUTF8StringEncoding
+                                          error:nil];
                          
                          [self signalCacheTaskComplete];
                          
@@ -390,7 +397,34 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              return  JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_CACHE"
-                                         argList:@"path, source, cache"
+                                         argList:@"path, source, cache, sourcemap"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 &&
+                 JSValueGetType (ctx, argv[0]) == kJSTypeString &&
+                 JSValueGetType (ctx, argv[1]) == kJSTypeString) {
+                 
+                 // Uncomment these if you need to see the values in the debugger
+                 // NSString* source = NSStringFromJSValueRef(ctx, argv[0]);
+                 // NSString* path = NSStringFromJSValueRef(ctx, argv[1]);
+                 
+                 JSStringRef sourceRef = JSValueToStringCopy(ctx, argv[0], NULL);
+                 JSStringRef pathRef = JSValueToStringCopy(ctx, argv[1], NULL);
+                 
+                 JSValueRef jsError = NULL;
+                 JSEvaluateScript(ctx, sourceRef, NULL, pathRef, 0, &jsError);
+
+                 JSStringRelease(pathRef);
+                 JSStringRelease(sourceRef);
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_EVAL"
+                                         argList:@"source, path"
                                        inContext:self.context];
         
         [ABYUtils installGlobalFunctionWithBlock:

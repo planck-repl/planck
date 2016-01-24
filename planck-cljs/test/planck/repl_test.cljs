@@ -53,7 +53,7 @@
 
 (deftest read-eval-print-exception-in-exit-context
   (js/PLANCK_SET_EXIT_VALUE 0)
-  (let [result (planck.repl/execute ["text" "(throw (js/Error. \"bye-bye\"))"] false false true nil)]
+  (let [result (planck.repl/execute ["text" "(throw (js/Error. \"bye-bye\"))"] true false true nil)]
     (testing "default exception return code as a side-effect"
       (is (= 1 (js/PLANCK_GET_EXIT_VALUE))))
     (testing "returns nothing"
@@ -62,7 +62,7 @@
 
 (deftest read-eval-print-exception-outside-exit-context
   (js/PLANCK_SET_EXIT_VALUE 0)
-  (let [result (planck.repl/execute ["text" "(throw (js/Error. \"bye-bye\"))"] false false false nil)]
+  (let [result (planck.repl/execute ["text" "(throw (js/Error. \"bye-bye\"))"] true false false nil)]
     (testing "doesn't touch exit value"
       (is (= 0 (js/PLANCK_GET_EXIT_VALUE))))
     (testing "returns error"

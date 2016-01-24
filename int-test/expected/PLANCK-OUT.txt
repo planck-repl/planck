@@ -143,7 +143,7 @@ Test require REPL special exit in file
 nil
 195
 Test require REPL special throws in file
-bye-bye
+before throw
 nil
 0
 Test require unknown ns
