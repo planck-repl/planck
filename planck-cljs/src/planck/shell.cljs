@@ -28,14 +28,17 @@
            the sub-process's stdout to a String which is returned.
   :env     override the process env with a map of String: String.
   :dir     override the process dir with a String.
-  sh returns a map of
+  if the command exits normally, sh returns a map of
     :exit => sub-process's exit code
     :out  => sub-process's stdout (as String)
-    :err  => sub-process's stderr (String via platform default encoding)"
+    :err  => sub-process's stderr (String via platform default encoding),
+  otherwise it throws an exception"
   [& args]
   (let [[cmd opts] (parse-args args)
         {:keys [in in-enc out-enc env dir]} opts]
     (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
-      {:exit exit
-       :out  out
-       :err  err})))
+      (if (= 0 exit)
+        {:exit exit
+         :out  out
+         :err  err}
+        (throw (js/Error. (str  "sh exited with non-zero exit code: "  exit ", " err )))))))
