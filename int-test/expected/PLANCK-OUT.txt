@@ -144,6 +144,7 @@ nil
 195
 Test require REPL special throws in file
 before throw
+bye-bye
 nil
 0
 Test require unknown ns

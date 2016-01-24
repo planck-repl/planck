@@ -403,6 +403,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
+             JSValueRef rv = NULL;
+             
              if (argc == 2 &&
                  JSValueGetType (ctx, argv[0]) == kJSTypeString &&
                  JSValueGetType (ctx, argv[1]) == kJSTypeString) {
@@ -414,14 +416,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  JSStringRef sourceRef = JSValueToStringCopy(ctx, argv[0], NULL);
                  JSStringRef pathRef = JSValueToStringCopy(ctx, argv[1], NULL);
                  
-                 JSValueRef jsError = NULL;
-                 JSEvaluateScript(ctx, sourceRef, NULL, pathRef, 0, &jsError);
-
+                 JSEvaluateScript(ctx, sourceRef, NULL, pathRef, 0, &rv);
+                 
                  JSStringRelease(pathRef);
                  JSStringRelease(sourceRef);
              }
              
-             return  JSValueMakeNull(ctx);
+             return  rv != NULL ?  rv : JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_EVAL"
                                          argList:@"source, path"

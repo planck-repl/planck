@@ -472,7 +472,9 @@
       (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
   (if (and (not (empty? path))
            (not= "Expression" path))
-    (js/PLANCK_EVAL source (get @name-path name path))
+    (let [exception (js/PLANCK_EVAL source (get @name-path name path))]
+      (when exception
+        (throw exception)))
     (js/eval source)))
 
 (defn extension->lang
