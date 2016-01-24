@@ -472,7 +472,7 @@
       (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
   (if (and (not (empty? path))
            (not= "Expression" path))
-    (let [exception (js/PLANCK_EVAL source (get @name-path name path))]
+    (let [exception (js/PLANCK_EVAL source (get @name-path name name))]
       (when exception
         (throw exception)))
     (js/eval source)))
@@ -531,7 +531,8 @@
                                        [raw-load [source modified]]
                                        [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path)])]
     (when source
-      (swap! name-path assoc name path)
+      (when name
+        (swap! name-path assoc name path))
       (cb (merge
             {:lang   lang
              :source source}
@@ -901,7 +902,7 @@
     (cb {:value nil})))
 
 (defn- process-execute-source
-  [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace?] :as opts}]
+  [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path] :as opts}]
   (try
     (let [initial-ns @current-ns]
       ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
@@ -924,7 +925,7 @@
       (cljs/eval-str
         st
         source-text
-        (if expression? "Expression" "File")
+        (if expression? "Expression" (or source-path "File"))
         (merge
           {:ns         initial-ns
            :verbose    (and (not expression?)
@@ -957,7 +958,7 @@
             cljs/*eval-fn* caching-js-eval
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
-      (process-execute-path source-value opts)
+      (process-execute-path source-value (assoc opts :source-path source-value))
       (let [source-text     source-value
             expression-form (and expression? (first (repl-read-string source-text)))]
         (if (repl-special? expression-form)
