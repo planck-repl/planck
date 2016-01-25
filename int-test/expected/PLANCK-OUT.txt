@@ -448,6 +448,20 @@ true
 true
 true
 true
+reader close
+nil
+true
+nil
+#'cljs.user/r
+nil
+File closed.
+writer close
+nil
+true
+nil
+#'cljs.user/w
+nil
+File closed.
 Test write and read binary
 nil
 #'cljs.user/binary-file

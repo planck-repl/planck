@@ -455,6 +455,26 @@ $PLANCK <<REPL_INPUT
 (test-write "x\n" "a\nb\n")
 REPL_INPUT
 
+echo "reader close"
+$PLANCK <<REPL_INPUT
+(require 'planck.repl)
+(set! planck.repl/*planck-integration-tests* true)
+(require '[planck.core :refer [-close -read]] '[planck.io :refer [reader]])
+(def r (reader "/tmp/PLANCK_TEST.txt"))
+(-close r)
+(-read r)
+REPL_INPUT
+
+echo "writer close"
+$PLANCK <<REPL_INPUT
+(require 'planck.repl)
+(set! planck.repl/*planck-integration-tests* true)
+(require '[planck.core :refer [-close]] '[planck.io :refer [writer]])
+(def w (writer "/tmp/PLANCK_TEST.txt"))
+(-close w)
+(-write w "hi")
+REPL_INPUT
+
 echo "Test write and read binary"
 $PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-write-bytes -read-bytes -close]] 

@@ -675,6 +675,14 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  
                  PLKFileReader* fileReader = self.descriptorToObject[descriptor];
                  
+                 if (!fileReader) {
+                     JSValueRef arguments[2];
+                     arguments[0] = JSValueMakeNull(ctx);
+                     arguments[1] = JSValueMakeStringFromNSString(ctx, @"File closed.");
+                     
+                     return JSObjectMakeArray(ctx, 2, arguments, NULL);
+                 }
+                 
                  NSError* readError = nil;
                  NSString* result = [fileReader readWithError:&readError];
 
@@ -739,6 +747,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  NSString* content = NSStringFromJSValueRef(ctx, argv[1]);
                  
                  PLKFileWriter* fileWriter = self.descriptorToObject[descriptor];
+                 
+                 if (!fileWriter) {
+                     return JSValueMakeStringFromNSString(ctx, @"File closed.");
+                 }
                  
                  [fileWriter write:content error:&writeError];
              }

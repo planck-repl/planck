@@ -56,7 +56,9 @@
                         return string;
                     }
                 } else {
-                    NSLog(@"Failed to decode.");
+                    *error = [NSError errorWithDomain:@"planck"
+                                                 code:0
+                                             userInfo:@{NSLocalizedDescriptionKey:@"Failed to decode."}];
                     return nil;
                 }
             }
