@@ -1,3 +1,4 @@
+#include <unistd.h>
 #import "PLKClojureScriptEngine.h"
 #import "PLKSh.h"
 #import "ABYUtils.h"
@@ -451,6 +452,26 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
          }
                                             name:@"PLANCK_READ_FILE"
                                          argList:@"file"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 
+                 NSString* prompt = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 char* pass = getpass(prompt.cString);
+                 
+                 if (pass != NULL) {
+                     return JSValueMakeStringFromNSString(ctx, [NSString stringWithUTF8String:pass]);
+                 }
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_READ_PASSWORD"
+                                         argList:@"prompt"
                                        inContext:self.context];
         
         [ABYUtils installGlobalFunctionWithBlock:
