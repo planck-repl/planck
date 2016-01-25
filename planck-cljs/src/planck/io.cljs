@@ -126,10 +126,25 @@
   ([parent & more]
    (File. (apply str parent more))))
 
+(defn- path [f]
+  (:path (if (instance? File f)
+           f
+           (as-file f))))
+
 (defn delete-file
   "Delete file f."
   [f]
-  (js/PLANCK_DELETE (:path (as-file f))))
+  (js/PLANCK_DELETE (path f)))
+
+(defn directory?
+  "Checks if dir is a directory."
+  [dir]
+  (js/PLANCK_IS_DIRECTORY (path dir)))
+
+(defn exists?
+  "Checks if f exists on the file system."
+  [f]
+  (js/PLANCK_FILE_EXISTS (path f)))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
