@@ -449,9 +449,9 @@
   [cache]
   (s/ends-with? (str (:name cache)) "$macros"))
 
-(defn cache-eligible?
+(defn ^boolean cache-eligible?
   [name]
-  (not= name 'planck.repl))
+  (not ({'planck.core 'planck.repl} name)))
 
 (defn form-build-affecting-options
   []
