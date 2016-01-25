@@ -18,7 +18,7 @@
     (symbol? (bindings 0)) `(let ~(subvec bindings 0 2)
                               (try
                                 (with-open ~(subvec bindings 2) ~@body)
-                                (finally
-                                  (-close ~(bindings 0)))))
+                                (~'finally
+                                  (planck.core/-close ~(bindings 0)))))
     :else (throw (js/Error.
                   "with-open only allows symbols in bindings"))))

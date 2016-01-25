@@ -648,3 +648,17 @@ foo.core/d
 (exists? foo.core/c)
 (intern 'bar.core 'x)
 REPL_INPUT
+
+echo "Test with-open"
+$PLANCK << REPL_INPUT
+(require '[planck.core :refer [IClosable -close] :refer-macros [with-open]])
+(defrecord Foo [x]
+  IClosable
+  (-close [_] (println "Close" x)))
+(with-open [x (Foo. :x)
+            y (Foo. :y)]
+  (println "Body1")
+  (println "Body2"))
+(with-open [x])
+(with-open '(x nil))
+REPL_INPUT
