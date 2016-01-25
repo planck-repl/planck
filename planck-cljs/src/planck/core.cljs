@@ -139,10 +139,10 @@
 
 (defn read-password
   "Reads the next line from console with echoing disabled.
-   It will print out a prompt if supplied"
+  It will print out a prompt if supplied"
   ([] (read-password ""))
   ([prompt]
-   (js/PLANCK_READ_PASSWORD)))
+   (js/PLANCK_READ_PASSWORD prompt)))
 
 (defonce
   ^:dynamic
