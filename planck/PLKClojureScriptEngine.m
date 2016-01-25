@@ -294,17 +294,17 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  sourceFileModified = [self getModificationDateForFile:fullPath];
                              }
                          } else if ([type isEqualToString:@"jar"]) {
-                             ZZArchive* archive = self.openArchives[path];
+                             ZZArchive* archive = self.openArchives[location];
                              if (!archive) {
                                  NSError* err = nil;
                                  archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
                                                                error:&err];
                                  if (err) {
                                      NSLog(@"%@", err);
-                                     self.openArchives[path] = [NSNull null];
+                                     self.openArchives[location] = [NSNull null];
                                  } else {
-                                     self.openArchives[path] = archive;
-                                     self.openArchiveModificationDates[path] = [self getModificationDateForFile:location];
+                                     self.openArchives[location] = archive;
+                                     self.openArchiveModificationDates[location] = [self getModificationDateForFile:location];
                                  }
                              }
                              NSData* data = nil;

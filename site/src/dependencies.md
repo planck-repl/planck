@@ -14,3 +14,26 @@ will cause Planck to search in the `src` directory first, and then in `foo.jar` 
 Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries may work with Planck. In particular, libraries that employ macros that rely on Java interop cannot work. But libraries that employ straightworward macros that expand to ClojureScript work fine.
 
 > One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML _using Planck itself_ using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
+
+### Using Leiningen for JAR Dependency Management
+
+Planck requires that JARs be available locally and on the classpath, but it doen't take care of downloading JARs. One solution to this is to use [Leiningen](http://leiningen.org) to manage dependencies for you, and to use its `classpath` option to generate a classpath string for use with Planck.
+
+Here is an example. Let's say you want to use [clojurescript.csv](https://github.com/testdouble/clojurescript.csv) from Planck. First make a simple Leiningen `project.clj` just for the purpose of loading this dependency:
+
+```clj
+(defproject foo "0.1.0-SNAPSHOT"
+  :dependencies [[testdouble/clojurescript.csv "0.2.0"]])
+```
+
+Now, with this in place, you can launch Planck using `lein classpath` to automatically generate the classpath string (and also automatically download any deps that haven't yet been downloaded). Here is a sample session showing this working, along with using the library within Planck.
+
+```
+$ /Users/mfikes/Projects/planck/build/Release/planck -c`lein classpath`
+Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.pom from clojars
+Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.jar from clojars
+cljs.user=> (require '[testdouble.cljs.csv :as csv])
+nil
+cljs.user=> (csv/write-csv [[1 2 3] [4 5 6]])
+"1,2,3\n4,5,6"
+```
