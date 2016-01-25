@@ -70,12 +70,13 @@
   File
   (make-reader [file opts]
     (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
-      (planck.core/Reader.
+      (planck.core/BufferedReader.
         (fn [] (let [[result err] (js/PLANCK_FILE_READER_READ file-reader)]
                  (if err
                    (throw (js/Error. err)))
                  result))
-        (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader)))))
+        (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader))
+        (atom nil))))
   (make-writer [file opts]
     (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (planck.core/Writer.
@@ -97,7 +98,7 @@
         (fn [] (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-output-stream))))))
 
 (defn reader
-  "Attempts to coerce its argument into an open IReader."
+  "Attempts to coerce its argument into an open IBufferedReader."
   [x & opts]
   (make-reader x (when opts (apply hash-map opts))))
 

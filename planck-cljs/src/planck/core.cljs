@@ -17,10 +17,41 @@
   "Protocol for reading."
   (-read [this] "Returns available characters as a string or nil if EOF."))
 
+(defprotocol IBufferedReader
+  "Protocol for reading line-based content."
+  (-read-line [this] "Reads the next line."))
+
 (defrecord Reader [raw-read raw-close]
   IReader
   (-read [_]
     (raw-read))
+  IClosable
+  (-close [_]
+    (raw-close)))
+
+(declare fission!)
+
+(defrecord BufferedReader [raw-read raw-close buffer]
+  IReader
+  (-read [_]
+    (raw-read))
+  IBufferedReader
+  (-read-line [this]
+    (if-let [buffered @buffer]
+      (let [n (.indexOf buffered "\n")]
+        (if (neg? n)
+          (if-let [next-characters (-read this)]
+            (do
+              (swap! buffer (fn [s] (str s next-characters)))
+              (recur this))
+            (fission! buffer (fn [s] [nil s])))
+          (fission! buffer (fn [s] [(let [residual (subs s (inc n))]
+                                      (if (= "" residual)
+                                        nil
+                                        residual))
+                                    (subs s 0 n)]))))
+      (when (reset! buffer (-read this))
+        (recur this))))
   IClosable
   (-close [_]
     (raw-close)))
@@ -66,7 +97,7 @@
   ^{:doc     "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
-  (Reader. js/PLANCK_RAW_READ_STDIN nil))
+  (BufferedReader. js/PLANCK_RAW_READ_STDIN nil (atom nil)))
 
 (set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
 
@@ -94,26 +125,17 @@
         new-out
         (recur)))))
 
-(defonce ^:private buffer (atom nil))
-
 (defn read-line
   "Reads the next line from the current value of planck.io/*in*"
   []
-  (if-let [buffered @buffer]
-    (let [n (.indexOf buffered "\n")]
-      (if (neg? n)
-        (if-let [next-characters (-read *in*)]
-          (do
-            (swap! buffer (fn [s] (str s next-characters)))
-            (recur))
-          (fission! buffer (fn [s] [nil s])))
-        (fission! buffer (fn [s] [(let [residual (subs s (inc n))]
-                                    (if (= "" residual)
-                                      nil
-                                      residual))
-                                  (subs s 0 n)]))))
-    (when (reset! buffer (-read *in*))
-      (recur))))
+  (-read-line *in*))
+
+(defn line-seq
+  "Returns the lines of text from rdr as a lazy sequence of strings.
+  rdr must implement IBufferedReader."
+  [rdr]
+  (when-let [line (-read-line rdr)]
+    (cons line (lazy-seq (line-seq rdr)))))
 
 (defonce
   ^:dynamic

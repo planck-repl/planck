@@ -387,6 +387,24 @@ $PLANCK <<REPL_INPUT
 (test-read "a\nb\n")
 REPL_INPUT
 
+echo "reader and line-seq"
+$PLANCK <<REPL_INPUT
+(require '[planck.core :refer [-close spit line-seq]] '[planck.io :refer [reader]])
+(defn test-read [content]
+  (spit "/tmp/PLANCK_TEST.txt" content)
+  (let [rdr (reader "/tmp/PLANCK_TEST.txt")]
+    (try
+      (prn (line-seq rdr))
+      (finally
+        (-close rdr)))))
+(test-read "")
+(test-read "a")
+(test-read "a")
+(test-read "a\n")
+(test-read "a\nb")
+(test-read "a\nb\n")
+REPL_INPUT
+
 echo "writer"
 $PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-close slurp spit]] '[planck.io :refer [reader writer]])

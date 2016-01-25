@@ -403,6 +403,21 @@ nil
 "b"
 nil
 nil
+reader and line-seq
+nil
+#'cljs.user/test-read
+nil
+nil
+("a")
+nil
+("a")
+nil
+("a")
+nil
+("a" "b")
+nil
+("a" "b")
+nil
 writer
 nil
 #'cljs.user/test-write
