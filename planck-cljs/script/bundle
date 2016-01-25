@@ -4,7 +4,7 @@
 set -e
 set -o pipefail
 
-cp src/planck/repl.clj out/planck
+cp src/planck/{repl,core}.clj out/planck
 
 echo '#import <Foundation/Foundation.h>' > PLKBundledOut.m
 echo '#import "zlib.h"' >> PLKBundledOut.m
