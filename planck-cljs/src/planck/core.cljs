@@ -137,6 +137,13 @@
   (when-let [line (-read-line rdr)]
     (cons line (lazy-seq (line-seq rdr)))))
 
+(defn read-password
+  "Reads the next line from console with echoing disabled.
+   It will print out a prompt if supplied"
+  ([] (read-password ""))
+  ([prompt]
+   (js/PLANCK_READ_PASSWORD)))
+
 (defonce
   ^:dynamic
   *as-file-fn*
