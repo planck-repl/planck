@@ -29,7 +29,7 @@ Here is an example. Let's say you want to use [clojurescript.csv](https://github
 Now, with this in place, you can launch Planck using `lein classpath` to automatically generate the classpath string (and also automatically download any deps that haven't yet been downloaded). Here is a sample session showing this working, along with using the library within Planck.
 
 ```
-$ /Users/mfikes/Projects/planck/build/Release/planck -c`lein classpath`
+$ planck -c`lein classpath`
 Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.pom from clojars
 Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.jar from clojars
 cljs.user=> (require '[testdouble.cljs.csv :as csv])
