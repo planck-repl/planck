@@ -1,4 +1,5 @@
-(ns planck.shell)
+(ns planck.shell
+  (:require [planck.io :refer [as-file]]))
 
 (def ^:dynamic *sh-dir* nil)
 (def ^:dynamic *sh-env* nil)
@@ -27,7 +28,7 @@
            name (for example \"UTF-8\" or \"ISO-8859-1\") to convert
            the sub-process's stdout to a String which is returned.
   :env     override the process env with a map of String: String.
-  :dir     override the process dir with a String.
+  :dir     override the process dir with a String or planck.io/File.
   if the command can be launched, sh returns a map of
     :exit => sub-process's exit code
     :out  => sub-process's stdout (as String)
@@ -36,7 +37,8 @@
   [& args]
   (let [[cmd opts] (parse-args args)
         {:keys [in in-enc out-enc env dir]} opts]
-    (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
+    (let [dir (and dir (:path (as-file dir)))
+          [exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
       (if (and (== -1 exit)
                (= "launch path not accessible" err))
         (throw (js/Error. err))

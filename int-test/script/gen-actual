@@ -365,6 +365,9 @@ $PLANCK <<REPL_INPUT
 (require '[planck.shell :refer-macros [with-sh-dir]])
 (with-sh-dir "/tmp"
   (:out (planck.shell/sh "pwd")))
+(require 'planck.io)
+(with-sh-dir (planck.io/file "/tmp")
+  (:out (planck.shell/sh "pwd")))
 REPL_INPUT
 
 echo "Shell stderr"
