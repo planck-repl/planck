@@ -16,7 +16,7 @@
   :in      may be given followed by a string of one of the following formats:
            String conforming to URL Syntax: 'file:///tmp/test.txt'
            String pointing at an *existing* 'file: '/tmp/test.txt'
-           String with string input: 'Printing input frmo stdin with funy chars like $@ &'
+           String with string input: 'Printing input from stdin with funy chars like $@ &'
            to be fed to the sub-process's stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
@@ -28,7 +28,7 @@
            the sub-process's stdout to a String which is returned.
   :env     override the process env with a map of String: String.
   :dir     override the process dir with a String.
-  if the command exits normally, sh returns a map of
+  if the command can be launched, sh returns a map of
     :exit => sub-process's exit code
     :out  => sub-process's stdout (as String)
     :err  => sub-process's stderr (String via platform default encoding),
@@ -37,8 +37,9 @@
   (let [[cmd opts] (parse-args args)
         {:keys [in in-enc out-enc env dir]} opts]
     (let [[exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
-      (if (= 0 exit)
+      (if (and (== -1 exit)
+               (= "launch path not accessible" err))
+        (throw (js/Error. err))
         {:exit exit
          :out  out
-         :err  err}
-        (throw (js/Error. (str  "sh exited with non-zero exit code: "  exit ", " err )))))))
+         :err  err}))))

@@ -347,7 +347,24 @@ REPL_INPUT
 echo "Shell"
 $PLANCK <<REPL_INPUT
 (require 'planck.shell)
-(into (sorted-set) (planck.shell/sh "echo" "hello))
+(into (sorted-set) (planck.shell/sh "echo" "hello"))
+REPL_INPUT
+
+echo "Shell throws"
+$PLANCK <<REPL_INPUT
+(require 'planck.shell)
+(try
+  (planck.shell/sh "bogus")
+  (println "unexpected")
+  (catch :default _
+    (println "expected")))
+REPL_INPUT
+
+echo "Shell with-sh-dir"
+$PLANCK <<REPL_INPUT
+(require '[planck.shell :refer-macros [with-sh-dir]])
+(with-sh-dir "/tmp"
+  (:out (planck.shell/sh "pwd")))
 REPL_INPUT
 
 echo "Shell stderr"

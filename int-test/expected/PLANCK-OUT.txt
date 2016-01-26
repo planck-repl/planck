@@ -366,6 +366,14 @@ true
 nil
 Shell
 nil
+#{[:err ""] [:exit 0] [:out "hello\n"]}
+Shell throws
+nil
+expected
+nil
+Shell with-sh-dir
+nil
+"/private/tmp\n"
 Shell stderr
 nil
 #{[:err "this is from stderr\n"] [:exit 0] [:out ""]}

@@ -451,7 +451,7 @@
 
 (defn ^boolean cache-eligible?
   [name]
-  (not ({'planck.core 'planck.repl} name)))
+  (not (#{'planck.core 'planck.repl 'planck.shell} name)))
 
 (defn form-build-affecting-options
   []
