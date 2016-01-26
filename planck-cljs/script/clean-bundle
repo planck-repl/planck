@@ -1,5 +1,6 @@
 #!/bin/bash
 
+pwd
 rm -f manifest.m
 git update-index --no-assume-unchanged ../planck/PLKBundledOut.m
 git checkout -- ../planck/PLKBundledOut.m

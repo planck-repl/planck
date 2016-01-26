@@ -4,12 +4,12 @@
 
 ; ClojureScript
 (binding [*sh-dir* "planck-cljs"]
-  (sh "script/clean")
-  (sh "script/clean-bundle"))
+  (sh "bash" "script/clean")
+  (sh "bash" "script/clean-bundle"))
 
 ; Xcode
 (sh "rm" "-rf" "build")
 
 ; Site
 (binding [*sh-dir* "site"]
-  (sh "script/clean"))
+  (sh "/usr/local/bin/planck" "script/clean"))
