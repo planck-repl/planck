@@ -11,6 +11,8 @@ planck -c src:/path/to/foo.jar:some-lib/src
 
 will cause Planck to search in the `src` directory first, and then in `foo.jar` next, and finally `some-lib/src` for files when processing `require`, `require-macros`, and `import` direcives (either in the REPL, or as part of `ns` forms.)
 
+> Paths to JARs cached locally via Maven (usually under `/Users/<username>/.m2/repository`) will work fine. See the section below on Leiningen for tips on dependency management.
+
 Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries may work with Planck. In particular, libraries that employ macros that rely on Java interop cannot work. But libraries that employ straightworward macros that expand to ClojureScript work fine.
 
 > One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML _using Planck itself_ using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
