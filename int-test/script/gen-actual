@@ -255,6 +255,7 @@ $PLANCK -c $SRC <<REPL_INPUT
 (doc if)
 (doc catch)
 (doc doc)
+(doc fn) ; macro with :forms
 (doc IWriter)
 (defn f "docstring" [param])
 (doc f)
