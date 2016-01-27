@@ -551,7 +551,121 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_IS_DIRECTORY"
                                          argList:@"path"
                                        inContext:self.context];
-        
+
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+
+                 NSString* path = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSFileManager* fileManager = [NSFileManager defaultManager];
+                 
+                 if (![fileManager fileExistsAtPath:path]) {
+                     return JSValueMakeNull(ctx);
+                 }
+
+                 JSObjectRef retval = JSObjectMake(ctx, NULL, NULL);
+                
+                 NSDictionary *result = [fileManager attributesOfItemAtPath:path error:nil];
+                 result.count; // this is apparently needed to make sure the dictionary is realized. Go figure...
+
+                 if ([result objectForKey:NSFileAppendOnly] != nil) {
+                     bool appendOnly = [ result objectForKey:NSFileAppendOnly ] ;
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("appendonly"), JSValueMakeBoolean(ctx, appendOnly), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileBusy] != nil) {
+                     bool fileBusy = [ result objectForKey:NSFileBusy];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filebusy"), JSValueMakeBoolean(ctx, fileBusy), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileDeviceIdentifier] != nil) {
+                     double deviceId = [[ result objectForKey:NSFileDeviceIdentifier] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("deviceid"), JSValueMakeNumber(ctx, deviceId), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileExtensionHidden] != nil) {
+                     bool extensionHidden = [ result objectForKey:NSFileExtensionHidden];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("extensionhidden"), JSValueMakeBoolean(ctx, extensionHidden), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileHFSCreatorCode] != nil) {
+                     double creatorCode = [[result objectForKey:NSFileHFSCreatorCode] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("creatorcode"), JSValueMakeNumber(ctx, creatorCode), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileHFSTypeCode] != nil) {
+                     double typeCode = [[result objectForKey:NSFileHFSTypeCode] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("typecode"), JSValueMakeNumber(ctx, typeCode), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileImmutable] != nil) {
+                     bool immutable = [result objectForKey:NSFileImmutable];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("immutable"), JSValueMakeBoolean(ctx, immutable), kJSPropertyAttributeReadOnly, nil);
+
+                 }
+                 if ([result objectForKey:NSFilePosixPermissions] != nil) {
+                     double permissions = [[result objectForKey:NSFilePosixPermissions] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("permissions"), JSValueMakeNumber(ctx, permissions), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileReferenceCount] != nil) {
+                     double referenceCount = [[result objectForKey:NSFileReferenceCount] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("referencecount"), JSValueMakeNumber(ctx, referenceCount), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileSize] != nil) {
+                     double filesize = [[result objectForKey:NSFileSize] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filesize"), JSValueMakeNumber(ctx, filesize), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileSystemFileNumber] != nil) {
+                     double filenumber = [[result objectForKey:NSFileSystemFileNumber] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filenumber"), JSValueMakeNumber(ctx, filenumber), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileType] != nil) {
+                     NSString* type = [result objectForKey:NSFileType];
+                     NSString * typeString = @"unknown";
+                     if ([type isEqualToString:NSFileTypeDirectory]) {
+                         typeString = @"directory";
+                     } else if ([type isEqualToString:NSFileTypeRegular]) {
+                         typeString = @"file";
+                     } else if ([type isEqualToString:NSFileTypeSymbolicLink]) {
+                         typeString = @"symboliclink";
+                     } else if ([type isEqualToString:NSFileTypeSocket]) {
+                         typeString = @"socket";
+                     } else if ([type isEqualToString:NSFileTypeCharacterSpecial]) {
+                         typeString = @"characterspecial";
+                     } else if ([type isEqualToString:NSFileTypeBlockSpecial]) {
+                         typeString = @"blockspecial";
+                     }
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("type"), JSValueMakeStringFromNSString(ctx, typeString), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileCreationDate] != nil) {
+                     NSDate* created = [result objectForKey:NSFileCreationDate];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("created"), JSValueMakeNumber(ctx, 1000.0*[created timeIntervalSince1970]), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileModificationDate] != nil) {
+                     NSDate* modified = [result objectForKey:NSFileModificationDate];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("modified"), JSValueMakeNumber(ctx, 1000.0*[modified timeIntervalSince1970]), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileOwnerAccountID] != nil) {
+                     double uid = [[result objectForKey:NSFileOwnerAccountID] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("uid"),  JSValueMakeNumber(ctx, uid), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileOwnerAccountName] != nil) {
+                     NSString* owner = [result objectForKey:NSFileOwnerAccountName];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("uname"), JSValueMakeStringFromNSString(ctx, owner), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileGroupOwnerAccountName] != nil) {
+                     NSString* groupname = [result objectForKey:NSFileGroupOwnerAccountName];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("gname"), JSValueMakeStringFromNSString(ctx, groupname), kJSPropertyAttributeReadOnly, nil);
+                 }
+                 if ([result objectForKey:NSFileGroupOwnerAccountID] != nil) {
+                     double gid = [[result objectForKey:NSFileGroupOwnerAccountID] doubleValue];
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("gid"),  JSValueMakeNumber(ctx, gid), kJSPropertyAttributeReadOnly, nil);
+                 }
+
+                 return retval;
+             }
+             
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_FSTAT"
+                                         argList:@"path"
+                                       inContext:self.context];
+	
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              

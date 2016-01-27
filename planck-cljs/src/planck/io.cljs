@@ -1,5 +1,5 @@
 (ns planck.io
-  (:require planck.core)
+  (:require [planck.core])
   #_(:import goog.Uri))
 
 (defrecord File [path])
@@ -126,10 +126,22 @@
   ([parent & more]
    (File. (apply str parent more))))
 
+(defn fstat
+  "Returns a map containing the attributes of the item at a given path."
+  [path]
+  (some-> path
+          as-file
+          :path
+          js/PLANCK_FSTAT
+          (js->clj :keywordize-keys true)
+          (update-in [:type] keyword)
+          (update-in [:created] #(js/Date. %))
+          (update-in [:modified] #(js/Date. %))))
+
 (defn delete-file
-  "Delete file f."
-  [f]
-  (js/PLANCK_DELETE (:path (as-file f))))
+    "Delete file f."
+    [f]
+    (js/PLANCK_DELETE (:path (as-file f))))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
