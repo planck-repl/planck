@@ -238,6 +238,16 @@ Special Form
   Please see http://clojure.org/special_forms#if
 nil
 -------------------------
+try
+   (try expr* catch-clause* finally-clause?)
+Special Form
+  catch-clause => (catch classname name expr*)
+  finally-clause => (finally expr*)
+  Catches and handles JavaScript exceptions.
+
+  Please see http://clojure.org/special_forms#try
+nil
+-------------------------
 planck.repl/doc
 ([sym])
 Macro

@@ -813,36 +813,40 @@
 
 (defn doc*
   [sym]
-  (cond
+  (if-let [special-sym ('{&       fn
+                          catch   try
+                          finally try} sym)]
+    (doc* special-sym)
+    (cond
 
-    (special-doc-map sym)
-    (repl/print-doc (special-doc sym))
+      (special-doc-map sym)
+      (repl/print-doc (special-doc sym))
 
-    (repl-special-doc-map sym)
-    (repl/print-doc (repl-special-doc sym))
+      (repl-special-doc-map sym)
+      (repl/print-doc (repl-special-doc sym))
 
-    (get-namespace sym)
-    (cljs.repl/print-doc
-      (select-keys (get-namespace sym) [:name :doc]))
+      (get-namespace sym)
+      (cljs.repl/print-doc
+        (select-keys (get-namespace sym) [:name :doc]))
 
-    (get-var (get-aenv) sym)
-    (repl/print-doc
-      (let [var (get-var (get-aenv) sym)
-            var (cond-> var
-                  (:macro var) (assoc :arglists (-> var :meta :arglists second)))
-            m   (select-keys var
-                  [:ns :name :doc :forms :arglists :macro :url])]
-        (cond-> (update-in m [:name] name)
-          (:protocol-symbol var)
-          (assoc :protocol true
-                 :methods
-                 (->> (get-in var [:protocol-info :methods])
-                   (map (fn [[fname sigs]]
-                          [fname {:doc      (:doc
-                                              (get-var (get-aenv)
-                                                (symbol (str (:ns var)) (str fname))))
-                                  :arglists (seq sigs)}]))
-                   (into {}))))))))
+      (get-var (get-aenv) sym)
+      (repl/print-doc
+        (let [var (get-var (get-aenv) sym)
+              var (cond-> var
+                    (:macro var) (assoc :arglists (-> var :meta :arglists second)))
+              m   (select-keys var
+                    [:ns :name :doc :forms :arglists :macro :url])]
+          (cond-> (update-in m [:name] name)
+            (:protocol-symbol var)
+            (assoc :protocol true
+                   :methods
+                   (->> (get-in var [:protocol-info :methods])
+                     (map (fn [[fname sigs]]
+                            [fname {:doc      (:doc
+                                                (get-var (get-aenv)
+                                                  (symbol (str (:ns var)) (str fname))))
+                                    :arglists (seq sigs)}]))
+                     (into {})))))))))
 
 (defn source*
   [sym]

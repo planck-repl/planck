@@ -253,6 +253,7 @@ $PLANCK -c $SRC <<REPL_INPUT
 (doc inc)
 (doc when)
 (doc if)
+(doc catch)
 (doc doc)
 (doc IWriter)
 (defn f "docstring" [param])
