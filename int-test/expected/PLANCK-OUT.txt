@@ -244,6 +244,18 @@ Macro
   Prints documentation for a var or special form given its name
 nil
 -------------------------
+cljs.core/fn
+   (fn name? [params*] exprs*)
+   (fn name? ([params*] exprs*) +)
+Macro
+  params => positional-params* , or positional-params* & next-param
+     positional-param => binding-form
+     next-param => binding-form
+     name => symbol
+
+     Defines a function
+nil
+-------------------------
 cljs.core/IWriter
 Protocol
   Protocol for writing. Currently only implemented by StringBufferWriter.
