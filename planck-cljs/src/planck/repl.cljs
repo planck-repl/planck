@@ -832,9 +832,8 @@
       (get-var (get-aenv) sym)
       (repl/print-doc
         (let [var (get-var (get-aenv) sym)
-              var (cond-> var
-                    (:macro var) (assoc :forms (-> var :meta :forms second)
-                                        :arglists (-> var :meta :arglists second)))
+              var (assoc var :forms (-> var :meta :forms second)
+                             :arglists (-> var :meta :arglists second))
               m   (select-keys var
                     [:ns :name :doc :forms :arglists :macro :url])]
           (cond-> (update-in m [:name] name)
