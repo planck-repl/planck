@@ -473,7 +473,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_READ_PASSWORD"
                                          argList:@"prompt"
                                        inContext:self.context];
-        
+
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
@@ -551,7 +551,26 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_IS_DIRECTORY"
                                          argList:@"path"
                                        inContext:self.context];
-        
+
+	[ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+
+	    if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+
+	      NSString* filePath = NSStringFromJSValueRef(ctx, argv[0]);
+
+	      BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath: filePath];
+
+	      return JSValueMakeBoolean(ctx, exists);
+	      
+	    }
+
+	    return JSValueMakeNull(ctx);
+	  }
+                                            name:@"PLANCK_FILE_EXISTS"
+                                         argList:@"path"
+                                       inContext:self.context];
+	
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              

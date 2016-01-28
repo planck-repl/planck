@@ -154,7 +154,7 @@
   "A tree seq on files"
   [dir]
   (tree-seq
-    (fn [f] (js/PLANCK_IS_DIRECTORY (:path f)))
+    (fn [f] (planck.io/directory? f))
     (fn [d] (map *as-file-fn*
               (js->clj (js/PLANCK_LIST_FILES (:path d)))))
     (*as-file-fn* dir)))
