@@ -139,9 +139,9 @@
           (update-in [:modified] #(js/Date. %))))
 
 (defn delete-file
-    "Delete file f."
-    [f]
-    (js/PLANCK_DELETE (:path (as-file f))))
+  "Delete file f."
+  [f]
+  (js/PLANCK_DELETE (:path (as-file f))))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
