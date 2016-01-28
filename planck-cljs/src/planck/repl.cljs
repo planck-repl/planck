@@ -555,15 +555,21 @@
 
 (def closure-index-mem (memoize closure-index))
 
-(defn- skip-load?
-  [{:keys [name macros]}]
-  (or
-    (= name 'cljs.core)
-    (= name 'cljs.analyzer)
-    (and (= name 'cljs.js) macros)
-    (and (= name 'cljs.pprint) macros)
-    (and (= name 'cljs.test) macros)
-    (and (= name 'clojure.template) macros)))
+(defn skip-load?
+    [{:keys [name macros]}]
+    (or
+      (= name 'cljs.core)
+      (= name 'cljs.analyzer)
+      (= name 'cljs.compiler)
+      (and (= name 'cljs.env.macros) macros)
+      (and (= name 'cljs.compiler.macros) macros)
+      (and (= name 'cljs.repl) macros)
+      (and (= name 'cljs.js) macros)
+      (and (= name 'cljs.pprint) macros)
+      (and (= name 'cljs.test) macros)
+      (and (= name 'clojure.template) macros)
+      (and (= name 'tailrecursion.cljson) macros)
+      (and (= name 'lazy-map.core) macros)))
 
 (defn- do-load-file
   [file cb]

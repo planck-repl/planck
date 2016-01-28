@@ -60,6 +60,8 @@
 
 (extract-analysis-cache "out/cognitect/transit.cljs.cache.edn" "out/cognitect/transit.cljs.cache.json")
 
+;; Uncomment to be able to work with 'planck.repl in Planck
+#_(extract-analysis-cache "out/planck/repl.cljs.cache.edn" "out/planck/repl.cljs.cache.json")
 (extract-analysis-cache "out/planck/core.cljs.cache.edn" "out/planck/core.cljs.cache.json")
 (extract-analysis-cache "out/planck/io.cljs.cache.edn" "out/planck/io.cljs.cache.json")
 (extract-analysis-cache "out/planck/shell.cljs.cache.edn" "out/planck/shell.cljs.cache.json")
