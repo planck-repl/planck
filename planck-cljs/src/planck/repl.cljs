@@ -1060,3 +1060,10 @@
       (comp/emits "})"))
     (comp/emits "[" (comp/comma-sep items) "]"))
   (when-not (= :expr (:context env)) (comp/emitln ";")))
+
+;;; Experimental change to handle syntax quoting for `catch, `finally
+(let [original-special-symbol? cljs.core/special-symbol?]
+  (set! cljs.core/special-symbol?
+    (fn [sym]
+      (or ('#{catch finally} sym)
+          (original-special-symbol? sym)))))
