@@ -1043,3 +1043,20 @@
 (defn resolve
   [sym]
   (ns-resolve @current-ns sym))
+
+;;; Experimental change to handle entering naked object literals like
+;;; cljs.user=> #js {:a 1}
+(defmethod comp/emit* :js-value
+  [{:keys [items js-type env]}]
+  (when (= :return (:context env)) (comp/emits "return "))
+  (if (= js-type :object)
+    (do
+      (comp/emits "({")
+      (when-let [items (seq items)]
+        (let [[[k v] & r] items]
+          (comp/emits "\"" (name k) "\": " v)
+          (doseq [[k v] r]
+            (comp/emits ", \"" (name k) "\": " v))))
+      (comp/emits "})"))
+    (comp/emits "[" (comp/comma-sep items) "]"))
+  (when-not (= :expr (:context env)) (comp/emitln ";")))
