@@ -17,6 +17,7 @@
 * [Dependencies](dependencies.html)
 * [Performance](performance.html)
 * [Socket REPL](socket-repl.html)
+* [Emacs](emacs.html)
 * [Internals](internals.html)
 * [Contributing](contributing.html)
 * [Legal](legal.html)
