@@ -1,7 +1,7 @@
 ## Intro
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/intro.png">
-Planck is a ClojureScript REPL for OS X.
+Planck is a stand-alone ClojureScript REPL for OS X.
 
 Planck is quick to start and it provides a nice REPL environment that is great for experimenting with and learning the ClojureScript language.
 
