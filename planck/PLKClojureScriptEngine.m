@@ -571,27 +571,27 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
 
                  if ([result objectForKey:NSFileAppendOnly] != nil) {
                      bool appendOnly = [ result objectForKey:NSFileAppendOnly ] ;
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("appendonly"), JSValueMakeBoolean(ctx, appendOnly), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("append-only"), JSValueMakeBoolean(ctx, appendOnly), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileBusy] != nil) {
                      bool fileBusy = [ result objectForKey:NSFileBusy];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filebusy"), JSValueMakeBoolean(ctx, fileBusy), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("file-busy"), JSValueMakeBoolean(ctx, fileBusy), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileDeviceIdentifier] != nil) {
                      double deviceId = [[ result objectForKey:NSFileDeviceIdentifier] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("deviceid"), JSValueMakeNumber(ctx, deviceId), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("device-id"), JSValueMakeNumber(ctx, deviceId), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileExtensionHidden] != nil) {
                      bool extensionHidden = [ result objectForKey:NSFileExtensionHidden];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("extensionhidden"), JSValueMakeBoolean(ctx, extensionHidden), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("extension-hidden"), JSValueMakeBoolean(ctx, extensionHidden), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileHFSCreatorCode] != nil) {
                      double creatorCode = [[result objectForKey:NSFileHFSCreatorCode] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("creatorcode"), JSValueMakeNumber(ctx, creatorCode), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("creator-code"), JSValueMakeNumber(ctx, creatorCode), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileHFSTypeCode] != nil) {
                      double typeCode = [[result objectForKey:NSFileHFSTypeCode] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("typecode"), JSValueMakeNumber(ctx, typeCode), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("type-code"), JSValueMakeNumber(ctx, typeCode), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileImmutable] != nil) {
                      bool immutable = [result objectForKey:NSFileImmutable];
@@ -604,15 +604,15 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  }
                  if ([result objectForKey:NSFileReferenceCount] != nil) {
                      double referenceCount = [[result objectForKey:NSFileReferenceCount] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("referencecount"), JSValueMakeNumber(ctx, referenceCount), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("reference-count"), JSValueMakeNumber(ctx, referenceCount), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileSize] != nil) {
                      double filesize = [[result objectForKey:NSFileSize] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filesize"), JSValueMakeNumber(ctx, filesize), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("file-size"), JSValueMakeNumber(ctx, filesize), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileSystemFileNumber] != nil) {
                      double filenumber = [[result objectForKey:NSFileSystemFileNumber] doubleValue];
-                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("filenumber"), JSValueMakeNumber(ctx, filenumber), kJSPropertyAttributeReadOnly, nil);
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("file-number"), JSValueMakeNumber(ctx, filenumber), kJSPropertyAttributeReadOnly, nil);
                  }
                  if ([result objectForKey:NSFileType] != nil) {
                      NSString* type = [result objectForKey:NSFileType];
@@ -622,13 +622,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                      } else if ([type isEqualToString:NSFileTypeRegular]) {
                          typeString = @"file";
                      } else if ([type isEqualToString:NSFileTypeSymbolicLink]) {
-                         typeString = @"symboliclink";
+                         typeString = @"symbolic-link";
                      } else if ([type isEqualToString:NSFileTypeSocket]) {
                          typeString = @"socket";
                      } else if ([type isEqualToString:NSFileTypeCharacterSpecial]) {
-                         typeString = @"characterspecial";
+                         typeString = @"character-special";
                      } else if ([type isEqualToString:NSFileTypeBlockSpecial]) {
-                         typeString = @"blockspecial";
+                         typeString = @"block-special";
                      }
                      JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("type"), JSValueMakeStringFromNSString(ctx, typeString), kJSPropertyAttributeReadOnly, nil);
                  }
