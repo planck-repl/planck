@@ -126,7 +126,7 @@
   ([parent & more]
    (File. (apply str parent more))))
 
-(defn fstat
+(defn file-attributes
   "Returns a map containing the attributes of the item at a given path."
   [path]
   (some-> path

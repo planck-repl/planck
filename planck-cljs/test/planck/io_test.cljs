@@ -2,25 +2,25 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [planck.io]))
 
-(deftest fstat-test
-  (testing "fstat"
-    (is (nil? (planck.io/fstat nil)))
-    (is (nil? (planck.io/fstat "bogus")))
-    (is (map? (planck.io/fstat "/tmp")))
-    (is (keyword-identical? :symboliclink (:type (planck.io/fstat "/tmp"))))
-    (is (keyword-identical? :symboliclink (:type (planck.io/fstat (planck.io/file "/tmp")))))
-    (is (number? (:referencecount (planck.io/fstat "/tmp"))))
-    (is (number? (:permissions (planck.io/fstat "/tmp"))))
-    (is (number? (:filenumber (planck.io/fstat "/tmp"))))
-    (is (number? (:uid (planck.io/fstat "/tmp"))))
-    (is (number? (:gid (planck.io/fstat "/tmp"))))
-    (is (string? (:uname (planck.io/fstat "/tmp"))))
-    (is (string? (:gname (planck.io/fstat "/tmp"))))
-    (is (= js/Date (type (:created (planck.io/fstat "/tmp")))))
-    (is (= js/Date (type (:modified (planck.io/fstat "/tmp")))))
-    (is (number? (:creatorcode (planck.io/fstat "/tmp"))))
-    (is (number? (:typecode (planck.io/fstat "/tmp"))))
-    (is (number? (:filesize (planck.io/fstat "/tmp"))))
-    (let [extension-hidden (:extensionhidden (planck.io/fstat "/tmp"))]
+(deftest file-attributes-test
+  (testing "file-attributes"
+    (is (nil? (planck.io/file-attributes nil)))
+    (is (nil? (planck.io/file-attributes "bogus")))
+    (is (map? (planck.io/file-attributes "/tmp")))
+    (is (keyword-identical? :symbolic-link (:type (planck.io/file-attributes "/tmp"))))
+    (is (keyword-identical? :symbolic-link (:type (planck.io/file-attributes (planck.io/file "/tmp")))))
+    (is (number? (:reference-count (planck.io/file-attributes "/tmp"))))
+    (is (number? (:permissions (planck.io/file-attributes "/tmp"))))
+    (is (number? (:file-number (planck.io/file-attributes "/tmp"))))
+    (is (number? (:uid (planck.io/file-attributes "/tmp"))))
+    (is (number? (:gid (planck.io/file-attributes "/tmp"))))
+    (is (string? (:uname (planck.io/file-attributes "/tmp"))))
+    (is (string? (:gname (planck.io/file-attributes "/tmp"))))
+    (is (= js/Date (type (:created (planck.io/file-attributes "/tmp")))))
+    (is (= js/Date (type (:modified (planck.io/file-attributes "/tmp")))))
+    (is (number? (:creator-code (planck.io/file-attributes "/tmp"))))
+    (is (number? (:type-code (planck.io/file-attributes "/tmp"))))
+    (is (number? (:file-size (planck.io/file-attributes "/tmp"))))
+    (let [extension-hidden (:extension-hidden (planck.io/file-attributes "/tmp"))]
       (is (or (true? extension-hidden)
               (false? extension-hidden))))))
