@@ -1,6 +1,6 @@
 # Planck
 
-Planck is a command-line ClojureScript REPL for OS X.
+Planck is a stand-alone ClojureScript REPL for OS X.
 
 <img src="img/screenshot.png" style="max-width: 95%;"/>
 
