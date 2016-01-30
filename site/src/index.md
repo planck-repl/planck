@@ -8,6 +8,6 @@ Planck launches instantly and is useful for scripting with ClojureScript.
 
 Get it: `brew install planck` or [download it](download.html).
 
-Read the Planck [User Guide](guide.html).
+Read the [Planck User Guide](guide.html).
 
 Planck is free and [open source](https://github.com/mfikes/planck).
