@@ -2,7 +2,7 @@
 
 Planck is a stand-alone ClojureScript REPL for OS X.
 
-Planck launches instantly and is useful for scripting with ClojureScript.
+Planck launches instantly and is useful for scripting.
 
 <img src="img/screenshot.png" style="max-width: 95%;"/>
 
