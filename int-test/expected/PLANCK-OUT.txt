@@ -200,7 +200,7 @@ nil
 #'foo.bar/macro-crazy
 nil
 (cljs.core/ffirst cljs.core/nfirst foo.bar/xfirst)
-(cljs.core/defmacro cljs.core/find-macros-ns cljs.core/macroexpand cljs.core/macroexpand-1 foo.bar/macro-crazy)
+(cljs.core/defmacro cljs.core/find-macros-ns cljs.core/macroexpand cljs.core/macroexpand-1 cljs.reader/dispatch-macros cljs.reader/macro-terminating? cljs.reader/macros foo.bar/macro-crazy)
 (cljs.core/macroexpand cljs.core/macroexpand-1)
 Test dir
 nil
