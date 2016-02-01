@@ -25,9 +25,9 @@
 (declare print-error)
 (declare handle-error)
 
-(defonce st (cljs/empty-state))
+(defonce ^:private st (cljs/empty-state))
 
-(defonce current-ns (atom 'cljs.user))
+(defonce ^:private current-ns (atom 'cljs.user))
 
 (defn- all-ns
   "Returns a sequence of all namespaces."
@@ -55,12 +55,12 @@
     :ns (get-namespace @current-ns)
     :context :expr))
 
-(defn transit-json->cljs
+(defn- transit-json->cljs
   [json]
   (let [rdr (transit/reader :json)]
     (transit/read rdr json)))
 
-(defn cljs->transit-json
+(defn- cljs->transit-json
   [x]
   (let [wtr (transit/writer :json)]
     (transit/write wtr x)))
@@ -96,9 +96,9 @@
   (load-core-analysis-cache eager 'cljs.core "cljs/core.cljs.cache.aot.")
   (load-core-analysis-cache eager 'cljs.core$macros "cljs/core$macros.cljc.cache."))
 
-(defonce app-env (atom nil))
+(defonce ^:private app-env (atom nil))
 
-(defn ^:export init
+(defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
   (reset! planck.repl/app-env (merge {:verbose    verbose
@@ -112,7 +112,7 @@
     (when-let [ch (rt/read-char reader)]
       (cons ch (read-chars reader)))))
 
-(defn repl-read-string
+(defn- repl-read-string
   "Returns a vector of the first read form, and any balance text."
   [source]
   (binding [ana/*cljs-ns* @current-ns
@@ -128,7 +128,7 @@
     (= "EOF while reading" message)
     (= "EOF while reading string" message)))
 
-(defn ^:export is-readable?
+(defn- ^:export is-readable?
   "Returns a string representing any text after the first readible form,
   nor nil if nothing readible."
   [source]
@@ -144,17 +144,17 @@
                   (println)
                   ""))))))
 
-(defn ns-form?
+(defn- ns-form?
   [form]
   (and (seq? form) (= 'ns (first form))))
 
-(defn extract-namespace
+(defn- extract-namespace
   [source]
   (let [first-form (first (repl-read-string source))]
     (when (ns-form? first-form)
       (second first-form))))
 
-(defn repl-special?
+(defn- repl-special?
   [form]
   (and (seq? form) (repl-special-doc-map (first form))))
 
@@ -294,7 +294,7 @@
         (handle-error e true false)
         (reset! st current-st)))))
 
-(defn resolve-var
+(defn- resolve-var
   "Given an analysis environment resolve a var. Analogous to
    clojure.core/resolve"
   [env sym]
@@ -305,11 +305,11 @@
     (catch :default _
       (ana/resolve-macro-var env sym))))
 
-(defn ^:export get-current-ns
+(defn- ^:export get-current-ns
   []
   (str @current-ns))
 
-(defn completion-candidates-for-ns
+(defn- completion-candidates-for-ns
   [ns-sym allow-private?]
   (map (comp str key)
     (filter (if allow-private?
@@ -319,7 +319,7 @@
         ((juxt :defs :macros)
           (get-namespace ns-sym))))))
 
-(defn is-completion?
+(defn- is-completion?
   [buffer-match-suffix candidate]
   (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
 
@@ -336,7 +336,7 @@
                (map str (keys special-doc-map))
                (map str (keys repl-special-doc-map))))))))
 
-(defn ^:export get-completions
+(defn- ^:export get-completions
   [buffer]
   (let [namespace-candidates (map str (all-ns))
         top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
@@ -387,7 +387,7 @@
       previous-lines)
     [-1 -1]))
 
-(defn ^:export get-highlight-coords
+(defn- ^:export get-highlight-coords
   "Gets the highlight coordinates [line pos] for the previous matching
   brace. This is done by progressivly expanding source considered
   until a readable form is encountered with a matching brace on the
@@ -419,9 +419,9 @@
                          "cljs/user")]
     [file-namespace relpath]))
 
-(def extract-cache-metadata-mem (memoize extract-cache-metadata))
+(def ^:private extract-cache-metadata-mem (memoize extract-cache-metadata))
 
-(defn form-compiled-by-string
+(defn- form-compiled-by-string
   ([] (form-compiled-by-string nil))
   ([opts]
    (str "// Compiled by ClojureScript "
@@ -429,7 +429,7 @@
      (when opts
        (str " " (pr-str opts))))))
 
-(defn read-build-affecting-options
+(defn- read-build-affecting-options
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
     (binding [r/*data-readers* tags/*cljs-data-readers*]
@@ -438,7 +438,7 @@
         (catch :default _
           nil)))))
 
-(defn extract-source-build-info
+(defn- extract-source-build-info
   [js-source]
   (let [[cljs-ver build-affecting-options] (rest (re-find #"// Compiled by ClojureScript (\S*)(.*)?" js-source))
         build-affecting-options (when build-affecting-options
@@ -449,11 +449,11 @@
   [cache]
   (s/ends-with? (str (:name cache)) "$macros"))
 
-(defn ^boolean cache-eligible?
+(defn- ^boolean cache-eligible?
   [name]
   (not (#{'planck.core 'planck.repl 'planck.shell} name)))
 
-(defn form-build-affecting-options
+(defn- form-build-affecting-options
   []
   (let [m (select-keys @app-env [:static-fns])]
     (if (empty? m)
@@ -461,9 +461,9 @@
       m)))
 
 ;; Hack to remember which file path each namespace was loaded from
-(defonce name-path (atom {}))
+(defonce ^:private name-path (atom {}))
 
-(defn caching-js-eval
+(defn- caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env) (cache-eligible? name))
     (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
@@ -477,20 +477,20 @@
         (throw exception)))
     (js/eval source)))
 
-(defn extension->lang
+(defn- extension->lang
   [extension]
   (if (= ".js" extension)
     :js
     :clj))
 
-(defn add-suffix
+(defn- add-suffix
   [file suffix]
   (let [candidate (s/replace file #".cljs$" suffix)]
     (if (gstring/endsWith candidate suffix)
       candidate
       (str file suffix))))
 
-(defn cached-js-valid?
+(defn- cached-js-valid?
   [js-source js-modified source-file-modified]
   (and js-source
        (or (= 0 js-modified source-file-modified)           ;; 0 means bundled
@@ -524,7 +524,7 @@
         (when cache-json
           {:cache (transit-json->cljs cache-json)})))))
 
-(defn load-and-callback!
+(defn- load-and-callback!
   [name path lang cache-prefix cb]
   (let [[raw-load [source modified]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
         [raw-load [source modified]] (if source
@@ -540,7 +540,7 @@
               (cached-callback-data name path cache-prefix source modified raw-load))))
       :loaded)))
 
-(defn closure-index
+(defn- closure-index
   []
   (let [paths-to-provides
         (map (fn [[_ path provides]]
@@ -553,9 +553,9 @@
             provide provides]
         [(symbol provide) (str "goog/" (second (re-find #"(.*)\.js$" path)))]))))
 
-(def closure-index-mem (memoize closure-index))
+(def ^:private closure-index-mem (memoize closure-index))
 
-(defn skip-load?
+(defn- skip-load?
     [{:keys [name macros]}]
     (or
       (= name 'cljs.core)
@@ -599,7 +599,7 @@
       (cb nil))))
 
 ; file here is an alternate parameter denoting a filesystem path
-(defn load
+(defn- load
   [{:keys [name macros path file] :as full} cb]
   (cond
     (skip-load? full) (cb {:lang   :js
@@ -618,7 +618,7 @@
       (js/PLANCK_SET_EXIT_VALUE 1)
       (set! *e e))))
 
-(defn ^:export run-main
+(defn- ^:export run-main
   [main-ns & args]
   (let [main-args (js->clj args)]
     (binding [cljs/*load-fn* load
@@ -640,7 +640,7 @@
         `[(quote ~(symbol main-ns))]))
     nil))
 
-(defn load-core-source-maps!
+(defn- load-core-source-maps!
   []
   (when-not (get (:source-maps @planck.repl/st) 'planck.repl)
     (swap! st update-in [:source-maps] merge {'planck.repl
@@ -652,7 +652,7 @@
                                                 (cljson->clj
                                                   (first (js/PLANCK_LOAD "cljs/core.js.map"))))})))
 
-(defonce ^:dynamic *planck-integration-tests* false)
+(defonce ^:dynamic ^:private *planck-integration-tests* false)
 
 (defn- skip-cljsjs-eval-error
   [error]
@@ -670,7 +670,7 @@
   (and (instance? ExceptionInfo e)
        (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
 
-(defn print-error
+(defn- print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
@@ -699,7 +699,7 @@
      (when-let [cause (.-cause error)]
        (recur cause include-stacktrace?)))))
 
-(defn get-var
+(defn- get-var
   [env sym]
   (let [var (with-compiler-env st (resolve-var env sym))
         var (or var
@@ -796,14 +796,14 @@
                           (js/eval source))))))))
         (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
 
-(defn dir*
+(defn- dir*
   [nsname]
   (run! prn
     (distinct (sort (concat
                       (public-syms nsname)
                       (public-syms (symbol (str (name nsname) "$macros"))))))))
 
-(defn apropos*
+(defn- apropos*
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
@@ -817,7 +817,7 @@
                         (filter matches? (public-syms ns)))))
             (all-ns)))))
 
-(defn doc*
+(defn- doc*
   [sym]
   (if-let [special-sym ('{&       fn
                           catch   try
@@ -854,12 +854,12 @@
                                     :arglists (seq sigs)}]))
                      (into {})))))))))
 
-(defn source*
+(defn- source*
   [sym]
   (println (or (fetch-source (get-var (get-aenv) sym))
                "Source not found")))
 
-(defn pst*
+(defn- pst*
   ([]
    (pst* '*e))
   ([expr]
@@ -960,7 +960,7 @@
     (catch :default e
       (handle-error e include-stacktrace? in-exit-context?))))
 
-(defn execute-source
+(defn- execute-source
   [[source-type source-value] {:keys [expression?] :as opts}]
   (binding [ana/*cljs-ns* @current-ns
             *ns* (create-ns @current-ns)
@@ -980,22 +980,22 @@
 ;; emit function values into JavaScript as numeric
 ;; references that are looked up.
 
-(defonce fn-index (atom 0))
-(defonce fn-refs (atom {}))
+(defonce ^:private fn-index (atom 0))
+(defonce ^:private fn-refs (atom {}))
 
-(defn clear-fns!
+(defn- clear-fns!
   "Clears saved functions."
   []
   (reset! fn-refs {}))
 
-(defn put-fn
+(defn- put-fn
   "Saves a function, returning a numeric representation."
   [f]
   (let [n (swap! fn-index inc)]
     (swap! fn-refs assoc n f)
     n))
 
-(defn get-fn
+(defn- get-fn
   "Gets a function, given its numeric representation."
   [n]
   (get @fn-refs n))
@@ -1011,7 +1011,7 @@
   [f]
   (emit-fn f))
 
-(defn ^:export execute
+(defn- ^:export execute
   [source expression? print-nil-expression? in-exit-context? set-ns]
   (clear-fns!)
   (when set-ns
@@ -1021,7 +1021,7 @@
                           :in-exit-context?      in-exit-context?
                           :include-stacktrace?   true}))
 
-(defn eval
+(defn- eval
   ([form]
    (eval form @current-ns))
   ([form ns]
@@ -1036,11 +1036,11 @@
            (reset! result value))))
      @result)))
 
-(defn ns-resolve
+(defn- ns-resolve
   [ns sym]
   (eval `(~'var ~sym) ns))
 
-(defn resolve
+(defn- resolve
   [sym]
   (ns-resolve @current-ns sym))
 

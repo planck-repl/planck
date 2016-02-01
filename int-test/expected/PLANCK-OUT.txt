@@ -648,3 +648,10 @@ with-open requires an even number of forms in binding vector at line 1
 with-open requires an even number of forms in binding vector
 with-open requires a vector for its bindings at line 1 
 with-open requires a vector for its bindings
+Test planck.repl publics
+apropos
+dir
+doc
+pst
+source
+nil

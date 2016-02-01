@@ -723,3 +723,8 @@ $PLANCK << REPL_INPUT
 (with-open [x])
 (with-open '(x nil))
 REPL_INPUT
+
+echo "Test planck.repl publics"
+$PLANCK << REPL_INPUT
+(dir planck.repl)
+REPL_INPUT
