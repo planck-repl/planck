@@ -445,7 +445,7 @@
                                   (read-build-affecting-options build-affecting-options))]
     [cljs-ver build-affecting-options]))
 
-(defn is-macros?
+(defn- is-macros?
   [cache]
   (s/ends-with? (str (:name cache)) "$macros"))
 
