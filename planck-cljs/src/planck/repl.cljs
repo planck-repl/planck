@@ -499,6 +499,24 @@
                   (and (= *clojurescript-version* cljs-ver)
                        (= build-affecting-options (form-build-affecting-options))))))))
 
+;; Represents code for which the JS is already loaded (but for which the analysis cache may not be)
+(defn- skip-load-js?
+  [name]
+  ('#{cljs.analyzer
+      cljs.compiler
+      cljs.env
+      cljs.reader
+      cljs.source-map
+      cljs.source-map.base64
+      cljs.source-map.base64-vlq
+      cljs.stacktrace
+      cljs.tagged-literals
+      cljs.tools.reader.impl.utils
+      cljs.tools.reader.reader-types
+      clojure.set
+      clojure.string
+      cognitect.transit} name))
+
 (defn- cached-callback-data
   [name path cache-prefix source source-modified raw-load]
   (let [cache-prefix (if (= :calculate-cache-prefix cache-prefix)
@@ -518,7 +536,8 @@
           "for" path))
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
-      (js/PLANCK_EVAL js-source path)
+      (when-not (skip-load-js? name)
+        (js/PLANCK_EVAL js-source path))
       (merge {:lang   :js
               :source ""}
         (when cache-json
@@ -558,8 +577,6 @@
 (defn- skip-load?
     [{:keys [name macros]}]
     (or
-      (= name 'cljs.core)
-      (= name 'cljs.env)
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
@@ -576,12 +593,23 @@
   (when-not (load-and-callback! nil file :clj :calculate-cache-prefix cb)
     (cb nil)))
 
+;; Represents code for which the goog JS is already loaded
+(defn- skip-load-goog-js?
+  [name]
+  ('#{goog.object
+      goog.string
+      goog.string.StringBuffer
+      goog.math.Long} name))
+
 (defn- do-load-goog
   [name cb]
-  (if-let [goog-path (get (closure-index-mem) name)]
-    (when-not (load-and-callback! name (str goog-path ".js") :js nil cb)
-      (cb nil))
-    (cb nil)))
+  (if (skip-load-goog-js? name)
+    (cb {:lang   :js
+         :source ""})
+    (if-let [goog-path (get (closure-index-mem) name)]
+      (when-not (load-and-callback! name (str goog-path ".js") :js nil cb)
+        (cb nil))
+      (cb nil))))
 
 (defn- do-load-other
   [name path macros cb]
