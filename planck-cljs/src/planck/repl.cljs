@@ -485,7 +485,7 @@
 
 (defn- add-suffix
   [file suffix]
-  (let [candidate (s/replace file #".cljs$" suffix)]
+  (let [candidate (s/replace file #".clj[sc]$" suffix)]
     (if (gstring/endsWith candidate suffix)
       candidate
       (str file suffix))))
