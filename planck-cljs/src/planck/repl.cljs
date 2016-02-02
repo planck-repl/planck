@@ -559,9 +559,8 @@
     [{:keys [name macros]}]
     (or
       (= name 'cljs.core)
-      (= name 'cljs.analyzer)
-      (= name 'cljs.compiler)
       (and (= name 'cljs.env.macros) macros)
+      (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
       (and (= name 'cljs.repl) macros)
       (and (= name 'cljs.js) macros)

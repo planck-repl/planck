@@ -197,11 +197,11 @@ Test apropos
 nil
 #'foo.bar/xfirst
 #'foo.bar/nfirst
-#'foo.bar/macro-crazy
+#'foo.bar/ffirst-crazy
 nil
-(cljs.core/ffirst cljs.core/nfirst foo.bar/xfirst)
-(cljs.core/defmacro cljs.core/find-macros-ns cljs.core/macroexpand cljs.core/macroexpand-1 cljs.reader/dispatch-macros cljs.reader/macro-terminating? cljs.reader/macros foo.bar/macro-crazy)
-(cljs.core/macroexpand cljs.core/macroexpand-1)
+(cljs.core/ffirst cljs.core/nfirst foo.bar/ffirst-crazy foo.bar/xfirst)
+(cljs.core/ffirst foo.bar/ffirst-crazy)
+(cljs.core/ffirst foo.bar/ffirst-crazy)
 Test dir
 nil
 #'foo.bar/xfirst

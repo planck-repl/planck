@@ -228,11 +228,11 @@ $PLANCK <<REPL_INPUT
 (ns foo.bar)
 (def xfirst 3)
 (def ^:private nfirst 4)
-(def macro-crazy 10)
+(def ffirst-crazy 10)
 (in-ns 'cljs.user)
 (apropos #"[a-z]+first")
-(apropos "macro")
-(apropos macroexpand)
+(apropos "ffirst")
+(apropos ffirst)
 REPL_INPUT
 
 echo "Test dir"
