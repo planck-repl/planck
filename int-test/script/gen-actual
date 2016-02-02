@@ -630,7 +630,7 @@ REPL_INPUT
 echo "Test reader/tag literals"
 $PLANCK <<REPL_INPUT
 #js [1 2]
-#js {:a 1}
+#_ #js {:a 1}
 #inst "2015-08-18T01:53:14.614-00:00"
 REPL_INPUT
 
