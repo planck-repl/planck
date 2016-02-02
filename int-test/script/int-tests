@@ -1,7 +1,7 @@
 #!build/Release/planck -k int-test/cache
 (ns planck.int-tests
-  (:require [planck.core]
-            [planck.shell]]))
+  (:require [planck.core :refer [exit]]
+            [planck.shell :refer [sh *sh-dir*]]))
 
 (def planck-version "1.10")
 
@@ -10,7 +10,7 @@
 ;; namespaces, etc.
 ;;
 ;; For now, all you ned to do to cause the tests
-;; to fail is call `(planck.core/exit 1)`.
+;; to fail is call `(exit 1)`.
 
 (def planck-exe "build/Release/planck")
 
@@ -21,7 +21,7 @@
     (prn expected)
     (println "Actual:")
     (prn (:out shell-output))
-    (planck.core/exit 1)))
+    (exit 1)))
 
 (check-output
   (str
@@ -66,7 +66,7 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
   Paths may be absolute or relative in the filesystem.
 
   A comprehensive User Guide for Planck can be found at http://planck-repl.org\n\n")
-  (planck.shell/sh planck-exe "-h"))
+  (sh planck-exe "-h"))
 
 (defn ensure-output [expected quoted-commands]
   (check-output
@@ -101,14 +101,14 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
    '(cl-format nil "~:d" 123456789)])
 
 ;; Ensure we don't get a degenerate env
-(when (= "true\n" (:out (planck.shell/sh planck-exe "-e" "(require '[planck.shell :refer [sh]])" "-e" "(empty? (:out (sh \"env\")))")))
+(when (= "true\n" (:out (sh planck-exe "-e" "(require '[planck.shell :refer [sh]])" "-e" "(empty? (:out (sh \"env\")))")))
   (println "empty env")
-  (planck.core/exit 1))
+  (exit 1))
 
 ;; Ensure env workd
 (ensure-output (into (sorted-map) {:err "", :exit 0, :out "ABC=123\n"})
   ['(require '[planck.shell :refer [sh]])
-   '(into (sorted-map) (planck.shell/sh "env" :env {"ABC" "123"}))])
+   '(into (sorted-map) (sh "env" :env {"ABC" "123"}))])
 
 ;; Test import REPL special
 (ensure-output "http"
@@ -128,18 +128,18 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
    '(join (range 10))])
 
 ;; Ensure slurp throws an error for failed read
-(planck.shell/sh "rm" "-f" "/tmp/no-such-animal")
+(sh "rm" "-f" "/tmp/no-such-animal")
 (ensure-output "SONIC BOOOOOOOOM!"
   ['(require '[planck.core :refer [slurp]])
    '(try (slurp "/tmp/no-such-animal") (catch js/Error e "SONIC BOOOOOOOOM!"))])
 
 ;; Ensure spit throws an error for failed write
-(planck.shell/sh "touch" "/tmp/readonly")
-(planck.shell/sh "chmod" "444" "/tmp/readonly")
+(sh "touch" "/tmp/readonly")
+(sh "chmod" "444" "/tmp/readonly")
 (ensure-output "SONIC BOOOOOOOOM!"
   ['(require '[planck.core :refer [spit]])
    '(try (spit "/tmp/readonly" "foo") (catch js/Error e "SONIC BOOOOOOOOM!"))])
-(planck.shell/sh "rm" "-f" "/tmp/readonly")
+(sh "rm" "-f" "/tmp/readonly")
 
 ;; Check that 0 evaluates to true
 (ensure-output :truthy
