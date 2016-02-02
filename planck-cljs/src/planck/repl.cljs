@@ -577,6 +577,7 @@
 (defn- skip-load?
     [{:keys [name macros]}]
     (or
+      (= name 'cljs.core)
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
