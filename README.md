@@ -4,28 +4,30 @@ A stand-alone ClojureScript REPL for OS X based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
 
-Read the [Planck User Guide](http://planck-repl.org/guide.html).
-
 # Installing
 
-```
-brew install planck
-```
+`brew install planck` or [download it](http://planck-repl.org/download.html).
 
-Binaries for manual download are [available](http://planck-repl.org/download.html).
+# Using
+
+Launch Planck by entering `planck` at the terminal.
+
+Get help on command-line options by issuing `planck -h`.
+
+For more details, see the [Planck User Guide](http://planck-repl.org/guide.html).
 
 # Building 
-
-## Release Build
 
 1. `script/build`
 2. Resulting binary is in `build/Release/planck`
 
-## Tests
+You can run tests by doing:
 
 1. `script/test`
 
 ![Build Status](https://circleci.com/gh/mfikes/planck.png?circle-token=:circle-token)
+
+Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
 
 # License
 
