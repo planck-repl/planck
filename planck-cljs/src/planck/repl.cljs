@@ -449,10 +449,6 @@
   [cache]
   (s/ends-with? (str (:name cache)) "$macros"))
 
-(defn- ^boolean cache-eligible?
-  [name]
-  (not (#{'planck.core 'planck.repl 'planck.shell} name)))
-
 (defn- form-build-affecting-options
   []
   (let [m (select-keys @app-env [:static-fns])]
@@ -465,7 +461,7 @@
 
 (defn- caching-js-eval
   [{:keys [path name source cache]}]
-  (when (and path source cache (:cache-path @app-env) (cache-eligible? name))
+  (when (and path source cache (:cache-path @app-env))
     (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
       (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
       (cljs->transit-json cache)
@@ -485,7 +481,7 @@
 
 (defn- add-suffix
   [file suffix]
-  (let [candidate (s/replace file #".clj[sc]$" suffix)]
+  (let [candidate (s/replace file #".clj[sc]?$" suffix)]
     (if (gstring/endsWith candidate suffix)
       candidate
       (str file suffix))))
@@ -518,9 +514,11 @@
       cognitect.transit} name))
 
 (defn- cached-callback-data
-  [name path cache-prefix source source-modified raw-load]
-  (let [cache-prefix (if (= :calculate-cache-prefix cache-prefix)
-                       (cache-prefix-for-path (second (extract-cache-metadata-mem source)) false)
+  [name path macros cache-prefix source source-modified raw-load]
+  (let [path (cond-> path
+               macros (add-suffix "$macros"))
+        cache-prefix (if (= :calculate-cache-prefix cache-prefix)
+                       (cache-prefix-for-path (second (extract-cache-metadata-mem source)) macros)
                        cache-prefix)
         [js-source js-modified] (or (raw-load (add-suffix path ".js"))
                                     (js/PLANCK_READ_FILE (str cache-prefix ".js")))
@@ -544,7 +542,7 @@
           {:cache (transit-json->cljs cache-json)})))))
 
 (defn- load-and-callback!
-  [name path lang cache-prefix cb]
+  [name path macros lang cache-prefix cb]
   (let [[raw-load [source modified]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
         [raw-load [source modified]] (if source
                                        [raw-load [source modified]]
@@ -556,7 +554,7 @@
             {:lang   lang
              :source source}
             (when-not (= :js lang)
-              (cached-callback-data name path cache-prefix source modified raw-load))))
+              (cached-callback-data name path macros cache-prefix source modified raw-load))))
       :loaded)))
 
 (defn- closure-index
@@ -591,7 +589,7 @@
 
 (defn- do-load-file
   [file cb]
-  (when-not (load-and-callback! nil file :clj :calculate-cache-prefix cb)
+  (when-not (load-and-callback! nil file false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
 ;; Represents code for which the goog JS is already loaded
@@ -608,7 +606,7 @@
     (cb {:lang   :js
          :source ""})
     (if-let [goog-path (get (closure-index-mem) name)]
-      (when-not (load-and-callback! name (str goog-path ".js") :js nil cb)
+      (when-not (load-and-callback! name (str goog-path ".js") false :js nil cb)
         (cb nil))
       (cb nil))))
 
@@ -621,6 +619,7 @@
       (when-not (load-and-callback!
                   name
                   (str path (first extensions))
+                  macros
                   (extension->lang (first extensions))
                   (cache-prefix-for-path path macros)
                   cb)
