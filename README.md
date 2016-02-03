@@ -1,8 +1,10 @@
 # Planck
 
-A stand-alone bootstrapped ClojureScript REPL for OS X based on JavaScriptCore.
+A stand-alone ClojureScript REPL for OS X based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
+
+Read the [Planck User Guide](http://planck-repl.org/guide.html).
 
 # Installing
 
@@ -13,8 +15,6 @@ brew install planck
 Binaries for manual download are [available](http://planck-repl.org/download.html).
 
 # Building 
-
-Planck's build employs scripts written in ClojureScript executed by Planck, so you will need to install a Planck binary either via Homebrew or manually before building.
 
 ## Release Build
 
