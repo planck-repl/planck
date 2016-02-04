@@ -81,28 +81,28 @@ bar
 2
 foo
 Test :cljs/quit
-1
+[34m1[m
 Test quit
-1
+[34m1[m
 Test exit
-1
+[34m1[m
 Exit on first error
 true
 ok
 x
 Test cope with syntax errors
-Invalid number format [34f]
+[31mInvalid number format [34f][m
 
-Invalid token: a:
+[31mInvalid token: a:[m
 
 Multi-line data
-[1 2]
+[34m[1 2][m
 Multi-line string
-"abc\ndef"
+[34m"abc\ndef"[m
 space before and after
-3
+[34m3[m
 Test print to stderr
-nil
+[34mnil[m
 Test main
 5
 0
@@ -128,105 +128,105 @@ nil
 Argument to in-ns must be a symbol.
 nil
 nil
-#'alpha.beta/x
+[34m#'alpha.beta/x[m
 nil
-#'gamma.delta/y
+[34m#'gamma.delta/y[m
+[34mnil[m
+[34m#{:a}[m
 nil
-#{:a}
 nil
-nil
-#{:a}
+[34m#{:a}[m
 Test require REPL special
 nil
-true
+[34mtrue[m
 Test require REPL special exit in file
 nil
 195
 Test require REPL special throws in file
 before throw
-bye-bye
+[31mbye-bye[m
 nil
 0
 Test require unknown ns
-No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
+[31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
 nil
 Test require :reload with const
 nil
+[34mnil[m
 nil
+[34m:initial[m
+[34mnil[m
 nil
-:initial
-nil
-nil
-:reloaded
+[34m:reloaded[m
 Test require :reload in changing spec
 nil
+[34mnil[m
 nil
+[34m:initial[m
+[34mnil[m
 nil
-:initial
-nil
-nil
-:reloaded
+[34m:reloaded[m
 Test require :reload-all
 nil
+[34mnil[m
 nil
+[34m:initial[m
+[34mnil[m
 nil
-:initial
-nil
-nil
-:reloaded
+[34m:reloaded[m
 Test require :reload with cache
 nil
+[34mnil[m
 nil
+[34m:initial[m
 nil
-:initial
+[34m:initial[m
+[34mnil[m
 nil
-:initial
-nil
-nil
-:reloaded
+[34m:reloaded[m
 Test require-macros unknown ns
-No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
+[31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
 nil
 Test require-macros REPL special
 nil
-5
+[34m5[m
 Test in-ns REPL special
 nil
-:foo.bar/a
+[34m:foo.bar/a[m
 Test apropos
+[34mnil[m
+[34m#'foo.bar/xfirst[m
+[34m#'foo.bar/nfirst[m
+[34m#'foo.bar/ffirst-crazy[m
 nil
-#'foo.bar/xfirst
-#'foo.bar/nfirst
-#'foo.bar/ffirst-crazy
-nil
-(cljs.core/ffirst cljs.core/nfirst foo.bar/ffirst-crazy foo.bar/xfirst)
-(cljs.core/ffirst foo.bar/ffirst-crazy)
-(cljs.core/ffirst foo.bar/ffirst-crazy)
+[34m(cljs.core/ffirst cljs.core/nfirst foo.bar/ffirst-crazy foo.bar/xfirst)[m
+[34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
+[34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
 Test dir
-nil
-#'foo.bar/xfirst
-#'foo.bar/nfirst
-#'foo.bar/macro-crazy
-nil
-true
+[34mnil[m
+[34m#'foo.bar/xfirst[m
+[34m#'foo.bar/nfirst[m
+[34m#'foo.bar/macro-crazy[m
+[34mnil[m
+[34mtrue[m
 nil
 macro-crazy
 somemacro
 xfirst
-nil
+[34mnil[m
 Test doc special
-nil
+[34mnil[m
 -------------------------
 cljs.core/inc
 ([x])
   Returns a number one greater than num.
-nil
+[34mnil[m
 -------------------------
 cljs.core/when
 ([test & body])
 Macro
   Evaluates test. If logical true, evaluates body in an implicit do.
-nil
+[34mnil[m
 -------------------------
 if
    (if test then else?)
@@ -236,7 +236,7 @@ Special Form
   else is not supplied it defaults to nil.
 
   Please see http://clojure.org/special_forms#if
-nil
+[34mnil[m
 -------------------------
 try
    (try expr* catch-clause* finally-clause?)
@@ -246,13 +246,13 @@ Special Form
   Catches and handles JavaScript exceptions.
 
   Please see http://clojure.org/special_forms#try
-nil
+[34mnil[m
 -------------------------
 planck.repl/doc
 ([sym])
 Macro
   Prints documentation for a var or special form given its name
-nil
+[34mnil[m
 -------------------------
 cljs.core/fn
    (fn name? [params*] exprs*)
@@ -264,7 +264,7 @@ Macro
      name => symbol
 
      Defines a function
-nil
+[34mnil[m
 -------------------------
 cljs.core/IWriter
 Protocol
@@ -277,242 +277,242 @@ Protocol
   -flush
   ([writer])
   Flush writer.
-nil
-#'cljs.user/f
+[34mnil[m
+[34m#'cljs.user/f[m
 -------------------------
 cljs.user/f
 ([param])
   docstring
-nil
-nil
--------------------------
-test-doc-source.core/my-function
-([x])
-  This is a cool
-  function with a docstring.
+[34mnil[m
 nil
 -------------------------
 test-doc-source.core/my-function
 ([x])
   This is a cool
   function with a docstring.
-nil
+[34mnil[m
+-------------------------
+test-doc-source.core/my-function
+([x])
+  This is a cool
+  function with a docstring.
+[34mnil[m
 -------------------------
 test-doc-source.core
   This is the namespace
   docstring for test-doc-source.core
-nil
+[34mnil[m
 Test source
 Source not found
-nil
+[34mnil[m
 (defn inc
   "Returns a number one greater than num."
   [x] (cljs.core/+ x 1))
-nil
+[34mnil[m
 (core/defmacro when
      "Evaluates test. If logical true, evaluates body in an implicit do."
      [test & body]
      (core/list 'if test (cons 'do body)))
-nil
-nil
-(defn my-function
-  "This is a cool
-  function with a docstring."
-  [x]
-  (* x x))
+[34mnil[m
 nil
 (defn my-function
   "This is a cool
   function with a docstring."
   [x]
   (* x x))
-nil
+[34mnil[m
+(defn my-function
+  "This is a cool
+  function with a docstring."
+  [x]
+  (* x x))
+[34mnil[m
 nil
 (defonce
   ^:dynamic
   *reader-fn*
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))
-nil
+[34mnil[m
 Test pst special
 nil
-true
-#'cljs.user/f
-#'cljs.user/g
-whoah
-whoah
-nil
-#'cljs.user/e
-ouch
-ouch
-nil
-whoah
-nil
+[34mtrue[m
+[34m#'cljs.user/f[m
+[34m#'cljs.user/g[m
+[31mwhoah[m
+[31mwhoah[m
+[34mnil[m
+[34m#'cljs.user/e[m
+[31mouch[m
+[31mouch[m
+[34mnil[m
+[31mwhoah[m
+[34mnil[m
 Test load-file REPL special
 nil
-true
+[34mtrue[m
 nil
-3
-4
+[34m3[m
+[34m4[m
 Test load-file from classpath
 nil
-true
+[34mtrue[m
 Test doc support for load-file REPL special
 -------------------------
 load-file
 ([name])
 REPL Special Function
   Sequentially read and evaluate the set of forms contained in the file.
-nil
+[34mnil[m
 Test load-file REPL bad filename
-Could not load file int-test/src/test_load_file/nofile.cljs
+[31mCould not load file int-test/src/test_load_file/nofile.cljs[m
 nil
 Test load-file REPL error in file
-nil
+[34mnil[m
 Test load-file REPL exit in file
 nil
 132
 Spit / slurp
-#'cljs.user/test-file
+[34m#'cljs.user/test-file[m
 nil
-#'cljs.user/test-spit-slurp
+[34m#'cljs.user/test-spit-slurp[m
 true
-nil
+[34mnil[m
 true
-nil
+[34mnil[m
 true
-nil
+[34mnil[m
 true
-nil
+[34mnil[m
 true
-nil
+[34mnil[m
 Shell
 nil
-#{[:err ""] [:exit 0] [:out "hello\n"]}
+[34m#{[:err ""] [:exit 0] [:out "hello\n"]}[m
 Shell throws
 nil
 expected
-nil
+[34mnil[m
 Shell with-sh-dir
 nil
-"/private/tmp\n"
+[34m"/private/tmp\n"[m
 nil
-"/private/tmp\n"
+[34m"/private/tmp\n"[m
 Shell stderr
 nil
-#{[:err "this is from stderr\n"] [:exit 0] [:out ""]}
+[34m#{[:err "this is from stderr\n"] [:exit 0] [:out ""]}[m
 Coercions
 nil
 nil
-nil
-#planck.io.File{:path "abc"}
-#planck.io.File{:path "abc"}
-"abc"
+[34mnil[m
+[34m#planck.io.File{:path "abc"}[m
+[34m#planck.io.File{:path "abc"}[m
+[34m"abc"[m
 reader and read-line
 nil
-#'cljs.user/test-read
+[34m#'cljs.user/test-read[m
 nil
 nil
 nil
-nil
+[34mnil[m
 "a"
 nil
 nil
-nil
+[34mnil[m
 "a"
 nil
 nil
-nil
+[34mnil[m
 "a"
 nil
 nil
-nil
-"a"
-"b"
-nil
-nil
+[34mnil[m
 "a"
 "b"
 nil
+[34mnil[m
+"a"
+"b"
 nil
+[34mnil[m
 reader and line-seq
 nil
-#'cljs.user/test-read
+[34m#'cljs.user/test-read[m
 nil
-nil
+[34mnil[m
 ("a")
-nil
+[34mnil[m
 ("a")
-nil
+[34mnil[m
 ("a")
-nil
+[34mnil[m
 ("a" "b")
-nil
+[34mnil[m
 ("a" "b")
-nil
+[34mnil[m
 writer
 nil
-#'cljs.user/test-write
-true
-true
-true
-true
-true
-true
+[34m#'cljs.user/test-write[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
 writer append
 nil
-#'cljs.user/test-write
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
-true
+[34m#'cljs.user/test-write[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
+[34mtrue[m
 reader close
 nil
-true
+[34mtrue[m
 nil
-#'cljs.user/r
-nil
-File closed.
+[34m#'cljs.user/r[m
+[34mnil[m
+[31mFile closed.[m
 writer close
 nil
-true
+[34mtrue[m
 nil
-#'cljs.user/w
-nil
-File closed.
+[34m#'cljs.user/w[m
+[34mnil[m
+[31mFile closed.[m
 Test write and read binary
 nil
-#'cljs.user/binary-file
-nil
+[34m#'cljs.user/binary-file[m
+[34mnil[m
 [1 2 3]
-nil
-nil
+[34mnil[m
+[34mnil[m
 [1 2 3 4 5 6]
-nil
-nil
+[34mnil[m
+[34mnil[m
 [7 8 9 10]
-nil
-nil
+[34mnil[m
+[34mnil[m
 Test encoding
 nil
-#'cljs.user/content
-#'cljs.user/filename
-nil
-true
+[34m#'cljs.user/content[m
+[34m#'cljs.user/filename[m
+[34mnil[m
+[34mtrue[m
 Test file-seq
 nil
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
@@ -523,21 +523,21 @@ nil
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C/G}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/D}
-nil
+[34mnil[m
 Test Google Closure index
-nil
+[34mnil[m
 Test availability of goog libs
 nil
-#object[Object 20050403]
+[34m#object[Object 20050403][m
 Test empty list of *command-line-args*
 nil
-nil
+[34mnil[m
 Test empty list of *command-line-args* following main opt
 nil
-nil
+[34mnil[m
 Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them
 nil
-("-c" "src" "-e" "(println \"hi\")" "-v")
+[34m("-c" "src" "-e" "(println \"hi\")" "-v")[m
 Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them
 args from main: (-v -e (println "hi"))
 args from *command-line-args*: (-v -e (println "hi"))
@@ -552,105 +552,105 @@ args from *command-line-args*: (-v -e (println "hi"))
 0
 Treat main opts that follow a main opt as *command-line-args* instead of evaluating them
 nil
-("-" "-m" "test-main.args" "-r")
+[34m("-" "-m" "test-main.args" "-r")[m
 Test *command-line-args* with nice clumped init opts
-hi
-nil
-("here" "are" "some" "args")
+[36m[mhi
+[36m[mnil
+[36m[m[34m("here" "are" "some" "args")[m
 Test *command-line-args* with less nicely clumped init opts
-hi
-nil
-("here" "are" "some" "args")
+[36m[mhi
+[36m[mnil
+[36m[m[34m("here" "are" "some" "args")[m
 Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
 Test classpath
 nil
-:src
+[34m:src[m
 nil
-:src2
+[34m:src2[m
 Test JAR support
 nil
-"Hello, from JAR"
+[34m"Hello, from JAR"[m
 Test reader/tag literals
-#js [1 2]
-#inst "2015-08-18T01:53:14.614-00:00"
+[34m#js [1 2][m
+[34m#inst "2015-08-18T01:53:14.614-00:00"[m
 Test verbose w/o var code
-#'cljs.user/a
-#'cljs.user/b
+[36m[m[34m#'cljs.user/a[m
+[36m[m[34m#'cljs.user/b[m
 Test restore state when require fails
-Could not parse ns form cljs.user
-Invalid :refer, var var clojure.set/diff does not exist
+[31mCould not parse ns form cljs.user[m
+[31mInvalid :refer, var var clojure.set/diff does not exist[m
 nil
 nil
 Test reader and analysis diagnostics
-Could not eval (ns cljs.user (:require [foo.bar :quu]))
-Only :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 
+[31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
+[31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
 nil
-Unmatched delimiter )
+[31mUnmatched delimiter )[m
 
 Test eval
 nil
-1
-3
-#'cljs.user/a
-3
-17
-#'cljs.user/a
-#'cljs.user/addition-list
-3
-13
-#'cljs.user/lucky-number
-13
-#'cljs.user/square
-#'cljs.user/cube
-64
-5
-#'cljs.user/addition-list2
-3
-4
+[34m1[m
+[34m3[m
+[34m#'cljs.user/a[m
+[34m3[m
+[34m17[m
+[34m#'cljs.user/a[m
+[34m#'cljs.user/addition-list[m
+[34m3[m
+[34m13[m
+[34m#'cljs.user/lucky-number[m
+[34m13[m
+[34m#'cljs.user/square[m
+[34m#'cljs.user/cube[m
+[34m64[m
+[34m5[m
+[34m#'cljs.user/addition-list2[m
+[34m3[m
+[34m4[m
 Test resolve
 nil
-#'cljs.core/+
-#'cljs.user/f
-1000
+[34m#'cljs.core/+[m
+[34m#'cljs.user/f[m
+[34m1000[m
 Test ns-resolve
 nil
+[34mnil[m
+[34m#'foo.bar/+[m
 nil
-#'foo.bar/+
-nil
-#'cljs.core/+
-#'foo.bar/+
+[34m#'cljs.core/+[m
+[34m#'foo.bar/+[m
 Test intern
+[34mnil[m
 nil
 nil
-nil
-#'foo.core/a
-{a #'foo.core/a}
-3
-#'foo.core/b
-17
-#'foo.core/d
-18
-#'foo.core/c
-false
-nil
+[34m#'foo.core/a[m
+[34m{a #'foo.core/a}[m
+[34m3[m
+[34m#'foo.core/b[m
+[34m17[m
+[34m#'foo.core/d[m
+[34m18[m
+[34m#'foo.core/c[m
+[34mfalse[m
+[34mnil[m
 Test with-open
 nil
-cljs.user/Foo
+[34mcljs.user/Foo[m
 Body1
 Body2
 Close :y
 Close :x
-nil
-with-open requires an even number of forms in binding vector at line 1 
-with-open requires an even number of forms in binding vector
-with-open requires a vector for its bindings at line 1 
-with-open requires a vector for its bindings
+[34mnil[m
+[31mwith-open requires an even number of forms in binding vector at line 1 [m
+[31mwith-open requires an even number of forms in binding vector[m
+[31mwith-open requires a vector for its bindings at line 1 [m
+[31mwith-open requires a vector for its bindings[m
 Test planck.repl publics
 apropos
 dir
 doc
 pst
 source
-nil
+[34mnil[m

@@ -15,7 +15,14 @@
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
-            [lazy-map.core :refer-macros [lazy-map]]))
+            [lazy-map.core :refer-macros [lazy-map]]
+            [planck.ansi :as ansi]))
+
+(def ^:private color-results (atom identity))
+(def ^:private color-exception-message (atom identity))
+(def ^:private color-exception-trace (atom identity))
+(def ^:private verbose-font (atom ""))
+(def ^:private reset-font (atom ""))
 
 (defn- println-verbose
   [& args]
@@ -263,10 +270,12 @@
 (defn- log-ns-form
   [kind ns-form]
   (when (:verbose @app-env)
+    (print @verbose-font)
     (println-verbose "Implementing"
       (name kind)
       "via ns:\n  "
-      (pr-str ns-form))))
+      (pr-str ns-form))
+    (print @reset-font)))
 
 (defn- process-require
   [kind cb specs]
@@ -709,9 +718,10 @@
          include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)]
-     (println (if (instance? ExceptionInfo error)
-                (ex-message error)
-                (.-message error)))
+     (println (@color-exception-message
+                (if (instance? ExceptionInfo error)
+                  (ex-message error)
+                  (.-message error))))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
@@ -720,10 +730,11 @@
                                     {:ua-product :safari}
                                     {:output-dir "file://(/goog/..)?"})]
          (println
-           (st/mapped-stacktrace-str
-             canonical-stacktrace
-             (or (:source-maps @planck.repl/st) {})
-             nil))))
+           (@color-exception-trace
+             (st/mapped-stacktrace-str
+               canonical-stacktrace
+               (or (:source-maps @planck.repl/st) {})
+               nil)))))
      (when-let [cause (.-cause error)]
        (recur cause include-stacktrace?)))))
 
@@ -946,6 +957,7 @@
       ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
       (when (and expression?
                  (:verbose @app-env))
+        (print @verbose-font)
         (cljs/eval-str
           (atom @st)
           source-text
@@ -958,7 +970,8 @@
              :context       :expr
              :def-emits-var false
              :eval          identity})
-          identity))
+          identity)
+        (print @reset-font))
       ;; Now eval-str for true side effects
       (cljs/eval-str
         st
@@ -979,7 +992,7 @@
             (when-not error
               (when (or print-nil-expression?
                       (not (nil? value)))
-                (prn value))
+                (println (@color-results (pr-str value))))
               (process-1-2-3 expression-form value)
               (reset! current-ns ns)
               nil))
@@ -1064,6 +1077,10 @@
            (reset! result value))))
      @result)))
 
+(defn- init-ansi
+  []
+  (ansi/init #(planck.repl/eval % 'planck.ansi)))
+
 (defn- ns-resolve
   [ns sym]
   (eval `(~'var ~sym) ns))
@@ -1078,3 +1095,12 @@
     (fn [sym]
       (or ('#{catch finally} sym)
           (original-special-symbol? sym)))))
+
+(defn- setup-print-colors
+  []
+  (init-ansi)
+  (reset! color-results @(ns-resolve 'planck.ansi 'blue))
+  (reset! color-exception-message @(ns-resolve 'planck.ansi 'red))
+  (reset! color-exception-trace @(ns-resolve 'planck.ansi 'green))
+  (reset! verbose-font @(ns-resolve 'planck.ansi 'cyan-font))
+  (reset! reset-font @(ns-resolve 'planck.ansi 'reset-font)))

@@ -175,7 +175,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -1078,7 +1078,19 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                       inExitContext:NO
                               setNs:@"cljs.user"
                     blockUntilReady:NO];
+            
+            if (!dumbTerminal) {
+            [self executeSourceType:@"text"
+                              value:@"(planck.repl/setup-print-colors)"
+                         expression:YES
+                 printNilExpression:NO
+                      inExitContext:NO
+                              setNs:@"cljs.user"
+                    blockUntilReady:NO];
+            }
+            
         }
+        
 
         [self setToPrintOnSender:nil];
         
