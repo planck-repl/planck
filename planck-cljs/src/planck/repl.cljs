@@ -1082,10 +1082,6 @@
            (reset! result value))))
      @result)))
 
-(defn- init-ansi
-  []
-  (ansi/init #(planck.repl/eval % 'planck.from.io.aviso.ansi)))
-
 (defn- ns-resolve
   [ns sym]
   (eval `(~'var ~sym) ns))
@@ -1103,14 +1099,13 @@
 
 (defn- ^:export setup-print-colors
   []
-  (init-ansi)
   (set! colorize
-    {:results-fn @(ns-resolve 'planck.from.io.aviso.ansi 'blue)
-     :ex-msg-fn @(ns-resolve 'planck.from.io.aviso.ansi 'bold-red)
-     :ex-stack-fn @(ns-resolve 'planck.from.io.aviso.ansi 'green)
-     :err-font @(ns-resolve 'planck.from.io.aviso.ansi 'red-font)
-     :verbose-font @(ns-resolve 'planck.from.io.aviso.ansi 'cyan-font)
-     :reset-font @(ns-resolve 'planck.from.io.aviso.ansi 'reset-font)}))
+    {:results-fn ansi/blue
+     :ex-msg-fn ansi/bold-red
+     :ex-stack-fn ansi/green
+     :err-font ansi/red-font
+     :verbose-font ansi/cyan-font
+     :reset-font ansi/reset-font}))
 
 (defn- ^:export wrap-color-err
   []

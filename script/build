@@ -50,7 +50,8 @@ $(PWD)/$BUILD_DIR/$CONFIGURATION/planck -sk planck-cljs/out/macros-tmp <<REPL_IN
 (require-macros 
   'planck.repl
   'planck.core 
-  'planck.shell)
+  'planck.shell
+  'planck.from.io.aviso.ansi)
 REPL_INPUT
 
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
@@ -62,6 +63,9 @@ mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.js.map.json planck-cljs/
 mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js planck-cljs/out/planck/shell\$macros.js
 mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.cache.json planck-cljs/out/planck/shell\$macros.cache.json
 mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js.map.json planck-cljs/out/planck/shell\$macros.js.map.json
+mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js planck-cljs/out/planck/from/io/aviso/ansi\$macros.js
+mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.cache.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.cache.json
+mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js.map.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.js.map.json
 
 rm -rf planck-cljs/out/macros-tmp
 
