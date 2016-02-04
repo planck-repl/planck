@@ -16,17 +16,25 @@
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
             [lazy-map.core :refer-macros [lazy-map]]
-            [planck.ansi :as ansi]))
+            [planck.from.io.aviso.ansi :as ansi]))
 
-(def ^:private color-results (atom identity))
-(def ^:private color-exception-message (atom identity))
-(def ^:private color-exception-trace (atom identity))
-(def ^:private verbose-font (atom ""))
-(def ^:private reset-font (atom ""))
+(def ^:private default-colorize-fn identity)
+(def ^:private default-colorize-font "")
+
+(def ^:private default-colorize
+  {:results-fn   default-colorize-fn
+   :ex-msg-fn    default-colorize-fn
+   :ex-stack-fn  default-colorize-fn
+   :err-font     default-colorize-font
+   :verbose-font default-colorize-font
+   :reset-font   default-colorize-font})
+
+(defonce ^:dynamic ^:private colorize default-colorize)
 
 (defn- println-verbose
   [& args]
-  (binding [*print-fn* *print-err-fn*]
+  (binding [*print-fn* *print-err-fn*
+            colorize (assoc colorize :err-font (:verbose-font colorize))]
     (apply println args)))
 
 (declare print-error)
@@ -270,12 +278,10 @@
 (defn- log-ns-form
   [kind ns-form]
   (when (:verbose @app-env)
-    (print @verbose-font)
     (println-verbose "Implementing"
       (name kind)
       "via ns:\n  "
-      (pr-str ns-form))
-    (print @reset-font)))
+      (pr-str ns-form))))
 
 (defn- process-require
   [kind cb specs]
@@ -718,7 +724,7 @@
          include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)]
-     (println (@color-exception-message
+     (println ((:ex-msg-fn colorize)
                 (if (instance? ExceptionInfo error)
                   (ex-message error)
                   (.-message error))))
@@ -730,7 +736,7 @@
                                     {:ua-product :safari}
                                     {:output-dir "file://(/goog/..)?"})]
          (println
-           (@color-exception-trace
+           ((:ex-stack-fn colorize)
              (st/mapped-stacktrace-str
                canonical-stacktrace
                (or (:source-maps @planck.repl/st) {})
@@ -957,21 +963,20 @@
       ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
       (when (and expression?
                  (:verbose @app-env))
-        (print @verbose-font)
-        (cljs/eval-str
-          (atom @st)
-          source-text
-          "Expression"
-          (merge
-            {:ns            initial-ns
-             :source-map    false
-             :verbose       true
-             :static-fns    (:static-fns @app-env)
-             :context       :expr
-             :def-emits-var false
-             :eval          identity})
-          identity)
-        (print @reset-font))
+        (binding [colorize (assoc colorize :err-font (:verbose-font colorize))]
+          (cljs/eval-str
+            (atom @st)
+            source-text
+            "Expression"
+            (merge
+              {:ns            initial-ns
+               :source-map    false
+               :verbose       true
+               :static-fns    (:static-fns @app-env)
+               :context       :expr
+               :def-emits-var false
+               :eval          identity})
+            identity)))
       ;; Now eval-str for true side effects
       (cljs/eval-str
         st
@@ -992,7 +997,7 @@
             (when-not error
               (when (or print-nil-expression?
                       (not (nil? value)))
-                (println (@color-results (pr-str value))))
+                (println ((:results-fn colorize) (pr-str value))))
               (process-1-2-3 expression-form value)
               (reset! current-ns ns)
               nil))
@@ -1079,7 +1084,7 @@
 
 (defn- init-ansi
   []
-  (ansi/init #(planck.repl/eval % 'planck.ansi)))
+  (ansi/init #(planck.repl/eval % 'planck.from.io.aviso.ansi)))
 
 (defn- ns-resolve
   [ns sym]
@@ -1096,11 +1101,22 @@
       (or ('#{catch finally} sym)
           (original-special-symbol? sym)))))
 
-(defn- setup-print-colors
+(defn- ^:export setup-print-colors
   []
   (init-ansi)
-  (reset! color-results @(ns-resolve 'planck.ansi 'blue))
-  (reset! color-exception-message @(ns-resolve 'planck.ansi 'red))
-  (reset! color-exception-trace @(ns-resolve 'planck.ansi 'green))
-  (reset! verbose-font @(ns-resolve 'planck.ansi 'cyan-font))
-  (reset! reset-font @(ns-resolve 'planck.ansi 'reset-font)))
+  (set! colorize
+    {:results-fn @(ns-resolve 'planck.from.io.aviso.ansi 'blue)
+     :ex-msg-fn @(ns-resolve 'planck.from.io.aviso.ansi 'bold-red)
+     :ex-stack-fn @(ns-resolve 'planck.from.io.aviso.ansi 'green)
+     :err-font @(ns-resolve 'planck.from.io.aviso.ansi 'red-font)
+     :verbose-font @(ns-resolve 'planck.from.io.aviso.ansi 'cyan-font)
+     :reset-font @(ns-resolve 'planck.from.io.aviso.ansi 'reset-font)}))
+
+(defn- ^:export wrap-color-err
+  []
+  (let [orig-print-err-fn js/PLANCK_PRINT_ERR_FN]
+    (set! js/PLANCK_PRINT_ERR_FN
+      (fn [msg]
+        (orig-print-err-fn (:err-font colorize))
+        (orig-print-err-fn msg)
+        (orig-print-err-fn (:reset-font colorize))))))

@@ -48,6 +48,14 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+Pretty (ANSI portion, ported for ClojureScript)
+-----------------------------------------------
+
+© Copyright 2013-2015, Aviso
+Apache Software License 2.0.
+http://www.apache.org/licenses/LICENSE-2.0
+
+
 ZipZap
 ------
 
@@ -91,9 +99,9 @@ true
 ok
 x
 Test cope with syntax errors
-[31mInvalid number format [34f][m
+[1;31mInvalid number format [34f][m
 
-[31mInvalid token: a:[m
+[1;31mInvalid token: a:[m
 
 Multi-line data
 [34m[1 2][m
@@ -144,11 +152,11 @@ nil
 195
 Test require REPL special throws in file
 before throw
-[31mbye-bye[m
+[1;31mbye-bye[m
 nil
 0
 Test require unknown ns
-[31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
+[1;31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
 nil
 Test require :reload with const
 nil
@@ -185,7 +193,7 @@ nil
 nil
 [34m:reloaded[m
 Test require-macros unknown ns
-[31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
+[1;31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
 nil
 Test require-macros REPL special
 nil
@@ -339,14 +347,14 @@ nil
 [34mtrue[m
 [34m#'cljs.user/f[m
 [34m#'cljs.user/g[m
-[31mwhoah[m
-[31mwhoah[m
+[1;31mwhoah[m
+[1;31mwhoah[m
 [34mnil[m
 [34m#'cljs.user/e[m
-[31mouch[m
-[31mouch[m
+[1;31mouch[m
+[1;31mouch[m
 [34mnil[m
-[31mwhoah[m
+[1;31mwhoah[m
 [34mnil[m
 Test load-file REPL special
 nil
@@ -365,7 +373,7 @@ REPL Special Function
   Sequentially read and evaluate the set of forms contained in the file.
 [34mnil[m
 Test load-file REPL bad filename
-[31mCould not load file int-test/src/test_load_file/nofile.cljs[m
+[1;31mCould not load file int-test/src/test_load_file/nofile.cljs[m
 nil
 Test load-file REPL error in file
 [34mnil[m
@@ -486,14 +494,14 @@ nil
 nil
 [34m#'cljs.user/r[m
 [34mnil[m
-[31mFile closed.[m
+[1;31mFile closed.[m
 writer close
 nil
 [34mtrue[m
 nil
 [34m#'cljs.user/w[m
 [34mnil[m
-[31mFile closed.[m
+[1;31mFile closed.[m
 Test write and read binary
 nil
 [34m#'cljs.user/binary-file[m
@@ -554,13 +562,13 @@ Treat main opts that follow a main opt as *command-line-args* instead of evaluat
 nil
 [34m("-" "-m" "test-main.args" "-r")[m
 Test *command-line-args* with nice clumped init opts
-[36m[mhi
-[36m[mnil
-[36m[m[34m("here" "are" "some" "args")[m
+hi
+nil
+[34m("here" "are" "some" "args")[m
 Test *command-line-args* with less nicely clumped init opts
-[36m[mhi
-[36m[mnil
-[36m[m[34m("here" "are" "some" "args")[m
+hi
+nil
+[34m("here" "are" "some" "args")[m
 Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
@@ -576,18 +584,18 @@ Test reader/tag literals
 [34m#js [1 2][m
 [34m#inst "2015-08-18T01:53:14.614-00:00"[m
 Test verbose w/o var code
-[36m[m[34m#'cljs.user/a[m
-[36m[m[34m#'cljs.user/b[m
+[34m#'cljs.user/a[m
+[34m#'cljs.user/b[m
 Test restore state when require fails
-[31mCould not parse ns form cljs.user[m
-[31mInvalid :refer, var var clojure.set/diff does not exist[m
+[1;31mCould not parse ns form cljs.user[m
+[1;31mInvalid :refer, var var clojure.set/diff does not exist[m
 nil
 nil
 Test reader and analysis diagnostics
-[31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
-[31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
+[1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
+[1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
 nil
-[31mUnmatched delimiter )[m
+[1;31mUnmatched delimiter )[m
 
 Test eval
 nil
@@ -643,10 +651,10 @@ Body2
 Close :y
 Close :x
 [34mnil[m
-[31mwith-open requires an even number of forms in binding vector at line 1 [m
-[31mwith-open requires an even number of forms in binding vector[m
-[31mwith-open requires a vector for its bindings at line 1 [m
-[31mwith-open requires a vector for its bindings[m
+[1;31mwith-open requires an even number of forms in binding vector at line 1 [m
+[1;31mwith-open requires an even number of forms in binding vector[m
+[1;31mwith-open requires a vector for its bindings at line 1 [m
+[1;31mwith-open requires a vector for its bindings[m
 Test planck.repl publics
 apropos
 dir

@@ -56,6 +56,16 @@
     printf("\n");
     printf("\n");
     
+    printf("Pretty (ANSI portion, ported for ClojureScript)\n");
+    printf("-----------------------------------------------\n");
+    printf("\n");
+    printf("© Copyright 2013-2015, Aviso");
+    printf("\n");
+    printf("Apache Software License 2.0.\n");
+    printf("http://www.apache.org/licenses/LICENSE-2.0\n");
+    printf("\n");
+    printf("\n");
+    
     printf("ZipZap\n");
     printf("------\n");
     printf("\n");

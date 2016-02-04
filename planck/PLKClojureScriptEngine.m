@@ -1069,7 +1069,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
             JSObjectCallAsFunction(self.context, [self getFunction:@"init"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
-        // Set up REPL requires
+        // Set up REPL requires and color printing
         if (repl) {
             [self executeSourceType:@"text"
                               value:@"(require '[planck.repl :refer-macros [apropos dir doc source pst]])"
@@ -1080,17 +1080,16 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                     blockUntilReady:NO];
             
             if (!dumbTerminal) {
-            [self executeSourceType:@"text"
-                              value:@"(planck.repl/setup-print-colors)"
-                         expression:YES
-                 printNilExpression:NO
-                      inExitContext:NO
-                              setNs:@"cljs.user"
-                    blockUntilReady:NO];
+                [self executeSourceType:@"text"
+                                  value:@"(planck.repl/setup-print-colors)"
+                             expression:YES
+                     printNilExpression:NO
+                          inExitContext:NO
+                                  setNs:@"cljs.user"
+                        blockUntilReady:NO];
             }
             
         }
-        
 
         [self setToPrintOnSender:nil];
         
@@ -1437,6 +1436,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_PRINT_ERR_FN"
                                          argList:@"message"
                                        inContext:self.context];
+    }
+    
+    {
+        JSValueRef  arguments[0];
+        int num_arguments = 0;
+        JSObjectCallAsFunction(self.context, [self getFunction:@"wrap-color-err"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     }
     
     [self setPrintFnsInContext:self.contextManager.context];
