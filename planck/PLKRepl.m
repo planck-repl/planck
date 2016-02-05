@@ -131,6 +131,7 @@ void highlightCancel() {
 
 @property (strong, nonatomic) NSString* currentNs;
 @property (strong, nonatomic) NSString* currentPrompt;
+@property (nonatomic) int indentSpaceCount;
 
 @property (nonatomic) int exitValue;
 
@@ -513,7 +514,7 @@ void handleConnect (
         } else {
             
             // Prepare for reading non-1st line of input with secondary prompt
-            
+            self.indentSpaceCount = [s_clojureScriptEngine getIndentSpaceCount:self.input];
             self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
             done = YES;
         }
@@ -531,6 +532,8 @@ void handleConnect (
 
 -(void)runCommandLineLoopDumbTerminal:(BOOL)dumbTerminal
 {
+    self.indentSpaceCount = 0;
+    
     while(true) {
         
         // Get the current line of input
@@ -545,7 +548,8 @@ void handleConnect (
                 break;
             }
         } else {
-            char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding]);
+            char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding], self.indentSpaceCount);
+            self.indentSpaceCount = 0;
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C was pressed
                     errno = 0;

@@ -740,7 +740,7 @@ void linenoiseEditDeletePrevWord(struct linenoiseState *l) {
  * when ctrl+d is typed.
  *
  * The function returns the length of the current buffer. */
-static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, const char *prompt)
+static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, const char *prompt, int spaces)
 {
     struct linenoiseState l;
 
@@ -767,6 +767,12 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     linenoiseHistoryAdd("");
 
     if (write(l.ofd,prompt,l.plen) == -1) return -1;
+    
+    for (int i=0; i<spaces; i++) {
+        linenoiseEditInsert(&l, ' ');
+    }
+    refreshLine(&l);
+    
     while(1) {
         char c;
         int nread;
@@ -950,7 +956,7 @@ void linenoisePrintKeyCodes(void) {
 
 /* This function calls the line editing function linenoiseEdit() using
  * the STDIN file descriptor set in raw mode. */
-static int linenoiseRaw(char *buf, size_t buflen, const char *prompt) {
+static int linenoiseRaw(char *buf, size_t buflen, const char *prompt, int spaces) {
     int count;
 
     if (buflen == 0) {
@@ -968,7 +974,7 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt) {
     } else {
         /* Interactive editing. */
         if (enableRawMode(STDIN_FILENO) == -1) return -1;
-        count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt);
+        count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt, spaces);
         disableRawMode(STDIN_FILENO);
         printf("\n");
     }
@@ -980,7 +986,7 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt) {
  * for a blacklist of stupid terminals, and later either calls the line
  * editing function or uses dummy fgets() so that you will be able to type
  * something even in the most desperate of the conditions. */
-char *linenoise(const char *prompt) {
+char *linenoise(const char *prompt, int spaces) {
     char buf[LINENOISE_MAX_LINE];
     int count;
 
@@ -997,7 +1003,7 @@ char *linenoise(const char *prompt) {
         }
         return strdup(buf);
     } else {
-        count = linenoiseRaw(buf,LINENOISE_MAX_LINE,prompt);
+        count = linenoiseRaw(buf,LINENOISE_MAX_LINE,prompt,spaces);
         if (count == -1) return NULL;
         return strdup(buf);
     }

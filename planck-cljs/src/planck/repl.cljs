@@ -16,7 +16,35 @@
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
             [lazy-map.core :refer-macros [lazy-map]]
-            [planck.from.io.aviso.ansi :as ansi]))
+            [planck.from.io.aviso.ansi :as ansi]
+            [parinfer]))
+
+(defn- calc-x-line [text pos line]
+  (let [x (s/index-of text "\n")]
+    (if (or (nil? x)
+            (< pos (inc x)))
+      {:cursorX    pos
+       :cursorLine line}
+      (recur (subs text (inc x)) (- pos (inc x)) (inc line)))))
+
+(defn- ^:export indent-space-count
+  "Given text representing a partially entered form,
+  returns the number of spaces to indent a newly entered
+  line. Returns 0 if unsuccessful."
+  [text]
+  (let [pos      (count text)
+        balanced (js->clj (js/parinfer.indentMode text
+                            (clj->js (calc-x-line text pos 0)))
+                   :keywordize-keys true)]
+    (if (:success balanced)
+      (let [new-text (str (subs (:text balanced) 0 pos) "\n" (subs (:text balanced) pos))
+            indented (js->clj (js/parinfer.parenMode new-text
+                                (clj->js (calc-x-line new-text (inc pos) 0)))
+                       :keywordize-keys true)]
+        (if (:success indented)
+          (count (take-while #(= " " %) (:line (last (:changedLines indented)))))
+          0))
+      0)))
 
 (def ^:private default-colorize-fn identity)
 (def ^:private default-colorize-font "")

@@ -57,7 +57,7 @@ void linenoiseSetHighlightCallback(linenoiseHighlightCallback *);
 typedef void(linenoiseHighlightCancelCallback)();
 void linenoiseSetHighlightCancelCallback(linenoiseHighlightCancelCallback *);
 
-char *linenoise(const char *prompt);
+char *linenoise(const char *prompt, int spaces);
 int linenoiseHistoryAdd(const char *line);
 int linenoiseHistorySetMaxLen(int len);
 int linenoiseHistorySave(const char *filename);

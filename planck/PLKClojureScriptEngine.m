@@ -1315,6 +1315,17 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return NSStringFromJSValueRef(self.context, result);
 }
 
+-(int)getIndentSpaceCount:(NSString*)text
+{
+    [self blockUntilEngineReady];
+    JSValueRef  arguments[1];
+    JSValueRef result;
+    int num_arguments = 1;
+    arguments[0] = JSValueMakeStringFromNSString(self.context, text);
+    result = JSObjectCallAsFunction(self.context, [self getFunction:@"indent-space-count"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    return JSValueToNumber(self.context, result, nil);
+}
+
 -(NSString*)getCurrentNs
 {
     [self blockUntilEngineReady];
