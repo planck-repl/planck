@@ -22,9 +22,7 @@
    :static-fns         true
    :optimize-constants false
    :dump-core          false
-   :parallel-build     true
-   :foreign-libs [{:file "https://raw.githubusercontent.com/shaunlebron/parinfer/1.4.0/lib/parinfer.js"
-                   :provides ["parinfer"]}]})
+   :parallel-build     true})
 
 (let [res (io/resource "cljs/core.cljs.cache.aot.edn")
       cache (read-string (slurp res))]

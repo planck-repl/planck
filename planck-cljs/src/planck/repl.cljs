@@ -17,7 +17,7 @@
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
             [lazy-map.core :refer-macros [lazy-map]]
             [planck.from.io.aviso.ansi :as ansi]
-            [parinfer]))
+            [cljsjs.parinfer]))
 
 (defn- calc-x-line [text pos line]
   (let [x (s/index-of text "\n")]
@@ -618,6 +618,7 @@
 (defn- skip-load?
     [{:keys [name macros]}]
     (or
+      (= name 'cljsjs.parinfer)
       (= name 'cljs.core)
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)

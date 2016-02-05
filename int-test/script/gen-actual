@@ -728,3 +728,10 @@ echo "Test planck.repl publics"
 $PLANCK << REPL_INPUT
 (dir planck.repl)
 REPL_INPUT
+
+echo "Ensure we can get into Planck REPL ns and all ns are loaded"
+$PLANCK << REPL_INPUT
+(require 'planck.repl)
+(in-ns 'planck.repl)
+(count (keys (:cljs.analyzer/namespaces @st)))
+REPL_INPUT

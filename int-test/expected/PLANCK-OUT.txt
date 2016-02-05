@@ -662,3 +662,7 @@ doc
 pst
 source
 [34mnil[m
+Ensure we can get into Planck REPL ns and all ns are loaded
+nil
+nil
+[34m20[m
