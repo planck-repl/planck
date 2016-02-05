@@ -115,6 +115,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include "linenoise.h"
 
@@ -132,6 +133,9 @@ static int atexit_registered = 0; /* Register atexit just 1 time. */
 static int history_max_len = LINENOISE_DEFAULT_HISTORY_MAX_LEN;
 static int history_len = 0;
 static char **history = NULL;
+
+static struct timeval lastCharRead;
+static int pasting = 0;
 
 /* The linenoiseState structure represents the state during line editing.
  * We pass this state to functions implementing specific editing
@@ -732,6 +736,15 @@ void linenoiseEditDeletePrevWord(struct linenoiseState *l) {
     refreshLine(l);
 }
 
+/**
+ * Make a best guess at whether the user is pasting a form based on the
+ * time between character reads.
+ */
+int isPasting()
+{
+    return pasting;
+}
+
 /* This function is the core of the line editing capability of linenoise.
  * It expects 'fd' to be already in "raw mode" so that every key pressed
  * will be returned ASAP to read().
@@ -779,6 +792,13 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         char seq[3];
 
         nread = read(l.ifd,&c,1);
+        if (c != __ENTER) {
+            gettimeofday(&lastCharRead, NULL);
+        } else {
+            struct timeval now;
+            gettimeofday(&now, NULL);
+            pasting = (1000000L * (now.tv_sec - lastCharRead.tv_sec) + now.tv_usec - lastCharRead.tv_usec) < 10000;
+        }
         if (nread <= 0) return l.len;
 
         if (highlightCancelCallback != NULL) {
@@ -1116,6 +1136,9 @@ int linenoiseHistorySave(const char *filename) {
  * If the file exists and the operation succeeded 0 is returned, otherwise
  * on error -1 is returned. */
 int linenoiseHistoryLoad(const char *filename) {
+    // Take opportunity to initialize lastKeyPress
+    gettimeofday(&lastCharRead, NULL);
+    
     FILE *fp = fopen(filename,"r");
     char buf[LINENOISE_MAX_LINE];
 

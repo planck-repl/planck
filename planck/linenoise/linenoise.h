@@ -57,6 +57,7 @@ void linenoiseSetHighlightCallback(linenoiseHighlightCallback *);
 typedef void(linenoiseHighlightCancelCallback)();
 void linenoiseSetHighlightCancelCallback(linenoiseHighlightCancelCallback *);
 
+int isPasting();
 char *linenoise(const char *prompt, int spaces);
 int linenoiseHistoryAdd(const char *line);
 int linenoiseHistorySetMaxLen(int len);

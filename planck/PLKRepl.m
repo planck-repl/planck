@@ -514,7 +514,13 @@ void handleConnect (
         } else {
             
             // Prepare for reading non-1st line of input with secondary prompt
-            self.indentSpaceCount = [s_clojureScriptEngine getIndentSpaceCount:self.input];
+            if (self.historyFile) {
+                if (isPasting()) {
+                    self.indentSpaceCount = 0;
+                } else {
+                    self.indentSpaceCount = [s_clojureScriptEngine getIndentSpaceCount:self.input];
+                }
+            }
             self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
             done = YES;
         }
