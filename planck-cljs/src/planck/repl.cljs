@@ -1149,7 +1149,8 @@
      :ex-stack-fn ansi/green
      :err-font ansi/red-font
      :verbose-font ansi/cyan-font
-     :reset-font ansi/reset-font}))
+     :reset-font ansi/reset-font})
+  nil)
 
 (defn- ^:export wrap-color-err
   []
