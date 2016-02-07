@@ -1,6 +1,6 @@
 (defproject planck "0.1.0"
   :dependencies [[org.clojure/clojure "1.7.0"]
-                 [org.clojure/clojurescript "1.7.228"]
+                 #_[org.clojure/clojurescript "1.7.228"]
                  [org.clojure/tools.reader "1.0.0-alpha3"]
                  [tailrecursion/cljson "1.0.7"]
                  [com.cognitect/transit-clj "0.8.275"]

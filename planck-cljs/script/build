@@ -4,4 +4,18 @@
 set -e
 set -o pipefail
 
-lein run -m clojure.main script/build.clj
+# Previously was building using lein
+#lein run -m clojure.main script/build.clj
+
+# Build our own copy of ClojureScript compiler
+if [ ! -e clojurescript ]; then
+   git clone https://github.com/clojure/clojurescript
+   pushd clojurescript
+   # Apply patches
+   curl -L http://dev.clojure.org/jira/secure/attachment/15426/CLJS-1541.patch | git am
+   script/uberjar
+   popd
+fi
+
+CLJSC_CP=clojurescript/target/cljs.jar:`lein classpath`
+java -cp $CLJSC_CP clojure.main script/build.clj
