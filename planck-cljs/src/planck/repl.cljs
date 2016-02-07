@@ -1134,13 +1134,6 @@
   [sym]
   (ns-resolve @current-ns sym))
 
-;;; Experimental change to handle syntax quoting for `catch, `finally
-(let [original-special-symbol? cljs.core/special-symbol?]
-  (set! cljs.core/special-symbol?
-    (fn [sym]
-      (or ('#{catch finally} sym)
-          (original-special-symbol? sym)))))
-
 (defn- ^:export setup-print-colors
   []
   (set! colorize
