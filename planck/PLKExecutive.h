@@ -1,5 +1,7 @@
 #import <Foundation/Foundation.h>
 
+@class PLKBundledOut;
+
 @interface PLKExecutive : NSObject
 
 -(int)runScripts:(NSArray*)scripts
@@ -14,6 +16,7 @@
       socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
             args:(NSArray*)args
-planckVersion:(NSString*)planckVersion;
+planckVersion:(NSString*)planckVersion
+   bundledOut:(PLKBundledOut*)bundledOut;
 
 @end

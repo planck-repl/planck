@@ -46,7 +46,7 @@ checkCmdSuccess
 
 echo "### Compiling Macro Namespaces"
 mkdir -p planck-cljs/out/macros-tmp
-$(PWD)/$BUILD_DIR/$CONFIGURATION/planck -sk planck-cljs/out/macros-tmp <<REPL_INPUT
+$(PWD)/$BUILD_DIR/$CONFIGURATION/planck --no-banner -sk planck-cljs/out/macros-tmp <<REPL_INPUT
 (require-macros 
   'planck.repl
   'planck.core 

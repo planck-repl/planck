@@ -24,7 +24,8 @@
       socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
             args:(NSArray*)args
-   planckVersion:(NSString*)planckVersion {
+   planckVersion:(NSString*)planckVersion
+      bundledOut:(PLKBundledOut*)bundledOut {
     
     int exitValue = EXIT_SUCCESS;
     
@@ -33,7 +34,7 @@
         // the first arg will be treated as a path to a file to be executed and should not be bound
         boundArgs = [args subarrayWithRange:NSMakeRange(1, args.count - 1)];
     }
-    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl dumbTerminal:dumbTerminal];
+    [self setupClojureScriptEngineWithSrcPaths:srcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl dumbTerminal:dumbTerminal bundledOut:bundledOut];
     
     // Process init arguments
     
@@ -70,7 +71,7 @@
     return exitValue;
 }
 
--(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal
+-(void)setupClojureScriptEngineWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
 {
     NSMutableArray* adjustedSrcPaths = [[NSMutableArray alloc] init];
     for (NSArray* srcPath in srcPaths) {
@@ -105,7 +106,7 @@
     outPath = [self ensureTrailingSlash:[self fullyQualify:outPath]];
     
     self.clojureScriptEngine = [[PLKClojureScriptEngine alloc] init];
-    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl dumbTerminal:dumbTerminal];
+    [self.clojureScriptEngine startInitializationWithSrcPaths:adjustedSrcPaths outPath:outPath cachePath:cachePath verbose:verbose staticFns:staticFns boundArgs:boundArgs planckVersion:planckVersion repl:repl dumbTerminal:dumbTerminal bundledOut:bundledOut];
 }
 
 -(NSString*)ensureTrailingSlash:(NSString*)s

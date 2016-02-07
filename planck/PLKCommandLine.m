@@ -3,6 +3,7 @@
 #import "PLKExecutive.h"
 #import "PLKScript.h"
 #import "PLKLegal.h"
+#import "PLKBundledOut.h"
 
 #define PLANCK_VERSION "1.10"
 
@@ -71,6 +72,7 @@
     NSString* socketAddr = nil;
     int socketPort = 0;
     BOOL staticFns = NO;
+    BOOL noBanner = NO;
 
     // Undocumented options, used for development.
     // The defaults set here are for release use.
@@ -93,6 +95,7 @@
         {"main", required_argument, NULL, 'm'},
         {"repl", optional_argument, NULL, 'r'},
         {"static-fns", optional_argument, NULL, 's'},
+        {"no-banner", optional_argument, NULL, 'z'},
 
         // Undocumented options used for development
         {"out", required_argument, NULL, 'o'},
@@ -203,6 +206,11 @@
                 staticFns = YES;
                 break;
             }
+            case 'z':
+            {
+                noBanner = YES;
+                break;
+            }
         }
     }
 
@@ -230,7 +238,7 @@
         printf("Only one main-opt can be specified.");
     } else {
         if (help) {
-            printf("planck %s\n", PLANCK_VERSION);
+            printf("Planck %s\n", PLANCK_VERSION);
             printf("Usage:  planck [init-opt*] [main-opt] [arg*]\n");
             printf("\n");
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
@@ -275,6 +283,10 @@
         } else if (legal) {
             [PLKLegal displayLegalese];
         } else {
+            PLKBundledOut* bundledOut = [[PLKBundledOut alloc] init];
+            if (repl && !noBanner) {
+                [PLKCommandLine printBanner:bundledOut];
+            }
             return [[[PLKExecutive alloc] init] runScripts:scripts
                                                   srcPaths:srcPaths
                                                    verbose:verbose
@@ -288,11 +300,38 @@
                                                  staticFns:staticFns
                                                       args:args
                                              planckVersion:[NSString stringWithCString:PLANCK_VERSION
-                                                                              encoding:NSUTF8StringEncoding]];
+                                                                              encoding:NSUTF8StringEncoding]
+                                                bundledOut:bundledOut];
         }
     }
 
     return exitValue;
+}
+
++(void)printBanner:(PLKBundledOut*)bundledOut
+{
+    printf("Planck %s\n", PLANCK_VERSION);
+    printf("ClojureScript %s\n", [[PLKCommandLine getClojureScriptVersion:bundledOut]
+                                  cStringUsingEncoding:NSUTF8StringEncoding]);
+    
+    printf("    Docs: (doc function-name-here)\n");
+    printf("          (find-doc \"part-of-name-here\")\n");
+    printf("  Source: (source function-name-here)\n");
+    printf("    Exit: Control+D or :cljs/quit or exit or quit\n");
+    printf(" Results: Stored in vars *1, *2, *3, an exception in *e\n");
+    
+    printf("\n");
+}
+
++(NSString*)getClojureScriptVersion:(PLKBundledOut*)bundledOut
+{
+    // Grab bundle.js; it is relatively small
+    NSString* bundleJs = [bundledOut getSourceForPath:@"planck/bundle.js"];
+    if (bundleJs) {
+        return [[bundleJs substringFromIndex:29] substringToIndex:7];
+    } else {
+        return @"(Unknown)";
+    }
 }
 
 @end
