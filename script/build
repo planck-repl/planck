@@ -23,6 +23,7 @@ cd ..
 # Remove any leftover macros files so that they will not be bundled
 # We need them to be compiled by the 1st stage binary
 rm -f planck-cljs/out/planck/*macros*
+rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 
 echo "### Bundling 1st Stage ClojureScript"
 cd planck-cljs
