@@ -652,9 +652,7 @@ Close :y
 Close :x
 [34mnil[m
 [1;31mwith-open requires an even number of forms in binding vector at line 1 [m
-[1;31mwith-open requires an even number of forms in binding vector[m
 [1;31mwith-open requires a vector for its bindings at line 1 [m
-[1;31mwith-open requires a vector for its bindings[m
 Test planck.repl publics
 apropos
 dir

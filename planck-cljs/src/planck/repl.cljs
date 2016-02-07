@@ -746,17 +746,21 @@
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
+   (print-error error include-stacktrace? nil))
+  ([error include-stacktrace? printed-message]
    (let [error               (skip-cljsjs-eval-error error)
          include-stacktrace? (or (= include-stacktrace? :pst)
-                                 (and include-stacktrace?
-                                      (not (is-reader-or-analysis? error))))
+                               (and include-stacktrace?
+                                 (not (is-reader-or-analysis? error))))
          include-stacktrace? (if *planck-integration-tests*
                                false
-                               include-stacktrace?)]
-     (println ((:ex-msg-fn colorize)
-                (if (instance? ExceptionInfo error)
-                  (ex-message error)
-                  (.-message error))))
+                               include-stacktrace?)
+         message             (if (instance? ExceptionInfo error)
+                               (ex-message error)
+                               (.-message error))]
+     (when (or (not ((fnil s/starts-with? "") printed-message message))
+             include-stacktrace?)
+       (println ((:ex-msg-fn colorize) message)))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
@@ -771,7 +775,7 @@
                (or (:source-maps @planck.repl/st) {})
                nil)))))
      (when-let [cause (.-cause error)]
-       (recur cause include-stacktrace?)))))
+       (recur cause include-stacktrace? message)))))
 
 (defn- get-var
   [env sym]
