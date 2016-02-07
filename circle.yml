@@ -6,4 +6,5 @@ machine:
     - brew update
     - brew cask install java7
     - brew install leiningen
+    - brew install maven
     - brew install planck
