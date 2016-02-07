@@ -659,6 +659,7 @@ Test planck.repl publics
 apropos
 dir
 doc
+find-doc
 pst
 source
 [34mnil[m

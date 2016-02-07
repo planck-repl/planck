@@ -928,6 +928,21 @@
                                     :arglists (seq sigs)}]))
                      (into {})))))))))
 
+(defn- find-doc*
+  [re-string-or-pattern]
+  (let [re       (re-pattern re-string-or-pattern)
+        sym-docs (sort-by first
+                   (mapcat (fn [ns]
+                             (map (juxt first (comp :doc second))
+                               (get-in @st [:cljs.analyzer/namespaces ns :defs])))
+                     (all-ns)))]
+    (doseq [[sym doc] sym-docs
+            :when (and doc
+                       (name sym)
+                       (or (re-find re doc)
+                           (re-find re (name sym))))]
+      (doc* sym))))
+
 (defn- source*
   [sym]
   (println (or (fetch-source (get-var (get-aenv) sym))
