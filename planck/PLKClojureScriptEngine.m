@@ -175,6 +175,30 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
+NSMutableDictionary* toDictionary(JSContextRef ctx, JSObjectRef object)
+{
+    NSMutableDictionary *dict = nil;
+    if (!JSValueIsNull(ctx, object)) {
+        dict = [[NSMutableDictionary alloc] init];
+        JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(ctx, object);
+        for (size_t i=0; i< JSPropertyNameArrayGetCount(names) ; i++) {
+            NSString *key = (__bridge_transfer NSString *)JSStringCopyCFString(kCFAllocatorDefault, JSPropertyNameArrayGetNameAtIndex(names, i));
+            NSString *val = NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, object, JSPropertyNameArrayGetNameAtIndex(names, i), nil));
+            [dict setObject:val forKey:key];
+        }
+    }
+    return dict;
+}
+
+JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
+{
+    JSObjectRef obj = JSObjectMake(ctx, NULL, NULL);
+    for (NSString *key in dict) {
+        JSObjectSetProperty(ctx, obj, JSStringCreateWithUTF8CString([key UTF8String]), JSValueMakeStringFromNSString(ctx, dict[key]), kJSPropertyAttributeReadOnly, nil);
+    }
+    return obj;
+}
+
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
 {
     // By default we expect :none, but this can be set if :simple
@@ -549,6 +573,76 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              return  JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_IS_DIRECTORY"
+                                         argList:@"path"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeObject) {
+                 JSObjectRef  opts = JSValueToObject(ctx, argv[0], nil);
+                 NSURL* url = [NSURL URLWithString:NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("url"), nil))];
+                 time_t timeout = [NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("timeout"), nil)) longLongValue];
+                 NSString* method = NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("method"), nil));
+                 JSValueRef body = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("body"), nil);
+                 
+                 JSObjectRef headersObject = JSValueToObject(ctx,JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("headers"), nil) , nil);
+                 
+                 NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+                 NSMutableDictionary *requestHeaders = toDictionary(ctx, headersObject);
+                
+                 if ([requestHeaders count] > 0) {
+                     [config setHTTPAdditionalHeaders:requestHeaders];
+                 }
+                 
+                 config.timeoutIntervalForResource = timeout;
+                 
+                 NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+                 
+                 __block JSObjectRef retval = JSObjectMake(ctx, NULL, NULL);
+
+                 NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+                 
+                 if (!JSValueIsUndefined(ctx, body)) {
+                     NSString *bodyString = NSStringFromJSValueRef(ctx, body);
+                     [request setHTTPBody:[bodyString dataUsingEncoding:NSUTF8StringEncoding]];
+                 }
+                 
+                 [request setHTTPMethod:method];
+
+                 dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+                 [[session dataTaskWithRequest:request completionHandler:^(NSData *data,
+                                                                           NSURLResponse *response,
+                                                                           NSError *error) {
+                     
+                     if (data) {
+                         NSString* s = [NSString stringWithUTF8String:[data bytes]];
+                         JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("body"), JSValueMakeStringFromNSString(ctx, s), kJSPropertyAttributeReadOnly, nil);
+                     }
+                     if (error) {
+                         NSString * errordescription = [error localizedDescription];
+                         JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("error"), JSValueMakeStringFromNSString(ctx, errordescription), kJSPropertyAttributeReadOnly, nil);
+                     }
+                     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                     
+                     JSObjectRef headers = toObjectRef(ctx, [httpResponse allHeaderFields]);
+                     NSInteger status = [httpResponse statusCode];
+                     
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("headers"), headers, kJSPropertyAttributeReadOnly, nil);
+                     
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("status"), JSValueMakeNumber(ctx, status), kJSPropertyAttributeReadOnly, nil);
+                     
+                     dispatch_semaphore_signal(sema);
+                 }] resume];
+
+                 dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+                 dispatch_release(sema);
+                 
+                 return  retval;
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_REQUEST"
                                          argList:@"path"
                                        inContext:self.context];
 
