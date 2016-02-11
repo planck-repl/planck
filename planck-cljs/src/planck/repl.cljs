@@ -1145,7 +1145,7 @@
      :ex-msg-fn ansi/bold-red
      :ex-stack-fn ansi/green
      :err-font ansi/red-font
-     :verbose-font ansi/cyan-font
+     :verbose-font ansi/white-font
      :reset-font ansi/reset-font})
   nil)
 
