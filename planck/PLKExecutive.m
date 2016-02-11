@@ -39,7 +39,7 @@
     // Process init arguments
     
     for (PLKScript *script in scripts) {
-        exitValue = [self executeScript:script];
+        exitValue = [self executeScript:script dumbTerminal:dumbTerminal];
         if (exitValue != EXIT_SUCCESS) {
             return exitValue;
         }
@@ -58,7 +58,7 @@
         } else {
             script = [[PLKScript alloc] initWithPath:[self fullyQualify:path]];
         }
-        exitValue = [self executeScript:script];
+        exitValue = [self executeScript:script dumbTerminal:dumbTerminal];
     } else if (repl) {
         exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine
                                                            dumbTerminal:dumbTerminal
@@ -129,7 +129,7 @@
     return path;
 }
 
--(int)executeScript:(PLKScript *)script
+-(int)executeScript:(PLKScript *)script dumbTerminal:(BOOL)dumbTerminal
 {
     return [self.clojureScriptEngine executeSourceType:script.sourceType
                                                  value:script.sourceValue
@@ -137,6 +137,7 @@
                                     printNilExpression:NO
                                          inExitContext:YES
                                                  setNs:nil
+                                          dumbTerminal:dumbTerminal
                                        blockUntilReady:YES];
 }
 

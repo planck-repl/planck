@@ -46,18 +46,26 @@
           0))
       0)))
 
-(def ^:private default-colorize-fn identity)
-(def ^:private default-colorize-font "")
+(def ^:private colorize-off-fn identity)
+(def ^:private colorize-off-font "")
 
-(def ^:private default-colorize
-  {:results-fn   default-colorize-fn
-   :ex-msg-fn    default-colorize-fn
-   :ex-stack-fn  default-colorize-fn
-   :err-font     default-colorize-font
-   :verbose-font default-colorize-font
-   :reset-font   default-colorize-font})
+(def ^:private colorize-off
+  {:results-fn   colorize-off-fn
+   :ex-msg-fn    colorize-off-fn
+   :ex-stack-fn  colorize-off-fn
+   :err-font     colorize-off-font
+   :verbose-font colorize-off-font
+   :reset-font   colorize-off-font})
 
-(defonce ^:dynamic ^:private colorize default-colorize)
+(def ^:private colorize-white-screen
+  {:results-fn ansi/blue
+   :ex-msg-fn ansi/bold-red
+   :ex-stack-fn ansi/green
+   :err-font ansi/red-font
+   :verbose-font ansi/white-font
+   :reset-font ansi/reset-font})
+
+(defonce ^:dynamic ^:private colorize colorize-off)
 
 (defn- println-verbose
   [& args]
@@ -1106,14 +1114,17 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns]
+  [source expression? print-nil-expression? in-exit-context? set-ns dumb-terminal?]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
-  (execute-source source {:expression?           expression?
-                          :print-nil-expression? print-nil-expression?
-                          :in-exit-context?      in-exit-context?
-                          :include-stacktrace?   true}))
+  (binding [colorize (if dumb-terminal?
+                       colorize-off
+                       colorize-white-screen)]
+    (execute-source source {:expression?           expression?
+                            :print-nil-expression? print-nil-expression?
+                            :in-exit-context?      in-exit-context?
+                            :include-stacktrace?   true})))
 
 (defn- eval
   ([form]
@@ -1137,17 +1148,6 @@
 (defn- resolve
   [sym]
   (ns-resolve @current-ns sym))
-
-(defn- ^:export setup-print-colors
-  []
-  (set! colorize
-    {:results-fn ansi/blue
-     :ex-msg-fn ansi/bold-red
-     :ex-stack-fn ansi/green
-     :err-font ansi/red-font
-     :verbose-font ansi/white-font
-     :reset-font ansi/reset-font})
-  nil)
 
 (defn- ^:export wrap-color-err
   []

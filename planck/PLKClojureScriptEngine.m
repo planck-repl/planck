@@ -1077,18 +1077,8 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  printNilExpression:NO
                       inExitContext:NO
                               setNs:@"cljs.user"
+                       dumbTerminal:dumbTerminal
                     blockUntilReady:NO];
-            
-            if (!dumbTerminal) {
-                [self executeSourceType:@"text"
-                                  value:@"(planck.repl/setup-print-colors)"
-                             expression:YES
-                     printNilExpression:NO
-                          inExitContext:NO
-                                  setNs:@"cljs.user"
-                        blockUntilReady:NO];
-            }
-            
         }
 
         [self setToPrintOnSender:nil];
@@ -1253,7 +1243,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs blockUntilReady:(BOOL)blockUntilReady
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs dumbTerminal:(BOOL)dumbTerminal blockUntilReady:(BOOL)blockUntilReady
 {
     if (blockUntilReady) {
         [self blockUntilEngineReady];
@@ -1266,9 +1256,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[5];
+    JSValueRef  arguments[6];
     JSValueRef result;
-    int num_arguments = 5;
+    int num_arguments = 6;
     
     {
         JSValueRef  sourceArguments[2];
@@ -1281,6 +1271,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
+    arguments[5] = JSValueMakeBoolean(self.context, dumbTerminal);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return self.exitValue;

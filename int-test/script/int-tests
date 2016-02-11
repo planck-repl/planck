@@ -71,9 +71,9 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
 (defn ensure-output [expected quoted-commands]
   (check-output
     (prn-str expected)
-    (apply sh planck-exe (interleave
-                           (repeat "-e")
-                           (map pr-str quoted-commands)))))
+    (apply sh planck-exe (cons "-d" (interleave
+                                      (repeat "-e")
+                                      (map pr-str quoted-commands))))))
 
 ;; Check *planck-version*
 (ensure-output planck-version

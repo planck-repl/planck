@@ -150,13 +150,13 @@ void highlightCancel() {
 
 @implementation PLKRepl
 
--(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary richTerminal:(BOOL)richTerminal
+-(NSString*)formPrompt:(NSString*)currentNs isSecondary:(BOOL)secondary dumbTerminal:(BOOL)dumbTerminal
 {
     NSString* rv = nil;
     if (!secondary) {
         rv = [NSString stringWithFormat:@"%@=> ", currentNs];
     } else {
-        if (richTerminal) {
+        if (!dumbTerminal) {
             rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
                                     withString:@" "
                                startingAtIndex:0]
@@ -223,7 +223,7 @@ void handleConnect (
         server.exitValue = EXIT_SUCCESS;
         
         server.currentNs = @"cljs.user";
-        server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO richTerminal:NO];
+        server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO dumbTerminal:YES];
         server.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", @":repl/quit", nil];
         server.input = nil;
         server.sendLock = @"";
@@ -269,7 +269,7 @@ void handleConnect (
     } else {
         // Dispatch to the background so we can continue to read
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-            BOOL tearDown = [self processLine:read richTerminal:NO];
+            BOOL tearDown = [self processLine:read dumbTerminal:YES];
             if (tearDown) {
                 [self tearDown];
             }
@@ -402,7 +402,7 @@ void handleConnect (
     [s_socketRepls removeObjectForKey:@(self.socketReplSessionId)];
 }
 
--(BOOL)processLine:(NSString*)inputLine richTerminal:(BOOL)richTerminal
+-(BOOL)processLine:(NSString*)inputLine dumbTerminal:(BOOL)dumbTerminal
 {
     // Accumulate input lines
     
@@ -466,6 +466,7 @@ void handleConnect (
                                                        printNilExpression:YES
                                                             inExitContext:NO
                                                                     setNs:self.currentNs
+                                                             dumbTerminal:dumbTerminal
                                                           blockUntilReady:YES];
                 
                 
@@ -504,7 +505,7 @@ void handleConnect (
             // Fetch the current namespace and use it to set the prompt
             
             self.currentNs = [s_clojureScriptEngine getCurrentNs];
-            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:richTerminal];
+            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO dumbTerminal:dumbTerminal];
             
             if ([self isWhitespace:balanceText]) {
                 done = YES;
@@ -521,7 +522,7 @@ void handleConnect (
                     self.indentSpaceCount = [s_clojureScriptEngine getIndentSpaceCount:self.input];
                 }
             }
-            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES richTerminal:richTerminal];
+            self.currentPrompt = [self formPrompt:self.currentNs isSecondary:YES dumbTerminal:dumbTerminal];
             done = YES;
         }
     }
@@ -561,7 +562,7 @@ void handleConnect (
                     errno = 0;
                     self.input = nil;
                     [self.previousLines removeAllObjects];
-                    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:YES];
+                    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO dumbTerminal:NO];
                     printf("\n");
                     continue;
                 } else { // Ctrl-D was pressed
@@ -578,7 +579,7 @@ void handleConnect (
             free(line);
         }
         
-        BOOL breakOut = [self processLine:inputLine richTerminal:!dumbTerminal];
+        BOOL breakOut = [self processLine:inputLine dumbTerminal:dumbTerminal];
         if (breakOut) {
             break;
         }
@@ -603,7 +604,7 @@ void handleConnect (
     self.exitValue = EXIT_SUCCESS;
     
     self.currentNs = @"cljs.user";
-    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO richTerminal:!dumbTerminal];
+    self.currentPrompt = [self formPrompt:self.currentNs isSecondary:NO dumbTerminal:dumbTerminal];
     self.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", nil];
     self.input = nil;
     

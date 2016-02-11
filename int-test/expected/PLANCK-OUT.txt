@@ -84,9 +84,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Repeated ordered -e and -i, supressing nil
 foo
-:a
+[34m:a[m
 bar
-2
+[34m2[m
 foo
 Test :cljs/quit
 [34m1[m
@@ -95,13 +95,13 @@ Test quit
 Test exit
 [34m1[m
 Exit on first error
-true
+[34mtrue[m
 ok
-x
+[1;31mx[m
 Test cope with syntax errors
-[1;31mInvalid number format [34f][m
+Invalid number format [34f]
 
-[1;31mInvalid token: a:[m
+Invalid token: a:
 
 Multi-line data
 [34m[1 2][m
@@ -408,7 +408,7 @@ nil
 [34m"/private/tmp\n"[m
 Shell stderr
 nil
-[34m#{[:err "this is from stderr\n"] [:exit 0] [:out ""]}[m
+[34m#{[:err "[31mthis is from stderr[m[31m\n[m"] [:exit 0] [:out ""]}[m
 Coercions
 nil
 nil
@@ -595,7 +595,7 @@ Test reader and analysis diagnostics
 [1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
 [1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
 nil
-[1;31mUnmatched delimiter )[m
+Unmatched delimiter )
 
 Test eval
 nil
