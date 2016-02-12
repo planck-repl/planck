@@ -69,8 +69,14 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 * Ctrl-T: Transpose current and previous character
 * Ctrl-U: Undo all typing on current line
 
+###  Color Themes
+
+Planck employs various colors for the REPL prompt, results, stderr, _etc._ If you'd prefer to work in a monochrome REPL, pass `-t plain` or `-​-theme plain` when starting Planck.
+
+Planck attempts to automatically detect if you are running in a light or dark terminal and picks the light or dark theme, which adjusts the colors accordingly. If this detection fails, you can always override it via `-t light` or `-t dark`.
+
 ###  Dumb Terminal
-Normally, Planck employs the use of VT100 codes to perform brace matching and other line editing features. If you are using Planck in an environment where these codes are not supported, or you would prefer to disable them, you can pass `-d` or `-​-dumb-terminal` when starting Planck.
+Normally, Planck employs the use of VT100 and ANSI codes to perform brace matching, line editing features, and to add color. If you are using Planck in an environment where these codes are not supported, or you would prefer to disable them, you can pass `-d` or `-​-dumb-terminal` when starting Planck.
 
 > If you'd prefer to use Planck with the line-editing capabilities offered by [GNU Readline](http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html), you can use [`rlwrap`](https://github.com/hanslub42/rlwrap), (which is also installable via `brew`). When using `rlwrap`, it is necessary to pass `-d` to `planck` so that `rlwrap`'s terminal controls become active: `rlwrap planck -d`.
 
