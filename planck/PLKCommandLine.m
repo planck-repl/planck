@@ -358,7 +358,7 @@
     // Grab bundle.js; it is relatively small
     NSString* bundleJs = [bundledOut getSourceForPath:@"planck/bundle.js"];
     if (bundleJs) {
-        return [[bundleJs substringFromIndex:29] substringToIndex:7];
+        return [[bundleJs substringFromIndex:29] componentsSeparatedByString:@" "][0];
     } else {
         return @"(Unknown)";
     }
