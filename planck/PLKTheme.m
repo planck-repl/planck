@@ -28,7 +28,7 @@ static NSDictionary* themes;
     
     themes =@{@"plain": @{@"prompt-font": @"no-font"},
               @"light": @{@"prompt-font": @"cyan-font"},
-              @"dark": @{@"prompt-font": @"cyan-font"}};
+              @"dark": @{@"prompt-font": @"blue-font"}};
     
 }
 
