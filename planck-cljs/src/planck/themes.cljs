@@ -25,9 +25,9 @@
 
 (def ^:private dark
   (merge theme-ansi-base
-    {:results-fn   ansi/green
+    {:results-fn   ansi/bold-blue
      :ex-msg-fn    ansi/bold-red
-     :ex-stack-fn  ansi/yellow
+     :ex-stack-fn  ansi/green
      :err-font     ansi/red-font
      :verbose-font ansi/white-font}))
 
