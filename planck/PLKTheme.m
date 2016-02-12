@@ -52,12 +52,14 @@ static NSDictionary* themes;
         NSString* terminalTheme = (__bridge NSString *) CFPreferencesCopyAppValue( CFSTR("Default Window Settings"), CFSTR("com.apple.Terminal") );
         NSDictionary* windowSettings = (__bridge NSDictionary*)CFPreferencesCopyAppValue( CFSTR("Window Settings"), CFSTR("com.apple.Terminal") );
         NSData* data = windowSettings[terminalTheme][@"BackgroundColor"];
-        NSColor* backgroundColor = (NSColor*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
-        NSColor* converted = [backgroundColor colorUsingColorSpace:[NSColorSpace genericGrayColorSpace]];
-        CGFloat brightness;
-        [converted getWhite:&brightness alpha:nil];
-        if (brightness < 0.5) {
-            return @"dark";
+        if (data) {
+            NSColor* backgroundColor = (NSColor*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+            NSColor* converted = [backgroundColor colorUsingColorSpace:[NSColorSpace genericGrayColorSpace]];
+            CGFloat brightness;
+            [converted getWhite:&brightness alpha:nil];
+            if (brightness < 0.5) {
+                return @"dark";
+            }
         }
     }
     
