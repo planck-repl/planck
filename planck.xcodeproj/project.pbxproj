@@ -22,6 +22,7 @@
 		ED4B2E1A1B88A65C00DF622A /* PLKFileOutputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4B2E191B88A65C00DF622A /* PLKFileOutputStream.m */; };
 		ED8DBF811B77732F00BBA2FA /* PLKFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */; };
 		ED9C14901B57C21E0092866D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = ED9C148F1B57C21E0092866D /* main.m */; };
+		EDBB01921C6E074400F64844 /* PLKTheme.m in Sources */ = {isa = PBXBuildFile; fileRef = EDBB01911C6E074400F64844 /* PLKTheme.m */; };
 		EDBB07001B7CE23400D8C6C6 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */; };
 		EDBB07031B7EADE300D8C6C6 /* PLKLegal.m in Sources */ = {isa = PBXBuildFile; fileRef = EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */; };
 		EDE838561B57C5E2002F56D7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE838551B57C5E2002F56D7 /* JavaScriptCore.framework */; };
@@ -90,6 +91,8 @@
 		ED8DBF801B77732F00BBA2FA /* PLKFileWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKFileWriter.m; sourceTree = "<group>"; };
 		ED9C148C1B57C21E0092866D /* planck */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = planck; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED9C148F1B57C21E0092866D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		EDBB01901C6E074400F64844 /* PLKTheme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKTheme.h; sourceTree = "<group>"; };
+		EDBB01911C6E074400F64844 /* PLKTheme.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKTheme.m; sourceTree = "<group>"; };
 		EDBB06FF1B7CE23400D8C6C6 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		EDBB07011B7EADE300D8C6C6 /* PLKLegal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKLegal.h; sourceTree = "<group>"; };
 		EDBB07021B7EADE300D8C6C6 /* PLKLegal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKLegal.m; sourceTree = "<group>"; };
@@ -227,6 +230,8 @@
 				ED1CE2151B7049670096585B /* PLKExecutive.m */,
 				ED1CE20D1B70464F0096585B /* PLKRepl.h */,
 				ED1CE20E1B70464F0096585B /* PLKRepl.m */,
+				EDBB01901C6E074400F64844 /* PLKTheme.h */,
+				EDBB01911C6E074400F64844 /* PLKTheme.m */,
 				ED1CE2171B704FF10096585B /* PLKClojureScriptEngine.h */,
 				ED1CE2181B704FF10096585B /* PLKClojureScriptEngine.m */,
 				E7FE09C11B713C70009D090C /* PLKScript.h */,
@@ -382,6 +387,7 @@
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,
 				EDEF27AB1B84B79D00F2C7E4 /* ZZNewArchiveEntryWriter.mm in Sources */,
 				EDEF27A81B84B79D00F2C7E4 /* ZZFileChannelOutput.m in Sources */,
+				EDBB01921C6E074400F64844 /* PLKTheme.m in Sources */,
 				ED9C14901B57C21E0092866D /* main.m in Sources */,
 				EDEF27A11B84B79D00F2C7E4 /* ZZArchiveEntry.m in Sources */,
 				ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */,

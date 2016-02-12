@@ -4,6 +4,7 @@
 #import "PLKScript.h"
 #import "PLKLegal.h"
 #import "PLKBundledOut.h"
+#import "PLKTheme.h"
 
 #define PLANCK_VERSION "1.10"
 
@@ -12,6 +13,8 @@
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
+    
+    [PLKTheme initThemes];
 
     int indexOfScriptPathOrHyphen = argc;
     NSMutableArray* args = [[NSMutableArray alloc] init];
@@ -254,7 +257,11 @@
     }
 
     // Process arguments
-
+    
+    if (![PLKTheme checkTheme:theme]) {
+        return exitValue;
+    }
+    
     if (mainNsName && repl) {
         printf("Only one main-opt can be specified.");
     } else {
@@ -274,7 +281,7 @@
             printf("                             path\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
-            printf("    -t theme, --theme=theme  Sets the color theme. May be light or dark\n");
+            printf("    -t theme, --theme=theme  Sets the color theme\n");
             printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port\n");
             printf("    -s, --static-fns         Generate static dispatch function calls\n");
             printf("\n");
@@ -327,7 +334,7 @@
                                                 bundledOut:bundledOut];
         }
     }
-
+    
     return exitValue;
 }
 

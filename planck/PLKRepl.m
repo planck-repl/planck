@@ -1,4 +1,5 @@
 #import "PLKRepl.h"
+#import "PLKTheme.h"
 #import "PLKClojureScriptEngine.h"
 #include <stdio.h>
 #include "linenoise.h"
@@ -555,7 +556,9 @@ void handleConnect (
                 break;
             }
         } else {
-            char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding], self.indentSpaceCount);
+            char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding],
+                                   [PLKTheme promptAnsiCodeForTheme:theme],
+                                   self.indentSpaceCount);
             self.indentSpaceCount = 0;
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C was pressed

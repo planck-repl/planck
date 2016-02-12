@@ -136,6 +136,7 @@ static char **history = NULL;
 
 static struct timeval lastCharRead;
 static int pasting = 0;
+static const char* currentPromptAnsiCode;
 
 /* The linenoiseState structure represents the state during line editing.
  * We pass this state to functions implementing specific editing
@@ -501,7 +502,7 @@ static void refreshSingleLine(struct linenoiseState *l) {
     snprintf(seq,64,"\r");
     abAppend(&ab,seq,strlen(seq));
     /* Write the prompt and the current buffer content */
-    abAppend(&ab,"\x1b[36m",5);
+    abAppend(&ab,currentPromptAnsiCode,strlen(currentPromptAnsiCode));
     abAppend(&ab,l->prompt,strlen(l->prompt));
     abAppend(&ab,"\x1b[m",3);
     abAppend(&ab,buf,len);
@@ -555,7 +556,7 @@ static void refreshMultiLine(struct linenoiseState *l) {
     abAppend(&ab,seq,strlen(seq));
 
     /* Write the prompt and the current buffer content */
-    abAppend(&ab,"\x1b[36m",5);
+    abAppend(&ab,currentPromptAnsiCode,strlen(currentPromptAnsiCode));
     abAppend(&ab,l->prompt,strlen(l->prompt));
     abAppend(&ab,"\x1b[m",3);
     abAppend(&ab,l->buf,l->len);
@@ -1010,7 +1011,7 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt, int spaces
  * for a blacklist of stupid terminals, and later either calls the line
  * editing function or uses dummy fgets() so that you will be able to type
  * something even in the most desperate of the conditions. */
-char *linenoise(const char *prompt, int spaces) {
+char *linenoise(const char *prompt, const char* promptAnsiCode, int spaces) {
     char buf[LINENOISE_MAX_LINE];
     int count;
 
@@ -1027,6 +1028,7 @@ char *linenoise(const char *prompt, int spaces) {
         }
         return strdup(buf);
     } else {
+        currentPromptAnsiCode = promptAnsiCode;
         count = linenoiseRaw(buf,LINENOISE_MAX_LINE,prompt,spaces);
         if (count == -1) return NULL;
         return strdup(buf);

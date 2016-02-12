@@ -32,7 +32,8 @@
      :verbose-font ansi/white-font}))
 
 (def ^:private themes
-  {:light light
+  {:plain dumb
+   :light light
    :dark  dark})
 
 (defn get-theme
