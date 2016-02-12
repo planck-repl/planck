@@ -1,6 +1,7 @@
 (ns script.bootstrap.build
   (:require [clojure.java.io :as io]
             [cljs.build.api :as api]
+            [cljs.analyzer]
             [cognitect.transit :as transit])
   (:import [java.io ByteArrayOutputStream]))
 
@@ -15,14 +16,22 @@
     (write-cache cache out-path)))
 
 (println "Building")
-(api/build (api/inputs "src" "test") ;; For now, pre-compile tests
-  {:output-dir         "out"
-   :output-to          "out/main.js"
-   :optimizations      :none
-   :static-fns         true
-   :optimize-constants false
-   :dump-core          false
-   :parallel-build     true})
+
+(cljs.analyzer/with-warning-handlers
+  [(fn [warning-type env extra]
+     (when (warning-type cljs.analyzer/*cljs-warnings*)
+       (when-let [s (cljs.analyzer/error-message warning-type extra)]
+         (binding [*out* *err*]
+           (println "WARNING:" (cljs.analyzer/message env s)))
+         (System/exit 1))))]
+  (api/build (api/inputs "src" "test")                      ;; For now, pre-compile tests
+    {:output-dir         "out"
+     :output-to          "out/main.js"
+     :optimizations      :none
+     :static-fns         true
+     :optimize-constants false
+     :dump-core          false
+     :parallel-build     true}))
 
 (let [res (io/resource "cljs/core.cljs.cache.aot.edn")
       cache (read-string (slurp res))]
