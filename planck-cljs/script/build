@@ -14,10 +14,10 @@ if [ ! -e clojurescript ]; then
    pushd clojurescript
    git reset --hard $CLJS_GIT_SHA1
    # Apply patches
-   # curl -L http://dev.clojure.org/jira/secure/attachment/15426/CLJS-1541.patch | git apply
+   #curl -L http://dev.clojure.org/jira/secure/attachment/15426/CLJS-1541.patch | git apply
    script/uberjar
    popd
 fi
 
-CLJSC_CP=clojurescript/target/cljs.jar:`lein classpath`
+CLJSC_CP=`lein classpath`:clojurescript/target/cljs.jar
 java -cp $CLJSC_CP clojure.main script/build.clj
