@@ -35,7 +35,7 @@ $ brew remove planck
 $ brew install --HEAD planck
 ```
 
-> To do this requires that you have the tools installed which are needed by Homebrew to build Planck. This includes `Java`, `lein` and `Xcode`.
+> Note, master requires Maven to be explicitly set up in the formula for now. To do this `brew edit planck` and add a line below the one for `leiningen` specifying `depends_on "maven" => :build`
 
 ### Manual Download and Install
 
