@@ -8,13 +8,13 @@ set -o pipefail
 #lein run -m clojure.main script/build.clj
 
 # Build our own copy of ClojureScript compiler
-CLJS_GIT_SHA1=c0a4e07426b67659ae575cc731e83f7007c36c43
+CLJS_GIT_SHA1=cca12a51257b71a66156a090aba06dcd13949c0a
 if [ ! -e clojurescript ]; then
    git clone https://github.com/clojure/clojurescript
    pushd clojurescript
    git reset --hard $CLJS_GIT_SHA1
    # Apply patches
-   curl -L http://dev.clojure.org/jira/secure/attachment/15426/CLJS-1541.patch | git apply
+   # curl -L http://dev.clojure.org/jira/secure/attachment/15426/CLJS-1541.patch | git apply
    script/uberjar
    popd
 fi
