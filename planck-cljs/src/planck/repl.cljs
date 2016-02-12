@@ -46,26 +46,42 @@
           0))
       0)))
 
-(def ^:private colorize-off-fn identity)
-(def ^:private colorize-off-font "")
+(def ^:private colorize-fn-dumb identity)
+(def ^:private colorize-off-dumb "")
 
-(def ^:private colorize-off
-  {:results-fn   colorize-off-fn
-   :ex-msg-fn    colorize-off-fn
-   :ex-stack-fn  colorize-off-fn
-   :err-font     colorize-off-font
-   :verbose-font colorize-off-font
-   :reset-font   colorize-off-font})
+(def ^:private theme-dumb
+  {:results-fn   colorize-fn-dumb
+   :ex-msg-fn    colorize-fn-dumb
+   :ex-stack-fn  colorize-fn-dumb
+   :err-font     colorize-off-dumb
+   :verbose-font colorize-off-dumb
+   :reset-font   colorize-off-dumb})
 
-(def ^:private colorize-white-screen
-  {:results-fn ansi/blue
-   :ex-msg-fn ansi/bold-red
-   :ex-stack-fn ansi/green
-   :err-font ansi/red-font
-   :verbose-font ansi/white-font
-   :reset-font ansi/reset-font})
+(def ^:private theme-ansi-base
+  {:reset-font ansi/reset-font})
 
-(defonce ^:dynamic ^:private colorize colorize-off)
+(def ^:private theme-light
+  (merge theme-ansi-base
+    {:results-fn   ansi/blue
+     :ex-msg-fn    ansi/bold-red
+     :ex-stack-fn  ansi/green
+     :err-font     ansi/red-font
+     :verbose-font ansi/white-font}))
+
+(def ^:private theme-dark
+  (merge theme-ansi-base
+    {:results-fn   ansi/blue
+     :ex-msg-fn    ansi/bold-red
+     :ex-stack-fn  ansi/green
+     :err-font     ansi/red-font
+     :verbose-font ansi/white-font}))
+
+(def ^:private themes
+  {:dumb  theme-dumb
+   :light theme-light
+   :dark  theme-dark})
+
+(defonce ^:dynamic ^:private colorize theme-dumb)
 
 (defn- println-verbose
   [& args]
@@ -1114,13 +1130,11 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns dumb-terminal?]
+  [source expression? print-nil-expression? in-exit-context? set-ns theme]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
-  (binding [colorize (if dumb-terminal?
-                       colorize-off
-                       colorize-white-screen)]
+  (binding [colorize (get themes (keyword theme) theme-dumb)]
     (execute-source source {:expression?           expression?
                             :print-nil-expression? print-nil-expression?
                             :in-exit-context?      in-exit-context?

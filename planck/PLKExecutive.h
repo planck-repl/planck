@@ -12,6 +12,7 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
+           theme:(NSString*)theme
       socketAddr:(NSString*)socketAddr
       socketPort:(int)socketPort
        staticFns:(BOOL)staticFns

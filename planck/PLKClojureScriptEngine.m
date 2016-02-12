@@ -1069,7 +1069,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
             JSObjectCallAsFunction(self.context, [self getFunction:@"init"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
-        // Set up REPL requires and color printing
+        // Set up REPL
         if (repl) {
             [self executeSourceType:@"text"
                               value:@"(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])"
@@ -1077,7 +1077,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  printNilExpression:NO
                       inExitContext:NO
                               setNs:@"cljs.user"
-                       dumbTerminal:dumbTerminal
+                              theme:@"dumb"
                     blockUntilReady:NO];
         }
 
@@ -1243,7 +1243,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs dumbTerminal:(BOOL)dumbTerminal blockUntilReady:(BOOL)blockUntilReady
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady
 {
     if (blockUntilReady) {
         [self blockUntilEngineReady];
@@ -1271,7 +1271,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
-    arguments[5] = JSValueMakeBoolean(self.context, dumbTerminal);
+    arguments[5] = JSValueMakeStringFromNSString(self.context, theme);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return self.exitValue;

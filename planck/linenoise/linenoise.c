@@ -503,7 +503,7 @@ static void refreshSingleLine(struct linenoiseState *l) {
     /* Write the prompt and the current buffer content */
     abAppend(&ab,"\x1b[36m",5);
     abAppend(&ab,l->prompt,strlen(l->prompt));
-    abAppend(&ab,"\x1b[30m",5);
+    abAppend(&ab,"\x1b[m",3);
     abAppend(&ab,buf,len);
     /* Erase to right */
     snprintf(seq,64,"\x1b[0K");
@@ -557,7 +557,7 @@ static void refreshMultiLine(struct linenoiseState *l) {
     /* Write the prompt and the current buffer content */
     abAppend(&ab,"\x1b[36m",5);
     abAppend(&ab,l->prompt,strlen(l->prompt));
-    abAppend(&ab,"\x1b[30m",5);
+    abAppend(&ab,"\x1b[m",3);
     abAppend(&ab,l->buf,l->len);
 
     /* If we are at the very end of the screen with our prompt, we need to

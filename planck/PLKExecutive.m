@@ -20,6 +20,7 @@
          outPath:(NSString*)outPath
        cachePath:(NSString*)cachePath
     dumbTerminal:(BOOL)dumbTerminal
+           theme:(NSString*)theme
       socketAddr:(NSString*)socketAddr
       socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
@@ -39,7 +40,7 @@
     // Process init arguments
     
     for (PLKScript *script in scripts) {
-        exitValue = [self executeScript:script dumbTerminal:dumbTerminal];
+        exitValue = [self executeScript:script theme:theme];
         if (exitValue != EXIT_SUCCESS) {
             return exitValue;
         }
@@ -58,10 +59,11 @@
         } else {
             script = [[PLKScript alloc] initWithPath:[self fullyQualify:path]];
         }
-        exitValue = [self executeScript:script dumbTerminal:dumbTerminal];
+        exitValue = [self executeScript:script theme:theme];
     } else if (repl) {
         exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine
                                                            dumbTerminal:dumbTerminal
+                                                                  theme:theme
                                                              socketAddr:socketAddr
                                                              socketPort:socketPort];
     }
@@ -129,7 +131,7 @@
     return path;
 }
 
--(int)executeScript:(PLKScript *)script dumbTerminal:(BOOL)dumbTerminal
+-(int)executeScript:(PLKScript *)script theme:(NSString*)theme
 {
     return [self.clojureScriptEngine executeSourceType:script.sourceType
                                                  value:script.sourceValue
@@ -137,7 +139,7 @@
                                     printNilExpression:NO
                                          inExitContext:YES
                                                  setNs:nil
-                                          dumbTerminal:dumbTerminal
+                                                 theme:theme
                                        blockUntilReady:YES];
 }
 

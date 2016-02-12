@@ -26,7 +26,7 @@
             return YES;
         }
 
-        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, n, or k then this opt
+        // opt is a short opt or clump of short opts. If the clump ends with i, e, m, c, n, k, or t then this opt
         // takes an argument.
         int idx = 0;
         char c = 0;
@@ -36,7 +36,13 @@
             idx++;
         }
 
-        return (BOOL)(last_c == 'i' || last_c =='e' || last_c == 'm' || last_c =='c' || last_c =='n' || last_c =='k');
+        return (BOOL)(last_c == 'i' ||
+                      last_c == 'e' ||
+                      last_c == 'm' ||
+                      last_c == 'c' ||
+                      last_c == 'n' ||
+                      last_c == 'k' ||
+                      last_c == 't');
     };
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
@@ -73,6 +79,7 @@
     int socketPort = 0;
     BOOL staticFns = NO;
     BOOL noBanner = NO;
+    NSString* theme = nil;
 
     // Undocumented options, used for development.
     // The defaults set here are for release use.
@@ -89,13 +96,14 @@
         {"eval", required_argument, NULL, 'e'},
         {"classpath", required_argument, NULL, 'c'},
         {"cache", required_argument, NULL, 'k'},
-        {"verbose", optional_argument, NULL, 'v'},
-        {"dumb-terminal", optional_argument, NULL, 'd'},
+        {"verbose", no_argument, NULL, 'v'},
+        {"dumb-terminal", no_argument, NULL, 'd'},
+        {"theme", required_argument, NULL, 't'},
         {"socket-repl", required_argument, NULL, 'n'},
         {"main", required_argument, NULL, 'm'},
-        {"repl", optional_argument, NULL, 'r'},
-        {"static-fns", optional_argument, NULL, 's'},
-        {"no-banner", optional_argument, NULL, 'z'},
+        {"repl", no_argument, NULL, 'r'},
+        {"static-fns", no_argument, NULL, 's'},
+        {"no-banner", no_argument, NULL, 'z'},
 
         // Undocumented options used for development
         {"out", required_argument, NULL, 'o'},
@@ -103,7 +111,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?li:e:c:vdn:sm:ro:k:";
+    const char *shortopts = "h?li:e:c:vdt:n:sm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -157,6 +165,11 @@
             case 'd':
             {
                 dumbTerminal = YES;
+                break;
+            }
+            case 't':
+            {
+                theme = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
             case 'n':
@@ -213,6 +226,14 @@
             }
         }
     }
+    
+    if (theme == nil) {
+        theme = @"light";
+    }
+    
+    if (dumbTerminal) {
+        theme = @"dumb";
+    }
 
     // By this line, if optind is less than indexOfScriptPathOrHyphen, then there was an explicit
     // main opt. In that case, the hyphen or script path was not meant to be the main opt, but
@@ -253,7 +274,8 @@
             printf("                             path\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
-            printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port.\n");
+            printf("    -t theme, --theme=theme  Sets the color theme. May be light or dark\n");
+            printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port\n");
             printf("    -s, --static-fns         Generate static dispatch function calls\n");
             printf("\n");
             printf("  main options:\n");
@@ -295,6 +317,7 @@
                                                    outPath:outPath
                                                  cachePath:cachePath
                                               dumbTerminal:dumbTerminal
+                                                     theme:theme
                                                 socketAddr:socketAddr
                                                 socketPort:socketPort
                                                  staticFns:staticFns

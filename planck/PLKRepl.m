@@ -269,7 +269,7 @@ void handleConnect (
     } else {
         // Dispatch to the background so we can continue to read
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-            BOOL tearDown = [self processLine:read dumbTerminal:YES];
+            BOOL tearDown = [self processLine:read dumbTerminal:YES theme:@"dumb"];
             if (tearDown) {
                 [self tearDown];
             }
@@ -402,7 +402,7 @@ void handleConnect (
     [s_socketRepls removeObjectForKey:@(self.socketReplSessionId)];
 }
 
--(BOOL)processLine:(NSString*)inputLine dumbTerminal:(BOOL)dumbTerminal
+-(BOOL)processLine:(NSString*)inputLine dumbTerminal:(BOOL)dumbTerminal theme:(NSString*)theme
 {
     // Accumulate input lines
     
@@ -466,7 +466,7 @@ void handleConnect (
                                                        printNilExpression:YES
                                                             inExitContext:NO
                                                                     setNs:self.currentNs
-                                                             dumbTerminal:dumbTerminal
+                                                                    theme:theme
                                                           blockUntilReady:YES];
                 
                 
@@ -537,7 +537,7 @@ void handleConnect (
 }
 
 
--(void)runCommandLineLoopDumbTerminal:(BOOL)dumbTerminal
+-(void)runCommandLineLoopDumbTerminal:(BOOL)dumbTerminal theme:(NSString*)theme
 {
     self.indentSpaceCount = 0;
     
@@ -579,7 +579,7 @@ void handleConnect (
             free(line);
         }
         
-        BOOL breakOut = [self processLine:inputLine dumbTerminal:dumbTerminal];
+        BOOL breakOut = [self processLine:inputLine dumbTerminal:dumbTerminal theme:theme];
         if (breakOut) {
             break;
         }
@@ -589,6 +589,7 @@ void handleConnect (
 
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal
+                            theme:(NSString*)theme
                        socketAddr:(NSString*)socketAddr
                        socketPort:(int)socketPort
 {
@@ -676,7 +677,7 @@ void handleConnect (
         dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
         dispatch_async(thread, ^{
             
-            [self runCommandLineLoopDumbTerminal:dumbTerminal];
+            [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
             
             s_shouldKeepRunning = NO;
             
@@ -692,7 +693,7 @@ void handleConnect (
         
     } else {
         
-        [self runCommandLineLoopDumbTerminal:dumbTerminal];
+        [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
     }
 
     

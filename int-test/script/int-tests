@@ -40,7 +40,8 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
                              path
     -v, --verbose            Emit verbose diagnostic output
     -d, --dumb-terminal      Disables line editing / VT100 terminal control
-    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port.
+    -t theme, --theme=theme  Sets the color theme. May be light or dark
+    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port
     -s, --static-fns         Generate static dispatch function calls
 
   main options:
