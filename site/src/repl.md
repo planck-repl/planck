@@ -73,7 +73,7 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 
 Planck employs various colors for the REPL prompt, results, stderr, _etc._ If you'd prefer to work in a monochrome REPL, pass `-t plain` or `-​-theme plain` when starting Planck.
 
-Planck attempts to automatically detect if you are running in a light or dark terminal and picks the light or dark theme, which adjusts the colors accordingly. If this detection fails, you can always override it via `-t light` or `-t dark`.
+Planck attempts to automatically detect if you are running in a light or dark terminal (first checking and honoring the `COLORFGBG` environment variable, if set) and picks the light or dark theme, which adjusts the colors accordingly. If this detection fails, you can always override it via `-t light` or `-t dark`.
 
 ###  Dumb Terminal
 Normally, Planck employs the use of VT100 and ANSI codes to perform brace matching, line editing features, and to add color. If you are using Planck in an environment where these codes are not supported, or you would prefer to disable them, you can pass `-d` or `-​-dumb-terminal` when starting Planck.
