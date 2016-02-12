@@ -10,11 +10,13 @@ so
 [Bozhidar Batsov](http://batsov.com) went ahead and created
 [inf-clojure](https://github.com/clojure-emacs/inf-clojure).
 
+
 ### Setup
 
 To set up `inf-clojure` to run with Planck, you can follow the
 instructions [here](https://github.com/clojure-emacs/inf-clojure) and
 add
+
 
 ```
 (setq inf-clojure-program "planck")

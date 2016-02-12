@@ -1,10 +1,10 @@
 (ns planck.io
-  (:require [planck.core])
-  #_(:import goog.Uri))
+    (:require [planck.core])
+  (:import goog.Uri))
 
 (defrecord File [path])
 
-#_(defn build-uri
+(defn build-uri
     "Builds a URI"
     [scheme server-name server-port uri query-string]
     (doto (Uri.)
@@ -14,30 +14,29 @@
       (.setPath uri)
       (.setQuery query-string true)))
 
+
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
   (as-file [x] "Coerce argument to a File.")
-  #_(as-url [x] "Coerce argument to a goog.Uri."))
+  (as-url [x] "Coerce argument to a goog.Uri."))
 
 (extend-protocol Coercions
   nil
   (as-file [_] nil)
-  #_(as-url [_] nil)
+  (as-url [_] nil)
 
   string
   (as-file [s] (File. s))
-  #_(as-url [s] (Uri. s))
+  (as-url [s] (Uri. s))
 
   File
   (as-file [f] f)
-  #_(as-url [f] (build-uri :file nil nil (:path f) nil))
+  (as-url [f] (build-uri :file nil nil (:path f) nil)))
 
-  #_js/goog.Uri
-  #_(as-url [u] u)
-  #_(as-file [u]
-      (if (= "file" (.getScheme u))
-        (as-file (.getPath u))
-        (throw (js/Error. (str "Not a file: " u))))))
+(defn as-url-or-file [f]
+  (if (.startsWith f "http")
+    (as-url f)
+    (as-file f)))
 
 (defprotocol IOFactory
   "Factory functions that create ready-to-use versions of
@@ -59,9 +58,9 @@
 (extend-protocol IOFactory
   string
   (make-reader [s opts]
-    (make-reader (as-file s) opts))
+    (make-reader (as-url-or-file s) opts))
   (make-writer [s opts]
-    (make-writer (as-file s) opts))
+    (make-writer (as-url-or-file s) opts))
   (make-input-stream [s opts]
     (make-input-stream (as-file s) opts))
   (make-output-stream [s opts]
@@ -142,6 +141,12 @@
   "Delete file f."
   [f]
   (js/PLANCK_DELETE (:path (as-file f))))
+
+(defn directory?
+  "Checks if dir is a directory."
+  [dir]
+  (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
+
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
