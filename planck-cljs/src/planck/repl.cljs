@@ -970,7 +970,7 @@
       import (process-require :import identity (rest expression-form))
       load-file (process-load-file argument (assoc opts :expression? false)))
     (when print-nil-expression?
-      (prn nil))))
+      (println ((:results-fn theme) "nil")))))
 
 (defn- process-1-2-3
   [expression-form value]

@@ -123,90 +123,90 @@ Test main unhandled
 Test main exit
 17
 Test REPL exit
-nil
+[34mnil[m
 118
 Test call fn exit
-nil
+[34mnil[m
 119
 Test run file with exit
 111
 Test in-ns
 Argument to in-ns must be a symbol.
-nil
+[34mnil[m
 Argument to in-ns must be a symbol.
-nil
-nil
+[34mnil[m
+[34mnil[m
 [34m#'alpha.beta/x[m
-nil
+[34mnil[m
 [34m#'gamma.delta/y[m
 [34mnil[m
 [34m#{:a}[m
-nil
-nil
+[34mnil[m
+[34mnil[m
 [34m#{:a}[m
 Test require REPL special
-nil
+[34mnil[m
 [34mtrue[m
 Test require REPL special exit in file
-nil
+[34mnil[m
 195
 Test require REPL special throws in file
 before throw
 [1;31mbye-bye[m
-nil
+[34mnil[m
 0
 Test require unknown ns
 [1;31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
-nil
-Test require :reload with const
-nil
 [34mnil[m
-nil
+Test require :reload with const
+[34mnil[m
+[34mnil[m
+[34mnil[m
 [34m:initial[m
 [34mnil[m
-nil
+[34mnil[m
 [34m:reloaded[m
 Test require :reload in changing spec
-nil
 [34mnil[m
-nil
+[34mnil[m
+[34mnil[m
 [34m:initial[m
 [34mnil[m
-nil
+[34mnil[m
 [34m:reloaded[m
 Test require :reload-all
-nil
 [34mnil[m
-nil
+[34mnil[m
+[34mnil[m
 [34m:initial[m
 [34mnil[m
-nil
+[34mnil[m
 [34m:reloaded[m
 Test require :reload with cache
-nil
 [34mnil[m
-nil
-[34m:initial[m
-nil
+[34mnil[m
+[34mnil[m
 [34m:initial[m
 [34mnil[m
-nil
+[34m:initial[m
+[34mnil[m
+[34mnil[m
 [34m:reloaded[m
 Test require-macros unknown ns
 [1;31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
-nil
+[34mnil[m
 Test require-macros REPL special
-nil
+[34mnil[m
 [34m5[m
 Test in-ns REPL special
-nil
+[34mnil[m
 [34m:foo.bar/a[m
 Test apropos
 [34mnil[m
 [34m#'foo.bar/xfirst[m
 [34m#'foo.bar/nfirst[m
 [34m#'foo.bar/ffirst-crazy[m
-nil
+[34mnil[m
 [34m(cljs.core/ffirst cljs.core/nfirst foo.bar/ffirst-crazy foo.bar/xfirst)[m
 [34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
 [34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
@@ -217,7 +217,7 @@ Test dir
 [34m#'foo.bar/macro-crazy[m
 [34mnil[m
 [34mtrue[m
-nil
+[34mnil[m
 macro-crazy
 somemacro
 xfirst
@@ -292,7 +292,7 @@ cljs.user/f
 ([param])
   docstring
 [34mnil[m
-nil
+[34mnil[m
 -------------------------
 test-doc-source.core/my-function
 ([x])
@@ -322,12 +322,6 @@ Source not found
      [test & body]
      (core/list 'if test (cons 'do body)))
 [34mnil[m
-nil
-(defn my-function
-  "This is a cool
-  function with a docstring."
-  [x]
-  (* x x))
 [34mnil[m
 (defn my-function
   "This is a cool
@@ -335,7 +329,13 @@ nil
   [x]
   (* x x))
 [34mnil[m
-nil
+(defn my-function
+  "This is a cool
+  function with a docstring."
+  [x]
+  (* x x))
+[34mnil[m
+[34mnil[m
 (defonce
   ^:dynamic
   *reader-fn*
@@ -343,7 +343,7 @@ nil
     (throw (js/Error. "No *reader-fn* fn set."))))
 [34mnil[m
 Test pst special
-nil
+[34mnil[m
 [34mtrue[m
 [34m#'cljs.user/f[m
 [34m#'cljs.user/g[m
@@ -357,13 +357,13 @@ nil
 [1;31mwhoah[m
 [34mnil[m
 Test load-file REPL special
-nil
+[34mnil[m
 [34mtrue[m
-nil
+[34mnil[m
 [34m3[m
 [34m4[m
 Test load-file from classpath
-nil
+[34mnil[m
 [34mtrue[m
 Test doc support for load-file REPL special
 -------------------------
@@ -374,15 +374,15 @@ REPL Special Function
 [34mnil[m
 Test load-file REPL bad filename
 [1;31mCould not load file int-test/src/test_load_file/nofile.cljs[m
-nil
+[34mnil[m
 Test load-file REPL error in file
 [34mnil[m
 Test load-file REPL exit in file
-nil
+[34mnil[m
 132
 Spit / slurp
 [34m#'cljs.user/test-file[m
-nil
+[34mnil[m
 [34m#'cljs.user/test-spit-slurp[m
 true
 [34mnil[m
@@ -395,29 +395,29 @@ true
 true
 [34mnil[m
 Shell
-nil
+[34mnil[m
 [34m#{[:err ""] [:exit 0] [:out "hello\n"]}[m
 Shell throws
-nil
+[34mnil[m
 expected
 [34mnil[m
 Shell with-sh-dir
-nil
+[34mnil[m
 [34m"/private/tmp\n"[m
-nil
+[34mnil[m
 [34m"/private/tmp\n"[m
 Shell stderr
-nil
+[34mnil[m
 [34m#{[:err "[31mthis is from stderr[m[31m\n[m"] [:exit 0] [:out ""]}[m
 Coercions
-nil
-nil
+[34mnil[m
+[34mnil[m
 [34mnil[m
 [34m#planck.io.File{:path "abc"}[m
 [34m#planck.io.File{:path "abc"}[m
 [34m"abc"[m
 reader and read-line
-nil
+[34mnil[m
 [34m#'cljs.user/test-read[m
 nil
 nil
@@ -444,7 +444,7 @@ nil
 nil
 [34mnil[m
 reader and line-seq
-nil
+[34mnil[m
 [34m#'cljs.user/test-read[m
 nil
 [34mnil[m
@@ -459,7 +459,7 @@ nil
 ("a" "b")
 [34mnil[m
 writer
-nil
+[34mnil[m
 [34m#'cljs.user/test-write[m
 [34mtrue[m
 [34mtrue[m
@@ -468,7 +468,7 @@ nil
 [34mtrue[m
 [34mtrue[m
 writer append
-nil
+[34mnil[m
 [34m#'cljs.user/test-write[m
 [34mtrue[m
 [34mtrue[m
@@ -489,21 +489,21 @@ nil
 [34mtrue[m
 [34mtrue[m
 reader close
-nil
+[34mnil[m
 [34mtrue[m
-nil
+[34mnil[m
 [34m#'cljs.user/r[m
 [34mnil[m
 [1;31mFile closed.[m
 writer close
-nil
+[34mnil[m
 [34mtrue[m
-nil
+[34mnil[m
 [34m#'cljs.user/w[m
 [34mnil[m
 [1;31mFile closed.[m
 Test write and read binary
-nil
+[34mnil[m
 [34m#'cljs.user/binary-file[m
 [34mnil[m
 [1 2 3]
@@ -516,13 +516,13 @@ nil
 [34mnil[m
 [34mnil[m
 Test encoding
-nil
+[34mnil[m
 [34m#'cljs.user/content[m
 [34m#'cljs.user/filename[m
 [34mnil[m
 [34mtrue[m
 Test file-seq
-nil
+[34mnil[m
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B}
@@ -535,16 +535,16 @@ nil
 Test Google Closure index
 [34mnil[m
 Test availability of goog libs
-nil
+[34mnil[m
 [34m#object[Object 20050403][m
 Test empty list of *command-line-args*
-nil
+[34mnil[m
 [34mnil[m
 Test empty list of *command-line-args* following main opt
-nil
+[34mnil[m
 [34mnil[m
 Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them
-nil
+[34mnil[m
 [34m("-c" "src" "-e" "(println \"hi\")" "-v")[m
 Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them
 args from main: (-v -e (println "hi"))
@@ -559,26 +559,26 @@ args from main: (-v -e (println "hi"))
 args from *command-line-args*: (-v -e (println "hi"))
 0
 Treat main opts that follow a main opt as *command-line-args* instead of evaluating them
-nil
+[34mnil[m
 [34m("-" "-m" "test-main.args" "-r")[m
 Test *command-line-args* with nice clumped init opts
 hi
-nil
+[34mnil[m
 [34m("here" "are" "some" "args")[m
 Test *command-line-args* with less nicely clumped init opts
 hi
-nil
+[34mnil[m
 [34m("here" "are" "some" "args")[m
 Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
 Test classpath
-nil
+[34mnil[m
 [34m:src[m
-nil
+[34mnil[m
 [34m:src2[m
 Test JAR support
-nil
+[34mnil[m
 [34m"Hello, from JAR"[m
 Test reader/tag literals
 [34m#js [1 2][m
@@ -589,16 +589,16 @@ Test verbose w/o var code
 Test restore state when require fails
 [1;31mCould not parse ns form cljs.user[m
 [1;31mInvalid :refer, var var clojure.set/diff does not exist[m
-nil
-nil
+[34mnil[m
+[34mnil[m
 Test reader and analysis diagnostics
 [1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
 [1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
-nil
+[34mnil[m
 Unmatched delimiter )
 
 Test eval
-nil
+[34mnil[m
 [34m1[m
 [34m3[m
 [34m#'cljs.user/a[m
@@ -618,21 +618,21 @@ nil
 [34m3[m
 [34m4[m
 Test resolve
-nil
+[34mnil[m
 [34m#'cljs.core/+[m
 [34m#'cljs.user/f[m
 [34m1000[m
 Test ns-resolve
-nil
+[34mnil[m
 [34mnil[m
 [34m#'foo.bar/+[m
-nil
+[34mnil[m
 [34m#'cljs.core/+[m
 [34m#'foo.bar/+[m
 Test intern
 [34mnil[m
-nil
-nil
+[34mnil[m
+[34mnil[m
 [34m#'foo.core/a[m
 [34m{a #'foo.core/a}[m
 [34m3[m
@@ -644,7 +644,7 @@ nil
 [34mfalse[m
 [34mnil[m
 Test with-open
-nil
+[34mnil[m
 [34mcljs.user/Foo[m
 Body1
 Body2
@@ -662,6 +662,6 @@ pst
 source
 [34mnil[m
 Ensure we can get into Planck REPL ns and all ns are loaded
-nil
-nil
+[34mnil[m
+[34mnil[m
 [34m22[m
