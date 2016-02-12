@@ -230,12 +230,12 @@
         }
     }
     
-    if (theme == nil) {
-        theme = @"light";
-    }
-    
     if (dumbTerminal) {
         theme = @"dumb";
+    } else {
+        if (theme == nil) {
+            theme = [PLKTheme defaultThemeForTerminal];
+        }
     }
 
     // By this line, if optind is less than indexOfScriptPathOrHyphen, then there was an explicit

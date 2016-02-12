@@ -1,4 +1,5 @@
 #import "PLKTheme.h"
+@import AppKit;
 
 @implementation PLKTheme
 
@@ -29,6 +30,38 @@ static NSDictionary* themes;
               @"light": @{@"prompt-font": @"cyan-font"},
               @"dark": @{@"prompt-font": @"cyan-font"}};
     
+}
+
++ (NSString*)defaultThemeForTerminal
+{
+    
+    // First check COLORFGBG env var
+    
+    NSString* colorFgBg = [[[NSProcessInfo processInfo]environment]objectForKey:@"COLORFGBG"];
+    if (colorFgBg) {
+       NSArray * components = [colorFgBg componentsSeparatedByString:@";"];
+        if (components.count > 0 && [@"0" isEqualToString:components[1]]) {
+            return @"dark";
+        }
+    }
+    
+    // If Apple Terminal, return dark if background brighness is less than half
+    
+    NSString* termProgram = [[[NSProcessInfo processInfo]environment]objectForKey:@"TERM_PROGRAM"];
+    if (termProgram && [termProgram isEqualToString:@"Apple_Terminal"]) {
+        NSString* terminalTheme = (__bridge NSString *) CFPreferencesCopyAppValue( CFSTR("Default Window Settings"), CFSTR("com.apple.Terminal") );
+        NSDictionary* windowSettings = (__bridge NSDictionary*)CFPreferencesCopyAppValue( CFSTR("Window Settings"), CFSTR("com.apple.Terminal") );
+        NSData* data = windowSettings[terminalTheme][@"BackgroundColor"];
+        NSColor* backgroundColor = (NSColor*)[NSKeyedUnarchiver unarchiveObjectWithData:data];
+        NSColor* converted = [backgroundColor colorUsingColorSpace:[NSColorSpace genericGrayColorSpace]];
+        CGFloat brightness;
+        [converted getWhite:&brightness alpha:nil];
+        if (brightness < 0.5) {
+            return @"dark";
+        }
+    }
+    
+    return @"light";
 }
 
 + (const char*)promptAnsiCodeForTheme:(NSString*)theme
