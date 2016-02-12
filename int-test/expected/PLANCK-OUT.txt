@@ -664,4 +664,4 @@ source
 Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
-[34m20[m
+[34m22[m

@@ -61,6 +61,8 @@
 (extract-analysis-cache "out/cognitect/transit.cljs.cache.edn" "out/cognitect/transit.cljs.cache.json")
 
 (extract-analysis-cache "out/planck/repl.cljs.cache.edn" "out/planck/repl.cljs.cache.json")
+(extract-analysis-cache "out/planck/repl_resources.cljs.cache.edn" "out/planck/repl_resources.cljs.cache.json")
+(extract-analysis-cache "out/planck/themes.cljs.cache.edn" "out/planck/themes.cljs.cache.json")
 (extract-analysis-cache "out/planck/core.cljs.cache.edn" "out/planck/core.cljs.cache.json")
 (extract-analysis-cache "out/planck/io.cljs.cache.edn" "out/planck/io.cljs.cache.json")
 (extract-analysis-cache "out/planck/shell.cljs.cache.edn" "out/planck/shell.cljs.cache.json")

@@ -15,8 +15,8 @@
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
+            [planck.themes :refer [get-theme]]
             [lazy-map.core :refer-macros [lazy-map]]
-            [planck.from.io.aviso.ansi :as ansi]
             [cljsjs.parinfer]))
 
 (defn- calc-x-line [text pos line]
@@ -46,47 +46,12 @@
           0))
       0)))
 
-(def ^:private colorize-fn-dumb identity)
-(def ^:private colorize-off-dumb "")
-
-(def ^:private theme-dumb
-  {:results-fn   colorize-fn-dumb
-   :ex-msg-fn    colorize-fn-dumb
-   :ex-stack-fn  colorize-fn-dumb
-   :err-font     colorize-off-dumb
-   :verbose-font colorize-off-dumb
-   :reset-font   colorize-off-dumb})
-
-(def ^:private theme-ansi-base
-  {:reset-font ansi/reset-font})
-
-(def ^:private theme-light
-  (merge theme-ansi-base
-    {:results-fn   ansi/blue
-     :ex-msg-fn    ansi/bold-red
-     :ex-stack-fn  ansi/green
-     :err-font     ansi/red-font
-     :verbose-font ansi/white-font}))
-
-(def ^:private theme-dark
-  (merge theme-ansi-base
-    {:results-fn   ansi/blue
-     :ex-msg-fn    ansi/bold-red
-     :ex-stack-fn  ansi/green
-     :err-font     ansi/red-font
-     :verbose-font ansi/white-font}))
-
-(def ^:private themes
-  {:dumb  theme-dumb
-   :light theme-light
-   :dark  theme-dark})
-
-(defonce ^:dynamic ^:private colorize theme-dumb)
+(defonce ^:dynamic ^:private theme (get-theme :dumb))
 
 (defn- println-verbose
   [& args]
   (binding [*print-fn* *print-err-fn*
-            colorize (assoc colorize :err-font (:verbose-font colorize))]
+            theme (assoc theme :err-font (:verbose-font theme))]
     (apply println args)))
 
 (declare print-error)
@@ -784,7 +749,7 @@
                                (.-message error))]
      (when (or (not ((fnil s/starts-with? "") printed-message message))
              include-stacktrace?)
-       (println ((:ex-msg-fn colorize) message)))
+       (println ((:ex-msg-fn theme) message)))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
@@ -793,7 +758,7 @@
                                     {:ua-product :safari}
                                     {:output-dir "file://(/goog/..)?"})]
          (println
-           ((:ex-stack-fn colorize)
+           ((:ex-stack-fn theme)
              (st/mapped-stacktrace-str
                canonical-stacktrace
                (or (:source-maps @planck.repl/st) {})
@@ -1035,7 +1000,7 @@
       ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
       (when (and expression?
                  (:verbose @app-env))
-        (binding [colorize (assoc colorize :err-font (:verbose-font colorize))]
+        (binding [theme (assoc theme :err-font (:verbose-font theme))]
           (cljs/eval-str
             (atom @st)
             source-text
@@ -1069,7 +1034,7 @@
             (when-not error
               (when (or print-nil-expression?
                       (not (nil? value)))
-                (println ((:results-fn colorize) (pr-str value))))
+                (println ((:results-fn theme) (pr-str value))))
               (process-1-2-3 expression-form value)
               (reset! current-ns ns)
               nil))
@@ -1130,11 +1095,11 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns theme]
+  [source expression? print-nil-expression? in-exit-context? set-ns theme-id]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
-  (binding [colorize (get themes (keyword theme) theme-dumb)]
+  (binding [theme (get-theme (keyword theme-id))]
     (execute-source source {:expression?           expression?
                             :print-nil-expression? print-nil-expression?
                             :in-exit-context?      in-exit-context?
@@ -1168,6 +1133,6 @@
   (let [orig-print-err-fn js/PLANCK_PRINT_ERR_FN]
     (set! js/PLANCK_PRINT_ERR_FN
       (fn [msg]
-        (orig-print-err-fn (:err-font colorize))
+        (orig-print-err-fn (:err-font theme))
         (orig-print-err-fn msg)
-        (orig-print-err-fn (:reset-font colorize))))))
+        (orig-print-err-fn (:reset-font theme))))))
