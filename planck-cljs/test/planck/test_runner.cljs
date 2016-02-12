@@ -5,6 +5,7 @@
             [planck.shell-test]
             [planck.repl-test]
             [planck.js-deps-test]
+            [planck.http-test]
             [general.core-test]))
 
 (defn run-all-tests []
@@ -14,4 +15,5 @@
     'planck.shell-test
     'planck.repl-test
     'planck.js-deps-test
+    'planck.http-test
     'general.core-test))
