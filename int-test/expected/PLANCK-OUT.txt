@@ -90,10 +90,27 @@ bar
 foo
 Test :cljs/quit
 [34m1[m
+Test quit
+[34m1[m
+Test exit
+[34m1[m
 Exit on first error
 [34mtrue[m
 ok
 [1;31mx[m
+Test cope with syntax errors
+Invalid number format [34f]
+
+Invalid token: a:
+
+Multi-line data
+[34m[1 2][m
+Multi-line string
+[34m"abc\ndef"[m
+space before and after
+[34m3[m
+Test print to stderr
+[34mnil[m
 Test main
 5
 0
@@ -113,56 +130,7 @@ Test call fn exit
 119
 Test run file with exit
 111
-Test require REPL special exit in file
-[34mnil[m
-195
-Test require REPL special throws in file
-before throw
-[1;31mbye-bye[m
-[34mnil[m
-0
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m:initial[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-Test require :reload with cache
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m:initial[m
-[34mnil[m
-[34m:initial[m
-[34mnil[m
-[34mnil[m
-[34m:reloaded[m
-Test load-file REPL exit in file
-[34mnil[m
-132
-Invalid number format [34f]
-
-Invalid token: a:
-
-[34m[1 2][m
-[34m"abc\ndef"[m
-[34m3[m
-[34mnil[m
+Test in-ns
 Argument to in-ns must be a symbol.
 [34mnil[m
 Argument to in-ns must be a symbol.
@@ -176,16 +144,64 @@ Argument to in-ns must be a symbol.
 [34mnil[m
 [34mnil[m
 [34m#{:a}[m
+Test require REPL special
 [34mnil[m
 [34mtrue[m
+Test require REPL special exit in file
+[34mnil[m
+195
+Test require REPL special throws in file
+before throw
+[1;31mbye-bye[m
+[34mnil[m
+0
+Test require unknown ns
 [1;31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
 [34mnil[m
+Test require :reload with const
+[34mnil[m
+[34mnil[m
+[34mnil[m
+[34m:initial[m
+[34mnil[m
+[34mnil[m
+[34m:reloaded[m
+Test require :reload in changing spec
+[34mnil[m
+[34mnil[m
+[34mnil[m
+[34m:initial[m
+[34mnil[m
+[34mnil[m
+[34m:reloaded[m
+Test require :reload-all
+[34mnil[m
+[34mnil[m
+[34mnil[m
+[34m:initial[m
+[34mnil[m
+[34mnil[m
+[34m:reloaded[m
+Test require :reload with cache
+[34mnil[m
+[34mnil[m
+[34mnil[m
+[34m:initial[m
+[34mnil[m
+[34m:initial[m
+[34mnil[m
+[34mnil[m
+[34m:reloaded[m
+Test require-macros unknown ns
 [1;31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
 [34mnil[m
+Test require-macros REPL special
 [34mnil[m
 [34m5[m
+Test in-ns REPL special
 [34mnil[m
 [34m:foo.bar/a[m
+Test dir
 [34mnil[m
 [34m#'foo.bar/xfirst[m
 [34m#'foo.bar/nfirst[m
@@ -197,6 +213,7 @@ macro-crazy
 somemacro
 xfirst
 [34mnil[m
+Test doc special
 [34mnil[m
 -------------------------
 cljs.core/inc
@@ -284,6 +301,7 @@ test-doc-source.core
   This is the namespace
   docstring for test-doc-source.core
 [34mnil[m
+Test source
 Source not found
 [34mnil[m
 (defn inc
@@ -315,6 +333,7 @@ Source not found
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))
 [34mnil[m
+Test pst special
 [34mnil[m
 [34mtrue[m
 [34m#'cljs.user/f[m
@@ -328,22 +347,31 @@ Source not found
 [34mnil[m
 [1;31mwhoah[m
 [34mnil[m
+Test load-file REPL special
 [34mnil[m
 [34mtrue[m
 [34mnil[m
 [34m3[m
 [34m4[m
+Test load-file from classpath
 [34mnil[m
 [34mtrue[m
+Test doc support for load-file REPL special
 -------------------------
 load-file
 ([name])
 REPL Special Function
   Sequentially read and evaluate the set of forms contained in the file.
 [34mnil[m
+Test load-file REPL bad filename
 [1;31mCould not load file int-test/src/test_load_file/nofile.cljs[m
 [34mnil[m
+Test load-file REPL error in file
 [34mnil[m
+Test load-file REPL exit in file
+[34mnil[m
+132
+Spit / slurp
 [34m#'cljs.user/test-file[m
 [34mnil[m
 [34m#'cljs.user/test-spit-slurp[m
@@ -357,25 +385,31 @@ true
 [34mnil[m
 true
 [34mnil[m
+Shell
 [34mnil[m
 [34m#{[:err ""] [:exit 0] [:out "hello\n"]}[m
+Shell throws
 [34mnil[m
 expected
 [34mnil[m
+Shell with-sh-dir
 [34mnil[m
 [34m"/private/tmp\n"[m
 [34mnil[m
 [34m"/private/tmp\n"[m
+Shell stderr
 [34mnil[m
 [34m#{[:err "[31mthis is from stderr[m[31m\n[m"] [:exit 0] [:out ""]}[m
+Coercions
 [34mnil[m
 [34mnil[m
 [34mnil[m
 [34m#planck.io.File{:path "abc"}[m
 [34m#planck.io.File{:path "abc"}[m
 [34m"abc"[m
+reader and read-line
 [34mnil[m
-[34m#'planck.io/test-read[m
+[34m#'cljs.user/test-read[m
 nil
 nil
 nil
@@ -400,8 +434,9 @@ nil
 "b"
 nil
 [34mnil[m
+reader and line-seq
 [34mnil[m
-[34m#'planck.io/test-read[m
+[34m#'cljs.user/test-read[m
 nil
 [34mnil[m
 ("a")
@@ -414,16 +449,18 @@ nil
 [34mnil[m
 ("a" "b")
 [34mnil[m
+writer
 [34mnil[m
-[34m#'planck.io/test-write[m
+[34m#'cljs.user/test-write[m
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
+writer append
 [34mnil[m
-[34m#'planck.io/test-write[m
+[34m#'cljs.user/test-write[m
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
@@ -442,20 +479,23 @@ nil
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
-[34mnil[m
-[34mtrue[m
-[34mnil[m
-[34m#'planck.io/r[m
-[34mnil[m
-[1;31mFile closed.[m
+reader close
 [34mnil[m
 [34mtrue[m
 [34mnil[m
-[34m#'planck.io/w[m
+[34m#'cljs.user/r[m
 [34mnil[m
 [1;31mFile closed.[m
+writer close
 [34mnil[m
-[34m#'planck.io/binary-file[m
+[34mtrue[m
+[34mnil[m
+[34m#'cljs.user/w[m
+[34mnil[m
+[1;31mFile closed.[m
+Test write and read binary
+[34mnil[m
+[34m#'cljs.user/binary-file[m
 [34mnil[m
 [1 2 3]
 [34mnil[m
@@ -466,49 +506,13 @@ nil
 [7 8 9 10]
 [34mnil[m
 [34mnil[m
+Test encoding
 [34mnil[m
-[34m#'planck.io/content[m
-[34m#'planck.io/filename[m
+[34m#'cljs.user/content[m
+[34m#'cljs.user/filename[m
 [34mnil[m
 [34mtrue[m
-[34mnil[m
-[34mnil[m
-[34m#object[Object 20050403][m
-[34mnil[m
-[34mnil[m
-[34m#js [1 2][m
-[34m#inst "2015-08-18T01:53:14.614-00:00"[m
-[1;31mCould not parse ns form foo.bar[m
-[1;31mInvalid :refer, var var clojure.set/diff does not exist[m
-[34mnil[m
-[34mnil[m
-[1;31mCould not eval (ns foo.bar (:require [foo.bar :quu]))[m
-[1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
-[34mnil[m
-Unmatched delimiter )
-
-[34mnil[m
-[34m1[m
-[34m3[m
-[34m#'foo.bar/a[m
-[34m3[m
-[34m17[m
-[34m#'foo.bar/a[m
-[34m#'foo.bar/addition-list[m
-[34m3[m
-[34m13[m
-[34m#'foo.bar/lucky-number[m
-[34m13[m
-[34m#'foo.bar/square[m
-[34m#'foo.bar/cube[m
-[34m64[m
-[34m5[m
-[34m#'foo.bar/addition-list2[m
-[34m3[m
-[34m4[m
-[34mnil[m
-[34mnil[m
-[34m35[m
+Test file-seq
 [34mnil[m
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A}
@@ -518,6 +522,14 @@ Unmatched delimiter )
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C/G}
 #planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/D}
+[34mnil[m
+Test Google Closure index
+[34mnil[m
+Test availability of goog libs
+[34mnil[m
+[34m#object[Object 20050403][m
+Test empty list of *command-line-args*
+[34mnil[m
 [34mnil[m
 Test empty list of *command-line-args* following main opt
 [34mnil[m
@@ -559,6 +571,44 @@ Test classpath
 Test JAR support
 [34mnil[m
 [34m"Hello, from JAR"[m
+Test reader/tag literals
+[34m#js [1 2][m
+[34m#inst "2015-08-18T01:53:14.614-00:00"[m
 Test verbose w/o var code
 [34m#'cljs.user/a[m
 [34m#'cljs.user/b[m
+Test restore state when require fails
+[1;31mCould not parse ns form cljs.user[m
+[1;31mInvalid :refer, var var clojure.set/diff does not exist[m
+[34mnil[m
+[34mnil[m
+Test reader and analysis diagnostics
+[1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
+[1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
+[34mnil[m
+Unmatched delimiter )
+
+Test eval
+[34mnil[m
+[34m1[m
+[34m3[m
+[34m#'cljs.user/a[m
+[34m3[m
+[34m17[m
+[34m#'cljs.user/a[m
+[34m#'cljs.user/addition-list[m
+[34m3[m
+[34m13[m
+[34m#'cljs.user/lucky-number[m
+[34m13[m
+[34m#'cljs.user/square[m
+[34m#'cljs.user/cube[m
+[34m64[m
+[34m5[m
+[34m#'cljs.user/addition-list2[m
+[34m3[m
+[34m4[m
+Ensure we can get into Planck REPL ns and all ns are loaded
+[34mnil[m
+[34mnil[m
+[34m22[m

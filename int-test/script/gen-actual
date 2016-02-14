@@ -28,8 +28,51 @@ $PLANCK <<REPL_INPUT
 2
 REPL_INPUT
 
+echo "Test quit"
+$PLANCK <<REPL_INPUT
+1
+quit
+2
+REPL_INPUT
+
+echo "Test exit"
+$PLANCK <<REPL_INPUT
+1
+exit
+2
+REPL_INPUT
+
 echo "Exit on first error"
 $PLANCK -e"(require 'planck.repl)" -e'(set! planck.repl/*planck-integration-tests* true)' -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
+
+echo "Test cope with syntax errors"
+$PLANCK <<REPL_INPUT
+34f
+a:
+REPL_INPUT
+
+echo "Multi-line data"
+$PLANCK <<REPL_INPUT
+[1
+2]
+REPL_INPUT
+
+echo "Multi-line string"
+$PLANCK <<REPL_INPUT
+"abc
+def"
+REPL_INPUT
+
+echo "space before and after"
+$PLANCK <<REPL_INPUT
+ 3 
+REPL_INPUT
+
+echo "Test print to stderr"
+$PLANCK <<REPL_INPUT
+(binding [*print-fn* *print-err-fn*]
+  (println "hello stderr"))
+REPL_INPUT
 
 echo "Test main"
 $PLANCK -c $SRC -m test-main.core 3 4
@@ -70,6 +113,27 @@ echo "Test run file with exit"
 $PLANCK $SRC/test_exit/exit_in_file.cljs
 echo $?
 
+echo "Test in-ns"
+$PLANCK <<REPL_INPUT
+(in-ns not-symbol)
+(in-ns)
+(in-ns 'alpha.beta)
+(def x 3)
+(in-ns (symbol "gamma.delta"))
+(def y 4)
+(ns test.core (:require [clojure.set :as set]))
+(set/intersection #{:a :b} #{:a :c})
+(in-ns 'cljs.user)
+(in-ns 'test.core)
+(set/intersection #{:a :b} #{:a :c})
+REPL_INPUT
+
+echo "Test require REPL special"
+$PLANCK -c $SRC <<REPL_INPUT
+(require 'test-require.core)
+test-require.core/success
+REPL_INPUT
+
 echo "Test require REPL special exit in file"
 $PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.exit)
@@ -82,6 +146,25 @@ $PLANCK -c $SRC <<REPL_INPUT
 REPL_INPUT
 echo $?
 
+echo "Test require unknown ns"
+$PLANCK -c $SRC <<REPL_INPUT
+(require 'unknown_ns.core)
+REPL_INPUT
+
+echo "Test require :reload with const"
+mkdir -p /tmp/PLANCK_SRC/foo
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
+(require 'planck.io)
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :initial)")
+(require 'foo.bar)
+foo.bar/x
+(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :reloaded)")
+(require 'foo.bar :reload)
+foo.bar/x
+REPL_INPUT
+rm -rf /tmp/PLANCK_SRC/foo
+
+echo "Test require :reload in changing spec"
 mkdir -p /tmp/PLANCK_SRC/foo
 $PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
@@ -91,19 +174,18 @@ baz/x
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :reloaded)")
 (require '[foo.bar :as quux] :reload)
 quux/x
+REPL_INPUT
+rm -rf /tmp/PLANCK_SRC/foo
+
+echo "Test require :reload-all"
+mkdir -p /tmp/PLANCK_SRC/foo
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 (require 'planck.io)
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :initial)")
 (require 'foo.bar)
 foo.bar/x
 (planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def x :reloaded)")
 (require 'foo.bar :reload-all)
-foo.bar/x
-(require 'planck.io)
-(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :initial)")
-(require 'foo.bar)
-foo.bar/x
-(planck.io/spit "/tmp/PLANCK_SRC/foo/bar.cljs" "(ns foo.bar)\n(def ^:const x :reloaded)")
-(require 'foo.bar :reload)
 foo.bar/x
 REPL_INPUT
 rm -rf /tmp/PLANCK_SRC/foo
@@ -125,41 +207,26 @@ REPL_INPUT
 rm -rf /tmp/PLANCK_CACHE
 rm -rf /tmp/PLANCK_SRC/foo
 
-echo "Test load-file REPL exit in file"
+# Note, the output of this will change with #68 / CLJS-1417
+echo "Test require-macros unknown ns"
 $PLANCK -c $SRC <<REPL_INPUT
-(load-file "int-test/src/test_load_file/exit_in_file.cljs")
-REPL_INPUT
-echo $?
-
-$PLANCK -c $SRC <<REPL_INPUT
-34f
-a:
-[1
-2]
-"abc
-def"
- 3
-(binding [*print-fn* *print-err-fn*]
-  (println "hello stderr"))
-(in-ns not-symbol)
-(in-ns)
-(in-ns 'alpha.beta)
-(def x 3)
-(in-ns (symbol "gamma.delta"))
-(def y 4)
-(ns test.core (:require [clojure.set :as set]))
-(set/intersection #{:a :b} #{:a :c})
-(in-ns 'cljs.user)
-(in-ns 'test.core)
-(set/intersection #{:a :b} #{:a :c})
-(require 'test-require.core)
-test-require.core/success
-(require 'unknown_ns.core)
 (require-macros 'unknown-ns.core)
+REPL_INPUT
+
+echo "Test require-macros REPL special"
+$PLANCK -c $SRC <<REPL_INPUT
 (require-macros 'test-require-macros.core)
 (+ 3 (test-require-macros.core/str->int "2"))
+REPL_INPUT
+
+echo "Test in-ns REPL special"
+$PLANCK <<REPL_INPUT
 (in-ns 'foo.bar)
 ::a
+REPL_INPUT
+
+echo "Test dir"
+$PLANCK <<REPL_INPUT
 (ns foo.bar)
 (def xfirst 3)
 (def ^:private nfirst 4)
@@ -168,6 +235,10 @@ test-require.core/success
 (defmacro somemacro [])
 (in-ns 'cljs.user)
 (dir foo.bar)
+REPL_INPUT
+
+echo "Test doc special"
+$PLANCK -c $SRC <<REPL_INPUT
 (doc bogus)
 (doc inc)
 (doc when)
@@ -182,6 +253,10 @@ test-require.core/success
 (doc test-doc-source.core/my-function)
 (doc tds/my-function)
 (doc test-doc-source.core)
+REPL_INPUT
+
+echo "Test source"
+$PLANCK -c $SRC <<REPL_INPUT
 (source bogus)
 (source inc)
 (source when)
@@ -190,6 +265,10 @@ test-require.core/success
 (source tds/my-function)
 (require 'planck.core)
 (source planck.core/*reader-fn*)
+REPL_INPUT
+
+echo "Test pst special"
+$PLANCK <<REPL_INPUT
 (require 'planck.repl)
 (set! planck.repl/*planck-integration-tests* true)
 (defn f [] (throw (js/Error. "whoah")))
@@ -200,19 +279,49 @@ test-require.core/success
 (g)
 (pst)
 (pst e)
+REPL_INPUT
+
+echo "Test load-file REPL special"
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/core.cljs")
 test-load-file.core/success
 (load-file "int-test/src/load-me")
 load-me.core/a
 load-me.core/b
+REPL_INPUT
+
+echo "Test load-file from classpath"
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "test_load_file/core.cljs")
 test-load-file.core/success
+REPL_INPUT
+
+echo "Test doc support for load-file REPL special"
+$PLANCK -c $SRC <<REPL_INPUT
 (doc load-file)
+REPL_INPUT
+
+echo "Test load-file REPL bad filename"
+$PLANCK -c $SRC <<REPL_INPUT
 (load-file "int-test/src/test_load_file/nofile.cljs")
+REPL_INPUT
+
+echo "Test load-file REPL error in file"
+$PLANCK -c $SRC <<REPL_INPUT
 (try
   (load-file "int-test/src/test_load_file/error_in_file.cljs")
   (println "failed load-file error in file")
   (catch :default _))
+REPL_INPUT
+
+echo "Test load-file REPL exit in file"
+$PLANCK -c $SRC <<REPL_INPUT
+(load-file "int-test/src/test_load_file/exit_in_file.cljs")
+REPL_INPUT
+echo $?
+
+echo "Spit / slurp"
+$PLANCK <<REPL_INPUT
 (def test-file "/tmp/PLANCK_TEST.txt")
 (require 'planck.core)
 (defn test-spit-slurp [content]
@@ -225,28 +334,52 @@ test-load-file.core/success
 (test-spit-slurp "a\n")
 (test-spit-slurp "a\nb")
 (test-spit-slurp "a\nb\n")
+REPL_INPUT
+
+echo "Shell"
+$PLANCK <<REPL_INPUT
 (require 'planck.shell)
 (into (sorted-set) (planck.shell/sh "echo" "hello"))
+REPL_INPUT
+
+echo "Shell throws"
+$PLANCK <<REPL_INPUT
 (require 'planck.shell)
 (try
   (planck.shell/sh "bogus")
   (println "unexpected")
   (catch :default _
     (println "expected")))
+REPL_INPUT
+
+echo "Shell with-sh-dir"
+$PLANCK <<REPL_INPUT
 (require '[planck.shell :refer-macros [with-sh-dir]])
 (with-sh-dir "/tmp"
   (:out (planck.shell/sh "pwd")))
 (require 'planck.io)
 (with-sh-dir (planck.io/file "/tmp")
   (:out (planck.shell/sh "pwd")))
+REPL_INPUT
+
+echo "Shell stderr"
+$PLANCK <<REPL_INPUT
 (require 'planck.shell)
 (into (sorted-set) (planck.shell/sh "$PLANCK_BINARY" "-e" "(binding [*print-fn* *print-err-fn*] (println \"this is from stderr\"))"))
+REPL_INPUT
+
+echo "Coercions"
+$PLANCK <<REPL_INPUT
 (require 'planck.io)
 (in-ns 'planck.io)
 (as-file nil)
 (as-file "abc")
 (as-file (as-file "abc"))
 (.-path (as-file "abc"))
+REPL_INPUT
+
+echo "reader and read-line"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [*in* -close spit read-line]] '[planck.io :refer [reader]])
 (defn test-read [content]
   (spit "/tmp/PLANCK_TEST.txt" content)
@@ -264,6 +397,10 @@ test-load-file.core/success
 (test-read "a\n")
 (test-read "a\nb")
 (test-read "a\nb\n")
+REPL_INPUT
+
+echo "reader and line-seq"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-close spit line-seq]] '[planck.io :refer [reader]])
 (defn test-read [content]
   (spit "/tmp/PLANCK_TEST.txt" content)
@@ -278,6 +415,10 @@ test-load-file.core/success
 (test-read "a\n")
 (test-read "a\nb")
 (test-read "a\nb\n")
+REPL_INPUT
+
+echo "writer"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-close slurp spit]] '[planck.io :refer [reader writer]])
 (defn test-write [content]
   (spit "/tmp/PLANCK_TEST.txt" content)
@@ -293,6 +434,10 @@ test-load-file.core/success
 (test-write "a\n")
 (test-write "a\nb")
 (test-write "a\nb\n")
+REPL_INPUT
+
+echo "writer append"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-close slurp spit]] '[planck.io :refer [reader writer]])
 (defn test-write [previous-content content]
   (spit "/tmp/PLANCK_TEST.txt" previous-content)
@@ -320,18 +465,30 @@ test-load-file.core/success
 (test-write "x\n" "a\n")
 (test-write "x\n" "a\nb")
 (test-write "x\n" "a\nb\n")
+REPL_INPUT
+
+echo "reader close"
+$PLANCK <<REPL_INPUT
 (require 'planck.repl)
 (set! planck.repl/*planck-integration-tests* true)
 (require '[planck.core :refer [-close -read]] '[planck.io :refer [reader]])
 (def r (reader "/tmp/PLANCK_TEST.txt"))
 (-close r)
 (-read r)
+REPL_INPUT
+
+echo "writer close"
+$PLANCK <<REPL_INPUT
 (require 'planck.repl)
 (set! planck.repl/*planck-integration-tests* true)
 (require '[planck.core :refer [-close]] '[planck.io :refer [writer]])
 (def w (writer "/tmp/PLANCK_TEST.txt"))
 (-close w)
 (-write w "hi")
+REPL_INPUT
+
+echo "Test write and read binary"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [-write-bytes -read-bytes -close]] 
          '[planck.io :refer [input-stream output-stream delete-file]])
 (def binary-file "/tmp/PLANCK_BINARY.dat")
@@ -354,47 +511,18 @@ test-load-file.core/success
   (prn (-read-bytes is))
   (-close is))
 (delete-file binary-file)
+REPL_INPUT
+
+echo "Test encoding"
+$PLANCK <<REPL_INPUT
 (require '[planck.core :refer [slurp spit]])
 (def content "abc123")
 (def filename "/tmp/PLANCK_TEST_ENCODING.txt")
 (spit filename content :encoding "UTF-16")
 (= content (slurp filename :encoding "UTF-16"))
-(ns foo.bar (:require clojure.string))
-(require 'goog.date.Date)
-(goog.date.Date. 2005 3 3)
-(require 'planck.core)
-planck.core/*command-line-args*
-#js [1 2]
-#_ #js {:a 1}
-#inst "2015-08-18T01:53:14.614-00:00"
-(require '[clojure.set :refer [diff]])
-(require '[clojure.set])
-(require '[foo.bar :quu])
-)
-(require '[planck.core :refer [eval]])
-(eval 1)
-(eval '(+ 1 2))
-(def a 3)
-(eval a)
-(eval '(let [a 10] (+ 3 4 a)))
-(eval '(def a 1))
-(def addition-list (list + 1 2))
-(eval addition-list)
-(eval (concat addition-list [10]))
-(eval (list 'def 'lucky-number (concat addition-list [10])))
-lucky-number
-(defn square [x] (* x x))
-(defn cube [x] (* x x x))
-((eval (list comp square cube)) 2)
-((eval (eval +)) 2 3)
-(def addition-list2 (list (fn [a b] (+ a b)) 1 2))
-(eval addition-list2)
-(eval (list #'inc 3))
-(require 'planck.repl)
-(in-ns 'planck.repl)
-(count (keys (:cljs.analyzer/namespaces @st)))
 REPL_INPUT
 
+echo "Test file-seq"
 # The output should be depth-first, as below
 mkdir /tmp/PLANCK_FILE_SEQ
 mkdir /tmp/PLANCK_FILE_SEQ/A
@@ -409,6 +537,23 @@ $PLANCK <<REPL_INPUT
 (run! println (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ")))
 REPL_INPUT
 rm -rf /tmp/PLANCK_FILE_SEQ
+
+echo "Test Google Closure index"
+$PLANCK <<REPL_INPUT
+(ns foo.bar (:require clojure.string))
+REPL_INPUT
+
+echo "Test availability of goog libs"
+$PLANCK <<REPL_INPUT
+(require 'goog.date.Date)
+(goog.date.Date. 2005 3 3)
+REPL_INPUT
+
+echo "Test empty list of *command-line-args*"
+$PLANCK <<REPL_INPUT
+(require 'planck.core)
+planck.core/*command-line-args*
+REPL_INPUT
 
 echo "Test empty list of *command-line-args* following main opt"
 $PLANCK -r <<REPL_INPUT
@@ -472,8 +617,57 @@ $PLANCK -c $HOME/test-jar.jar <<REPL_INPUT
 test-jar.core/x
 REPL_INPUT
 
+echo "Test reader/tag literals"
+$PLANCK <<REPL_INPUT
+#js [1 2]
+#_ #js {:a 1}
+#inst "2015-08-18T01:53:14.614-00:00"
+REPL_INPUT
+
 echo "Test verbose w/o var code"
 $PLANCK -v <<REPL_INPUT
 (def a 3)
 (def b (+ 2 3))
+REPL_INPUT
+
+echo "Test restore state when require fails"
+$PLANCK << REPL_INPUT
+(require '[clojure.set :refer [diff]])
+(require '[clojure.set])
+REPL_INPUT
+
+echo "Test reader and analysis diagnostics"
+$PLANCK << REPL_INPUT
+(require '[foo.bar :quu])
+)
+REPL_INPUT
+
+echo "Test eval"
+$PLANCK << REPL_INPUT
+(require '[planck.core :refer [eval]])
+(eval 1)
+(eval '(+ 1 2))
+(def a 3)
+(eval a)
+(eval '(let [a 10] (+ 3 4 a)))
+(eval '(def a 1))
+(def addition-list (list + 1 2))
+(eval addition-list)
+(eval (concat addition-list [10]))
+(eval (list 'def 'lucky-number (concat addition-list [10])))
+lucky-number
+(defn square [x] (* x x))
+(defn cube [x] (* x x x))
+((eval (list comp square cube)) 2)
+((eval (eval +)) 2 3)
+(def addition-list2 (list (fn [a b] (+ a b)) 1 2))
+(eval addition-list2)
+(eval (list #'inc 3))
+REPL_INPUT
+
+echo "Ensure we can get into Planck REPL ns and all ns are loaded"
+$PLANCK << REPL_INPUT
+(require 'planck.repl)
+(in-ns 'planck.repl)
+(count (keys (:cljs.analyzer/namespaces @st)))
 REPL_INPUT
