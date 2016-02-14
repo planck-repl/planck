@@ -70,6 +70,32 @@ echo "Test run file with exit"
 $PLANCK $SRC/test_exit/exit_in_file.cljs
 echo $?
 
+$PLANCK -c $SRC <<REPL_INPUT
+34f
+a:
+[1
+2]
+"abc
+def"
+ 3
+(binding [*print-fn* *print-err-fn*]
+  (println "hello stderr"))
+(in-ns not-symbol)
+(in-ns)
+(in-ns 'alpha.beta)
+(def x 3)
+(in-ns (symbol "gamma.delta"))
+(def y 4)
+(ns test.core (:require [clojure.set :as set]))
+(set/intersection #{:a :b} #{:a :c})
+(in-ns 'cljs.user)
+(in-ns 'test.core)
+(set/intersection #{:a :b} #{:a :c})
+(require 'test-require.core)
+test-require.core/success
+(require 'unknown_ns.core)
+REPL_INPUT
+
 echo "Test require REPL special exit in file"
 $PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.exit)
@@ -132,29 +158,6 @@ REPL_INPUT
 echo $?
 
 $PLANCK -c $SRC <<REPL_INPUT
-34f
-a:
-[1
-2]
-"abc
-def"
- 3
-(binding [*print-fn* *print-err-fn*]
-  (println "hello stderr"))
-(in-ns not-symbol)
-(in-ns)
-(in-ns 'alpha.beta)
-(def x 3)
-(in-ns (symbol "gamma.delta"))
-(def y 4)
-(ns test.core (:require [clojure.set :as set]))
-(set/intersection #{:a :b} #{:a :c})
-(in-ns 'cljs.user)
-(in-ns 'test.core)
-(set/intersection #{:a :b} #{:a :c})
-(require 'test-require.core)
-test-require.core/success
-(require 'unknown_ns.core)
 (require-macros 'unknown-ns.core)
 (require-macros 'test-require-macros.core)
 (+ 3 (test-require-macros.core/str->int "2"))
