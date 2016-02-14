@@ -14,6 +14,7 @@
 * [Scripts](scripts.html)
 * [Planck Namespaces](planck-namespaces.html)
 * [Source Dev](source-dev.html)
+* [Testing](testing.html)
 * [Dependencies](dependencies.html)
 * [Performance](performance.html)
 * [Socket REPL](socket-repl.html)

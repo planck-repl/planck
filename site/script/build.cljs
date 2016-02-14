@@ -40,6 +40,7 @@
                    "scripts"
                    "planck-namespaces"
                    "source-dev"
+                   "testing"
                    "dependencies"
                    "performance"
                    "socket-repl"
