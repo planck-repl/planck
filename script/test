@@ -15,9 +15,11 @@
 
 (println "Running unit tests...")
 
-(when-not (succeeded? (sh "script/unit-test"))
-  (println "Unit tests have failed.")
-  (exit 1))
+(let [results (sh "script/unit-test")]
+  (when-not (succeeded? results)
+    (println (:out results))
+    (println "Unit tests have failed.")
+    (exit 1)))
 
 (println "Unit tests have passed.")
 

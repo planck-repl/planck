@@ -1,12 +1,8 @@
-#!build/Release/planck
+#!build/Release/planck -sc planck-cljs/test
 (ns planck.unit-test
   (:require [cljs.test]
             [planck.test-runner]
             [planck.core :refer [exit]]))
-
-;; Note, to run unit tests, script/build must be run
-;; to pre-compile them as we can't yet run cljs.test in
-;; bootstrapped mode.
 
 (defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
   (when-not (cljs.test/successful? m)

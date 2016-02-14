@@ -615,7 +615,6 @@
       (and (= name 'cljs.repl) macros)
       (and (= name 'cljs.js) macros)
       (and (= name 'cljs.pprint) macros)
-      (and (= name 'cljs.test) macros)
       (and (= name 'clojure.template) macros)
       (and (= name 'tailrecursion.cljson) macros)
       (and (= name 'lazy-map.core) macros)))
