@@ -9,10 +9,8 @@
 [m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
 [m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
 [m[31mWARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 [m[31m
-[m[31mWARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 [m[31m
 [m[37mEvaluating Expression[m[37m
 [m[37mcljs.user.a = (3)[m[37m
 [m[37mEvaluating Expression[m[37m
 [m[37mcljs.user.b = ((2) + (3))[m[37m
-[m[31mWARNING: + already refers to: cljs.core/+ being replaced by: foo.bar/+ at line 1 [m[31m
 [m

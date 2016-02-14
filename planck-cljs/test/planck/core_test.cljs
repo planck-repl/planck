@@ -1,6 +1,8 @@
 (ns planck.core-test
+  (:require-macros [planck.core])
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [planck.core]))
+            [planck.core]
+            [foo.core]))
 
 (deftest exit-throws
   #_(testing "exit throws EXIT exception"
@@ -19,3 +21,37 @@
         100)
       (while (< (now) (+ t 500)))
       (is (= :bar @test-state)))))
+
+(defrecord Foo [x]
+  planck.core/IClosable
+  (planck.core/-close [_] (println "Close" x)))
+
+(deftest test-with-open
+  (is (= "Body1\nBody2\nClose :y\nClose :x\n"
+        (with-out-str
+          (planck.core/with-open [x (Foo. :x)
+                                  y (Foo. :y)]
+            (println "Body1")
+            (println "Body2"))))))
+
+(defn f [x] (* x x x))
+
+(def f-resolved (planck.core/resolve 'planck.core-test/f))
+
+(deftest test-resolve
+  (is (= 3 ((planck.core/resolve '+) 1 2)))
+  (is (= 27 ((planck.core/resolve 'planck.core-test/f) 3))))
+
+(deftest test-ns-resolve
+  (is (= 3 @(planck.core/ns-resolve 'foo.core 'h)))
+  (is (= 3 (apply @(planck.core/ns-resolve 'cljs.core '+) [1 2]))))
+
+(planck.core/intern 'foo.core 'a 3)
+(planck.core/intern 'foo.core (with-meta 'b {:alpha 17}) 12)
+(planck.core/intern (find-ns 'foo.core) 'd 18)
+
+(deftest test-intern
+  (is (= 4 (count (planck.core/eval '(ns-interns (quote foo.core))))))
+  (is (= 12 @(planck.core/ns-resolve 'foo.core 'b)))
+  (is (= 17 (:alpha (meta (planck.core/ns-resolve 'foo.core 'b)))))
+  (is (= 18 @(planck.core/ns-resolve 'foo.core 'd))))

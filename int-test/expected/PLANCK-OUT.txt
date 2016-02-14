@@ -201,15 +201,6 @@ Test require-macros REPL special
 Test in-ns REPL special
 [34mnil[m
 [34m:foo.bar/a[m
-Test apropos
-[34mnil[m
-[34m#'foo.bar/xfirst[m
-[34m#'foo.bar/nfirst[m
-[34m#'foo.bar/ffirst-crazy[m
-[34mnil[m
-[34m(cljs.core/ffirst cljs.core/nfirst foo.bar/ffirst-crazy foo.bar/xfirst)[m
-[34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
-[34m(cljs.core/ffirst foo.bar/ffirst-crazy)[m
 Test dir
 [34mnil[m
 [34m#'foo.bar/xfirst[m
@@ -617,50 +608,6 @@ Test eval
 [34m#'cljs.user/addition-list2[m
 [34m3[m
 [34m4[m
-Test resolve
-[34mnil[m
-[34m#'cljs.core/+[m
-[34m#'cljs.user/f[m
-[34m1000[m
-Test ns-resolve
-[34mnil[m
-[34mnil[m
-[34m#'foo.bar/+[m
-[34mnil[m
-[34m#'cljs.core/+[m
-[34m#'foo.bar/+[m
-Test intern
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m#'foo.core/a[m
-[34m{a #'foo.core/a}[m
-[34m3[m
-[34m#'foo.core/b[m
-[34m17[m
-[34m#'foo.core/d[m
-[34m18[m
-[34m#'foo.core/c[m
-[34mfalse[m
-[34mnil[m
-Test with-open
-[34mnil[m
-[34mcljs.user/Foo[m
-Body1
-Body2
-Close :y
-Close :x
-[34mnil[m
-[1;31mwith-open requires an even number of forms in binding vector at line 1 [m
-[1;31mwith-open requires a vector for its bindings at line 1 [m
-Test planck.repl publics
-apropos
-dir
-doc
-find-doc
-pst
-source
-[34mnil[m
 Ensure we can get into Planck REPL ns and all ns are loaded
 [34mnil[m
 [34mnil[m

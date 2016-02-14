@@ -225,18 +225,6 @@ $PLANCK <<REPL_INPUT
 ::a
 REPL_INPUT
 
-echo "Test apropos"
-$PLANCK <<REPL_INPUT
-(ns foo.bar)
-(def xfirst 3)
-(def ^:private nfirst 4)
-(def ffirst-crazy 10)
-(in-ns 'cljs.user)
-(apropos #"[a-z]+first")
-(apropos "ffirst")
-(apropos ffirst)
-REPL_INPUT
-
 echo "Test dir"
 $PLANCK <<REPL_INPUT
 (ns foo.bar)
@@ -675,60 +663,6 @@ lucky-number
 (def addition-list2 (list (fn [a b] (+ a b)) 1 2))
 (eval addition-list2)
 (eval (list #'inc 3))
-REPL_INPUT
-
-echo "Test resolve"
-$PLANCK << REPL_INPUT
-(require '[planck.core :refer [resolve]])
-(resolve '+)
-(defn f [n] (* n n n))
-((resolve (symbol "f")) 10)
-REPL_INPUT
-
-echo "Test ns-resolve"
-$PLANCK << REPL_INPUT
-(require '[planck.core :refer [ns-resolve]])
-(ns foo.bar)
-(def + 3)
-(in-ns 'cljs.user)
-(ns-resolve 'cljs.user '+)
-(ns-resolve 'foo.bar '+)
-REPL_INPUT
-
-echo "Test intern"
-$PLANCK << REPL_INPUT
-(ns foo.core)
-(in-ns 'cljs.user)
-(require '[planck.core :refer [intern]])
-(intern 'foo.core 'a 3)
-(ns-interns 'foo.core)
-foo.core/a
-(intern 'foo.core (with-meta 'b {:alpha 17}) 12)
-(:alpha (meta #'foo.core/b))
-(intern (find-ns 'foo.core) 'd 18)
-foo.core/d
-(intern 'foo.core 'c)
-(exists? foo.core/c)
-(intern 'bar.core 'x)
-REPL_INPUT
-
-echo "Test with-open"
-$PLANCK << REPL_INPUT
-(require '[planck.core :refer [IClosable -close] :refer-macros [with-open]])
-(defrecord Foo [x]
-  IClosable
-  (-close [_] (println "Close" x)))
-(with-open [x (Foo. :x)
-            y (Foo. :y)]
-  (println "Body1")
-  (println "Body2"))
-(with-open [x])
-(with-open '(x nil))
-REPL_INPUT
-
-echo "Test planck.repl publics"
-$PLANCK << REPL_INPUT
-(dir planck.repl)
 REPL_INPUT
 
 echo "Ensure we can get into Planck REPL ns and all ns are loaded"
