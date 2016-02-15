@@ -11,8 +11,7 @@
   (:require [cljs.env :as env]
             [cljs.analyzer :as ana]
             [planck.test.ana-api :as ana-api]
-            [planck.test.template]
-            [planck.core]))
+            [planck.test.template]))
 
 ;; =============================================================================
 ;; Assertion Macros
@@ -86,7 +85,7 @@
       `(do
          (def ~(vary-meta name assoc :test `(fn [] ~@body))
            (fn [] (cljs.test/test-var (@cljs.test$macros/vars ~id))))
-         (swap! vars assoc ~id (planck.core/eval ~(list 'var name)))
+         (swap! vars assoc ~id (~'var ~name))
          nil))))
 
 (defmacro async
@@ -194,7 +193,7 @@
                (filter (fn [[_ v]] (:test v)))
                (sort-by (fn [[_ v]] (:line v)))
                (map (fn [[k _]]
-                      `(planck.core/eval ~(list 'var (symbol (name ns) (name k)))))))])
+                      `(~'var ~(symbol (name ns) (name k))))))])
         [(fn []
            (when (nil? env#)
              (cljs.test/clear-env!)))]))))
