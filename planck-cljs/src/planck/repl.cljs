@@ -765,18 +765,26 @@
      (when-let [cause (.-cause error)]
        (recur cause include-stacktrace? message)))))
 
+(defn- get-macro-var
+  [env sym macros-ns]
+  {:pre [(symbol? macros-ns)]}
+  (let [macros-ns-str (str macros-ns)
+        base-ns-str   (subs macros-ns-str 0 (- (count macros-ns-str) 7))
+        base-ns       (symbol base-ns-str)]
+    (if-let [macro-var (with-compiler-env st
+                         (resolve-var env (symbol macros-ns-str (name sym))))]
+      (update (assoc macro-var :ns base-ns)
+        :name #(symbol base-ns-str (name %))))))
+
+(defn- all-macros-ns
+  []
+  (->> (all-ns)
+    (filter #(s/ends-with? (str %) "$macros"))))
+
 (defn- get-var
   [env sym]
-  (let [var (with-compiler-env st (resolve-var env sym))
-        var (or var
-                (if-let [macro-var (with-compiler-env st
-                                     (resolve-var env (symbol "cljs.core$macros" (name sym))))]
-                  (update (assoc macro-var :ns 'cljs.core)
-                    :name #(symbol "cljs.core" (name %))))
-                (if-let [macro-var (with-compiler-env st
-                                     (resolve-var env (symbol "planck.repl$macros" (name sym))))]
-                  (update (assoc macro-var :ns 'planck.repl)
-                    :name #(symbol "planck.repl" (name %)))))]
+  (let [var (or (with-compiler-env st (resolve-var env sym))
+                (some #(get-macro-var env sym %) (all-macros-ns)))]
     (when var
       (if (= (namespace (:name var)) (str (:ns var)))
         (update var :name #(symbol (name %)))
