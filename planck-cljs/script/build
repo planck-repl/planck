@@ -8,7 +8,7 @@ set -o pipefail
 #lein run -m clojure.main script/build.clj
 
 # Build our own copy of ClojureScript compiler
-CLJS_GIT_SHA1=d4055ec82af3184fb1321016e7c85e492cf65362
+CLJS_GIT_SHA1=b98351ee286ede5261bd8e08762b25294dc27408
 if [ ! -e clojurescript ]; then
    git clone https://github.com/clojure/clojurescript
    pushd clojurescript
