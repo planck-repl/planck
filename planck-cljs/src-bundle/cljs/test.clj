@@ -67,9 +67,6 @@
 ;; =============================================================================
 ;; Defining Tests
 
-(defonce vars (atom {}))
-(defonce counter (atom 0))
-
 (defmacro deftest
   "Defines a test function with no arguments.  Test functions may call
   other tests, so tests may be composed.  If you compose tests, you
@@ -81,12 +78,10 @@
   When cljs.analyzer/*load-tests* is false, deftest is ignored."
   [name & body]
   (when ana/*load-tests*
-    (let [id (swap! counter inc)]
-      `(do
-         (def ~(vary-meta name assoc :test `(fn [] ~@body))
-           (fn [] (cljs.test/test-var (@cljs.test$macros/vars ~id))))
-         (swap! vars assoc ~id (var ~name))
-         nil))))
+    `(do
+       (def ~(vary-meta name assoc :test `(fn [] ~@body))
+         (fn [] (cljs.test/test-var (~'.-cljs$lang$var ~name))))
+       (set! (~'.-cljs$lang$var ~name) (var ~name)))))
 
 (defmacro async
   "Wraps body as a CPS function that can be returned from a test to
