@@ -492,6 +492,17 @@
 ;; Hack to remember which file path each namespace was loaded from
 (defonce ^:private name-path (atom {}))
 
+(declare add-suffix)
+
+(defn- js-path-for-name
+  [name]
+  (add-suffix (get @name-path name name) ".js"))
+
+(defn- file-url
+  "Makes a file url for use with PLANCK_EVAL"
+  [path]
+  (str "file:///" path))
+
 (defn- caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env))
@@ -501,7 +512,7 @@
       (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
   (if (and (not (empty? path))
            (not= "Expression" path))
-    (let [exception (js/PLANCK_EVAL source (get @name-path name name))]
+    (let [exception (js/PLANCK_EVAL source (file-url (js-path-for-name name)))]
       (when exception
         (throw exception)))
     (js/eval source)))
@@ -568,7 +579,7 @@
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
       (when-not (skip-load-js? name)
-        (js/PLANCK_EVAL js-source path))
+        (js/PLANCK_EVAL js-source (file-url (add-suffix path ".js"))))
       (merge {:lang   :js
               :source ""}
         (when cache-json
