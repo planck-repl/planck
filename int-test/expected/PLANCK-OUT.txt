@@ -131,9 +131,7 @@ Test call fn exit
 Test run file with exit
 111
 Test in-ns
-Argument to in-ns must be a symbol.
 [34mnil[m
-Argument to in-ns must be a symbol.
 [34mnil[m
 [34mnil[m
 [34m#'alpha.beta/x[m

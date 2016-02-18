@@ -221,7 +221,8 @@
         (print-error (:error result) false)
         (let [ns-name (:value result)]
           (if-not (symbol? ns-name)
-            (println "Argument to in-ns must be a symbol.")
+            (binding [*print-fn* *print-err-fn*]
+              (println "Argument to in-ns must be a symbol."))
             (if (some (partial = ns-name) (all-ns))
               (reset! current-ns ns-name)
               (let [ns-form `(~'ns ~ns-name)]
