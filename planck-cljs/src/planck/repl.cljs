@@ -668,6 +668,8 @@
     (re-matches #"^goog/.*" path) (do-load-goog name cb)
     :else (do-load-other name path macros cb)))
 
+(declare skip-cljsjs-eval-error)
+
 (defn- handle-error
   [e include-stacktrace? in-exit-context?]
   (let [cause                     (or (.-cause e) e)
@@ -676,7 +678,7 @@
       (print-error e include-stacktrace?))
     (if (and in-exit-context? (not is-planck-exit-exception?))
       (js/PLANCK_SET_EXIT_VALUE 1)
-      (set! *e e))))
+      (set! *e (skip-cljsjs-eval-error e)))))
 
 (defn- ^:export run-main
   [main-ns & args]
