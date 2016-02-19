@@ -530,10 +530,14 @@
       candidate
       (str file suffix))))
 
+(defn- bundled?
+  [js-modified source-file-modified]
+  (= 0 js-modified source-file-modified))                   ;; 0 means bundled
+
 (defn- cached-js-valid?
   [js-source js-modified source-file-modified]
   (and js-source
-       (or (= 0 js-modified source-file-modified)           ;; 0 means bundled
+       (or (bundled? js-modified source-file-modified)
            (and (> js-modified source-file-modified)
                 (let [[cljs-ver build-affecting-options] (extract-source-build-info js-source)]
                   (and (= *clojurescript-version* cljs-ver)
@@ -557,6 +561,10 @@
       clojure.string
       cognitect.transit} name))
 
+(defn- strip-first-line
+  [source]
+  (subs source (inc (s/index-of source "\n"))))
+
 (defn- cached-callback-data
   [name path macros cache-prefix source source-modified raw-load]
   (let [path (cond-> path
@@ -579,7 +587,8 @@
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
       (when-not (skip-load-js? name)
-        (js/PLANCK_EVAL js-source (file-url (add-suffix path ".js"))))
+        (js/PLANCK_EVAL (cond-> js-source (not (bundled? js-modified source-modified)) strip-first-line)
+          (file-url (add-suffix path ".js"))))
       (merge {:lang   :js
               :source ""}
         (when cache-json
