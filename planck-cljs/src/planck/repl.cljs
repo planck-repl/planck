@@ -503,15 +503,6 @@
   [path]
   (str "file:///" path))
 
-(defn- split-source
-  "Splits a JavaScript source file into
-  the goog directives and the remainder."
-  [source]
-  (->> (s/split source "\n")
-    rest
-    (split-with #(s/starts-with? % "goog."))
-    (mapv #(s/join "\n" %))))
-
 (defn- caching-js-eval
   [{:keys [path name source cache]}]
   (let [source (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)]
@@ -522,11 +513,9 @@
         (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
     (if (and (not (empty? path))
           (not= "Expression" path))
-      (let [[pre post] (split-source source)]
-        (js/eval pre)
-        (let [exception (js/PLANCK_EVAL post (file-url (js-path-for-name name)))]
-          (when exception
-            (throw exception))))
+      (let [exception (js/PLANCK_EVAL (str "\n" source) (file-url (js-path-for-name name)))]
+        (when exception
+          (throw exception)))
       (js/eval source))))
 
 (defn- extension->lang
@@ -591,9 +580,7 @@
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
       (when-not (skip-load-js? name)
-        (let [[pre post] (split-source js-source)]
-          (js/eval pre)
-          (js/PLANCK_EVAL post (file-url (add-suffix path ".js")))))
+        (js/PLANCK_EVAL (str "\n" js-source) (file-url (add-suffix path ".js"))))
       (merge {:lang   :js
               :source ""}
         (when cache-json
