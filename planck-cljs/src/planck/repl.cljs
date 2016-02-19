@@ -505,18 +505,17 @@
 
 (defn- caching-js-eval
   [{:keys [path name source cache]}]
-  (let [source (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)]
-    (when (and path cache (:cache-path @app-env))
-      (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
-        source
-        (cljs->transit-json cache)
-        (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
-    (if (and (not (empty? path))
-          (not= "Expression" path))
-      (let [exception (js/PLANCK_EVAL (str "\n" source) (file-url (js-path-for-name name)))]
-        (when exception
-          (throw exception)))
-      (js/eval source))))
+  (when (and path source cache (:cache-path @app-env))
+    (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
+      (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
+      (cljs->transit-json cache)
+      (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
+  (if (and (not (empty? path))
+           (not= "Expression" path))
+    (let [exception (js/PLANCK_EVAL source (file-url (js-path-for-name name)))]
+      (when exception
+        (throw exception)))
+    (js/eval source)))
 
 (defn- extension->lang
   [extension]
@@ -580,7 +579,7 @@
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
       (when-not (skip-load-js? name)
-        (js/PLANCK_EVAL (str "\n" js-source) (file-url (add-suffix path ".js"))))
+        (js/PLANCK_EVAL js-source (file-url (add-suffix path ".js"))))
       (merge {:lang   :js
               :source ""}
         (when cache-json
