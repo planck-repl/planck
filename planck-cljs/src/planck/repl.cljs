@@ -979,7 +979,8 @@
           expr
           (make-base-eval-opts)
           (fn [{:keys [value]}]
-             (print-error value :pst)))
+            (when value
+              (print-error value :pst))))
         (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file
