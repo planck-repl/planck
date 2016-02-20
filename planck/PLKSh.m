@@ -94,16 +94,22 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
         [aTask setEnvironment:env];
     }
     
+    NSLock* outLock = [[NSLock alloc] init];
     NSMutableData* outData = [[NSMutableData alloc] init];
     [[aTask.standardOutput fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData];
+        [outLock lock];
         [outData appendData:data];
+        [outLock unlock];
     }];
     
+    NSLock* errLock = [[NSLock alloc] init];
     NSMutableData* errData = [[NSMutableData alloc] init];
     [[aTask.standardError fileHandleForReading] setReadabilityHandler:^(NSFileHandle *file) {
         NSData *data = [file availableData];
+        [errLock lock];
         [errData appendData:data];
+        [errLock unlock];
     }];
     
     // We'll block during execution
@@ -122,16 +128,20 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
     NSStringEncoding encoding = encodingFromString(encoding_out, NSUTF8StringEncoding);
     
     // sh docs say sub-process's stdout (as byte[] or String), however we'll always return string
+    [outLock lock];
     NSString *outString = [[NSString alloc] initWithData:outData encoding:encoding];
     if (outString == nil) {
         outString = [[NSString alloc] initWithData:outData encoding:NSASCIIStringEncoding];
     }
+    [outLock unlock];
 
     // sub-process's stderr (String via platform default encoding)
+    [errLock lock];
     NSString *errString = [[NSString alloc] initWithData:errData encoding:NSUTF8StringEncoding];
     if (errString == nil) {
         errString = [[NSString alloc] initWithData:errData encoding:NSASCIIStringEncoding];
     }
+    [errLock unlock];
     
     outString = outString ? outString : @"";
     errString = errString ? errString : @"";
