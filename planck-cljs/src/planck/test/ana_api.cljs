@@ -20,7 +20,7 @@
   ([]
    (all-ns env/*compiler*))
   ([state]
-   (keys (get @state :cljs.analyzer/namespaces))))
+   (keys (get @state ::ana/namespaces))))
 
 (defn find-ns
   "Given a namespace return the corresponding namespace analysis map. Analagous
@@ -29,7 +29,7 @@
    (find-ns env/*compiler* sym))
   ([state sym]
    {:pre [(symbol? sym)]}
-   (get-in @state [:cljs.analyzer/namespaces sym])))
+   (get-in @state [::ana/namespaces sym])))
 
 (defn ns-interns
   "Given a namespace return all the var analysis maps. Analagous to
@@ -39,8 +39,8 @@
   ([state ns]
    {:pre [(symbol? ns)]}
    (merge
-     (get-in @state [:cljs.analyzer/namespaces ns :macros])
-     (get-in @state [:cljs.analyzer/namespaces ns :defs]))))
+     (get-in @state [::ana/namespaces ns :macros])
+     (get-in @state [::ana/namespaces ns :defs]))))
 
 (defn ns-resolve
   "Given a namespace and a symbol return the corresponding var analysis map.
@@ -49,4 +49,4 @@
    (ns-resolve env/*compiler* ns sym))
   ([state ns sym]
    {:pre [(symbol? ns) (symbol? sym)]}
-   (get-in @state [:cljs.analyzer/namespaces ns :defs sym])))
+   (get-in @state [::ana/namespaces ns :defs sym])))

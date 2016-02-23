@@ -63,18 +63,18 @@
 
 (defn- current-alias-map
   []
-  (get-in @st [:cljs.analyzer/namespaces @current-ns :requires]))
+  (get-in @st [::ana/namespaces @current-ns :requires]))
 
 (defn- all-ns
   "Returns a sequence of all namespaces."
   []
-  (keys (:cljs.analyzer/namespaces @st)))
+  (keys (::ana/namespaces @st)))
 
 (defn- get-namespace
   "Gets the AST for a given namespace."
   [ns]
   {:pre [(symbol? ns)]}
-  (get-in @st [:cljs.analyzer/namespaces ns]))
+  (get-in @st [::ana/namespaces ns]))
 
 (defn- public-syms
   "Returns a sequence of the public symbols in a namespace."
@@ -963,7 +963,7 @@
         sym-docs (sort-by first
                    (mapcat (fn [ns]
                              (map (juxt first (comp :doc second))
-                               (get-in @st [:cljs.analyzer/namespaces ns :defs])))
+                               (get-in @st [::ana/namespaces ns :defs])))
                      (all-ns)))]
     (doseq [[sym doc] sym-docs
             :when (and doc
