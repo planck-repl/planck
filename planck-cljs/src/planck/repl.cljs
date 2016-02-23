@@ -61,6 +61,10 @@
 
 (defonce ^:private current-ns (atom 'cljs.user))
 
+(defn- current-alias-map
+  []
+  (get-in @st [:cljs.analyzer/namespaces @current-ns :requires]))
+
 (defn- all-ns
   "Returns a sequence of all namespaces."
   []
@@ -150,7 +154,8 @@
   (binding [ana/*cljs-ns* @current-ns
             env/*compiler* st
             r/*data-readers* tags/*cljs-data-readers*
-            r/resolve-symbol ana/resolve-symbol]
+            r/resolve-symbol ana/resolve-symbol
+            r/*alias-map* (current-alias-map)]
     (let [reader (rt/string-push-back-reader source)]
       [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))])))
 
@@ -389,7 +394,8 @@
     (binding [ana/*cljs-ns* @current-ns
               env/*compiler* st
               r/*data-readers* tags/*cljs-data-readers*
-              r/resolve-symbol ana/resolve-symbol]
+              r/resolve-symbol ana/resolve-symbol
+              r/*alias-map* (current-alias-map)]
       (try
         (r/read {:eof (js-obj) :read-cond :allow :features #{:cljs}} rdr)
         (nil? (rt/peek-char rdr))
