@@ -5,34 +5,34 @@
 (def ^:private colorize-off-dumb "")
 
 (def ^:private dumb
-  {:results-fn    colorize-fn-dumb
-   :ex-msg-fn     colorize-fn-dumb
-   :ex-stack-fn   colorize-fn-dumb
-   :reader-err-fn colorize-fn-dumb
-   :err-font      colorize-off-dumb
-   :verbose-font  colorize-off-dumb
-   :reset-font    colorize-off-dumb})
+  {:results-fn     colorize-fn-dumb
+   :ex-msg-fn      colorize-fn-dumb
+   :ex-stack-fn    colorize-fn-dumb
+   :rdr-ann-err-fn colorize-fn-dumb
+   :err-font       colorize-off-dumb
+   :verbose-font   colorize-off-dumb
+   :reset-font     colorize-off-dumb})
 
 (def ^:private theme-ansi-base
   {:reset-font ansi/reset-font})
 
 (def ^:private light
   (merge theme-ansi-base
-    {:results-fn    ansi/blue
-     :ex-msg-fn     ansi/bold-red
-     :ex-stack-fn   ansi/green
-     :reader-err-fn ansi/bold-magenta
-     :err-font      ansi/red-font
-     :verbose-font  ansi/white-font}))
+    {:results-fn     ansi/blue
+     :ex-msg-fn      ansi/bold-red
+     :ex-stack-fn    ansi/green
+     :rdr-ann-err-fn ansi/bold-magenta
+     :err-font       ansi/red-font
+     :verbose-font   ansi/white-font}))
 
 (def ^:private dark
   (merge theme-ansi-base
-    {:results-fn    ansi/bold-blue
-     :ex-msg-fn     ansi/bold-red
-     :ex-stack-fn   ansi/green
-     :reader-err-fn ansi/magenta
-     :err-font      ansi/red-font
-     :verbose-font  ansi/white-font}))
+    {:results-fn     ansi/bold-blue
+     :ex-msg-fn      ansi/bold-red
+     :ex-stack-fn    ansi/green
+     :rdr-ann-err-fn ansi/magenta
+     :err-font       ansi/red-font
+     :verbose-font   ansi/white-font}))
 
 (def ^:private themes
   {:plain dumb

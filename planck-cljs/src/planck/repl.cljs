@@ -176,10 +176,8 @@
         (cond
           (eof-while-reading? message) nil
           (= "EOF" message) ""
-          :else (let [base-theme (get-theme (keyword theme-id))]
-                  (binding [theme (assoc base-theme
-                                    :ex-msg-fn (:reader-err-fn base-theme))]
-                    (print-error e false))
+          :else (binding [theme (get-theme (keyword theme-id))]
+                  (print-error e false)
                   ""))))))
 
 (defn- ns-form?
@@ -767,9 +765,10 @@
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
    (let [error               (skip-cljsjs-eval-error error)
+         roa?                (is-reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
                                (and include-stacktrace?
-                                 (not (is-reader-or-analysis? error))))
+                                 (not roa?)))
          include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)
@@ -778,7 +777,7 @@
                                (.-message error))]
      (when (or (not ((fnil s/starts-with? "") printed-message message))
              include-stacktrace?)
-       (println ((:ex-msg-fn theme) message)))
+       (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace

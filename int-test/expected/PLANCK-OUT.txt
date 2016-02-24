@@ -152,7 +152,7 @@ before throw
 [34mnil[m
 0
 Test require unknown ns
-[1;31mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
+[1;35mNo such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"[m
 [34mnil[m
 Test require :reload with const
 [34mnil[m
@@ -189,7 +189,7 @@ Test require :reload with cache
 [34mnil[m
 [34m:reloaded[m
 Test require-macros unknown ns
-[1;31mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
+[1;35mNo such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc[m
 [34mnil[m
 Test require-macros REPL special
 [34mnil[m
@@ -576,13 +576,13 @@ Test verbose w/o var code
 [34m#'cljs.user/a[m
 [34m#'cljs.user/b[m
 Test restore state when require fails
-[1;31mCould not parse ns form cljs.user[m
-[1;31mInvalid :refer, var var clojure.set/diff does not exist[m
+[1;35mCould not parse ns form cljs.user[m
+[1;35mInvalid :refer, var var clojure.set/diff does not exist[m
 [34mnil[m
 [34mnil[m
 Test reader and analysis diagnostics
-[1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
-[1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
+[1;35mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
+[1;35mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
 [34mnil[m
 [1;35mUnmatched delimiter )[m
 Test eval
