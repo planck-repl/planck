@@ -15,6 +15,10 @@ if [ ! -e tools.reader ]; then
    git reset --hard $TRDR_GIT_SHA1
    # Apply patches
    # curl -L http://dev.clojure.org/jira/secure/attachment/15505/CLJS-1564-2.patch | git apply
+   # Deal with the case when building in sandbox mode
+   if [ -e ../profiles.clj ]; then
+       echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
+   fi
    lein install
    popd
 fi
