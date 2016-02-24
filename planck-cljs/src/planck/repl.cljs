@@ -176,8 +176,10 @@
         (cond
           (eof-while-reading? message) nil
           (= "EOF" message) ""
-          :else (binding [theme (get-theme (keyword theme-id))]
-                  (print-error e false)
+          :else (let [base-theme (get-theme (keyword theme-id))]
+                  (binding [theme (assoc base-theme
+                                    :ex-msg-fn (:reader-err-fn base-theme))]
+                    (print-error e false))
                   ""))))))
 
 (defn- ns-form?
