@@ -99,10 +99,8 @@ Exit on first error
 ok
 [1;31mx[m
 Test cope with syntax errors
-Invalid number format [34f]
-
-Invalid token: a:
-
+[1;31mInvalid number format [34f][m
+[1;31mInvalid token: a:[m
 Multi-line data
 [34m[1 2][m
 Multi-line string
@@ -584,8 +582,7 @@ Test reader and analysis diagnostics
 [1;31mCould not eval (ns cljs.user (:require [foo.bar :quu]))[m
 [1;31mOnly :as alias and :refer (names) options supported in :require; offending spec: [foo.bar :quu] at line 1 [m
 [34mnil[m
-Unmatched delimiter )
-
+[1;31mUnmatched delimiter )[m
 Test eval
 [34mnil[m
 [34m1[m

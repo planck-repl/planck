@@ -1295,13 +1295,14 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return self.exitValue;
 }
 
--(NSString*)isReadable:(NSString*)expression
+-(NSString*)isReadable:(NSString*)expression theme:(NSString*)theme
 {
     [self blockUntilEngineReady];
-    JSValueRef  arguments[1];
+    JSValueRef  arguments[2];
     JSValueRef result;
-    int num_arguments = 1;
+    int num_arguments = 2;
     arguments[0] = JSValueMakeStringFromNSString(self.context, expression);
+    arguments[1] = JSValueMakeStringFromNSString(self.context, theme);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"is-readable?"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     return NSStringFromJSValueRef(self.context, result);
 }

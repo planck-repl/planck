@@ -435,7 +435,7 @@ void handleConnect (
     NSString* balanceText = nil;
     
     while (!done) {
-        if ((balanceText = [s_clojureScriptEngine isReadable:self.input]) != nil) {
+        if ((balanceText = [s_clojureScriptEngine isReadable:self.input theme:theme]) != nil) {
             
             self.input = [self.input substringToIndex:[self.input length] - [balanceText length]];
             

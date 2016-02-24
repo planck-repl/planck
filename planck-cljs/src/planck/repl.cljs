@@ -168,7 +168,7 @@
 (defn- ^:export is-readable?
   "Returns a string representing any text after the first readible form,
   nor nil if nothing readible."
-  [source]
+  [source theme-id]
   (try
     (second (repl-read-string source))
     (catch :default e
@@ -176,9 +176,8 @@
         (cond
           (eof-while-reading? message) nil
           (= "EOF" message) ""
-          :else (do
+          :else (binding [theme (get-theme (keyword theme-id))]
                   (print-error e false)
-                  (println)
                   ""))))))
 
 (defn- ns-form?

@@ -12,7 +12,7 @@
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut;
 -(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady;
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args;
--(NSString*)isReadable:(NSString*)expression;
+-(NSString*)isReadable:(NSString*)expression theme:(NSString*)theme;
 -(NSString*)getCurrentNs;
 -(NSArray*)getCompletionsForBuffer:(NSString*)buffer;
 -(NSArray*)getHighlightCoordsForPos:(int)pos buffer:(NSString*)buffer previousLines:(NSArray*)previousLines;
