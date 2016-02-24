@@ -9,4 +9,5 @@ site/script/cache/*.js
 site/script/cache/*.json
 site/script/target
 site/target
+planck-cljs/tools.reader
 planck-cljs/clojurescript

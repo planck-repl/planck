@@ -567,9 +567,11 @@ Test classpath
 Test JAR support
 [34mnil[m
 [34m"Hello, from JAR"[m
-Test reader/tag literals
+Test reader
 [34m#js [1 2][m
 [34m#inst "2015-08-18T01:53:14.614-00:00"[m
+[1;35mSet literal contains duplicate key: 1[m
+[1;35mMap literal contains duplicate key: 1[m
 Test verbose w/o var code
 [34m#'cljs.user/a[m
 [34m#'cljs.user/b[m

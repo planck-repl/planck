@@ -7,6 +7,18 @@ set -o pipefail
 # Previously was building using lein
 #lein run -m clojure.main script/build.clj
 
+# Build our own copy of tools.reader
+TRDR_GIT_SHA1=bb3209540dae44758c6545cd67c99b11de915806
+if [ ! -e tools.reader ]; then
+   git clone https://github.com/clojure/tools.reader
+   pushd tools.reader
+   git reset --hard $TRDR_GIT_SHA1
+   # Apply patches
+   # curl -L http://dev.clojure.org/jira/secure/attachment/15505/CLJS-1564-2.patch | git apply
+   lein install
+   popd
+fi
+
 # Build our own copy of ClojureScript compiler
 CLJS_GIT_SHA1=e531c34e04adc815a6c25c8d2499465296ca290d
 if [ ! -e clojurescript ]; then
