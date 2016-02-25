@@ -1,0 +1,6 @@
+#!build/Release/planck -sc planck-cljs/clojurescript/src/test/cljs
+(ns planck.test-core
+  (:require [cljs.test :refer-macros [run-tests]]
+            [cljs.core-test]))
+
+(run-tests 'cljs.core-test)
