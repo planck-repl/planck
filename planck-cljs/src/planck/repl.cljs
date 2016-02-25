@@ -19,6 +19,8 @@
             [lazy-map.core :refer-macros [lazy-map]]
             [cljsjs.parinfer]))
 
+(def ^:private expression-name "Expression")
+
 (defn- calc-x-line [text pos line]
   (let [x (s/index-of text "\n")]
     (if (or (nil? x)
@@ -508,15 +510,36 @@
   [path]
   (str "file:///" path))
 
+(defn- log-cache-activity
+  [read-write path cache-json sourcemap-json]
+  (when (:verbose @app-env)
+    (println-verbose
+      (str
+        (if (= :read read-write)
+          "Loading"
+          "Caching")
+        " compiled JS "
+        (when cache-json "and analysis cache ")
+        (when sourcemap-json "and source map ")
+        "for " path))))
+
+(defn- write-cache
+  [path name source cache]
+  (when (and path source cache (:cache-path @app-env))
+    (let [cache-json (cljs->transit-json cache)
+          sourcemap-json (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))]
+      (log-cache-activity :write path cache-json sourcemap-json)
+      (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
+        (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
+        cache-json
+        sourcemap-json))))
+
 (defn- caching-js-eval
   [{:keys [path name source cache]}]
   (when (and path source cache (:cache-path @app-env))
-    (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
-      (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
-      (cljs->transit-json cache)
-      (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))))
+    (write-cache path name source cache))
   (if (and (not (empty? path))
-           (not= "Expression" path))
+           (not= expression-name path))
     (let [exception (js/PLANCK_EVAL source (file-url (js-path-for-name name)))]
       (when exception
         (throw exception)))
@@ -584,11 +607,7 @@
         [sourcemap-json _] (or (raw-load (str path ".js.map.json"))
                            (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json")))]
     (when (cached-js-valid? js-source js-modified source-modified)
-      (when (:verbose @app-env)
-        (println-verbose "Loading precompiled JS"
-          (if cache-json "and analysis cache" "")
-          (if sourcemap-json "and source map" "")
-          "for" path))
+      (log-cache-activity :read path cache-json sourcemap-json)
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
       (when-not (skip-load-js? name)
@@ -883,21 +902,22 @@
 
 (defn- process-execute-path
   [file {:keys [in-exit-context?] :as opts}]
-  (load {:file file}
-    (fn [{:keys [lang source cache]}]
-      (if source
-        (case lang
-          :clj (execute-source ["text" source] opts)
-          :js (process-macros-deps cache
-                (fn [res]
-                  (if-let [error (:error res)]
-                    (handle-error (js/Error. error) false in-exit-context?)
-                    (process-libs-deps cache
-                      (fn [res]
-                        (if-let [error (:error res)]
-                          (handle-error (js/Error. error) false in-exit-context?)
-                          (js/eval source))))))))
-        (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?)))))
+  (binding [theme (assoc theme :err-font (:verbose-font theme))]
+    (load {:file file}
+      (fn [{:keys [lang source cache]}]
+        (if source
+          (case lang
+            :clj (execute-source ["text" source] opts)
+            :js (process-macros-deps cache
+                  (fn [res]
+                    (if-let [error (:error res)]
+                      (handle-error (js/Error. error) false in-exit-context?)
+                      (process-libs-deps cache
+                        (fn [res]
+                          (if-let [error (:error res)]
+                            (handle-error (js/Error. error) false in-exit-context?)
+                            (js/eval source))))))))
+                                                                       (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?))))))
 
 (defn- dir*
   [nsname]
@@ -1021,13 +1041,16 @@
 (defn- cache-source-fn
   [source-text]
   (fn [x cb]
-    (when (and (= "File" (:name x)) (:source x))
+    (when (:source x)
       (let [source (:source x)
-            [file-namespace relpath] (extract-cache-metadata-mem source-text)]
+            [file-namespace relpath] (extract-cache-metadata-mem source-text)
+            cache-json (when file-namespace
+                         (cljs->transit-json (get-namespace file-namespace)))]
+        (log-cache-activity :write (:name x) cache-json nil)
         (js/PLANCK_CACHE (cache-prefix-for-path relpath false)
           (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
-          (when file-namespace
-            (cljs->transit-json (get-namespace file-namespace))))))
+          cache-json
+          nil)))
     (cb {:value nil})))
 
 (defn- process-execute-source
@@ -1041,7 +1064,7 @@
           (cljs/eval-str
             (atom @st)
             source-text
-            "Expression"
+            expression-name
             (merge
               {:ns            initial-ns
                :source-map    false
@@ -1055,12 +1078,15 @@
       (cljs/eval-str
         st
         source-text
-        (if expression? "Expression" (or source-path "File"))
+        (if expression?
+          expression-name
+          (or source-path "File"))
         (merge
           {:ns         initial-ns
            :verbose    (and (not expression?)
                             (:verbose @app-env))
            :static-fns (:static-fns @app-env)}
+          (if-not expression? {:source-map true})
           (if expression?
             {:context       :expr
              :def-emits-var true}
