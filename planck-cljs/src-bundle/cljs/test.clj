@@ -149,7 +149,7 @@
   re-find) the regular expression re."
   ([form] `(cljs.test/is ~form nil))
   ([form msg]
-   `(planck.test.macros/try-expr ~msg ~form)))
+   `(planck.test.macros/try-expr ~assert-expr ~msg ~form)))
 
 (defmacro are
   "Checks multiple assertions with a template expression.

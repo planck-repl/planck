@@ -5,9 +5,9 @@
 (defmacro try-expr
   "Used by the 'is' macro to catch unexpected exceptions.
   You don't call this."
-  [msg form]
+  [assert-expr msg form]
   `(try
-     ~(cljs.test$macros/assert-expr &env msg form)
+     ~(assert-expr &env msg form)
      (catch :default t#
        (cljs.test/do-report
          {:type :error, :message ~msg,
