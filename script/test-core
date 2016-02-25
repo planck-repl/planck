@@ -1,6 +1,11 @@
 #!build/Release/planck -sc planck-cljs/clojurescript/src/test/cljs
 (ns planck.test-core
   (:require [cljs.test :refer-macros [run-tests]]
-            [cljs.core-test]))
+            [cljs.core-test]
+            [planck.core :refer [exit]]))
+
+(defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
+  (when-not (cljs.test/successful? m)
+    (exit 1)))
 
 (run-tests 'cljs.core-test)

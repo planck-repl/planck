@@ -30,7 +30,8 @@ if [ ! -e clojurescript ]; then
    pushd clojurescript
    git reset --hard $CLJS_GIT_SHA1
    # Apply patches
-   # curl -L http://dev.clojure.org/jira/secure/attachment/15505/CLJS-1564-2.patch | git apply
+   curl -L http://planck-repl.org/releases/1.10/test-workarounds.patch | git apply
+   curl -L http://dev.clojure.org/jira/secure/attachment/15518/CLJS-1592.patch | git apply
    script/uberjar
    popd
 fi

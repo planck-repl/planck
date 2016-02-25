@@ -1,0 +1,24 @@
+#!/usr/bin/env planck
+(ns planck.test
+  (:require [planck.shell :refer [sh]]
+            [planck.core :refer [exit]]))
+
+(defn succeeded? [result]
+  (zero? (:exit result)))
+
+(defn file-exists? [filename]
+  (succeeded? (sh "ls" filename)))
+
+(when-not (file-exists? "build/Release/planck")
+  (println "ERROR: You must run script/build before running script/test-int")
+  (exit 1))
+
+(println "Running integration tests...")
+
+(let [test-results (sh "int-test/script/run-tests")]
+  (if (succeeded? test-results)
+    (println "Integration tests have passed.")
+    (do
+      (println (:out test-results))
+      (println "Integration tests have failed.")
+      (exit (:exit test-results)))))

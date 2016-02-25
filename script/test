@@ -1,34 +1,11 @@
-#!/usr/bin/env planck
-(ns planck.test
-  (:require [planck.shell :refer [sh]]
+#!build/Release/planck -sc planck-cljs/test
+(ns planck.unit-test
+  (:require [cljs.test]
+            [planck.test-runner]
             [planck.core :refer [exit]]))
 
-(defn succeeded? [result]
-  (zero? (:exit result)))
-
-(defn file-exists? [filename]
-  (succeeded? (sh "ls" filename)))
-
-(when-not (file-exists? "build/Release/planck")
-  (println "ERROR: You must run script/build before running script/test")
-  (exit 1))
-
-(println "Running unit tests...")
-
-(let [results (sh "script/unit-test")]
-  (when-not (succeeded? results)
-    (println (:out results))
-    (println "Unit tests have failed.")
+(defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
+  (when-not (cljs.test/successful? m)
     (exit 1)))
 
-(println "Unit tests have passed.")
-
-(println "Running integration tests...")
-
-(let [test-results (sh "int-test/script/run-tests")]
-  (if (succeeded? test-results)
-    (println "Integration tests have passed.")
-    (do
-      (println (:out test-results))
-      (println "Integration tests have failed.")
-      (exit (:exit test-results)))))
+(planck.test-runner/run-all-tests)
