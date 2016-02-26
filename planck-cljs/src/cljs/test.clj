@@ -11,7 +11,8 @@
   (:require [cljs.env :as env]
             [cljs.analyzer :as ana]
             [planck.test.ana-api :as ana-api]
-            [planck.test.template]))
+            [planck.test.template]
+            [planck.test.glue]))
 
 ;; =============================================================================
 ;; Assertion Macros
@@ -29,7 +30,7 @@
   re-find) the regular expression re."
   ([form] `(cljs.test/is ~form nil))
   ([form msg]
-   `(planck.test.macros/try-expr ~cljs.test/assert-expr ~msg ~form)))
+   `(planck.test.macros/try-expr ~planck.test.glue/*assert-expr* ~msg ~form)))
 
 (defmacro are
   "Checks multiple assertions with a template expression.

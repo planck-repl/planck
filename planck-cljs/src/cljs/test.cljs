@@ -183,7 +183,8 @@
                    [cljs.test :as test])
   (:require [clojure.string :as string]
             [cljs.pprint :as pprint]
-            [planck.test.ana-api :as ana-api]))
+            [planck.test.ana-api :as ana-api]
+            [planck.test.glue]))
 
 ;; =============================================================================
 ;; Default Reporting
@@ -645,3 +646,5 @@
                {:type :fail, :message ~msg,
                 :expected '~form, :actual e#}))
            e#)))))
+
+(set! planck.test.glue/*assert-expr* assert-expr)
