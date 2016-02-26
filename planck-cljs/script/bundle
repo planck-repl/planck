@@ -4,7 +4,7 @@
 set -e
 set -o pipefail
 
-cp src-bundle/cljs/test.clj out/cljs
+cp src/cljs/test.clj out/cljs
 cp src/planck/test/macros.clj out/planck/test
 cp src/planck/{repl,core,shell}.clj out/planck
 cp src/planck/from/io/aviso/ansi.clj out/planck/from/io/aviso
