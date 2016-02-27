@@ -1,5 +1,5 @@
 #import "PLKTheme.h"
-@import AppKit;
+#import <AppKit/AppKit.h>
 
 @implementation PLKTheme
 
