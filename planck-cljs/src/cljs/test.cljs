@@ -343,9 +343,15 @@
     {:file (.-fileName exception)
      :line (.-lineNumber exception)}))
 
+(defn var-file-and-line [v]
+  (select-keys (meta v) [:file :line :column]))
+
+(defn current-testing-var []
+  (first (:testing-vars (get-current-env))))
+
 (defn do-report [m]
   (let [m (case (:type m)
-            :fail (merge (file-and-line (js/Error.) 4) m)
+            :fail  (merge (var-file-and-line (current-testing-var)) m)
             :error (merge (file-and-line (:actual m) 0) m)
             m)]
     (report m)))
