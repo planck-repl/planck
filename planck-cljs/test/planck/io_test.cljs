@@ -1,6 +1,7 @@
 (ns planck.io-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [planck.io]))
+   [planck.io]
+   [planck.core]))
 
 (deftest file-attributes-test
   (testing "file-attributes"
@@ -24,3 +25,23 @@
     (let [extension-hidden (:extension-hidden (planck.io/file-attributes "/tmp"))]
       (is (or (true? extension-hidden)
               (false? extension-hidden))))))
+
+(deftest coercions
+  (testing "as-file coerceions"
+    (is (nil? (planck.io/as-file nil)))
+    (is (= (planck.io/File. "abc") (planck.io/as-file "abc")))
+    (is (= (planck.io/File. "abc") (planck.io/as-file (planck.io/as-file "abc"))))
+    (is (= "abc" (.-path (planck.io/as-file "abc"))))))
+
+(deftest reader
+  (testing "close"
+    (planck.core/spit "/tmp/plnk-reader-test.txt" "Foo")
+    (let [r (planck.io/reader "/tmp/plnk-reader-test.txt")]
+      (planck.core/-close r)
+      (is (thrown-with-msg? js/Error #"File closed" (planck.core/-read r))))))
+
+(deftest writer
+  (testing "close"
+    (let [w (planck.io/writer "/tmp/plnk-writer-test.txt")]
+      (planck.core/-close w)
+      (is (thrown-with-msg? js/Error #"File closed" (cljs.core/-write w "hi"))))))

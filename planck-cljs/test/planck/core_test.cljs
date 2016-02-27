@@ -38,6 +38,9 @@
 
 (def f-resolved (planck.core/resolve 'planck.core-test/f))
 
+(deftest test-in-ns-REPL-special
+  (is (= :planck.core-test/a ::a)))
+
 (deftest test-resolve
   (is (= 3 ((planck.core/resolve '+) 1 2)))
   (is (= 27 ((planck.core/resolve 'planck.core-test/f) 3))))
@@ -55,3 +58,15 @@
   (is (= 12 @(planck.core/ns-resolve 'foo.core 'b)))
   (is (= 17 (:alpha (meta (planck.core/ns-resolve 'foo.core 'b)))))
   (is (= 18 @(planck.core/ns-resolve 'foo.core 'd))))
+
+(defn spit-slurp [file-name content]
+  (planck.core/spit file-name content)
+  (planck.core/slurp file-name))
+
+(deftest test-spit-slurp
+  (let [test-file "/tmp/PLANCK_TEST.txt"]
+    (is (= "" (spit-slurp test-file "")))
+    (is (= "a" (spit-slurp test-file "a")))
+    (is (= "a\n" (spit-slurp test-file "a\n")))
+    (is (= "a\nb" (spit-slurp test-file "a\nb")))
+    (is (= "a\nb\n" (spit-slurp test-file "a\nb\n")))))

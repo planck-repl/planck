@@ -1,7 +1,12 @@
 (ns planck.shell-test
-  (:require [cljs.test :refer-macros [deftest testing is]]
+  (:require [cljs.test :refer-macros [deftest is]]
             [planck.shell]))
 
-(deftest a-test
-  (testing "Stub passing test"
-    (is (= 0 0))))
+(deftest shell
+  (is (= #{[:err ""] [:exit 0] [:out "hello\n"]}
+          (into (sorted-set) (planck.shell/sh "echo" "hello")))))
+
+(deftest shell-throws
+  (is (thrown-with-msg? js/Error
+                        #"launch path not accessible"
+                        (planck.shell/sh "bogus"))))
