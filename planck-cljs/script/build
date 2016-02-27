@@ -24,7 +24,7 @@ if [ ! -e tools.reader ]; then
 fi
 
 # Build our own copy of ClojureScript compiler
-CLJS_GIT_SHA1=e531c34e04adc815a6c25c8d2499465296ca290d
+CLJS_GIT_SHA1=f58dcdf4dc37ef52d4eb1e2b7c994282bf6351f5
 if [ ! -e clojurescript ]; then
    git clone https://github.com/clojure/clojurescript
    pushd clojurescript
