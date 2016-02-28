@@ -13,7 +13,7 @@ will cause Planck to search in the `src` directory first, and then in `foo.jar` 
 
 > Paths to JARs cached locally via Maven (usually under `/Users/<username>/.m2/repository`) will work fine. See the section below on Leiningen for tips on dependency management.
 
-Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries may work with Planck. In particular, libraries that employ macros that rely on Java interop cannot work. But libraries that employ straightworward macros that expand to ClojureScript work fine.
+Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries may work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
 
 > One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML _using Planck itself_ using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
 

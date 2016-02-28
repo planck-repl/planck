@@ -33,7 +33,7 @@ cljs.user=> (cljs.test/run-tests 'foo.core-test)
 
 Testing foo.core-test
 
-FAIL in (test-square) (cljs$test$run_block@cljs/test.cljs:389:88)
+FAIL in (test-square) (:5:1)
 expected: (= 9 (foo.core/square 3))
   actual: (not (= 9 6))
 

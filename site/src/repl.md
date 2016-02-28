@@ -1,10 +1,18 @@
 ## REPL
 
 <img width="130" align="right" style="margin: 0ex 1em" src="img/repl.jpg">
-If you don't provide any `-i` or `-e` options or args to `planck` when launching it (or if you explicitly specify `-r` or `-​-​repl` as the _main-opt_), Planck will enter an interactive Read-Eval-Print Loop, or REPL.
+If you don't provide any `-i` or `-e` options or args to `planck` when launching it (or if you explicitly specify `-r` or `-​-​repl` as the _main-opt_), Planck will enter an interactive Read-Eval-Print Loop, or _REPL_.
 
 ```
 $ planck
+Planck 1.10
+ClojureScript 1.8.28
+    Docs: (doc function-name-here)
+          (find-doc "part-of-name-here")
+  Source: (source function-name-here)
+    Exit: Control+D or :cljs/quit or exit or quit
+ Results: Stored in vars *1, *2, *3, an exception in *e
+
 cljs.user=> ▊
 ```
 
@@ -18,8 +26,8 @@ You can hit return prior to typing a complete form and input will continue on th
 
 ```clojure-repl
 cljs.user=> (defn square
-       #_=>   [x]
-       #_=>   (* x x))
+       #_=>  [x]
+       #_=>  (* x x))
 #'cljs.user/square
 ```
 
@@ -71,7 +79,7 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 
 ###  Color Themes
 
-Planck employs various colors for the REPL prompt, results, stderr, _etc._ If you'd prefer to work in a monochrome REPL, pass `-t plain` or `-​-theme plain` when starting Planck.
+Planck employs various colors for the REPL prompt, results, errors, _etc._ If you'd prefer to work in a monochrome REPL, pass `-t plain` or `-​-theme plain` when starting Planck.
 
 Planck attempts to automatically detect if you are running in a light or dark terminal (first checking and honoring the `COLORFGBG` environment variable, if set) and picks the light or dark theme, which adjusts the colors accordingly. If this detection fails, you can always override it via `-t light` or `-t dark`.
 
@@ -85,7 +93,7 @@ You can exit the REPL by typeing Ctrl-D, `exit`, `quit`, or `:cljs/quit`.
 
 ### Verbose Mode
 
-If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you will see the JavaScript that is executed for forms that you enter in the REPL.
+If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you will see the JavaScript that is executed for forms that you enter in the REPL, along with other useful diagnostic information.
 
 ### REPL Specials
 
@@ -120,7 +128,7 @@ The `require`, `require-macros`, and  `import` REPL specials make it possible to
 cljs.user=> (require '[planck.core :as planck])
 nil
 cljs.user=> planck/*planck-version*
-"1.9"
+"1.10"
 cljs.user=> (import '[goog.events EventType])
 nil
 cljs.user=> EventType.CLICK
@@ -134,7 +142,7 @@ The `load-file` REPL special can be used to load ClojureScript source from any f
 
 ### Auto-Referred Symbols
 
-When you launch Planck into REPL mode, a few macros from the `planck.repl` namespace are automatically referred into the `cljs.user` namespace. These comprise `doc`, `source`, `pst`, `apropos`, and `dir`. 
+When you launch Planck into REPL mode, a few macros from the `planck.repl` namespace are automatically referred into the `cljs.user` namespace. These comprise `doc`, `source`, `pst`, `apropos`, 'find-doc`, and `dir`. 
 
 If you switch to another namespace and find that `doc` no longer works, this is because `doc` is a macro in the `planck.repl` namespace. You can refer it into your current namespace by doing the following: 
 
@@ -142,4 +150,4 @@ If you switch to another namespace and find that `doc` no longer works, this is 
 (require '[planck.repl :refer-macros [doc]])
 ```
 
-The same works for `source`, `pst`, `apropos`, and `dir`.
+The same works for `source`, `pst`, `apropos`, `find-doc`, and `dir`.

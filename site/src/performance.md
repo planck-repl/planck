@@ -31,7 +31,7 @@ planck -k cache foo.cljs
 
 The first time you run Planck this way, it will save the results of compilation into your cache directory. Then subsequent executions will use the cached results instead.
 
-In addition to caching compiled JavaScript, the associated analysis metadata is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, _etc._, without having to consult the original source. For additional speed, this analysis metadata is written using Transit instead of, say, **edn** as is currently done today by the ClojureScript compiler.
+In addition to caching compiled JavaScript, the associated analysis metadata and source mapping information is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, _etc._, without having to consult the original source. And, if an exception occurs, the source mapping info is used in forming stack traces. For additional speed, this cached info is written using Transit.
 
 This caching works for
 
@@ -44,7 +44,7 @@ The caching mechanism works whether your are running `planck` to execute a scrip
 Planck uses a (naïve) file timestamp mechanism to know if cache files are stale, and it additionally looks at comments like the following
 
 ```
-// Compiled by ClojureScript 1.7.170 {:static-fns-true}
+// Compiled by ClojureScript 1.8.18 {:static-fns true}
 ```
 
 in the compiled JavaScript to see if the files are applicable. If a file can’t be used, it is replaced with an updated copy.

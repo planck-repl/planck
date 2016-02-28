@@ -36,3 +36,7 @@ cljs.user=> (require 'foo.core :reload)
 If you define macros in bootstrap ClojureScript (which is the mode that Planck runs in), the macros must be written in ClojureScript (as opposed to Clojure, as is done with regular ClojureScript).
 
 Even though the macros are defined in ClojureScript, they are defined in `*.clj` files. You can, if you wish also define macros in `*.cljc` files, but when they are processed, the `:cljs` branch of reader conditionals will be used.
+
+### Source Mapping
+
+If an exception is thrown, you may see a stack trace. (If not, you can use `pst` to print the stack trace for an exception.) When trace lines correspond to code that originated from files, the line numbers are mapped from the executed JavaScript back to the original ClojureScript. 

@@ -3,7 +3,7 @@
 <img width="100" align="right" style="margin: 0ex 1em" src="img/setup.jpg">
 Planck runs on OS X. 
 
-Planck requires no external dependencies. (There is no dependency on either the Java JVM or Node.js.)
+Planck requires no external dependencies. (There is no need for either the Java JVM or Node.js.)
 
 ### Homebrew
 
@@ -34,8 +34,6 @@ If you'd like to use Homebrew to install the latest unreleased version of Planck
 $ brew remove planck
 $ brew install --HEAD planck
 ```
-
-> Note, master requires Maven to be explicitly set up in the formula for now. To do this `brew edit planck` and add a line below the one for `leiningen` specifying `depends_on "maven" => :build`
 
 ### Manual Download and Install
 

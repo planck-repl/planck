@@ -12,4 +12,4 @@ if [ ! -f $MARKDOWN_CLJ_JAR ]; then
     rm -rf script/cache/*
 fi
 
-planck -c $MARKDOWN_CLJ_JAR -kscript/cache script/build.cljs
+planck -c $MARKDOWN_CLJ_JAR script/build.cljs

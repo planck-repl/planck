@@ -36,3 +36,5 @@ You can exit a socket REPL connection by typing `exit`, `quit`, or `:cljs/quit`.
 Socket REPLs can be used by IDEs, for example. It provides a side channel that an IDE can use in order to introspect the runtime environment without interfering with your primary REPL session.
 
 Additionally, socket REPLs could be used in other creative fashions—perhaps facilitating collaborative development without relying on other sharing technologies like `tmux`.
+
+Since socket REPLs are established from environments with unknown terminal capabilities, all of the rich terminal control and coloring (VT-100 and ANSI codes) are turned off for socket REPL sessions.
