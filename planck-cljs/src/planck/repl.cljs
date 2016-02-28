@@ -527,7 +527,8 @@
   [path name source cache]
   (when (and path source cache (:cache-path @app-env))
     (let [cache-json (cljs->transit-json cache)
-          sourcemap-json (cljs->transit-json (get-in @planck.repl/st [:source-maps name]))]
+          sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps name])]
+                           (cljs->transit-json sm))]
       (log-cache-activity :write path cache-json sourcemap-json)
       (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
         (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
@@ -1051,13 +1052,11 @@
     (when (:source x)
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
-            cache-json (when file-namespace
-                         (cljs->transit-json (get-namespace file-namespace)))]
-        (log-cache-activity :write (:name x) cache-json nil)
-        (js/PLANCK_CACHE (cache-prefix-for-path relpath false)
+            cache (when file-namespace (get-namespace file-namespace))]
+        (write-cache relpath
+          file-namespace
           (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
-          cache-json
-          nil)))
+          cache)))
     (cb {:value nil})))
 
 (defn- process-execute-source
