@@ -534,16 +534,23 @@
         cache-json
         sourcemap-json))))
 
-(defn- caching-js-eval
-  [{:keys [path name source cache]}]
-  (when (and path source cache (:cache-path @app-env))
-    (write-cache path name source cache))
-  (if (and (not (empty? path))
-           (not= expression-name path))
-    (let [exception (js/PLANCK_EVAL source (file-url (js-path-for-name name)))]
+(defn- js-eval
+  [source source-url]
+  (if source-url
+    (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
         (throw exception)))
     (js/eval source)))
+
+(defn- caching-js-eval
+  [{:keys [path name source source-url cache]}]
+  (when (and path source cache (:cache-path @app-env))
+    (write-cache path name source cache))
+  (let [source-url (or source-url
+                       (when (and (not (empty? path))
+                                  (not= expression-name path))
+                         (file-url (js-path-for-name name))))]
+    (js-eval source source-url)))
 
 (defn- extension->lang
   [extension]
@@ -610,11 +617,11 @@
       (log-cache-activity :read path cache-json sourcemap-json)
       (when (and sourcemap-json name)
         (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
-      (when-not (skip-load-js? name)
-        (js/PLANCK_EVAL (cond-> js-source (not (bundled? js-modified source-modified)) strip-first-line)
-          (file-url (add-suffix path ".js"))))
       (merge {:lang   :js
               :source ""}
+        (when-not (skip-load-js? name)
+          {:source     (cond-> js-source (not (bundled? js-modified source-modified)) strip-first-line)
+           :source-url (file-url (add-suffix path ".js"))})
         (when cache-json
           {:cache (transit-json->cljs cache-json)})))))
 
@@ -904,7 +911,7 @@
   [file {:keys [in-exit-context?] :as opts}]
   (binding [theme (assoc theme :err-font (:verbose-font theme))]
     (load {:file file}
-      (fn [{:keys [lang source cache]}]
+      (fn [{:keys [lang source source-url cache]}]
         (if source
           (case lang
             :clj (execute-source ["text" source] opts)
@@ -916,8 +923,8 @@
                         (fn [res]
                           (if-let [error (:error res)]
                             (handle-error (js/Error. error) false in-exit-context?)
-                            (js/eval source))))))))
-                                                                       (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?))))))
+                            (js-eval source source-url))))))))
+          (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?))))))
 
 (defn- dir*
   [nsname]
