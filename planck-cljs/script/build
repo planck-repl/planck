@@ -8,11 +8,11 @@ set -o pipefail
 #lein run -m clojure.main script/build.clj
 
 # Build our own copy of tools.reader
-TRDR_GIT_SHA1=bb3209540dae44758c6545cd67c99b11de915806
+TRDR_GIT_COMMIT=tools.reader-1.0.0-alpha4
 if [ ! -e tools.reader ]; then
    git clone https://github.com/clojure/tools.reader
    pushd tools.reader
-   git reset --hard $TRDR_GIT_SHA1
+   git reset --hard $TRDR_GIT_COMMIT
    # Apply patches
    # curl -L http://dev.clojure.org/jira/secure/attachment/15505/CLJS-1564-2.patch | git apply
    # Deal with the case when building in sandbox mode
@@ -24,11 +24,11 @@ if [ ! -e tools.reader ]; then
 fi
 
 # Build our own copy of ClojureScript compiler
-CLJS_GIT_SHA1=f58dcdf4dc37ef52d4eb1e2b7c994282bf6351f5
+CLJS_GIT_COMMIT=f58dcdf4dc37ef52d4eb1e2b7c994282bf6351f5
 if [ ! -e clojurescript ]; then
    git clone https://github.com/clojure/clojurescript
    pushd clojurescript
-   git reset --hard $CLJS_GIT_SHA1
+   git reset --hard $CLJS_GIT_COMMIT
    # Apply patches
    curl -L http://planck-repl.org/releases/1.10/test-workarounds.patch | git apply
    curl -L http://dev.clojure.org/jira/secure/attachment/15518/CLJS-1592.patch | git apply
