@@ -261,20 +261,20 @@ void handleConnect (
     }
     
     // Discard initial segment of the buffer up to and including the \n character
-    NSMutableData* newBuffer = [NSMutableData dataWithBytes:bytes + newlineIndex + 1
-                                                     length:self.inputBuffer.length - newlineIndex - 1];
-    self.inputBuffer = newBuffer;
+    if (self.inputBuffer.length == newlineIndex + 1) {
+        self.inputBuffer = [NSMutableData data];
+    } else {
+        self.inputBuffer = [NSMutableData dataWithBytes:self.inputBuffer.bytes + newlineIndex + 1
+                                                 length:self.inputBuffer.length - newlineIndex - 1];
+    }
     
     if (self.evaluating) {
         [self.readQueue enqueue:[NSString stringWithFormat:@"%@\n", read]];
     } else {
-        // Dispatch to the background so we can continue to read
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-            BOOL tearDown = [self processLine:read dumbTerminal:YES theme:@"dumb"];
-            if (tearDown) {
-                [self tearDown];
-            }
-        });
+        BOOL tearDown = [self processLine:read dumbTerminal:YES theme:@"dumb"];
+        if (tearDown) {
+            [self tearDown];
+        }
     }
 }
 
@@ -292,22 +292,33 @@ void handleConnect (
         if (len == -1) {
             NSLog(@"Error reading from REPL input stream");
         } else if (len > 0) {
-            [self.inputBuffer appendBytes:(const void *)buf length:len];
             
-            BOOL found = NO;
-            for (size_t i=0; i<len; i++) {
-                if (buf[i] == '\n') {
-                    found = YES;
-                    [self processInputBuffer:self.inputBufferBytesScanned + i];
-                    break;
+            @synchronized(self.inputBuffer) {
+                
+                [self.inputBuffer appendBytes:(const void *)buf length:len];
+                
+                while (YES) {
+                    BOOL found = NO;
+                    size_t upperBound = self.inputBuffer.length - self.inputBufferBytesScanned;
+                    const char* bytes = self.inputBuffer.bytes;
+                    for (size_t i=0; i<upperBound; i++) {
+                        if (bytes[i] == '\n') {
+                            found = YES;
+                            [self processInputBuffer:self.inputBufferBytesScanned + i];
+                            break;
+                        }
+                    }
+                    if (found) {
+                        self.inputBufferBytesScanned = 0;
+                    } else {
+                        self.inputBufferBytesScanned += upperBound;
+                        break;
+                    }
+                    
                 }
             }
-            if (found) {
-                self.inputBufferBytesScanned = 0;
-            } else {
-                self.inputBufferBytesScanned += len;
-            }
         }
+        
     } else if (eventCode == NSStreamEventHasSpaceAvailable) {
         @synchronized(self.sendLock) {
             if (self.dataBeingSent) {
