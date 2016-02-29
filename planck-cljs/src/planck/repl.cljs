@@ -527,7 +527,7 @@
   [path name source cache]
   (when (and path source cache (:cache-path @app-env))
     (let [cache-json (cljs->transit-json cache)
-          sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps name])]
+          sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps (:name cache)])]
                            (cljs->transit-json sm))]
       (log-cache-activity :write path cache-json sourcemap-json)
       (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
