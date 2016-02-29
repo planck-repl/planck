@@ -1053,10 +1053,7 @@
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
             cache (when file-namespace (get-namespace file-namespace))]
-        (write-cache relpath
-          file-namespace
-          (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
-          cache)))
+        (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
 
 (defn- process-execute-source
