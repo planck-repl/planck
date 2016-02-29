@@ -44,7 +44,7 @@
                    "dependencies"
                    "performance"
                    "socket-repl"
-                   "emacs"
+                   "ides"
                    "internals"
                    "contributing"
                    "legal"])
