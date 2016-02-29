@@ -757,15 +757,15 @@
 
 (defn- load-core-source-maps!
   []
-  (when-not (get (:source-maps @planck.repl/st) 'planck.repl)
-    (swap! st update-in [:source-maps] merge {'planck.repl
+  (when-not (get (:source-maps @planck.repl/st) 'cljs.core)
+    (swap! st update-in [:source-maps] merge {'cljs.core
                                               (sm/decode
                                                 (cljson->clj
-                                                  (first (js/PLANCK_LOAD "planck/repl.js.map"))))
-                                              'cljs.core
+                                                  (first (js/PLANCK_LOAD "cljs/core.js.map"))))
+                                              'cljs.core$macros
                                               (sm/decode
                                                 (cljson->clj
-                                                  (first (js/PLANCK_LOAD "cljs/core.js.map"))))})))
+                                                  (first (js/PLANCK_LOAD "core$macros.js.map"))))})))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
 
