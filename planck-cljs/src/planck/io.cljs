@@ -2,7 +2,9 @@
   (:require [planck.core])
   #_(:import goog.Uri))
 
-(defrecord File [path])
+(defrecord File [path]
+  Object
+  (toString [_] path))
 
 #_(defn build-uri
     "Builds a URI"
@@ -117,14 +119,16 @@
   [x & opts]
   (make-output-stream x (when opts (apply hash-map opts))))
 
+(def path-separator "/")
+
 (defn file
-  "Returns a File, passing each arg to as-file.  Multiple-arg
+  "Returns a File for given path.  Multiple-arg
    versions treat the first argument as parent and subsequent args as
    children relative to the parent."
-  ([arg]
-   (File. arg))
+  ([path]
+   (File. path))
   ([parent & more]
-   (File. (apply str parent more))))
+   (File. (apply str parent (interleave (repeat path-separator) more)))))
 
 (defn file-attributes
   "Returns a map containing the attributes of the item at a given path."
