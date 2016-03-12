@@ -219,12 +219,6 @@ $PLANCK -c $SRC <<REPL_INPUT
 (+ 3 (test-require-macros.core/str->int "2"))
 REPL_INPUT
 
-echo "Test in-ns REPL special"
-$PLANCK <<REPL_INPUT
-(in-ns 'foo.bar)
-::a
-REPL_INPUT
-
 echo "Test dir"
 $PLANCK <<REPL_INPUT
 (ns foo.bar)
@@ -320,38 +314,6 @@ $PLANCK -c $SRC <<REPL_INPUT
 REPL_INPUT
 echo $?
 
-echo "Spit / slurp"
-$PLANCK <<REPL_INPUT
-(def test-file "/tmp/PLANCK_TEST.txt")
-(require 'planck.core)
-(defn test-spit-slurp [content]
-  (planck.core/spit test-file content)
-  (prn
-    (= content
-      (planck.core/slurp test-file))))
-(test-spit-slurp "")
-(test-spit-slurp "a")
-(test-spit-slurp "a\n")
-(test-spit-slurp "a\nb")
-(test-spit-slurp "a\nb\n")
-REPL_INPUT
-
-echo "Shell"
-$PLANCK <<REPL_INPUT
-(require 'planck.shell)
-(into (sorted-set) (planck.shell/sh "echo" "hello"))
-REPL_INPUT
-
-echo "Shell throws"
-$PLANCK <<REPL_INPUT
-(require 'planck.shell)
-(try
-  (planck.shell/sh "bogus")
-  (println "unexpected")
-  (catch :default _
-    (println "expected")))
-REPL_INPUT
-
 echo "Shell with-sh-dir"
 $PLANCK <<REPL_INPUT
 (require '[planck.shell :refer-macros [with-sh-dir]])
@@ -366,16 +328,6 @@ echo "Shell stderr"
 $PLANCK <<REPL_INPUT
 (require 'planck.shell)
 (into (sorted-set) (planck.shell/sh "$PLANCK_BINARY" "-e" "(binding [*print-fn* *print-err-fn*] (println \"this is from stderr\"))"))
-REPL_INPUT
-
-echo "Coercions"
-$PLANCK <<REPL_INPUT
-(require 'planck.io)
-(in-ns 'planck.io)
-(as-file nil)
-(as-file "abc")
-(as-file (as-file "abc"))
-(.-path (as-file "abc"))
 REPL_INPUT
 
 echo "reader and read-line"
@@ -465,26 +417,6 @@ $PLANCK <<REPL_INPUT
 (test-write "x\n" "a\n")
 (test-write "x\n" "a\nb")
 (test-write "x\n" "a\nb\n")
-REPL_INPUT
-
-echo "reader close"
-$PLANCK <<REPL_INPUT
-(require 'planck.repl)
-(set! planck.repl/*planck-integration-tests* true)
-(require '[planck.core :refer [-close -read]] '[planck.io :refer [reader]])
-(def r (reader "/tmp/PLANCK_TEST.txt"))
-(-close r)
-(-read r)
-REPL_INPUT
-
-echo "writer close"
-$PLANCK <<REPL_INPUT
-(require 'planck.repl)
-(set! planck.repl/*planck-integration-tests* true)
-(require '[planck.core :refer [-close]] '[planck.io :refer [writer]])
-(def w (writer "/tmp/PLANCK_TEST.txt"))
-(-close w)
-(-write w "hi")
 REPL_INPUT
 
 echo "Test write and read binary"

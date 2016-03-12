@@ -194,9 +194,6 @@ Test require-macros unknown ns
 Test require-macros REPL special
 [34mnil[m
 [34m5[m
-Test in-ns REPL special
-[34mnil[m
-[34m:foo.bar/a[m
 Test dir
 [34mnil[m
 [34m#'foo.bar/xfirst[m
@@ -367,27 +364,6 @@ Test load-file REPL error in file
 Test load-file REPL exit in file
 [34mnil[m
 132
-Spit / slurp
-[34m#'cljs.user/test-file[m
-[34mnil[m
-[34m#'cljs.user/test-spit-slurp[m
-true
-[34mnil[m
-true
-[34mnil[m
-true
-[34mnil[m
-true
-[34mnil[m
-true
-[34mnil[m
-Shell
-[34mnil[m
-[34m#{[:err ""] [:exit 0] [:out "hello\n"]}[m
-Shell throws
-[34mnil[m
-expected
-[34mnil[m
 Shell with-sh-dir
 [34mnil[m
 [34m"/private/tmp\n"[m
@@ -396,13 +372,6 @@ Shell with-sh-dir
 Shell stderr
 [34mnil[m
 [34m#{[:err "[31mthis is from stderr[m[31m\n[m"] [:exit 0] [:out ""]}[m
-Coercions
-[34mnil[m
-[34mnil[m
-[34mnil[m
-[34m#planck.io.File{:path "abc"}[m
-[34m#planck.io.File{:path "abc"}[m
-[34m"abc"[m
 reader and read-line
 [34mnil[m
 [34m#'cljs.user/test-read[m
@@ -475,20 +444,6 @@ writer append
 [34mtrue[m
 [34mtrue[m
 [34mtrue[m
-reader close
-[34mnil[m
-[34mtrue[m
-[34mnil[m
-[34m#'cljs.user/r[m
-[34mnil[m
-[1;31mFile closed.[m
-writer close
-[34mnil[m
-[34mtrue[m
-[34mnil[m
-[34m#'cljs.user/w[m
-[34mnil[m
-[1;31mFile closed.[m
 Test write and read binary
 [34mnil[m
 [34m#'cljs.user/binary-file[m
