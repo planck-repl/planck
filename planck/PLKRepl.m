@@ -601,6 +601,95 @@ void handleConnect (
     }
 }
 
+NSString * hostAndPort(NSString *socketAddr, int socketPort)
+{
+    NSMutableString * tmp = [[NSMutableString alloc] init];
+    
+    if (socketAddr) {
+        [tmp appendString:socketAddr];
+    } else {
+        [tmp appendString:@"localhost"];
+    }
+    [tmp appendString:@":"];
+    [tmp appendString: [@(socketPort) stringValue]];
+    
+    return [NSString stringWithString:tmp];
+}
+
+- (void)runSocketRepl:(int)socketPort
+           socketAddr:(NSString *)socketAddr
+                theme:(NSString *)theme
+         dumbTerminal:(BOOL)dumbTerminal
+{
+    NSString * fullAddress = hostAndPort(socketAddr, socketPort);
+    
+    CFSocketContext socketCtxt = {0, (__bridge void *)self, NULL, NULL, NULL};
+    
+    CFSocketRef myipv4cfsock = CFSocketCreate(
+                                              kCFAllocatorDefault,
+                                              PF_INET,
+                                              SOCK_STREAM,
+                                              IPPROTO_TCP,
+                                              kCFSocketAcceptCallBack, handleConnect, &socketCtxt);
+    
+    struct sockaddr_in sin;
+    
+    memset(&sin, 0, sizeof(sin));
+    sin.sin_len = sizeof(sin);
+    sin.sin_family = AF_INET; /* Address family */
+    sin.sin_port = htons(socketPort);
+    if (socketAddr) {
+        inet_aton([socketAddr cStringUsingEncoding:NSUTF8StringEncoding], &sin.sin_addr);
+    } else {
+        sin.sin_addr.s_addr= INADDR_ANY;
+    }
+    CFDataRef sincfd = CFDataCreate(
+                                    kCFAllocatorDefault,
+                                    (UInt8 *)&sin,
+                                    sizeof(sin));
+    
+    if (CFSocketSetAddress(myipv4cfsock, sincfd) != kCFSocketSuccess) {
+        
+        
+        printf("Planck socket REPL could not bind to %s.\n", [fullAddress UTF8String]);
+        self.exitValue = EXIT_FAILURE;
+    } else {
+        s_socketRepls = [[NSMutableDictionary alloc] init];
+        s_evalLock = [[NSLock alloc] init];
+        
+        CFRelease(sincfd);
+        
+        CFRunLoopSourceRef socketsource = CFSocketCreateRunLoopSource(
+                                                                      kCFAllocatorDefault,
+                                                                      myipv4cfsock,
+                                                                      0);
+        
+        CFRunLoopAddSource(
+                           CFRunLoopGetCurrent(),
+                           socketsource,
+                           kCFRunLoopDefaultMode);
+        
+        
+        dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
+        dispatch_async(thread, ^{
+            
+            [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
+            
+            s_shouldKeepRunning = NO;
+            
+        });
+        
+        printf("Planck socket REPL listening at %s.\n", [fullAddress UTF8String]);
+        s_shouldKeepRunning = YES;
+        
+        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+        while (s_shouldKeepRunning &&
+               [runLoop runMode:NSDefaultRunLoopMode
+                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
+        
+    }
+}
+
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal
                             theme:(NSString*)theme
@@ -608,10 +697,7 @@ void handleConnect (
                        socketPort:(int)socketPort
 {
     s_clojureScriptEngine = clojureScriptEngine;
-    if (socketPort) {
-        s_socketRepls = [[NSMutableDictionary alloc] init];
-        s_evalLock = [[NSLock alloc] init];
-    }
+   
     
     self.previousLines = [[NSMutableArray alloc] init];
     s_previousLines = self.previousLines;
@@ -639,75 +725,10 @@ void handleConnect (
         linenoiseSetHighlightCancelCallback(highlightCancel);
     }
     
-    if (socketPort != 0) {
-        
-        CFSocketContext socketCtxt = {0, (__bridge void *)self, NULL, NULL, NULL};
-        
-        CFSocketRef myipv4cfsock = CFSocketCreate(
-                                                  kCFAllocatorDefault,
-                                                  PF_INET,
-                                                  SOCK_STREAM,
-                                                  IPPROTO_TCP,
-                                                  kCFSocketAcceptCallBack, handleConnect, &socketCtxt);
-        
-        struct sockaddr_in sin;
-        
-        memset(&sin, 0, sizeof(sin));
-        sin.sin_len = sizeof(sin);
-        sin.sin_family = AF_INET; /* Address family */
-        sin.sin_port = htons(socketPort);
-        if (socketAddr) {
-            inet_aton([socketAddr cStringUsingEncoding:NSUTF8StringEncoding], &sin.sin_addr);
-        } else {
-            sin.sin_addr.s_addr= INADDR_ANY;
-        }
-        CFDataRef sincfd = CFDataCreate(
-                                        kCFAllocatorDefault,
-                                        (UInt8 *)&sin,
-                                        sizeof(sin));
-        
-        CFSocketSetAddress(myipv4cfsock, sincfd);
-        CFRelease(sincfd);
-        
-    
-        CFRunLoopSourceRef socketsource = CFSocketCreateRunLoopSource(
-                                                                      kCFAllocatorDefault,
-                                                                      myipv4cfsock,
-                                                                      0);
-        
-        CFRunLoopAddSource(
-                           CFRunLoopGetCurrent(),
-                           socketsource,
-                           kCFRunLoopDefaultMode);
-        
-    
-        
-    }
-    
-    // Now we run the loop
-    
-    if (socketPort != 0) {
-        
-        dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
-        dispatch_async(thread, ^{
-            
-            [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
-            
-            s_shouldKeepRunning = NO;
-            
-        });
-        
-        printf("Planck socket REPL listening.\n");
-        s_shouldKeepRunning = YES;
-        
-        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        while (s_shouldKeepRunning &&
-               [runLoop runMode:NSDefaultRunLoopMode
-                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
-        
-    } else {
-        
+    if (socketPort == 0) {
         [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
+    } else {
+        [self runSocketRepl:socketPort socketAddr:socketAddr theme:theme dumbTerminal:dumbTerminal];
     }
 
     
