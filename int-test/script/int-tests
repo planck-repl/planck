@@ -3,7 +3,7 @@
   (:require [planck.core :refer [exit]]
             [planck.shell :refer [sh *sh-dir*]]))
 
-(def planck-version "1.10")
+(def planck-version "1.11")
 
 ;; Perhaps this file can evolve to be more like
 ;; cljs.test, and perhaps it can involve multiple
