@@ -14,7 +14,7 @@ if [ ! -e clojurescript ]; then
    pushd clojurescript
    git reset --hard $CLJS_GIT_COMMIT
    # Apply patches
-   curl -L http://planck-repl.org/releases/1.10/test-workarounds.patch | git apply
+   curl -L http://dev.clojure.org/jira/secure/attachment/15548/CLJS-1590v2.patch | git apply
    curl -L http://dev.clojure.org/jira/secure/attachment/15518/CLJS-1592.patch | git apply
    # Deal with the case when building in sandbox mode
    if [ -e ../profiles.clj ]; then
