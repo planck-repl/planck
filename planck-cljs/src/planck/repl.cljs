@@ -963,7 +963,7 @@
       (repl/print-doc (repl-special-doc sym))
 
       (get-namespace sym)
-      (cljs.repl/print-doc
+      (repl/print-doc
         (select-keys (get-namespace sym) [:name :doc]))
 
       (get-var (get-aenv) sym)
