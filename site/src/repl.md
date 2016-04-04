@@ -93,7 +93,7 @@ You can exit the REPL by typeing Ctrl-D, `exit`, `quit`, or `:cljs/quit`.
 
 ### Verbose Mode
 
-If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you will see the JavaScript that is executed for forms that you enter in the REPL, along with other useful diagnostic information.
+If you started Planck in verbose mode (by passing `-v` or `-​-verbose`) then you will see the JavaScript that is executed for forms that you enter in the REPL, along with other useful diagnostic information.
 
 ### REPL Specials
 
