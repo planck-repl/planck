@@ -107,6 +107,7 @@
         {"repl", no_argument, NULL, 'r'},
         {"static-fns", no_argument, NULL, 's'},
         {"no-banner", no_argument, NULL, 'z'},
+        {"quiet", no_argument, NULL, 'q'},
 
         // Undocumented options used for development
         {"out", required_argument, NULL, 'o'},
@@ -222,6 +223,7 @@
                 staticFns = YES;
                 break;
             }
+            case 'q':
             case 'z':
             {
                 noBanner = YES;
@@ -289,6 +291,7 @@
             printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
             printf("                               args\n");
             printf("    -r, --repl                 Run a repl\n");
+            printf("    --quiet                    Run a repl in quiet mode.\n");
             printf("    path                       Run a script from a file or resource\n");
             printf("    -                          Run a script from standard input\n");
             printf("    -h, -?, --help             Print this help message and exit\n");
