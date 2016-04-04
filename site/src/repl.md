@@ -142,7 +142,7 @@ The `load-file` REPL special can be used to load ClojureScript source from any f
 
 ### Auto-Referred Symbols
 
-When you launch Planck into REPL mode, a few macros from the `planck.repl` namespace are automatically referred into the `cljs.user` namespace. These comprise `doc`, `source`, `pst`, `apropos`, 'find-doc`, and `dir`. 
+When you launch Planck into REPL mode, a few macros from the `planck.repl` namespace are automatically referred into the `cljs.user` namespace. These comprise `doc`, `source`, `pst`, `apropos`, `find-doc`, and `dir`. 
 
 If you switch to another namespace and find that `doc` no longer works, this is because `doc` is a macro in the `planck.repl` namespace. You can refer it into your current namespace by doing the following: 
 
