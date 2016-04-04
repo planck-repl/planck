@@ -97,7 +97,7 @@ If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you 
 
 ### Quiet Mode
 
-If you started Planck in verbose mode (by passing `-q` or `--quiet`) then you will not see any banners from REPL, just your script output.
+If you started Planck in quiet mode (by passing `-q` or `--quiet`) then you will not see any banners from REPL, just your script output.
 
 ### REPL Specials
 
