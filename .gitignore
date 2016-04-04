@@ -11,3 +11,4 @@ site/script/target
 site/target
 planck-cljs/tools.reader
 planck-cljs/clojurescript
+.idea
