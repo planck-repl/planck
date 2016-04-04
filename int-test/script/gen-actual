@@ -14,7 +14,7 @@
 source int-test/script/setup-env
 COLORFGBG="0;15"
 
-export PLANCK="$PLANCK_BINARY --no-banner"
+export PLANCK="$PLANCK_BINARY --quiet"
 echo "Legal output"
 $PLANCK -l
 

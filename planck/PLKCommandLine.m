@@ -81,7 +81,7 @@
     NSString* socketAddr = nil;
     int socketPort = 0;
     BOOL staticFns = NO;
-    BOOL noBanner = NO;
+    BOOL quietMode = NO;
     NSString* theme = nil;
 
     // Undocumented options, used for development.
@@ -106,7 +106,7 @@
         {"main", required_argument, NULL, 'm'},
         {"repl", no_argument, NULL, 'r'},
         {"static-fns", no_argument, NULL, 's'},
-        {"no-banner", no_argument, NULL, 'z'},
+        {"quiet", no_argument, NULL, 'q'},
 
         // Undocumented options used for development
         {"out", required_argument, NULL, 'o'},
@@ -114,7 +114,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?li:e:c:vdt:n:sm:ro:k:";
+    const char *shortopts = "h?qli:e:c:vdt:n:sm:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -222,9 +222,9 @@
                 staticFns = YES;
                 break;
             }
-            case 'z':
+            case 'q':
             {
-                noBanner = YES;
+                quietMode = YES;
                 break;
             }
         }
@@ -289,6 +289,7 @@
             printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
             printf("                               args\n");
             printf("    -r, --repl                 Run a repl\n");
+            printf("    -q, --quiet                A quiet mode\n");
             printf("    path                       Run a script from a file or resource\n");
             printf("    -                          Run a script from standard input\n");
             printf("    -h, -?, --help             Print this help message and exit\n");
@@ -313,7 +314,7 @@
             [PLKLegal displayLegalese];
         } else {
             PLKBundledOut* bundledOut = [[PLKBundledOut alloc] init];
-            if (repl && !noBanner) {
+            if (repl && !quietMode) {
                 [PLKCommandLine printBanner:bundledOut];
             }
             return [[[PLKExecutive alloc] init] runScripts:scripts

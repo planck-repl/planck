@@ -95,6 +95,10 @@ You can exit the REPL by typeing Ctrl-D, `exit`, `quit`, or `:cljs/quit`.
 
 If you started Planck in verbose mode (by passing `-v` or `--verbose`) then you will see the JavaScript that is executed for forms that you enter in the REPL, along with other useful diagnostic information.
 
+### Quiet Mode
+
+If you started Planck in quiet mode (by passing `-q` or `--quiet`) then you will not see any banners from REPL, just your script output.
+
 ### REPL Specials
 
 REPL specials are, in essence, special forms that exist only in the REPL. (They can't be used in regular ClojureScript code and must be entered as top-level forms.)

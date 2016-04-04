@@ -48,6 +48,7 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
     -m ns-name, --main=ns-name Call the -main function from a namespace with
                                args
     -r, --repl                 Run a repl
+    -q, --quiet                A quiet mode
     path                       Run a script from a file or resource
     -                          Run a script from standard input
     -h, -?, --help             Print this help message and exit
