@@ -37,6 +37,8 @@ If you define macros in bootstrap ClojureScript (which is the mode that Planck r
 
 Even though the macros are defined in ClojureScript, they are defined in `*.clj` files. You can, if you wish, also define macros in `*.cljc` files, but when they are processed, the `:cljs` branch of reader conditionals will be used.
 
+When writing macros for self-hosted ClojureScript, they must abide the same rules that apply to all ClojureScript code. In particular, this means a macro cannot call another macro defined in the same _compilation stage_: If a macro calls another macro _during_ expansion, then one approach is to define the called macro in a “higher” namespace (possibly arranged in a tower). On the other hand, if a macro simply _expands_ to a call to another macro defined in the same namespace, then the compilation staging rules are satisfied.
+
 ### Source Mapping
 
 If an exception is thrown, you may see a stack trace. (If not, you can use `pst` to print the stack trace for an exception.) When trace lines correspond to code that originated from files, the line numbers are mapped from the executed JavaScript back to the original ClojureScript. 
