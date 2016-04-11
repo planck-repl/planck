@@ -277,10 +277,23 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                  NSString* source = nil;
                  NSDate* sourceFileModified = nil;
                  
-                 // First try in the srcPaths
+                 BOOL developing = (srcPaths.count == 1 &&
+                                    [srcPaths[0][0] isEqualToString:@"src"] &&
+                                    [srcPaths[0][1] hasSuffix:@"/planck-cljs/src/"]);
                  
-                 if (![path isEqualToString:@"cljs/core.cljs.cache.aot.json"] &&
-                     ![path isEqualToString:@"cljs/core$macros.cljc.cache.json"]) {
+                 
+                 // First, if not developing, try loading from bundled deps
+                 
+                 if (!developing) {
+                     source = [self.bundledOut getSourceForPath:path];
+                     if (source) {
+                         sourceFileModified = [NSDate dateWithTimeIntervalSince1970:0];
+                     }
+                 }
+                 
+                 // Next try in the srcPaths
+                 
+                 if (!source) {
                      
                      for (NSArray* srcPath in srcPaths) {
                          NSString* type = srcPath[0];
@@ -334,8 +347,13 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                          source = [NSString stringWithContentsOfFile:fullPath
                                                             encoding:NSUTF8StringEncoding error:nil];
                          sourceFileModified = [self getModificationDateForFile:fullPath];
-                     } else {
-                         source = [self.bundledOut getSourceForPath:path];
+                     }
+                 }
+                 
+                 // Finally, if developing, make a last ditch effort to load from bundled code
+                 if (developing) {
+                     source = [self.bundledOut getSourceForPath:path];
+                     if (source) {
                          sourceFileModified = [NSDate dateWithTimeIntervalSince1970:0];
                      }
                  }
