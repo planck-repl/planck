@@ -2,17 +2,6 @@
   (:require [planck.test.ana-api :as ana-api]
             [planck.test.template]))
 
-(defmacro try-expr
-  "Used by the 'is' macro to catch unexpected exceptions.
-  You don't call this."
-  [assert-expr msg form]
-  `(try
-     ~(assert-expr &env msg form)
-     (catch :default t#
-       (cljs.test/do-report
-         {:type :error, :message ~msg,
-          :expected '~form, :actual t#}))))
-
 (defmacro do-template
   "Repeatedly copies expr (in a do block) for each group of arguments
   in values.  values are automatically partitioned by the number of

@@ -14,6 +14,17 @@
             [planck.test.template]
             [planck.test.glue]))
 
+(defmacro try-expr
+  "Used by the 'is' macro to catch unexpected exceptions.
+  You don't call this."
+  [assert-expr msg form]
+  `(try
+     ~(assert-expr &env msg form)
+     (catch :default t#
+       (cljs.test/do-report
+         {:type :error, :message ~msg,
+          :expected '~form, :actual t#}))))
+
 ;; =============================================================================
 ;; Assertion Macros
 
@@ -30,7 +41,7 @@
   re-find) the regular expression re."
   ([form] `(cljs.test/is ~form nil))
   ([form msg]
-   `(planck.test.macros/try-expr ~planck.test.glue/*assert-expr* ~msg ~form)))
+   `(try-expr ~planck.test.glue/*assert-expr* ~msg ~form)))
 
 (defmacro are
   "Checks multiple assertions with a template expression.
