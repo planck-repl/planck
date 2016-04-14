@@ -35,7 +35,9 @@ cljs.user=> (require 'foo.core :reload)
 
 If you define macros in bootstrap ClojureScript (which is the mode that Planck runs in), the macros must be written in ClojureScript (as opposed to Clojure, as is done with regular ClojureScript).
 
-Even though the macros are defined in ClojureScript, they are defined in `*.clj` files. You can, if you wish also define macros in `*.cljc` files, but when they are processed, the `:cljs` branch of reader conditionals will be used.
+Even though the macros are defined in ClojureScript, they are defined in `*.clj` files. You can, if you wish, also define macros in `*.cljc` files, but when they are processed, the `:cljs` branch of reader conditionals will be used.
+
+When writing macros for self-hosted ClojureScript, they must abide the same rules that apply to all ClojureScript code. In particular, this means a macro cannot call another macro defined in the same _compilation stage_: If a macro calls another macro _during_ expansion, then one approach is to define the called macro in a “higher” namespace (possibly arranged in a tower). On the other hand, if a macro simply _expands_ to a call to another macro defined in the same namespace, then the compilation staging rules are satisfied.
 
 ### Source Mapping
 
