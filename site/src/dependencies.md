@@ -17,11 +17,27 @@ Note that, since Planck employs bootstrapped ClojureScript, not all regular Cloj
 
 > One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML _using Planck itself_ using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
 
-### Using Leiningen for JAR Dependency Management
+### Shipping Deps
 
-Planck requires that JARs be available locally and on the classpath, but it doen't take care of downloading JARs. One solution to this is to use [Leiningen](http://leiningen.org) to manage dependencies for you, and to use its `classpath` option to generate a classpath string for use with Planck.
+Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes most of the Google Closure library as well as namespaces like:
 
-Here is an example. Let's say you want to use [clojurescript.csv](https://github.com/testdouble/clojurescript.csv) from Planck. First make a simple Leiningen `project.clj` just for the purpose of loading this dependency:
+* `cljs.test`
+* `clojure.data`
+* `clojure.template`
+* `clojure.string`
+* `clojure.set`
+* `clojure.walk`
+* `clojure.zip`
+
+Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `-c` or `-​-​classpath`.
+
+A consequence of this (as well as the fact that nearly all of the code that ships with Planck is AOT-compiled), means that Planck works with a fixed version of ClojureScript. (It is not possible to update the ClojureScript version by providing a path to a newer version via `-c` or `-​-​classpath`.)
+
+### Using Leiningen or Boot for JAR Dependency Management
+
+Planck requires that JARs be available locally and on the classpath, but it doen't take care of downloading JARs. One solution to this is to use either [Leiningen](http://leiningen.org) or [Boot](http://boot-clj.com) to manage dependencies for you, and to have those tools emit a classpath for use with Planck.
+
+Here is an example using Leiningen: Let's say you want to use [clojurescript.csv](https://github.com/testdouble/clojurescript.csv) from Planck. First make a simple Leiningen `project.clj` just for the purpose of loading this dependency:
 
 ```clj
 (defproject foo "0.1.0-SNAPSHOT"
@@ -38,4 +54,10 @@ cljs.user=> (require '[testdouble.cljs.csv :as csv])
 nil
 cljs.user=> (csv/write-csv [[1 2 3] [4 5 6]])
 "1,2,3\n4,5,6"
+```
+
+If you are using Boot, the equivalent would be
+
+```
+$ planck -c`boot show -c`
 ```
