@@ -1,6 +1,7 @@
 (ns planck.core
-  (:require [planck.repl :as repl])
-  (:import [goog.string StringBuffer]))
+    (:require [planck.repl :as repl]
+     [clojure.string :as str])
+    (:import [goog.string StringBuffer]))
 
 (def *planck-version* js/PLANCK_VERSION)
 
@@ -225,6 +226,13 @@
   ([ns name val]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
      (repl/eval `(def ~name ~val) (ns-name the-ns)))))
+
+(defn class-path
+  ([] (class-path "./libs"))
+  ([lib-dir] (print
+              (str/join ":"
+                        (->> (file-seq lib-dir) (map :path)
+                             (filter #(str/ends-with? % ".jar")))))))
 
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")
