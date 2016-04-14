@@ -61,3 +61,19 @@ If you are using Boot, the equivalent would be
 ```
 $ planck -c`boot show -c`
 ```
+
+#### Caching Classpath
+
+Both Leiningen and Boot take a bit of time to verify that dependency artifacts have been downloaded. To make launching instant, just make a start shell script that looks like the following. (With this approach, be sure to manually delete the `.classpath` file if you change your dependencies.)
+
+```
+if [ ! -f .classpath ]; then
+  classpath=`lein classpath | tee .classpath`
+else
+  classpath=`cat .classpath`
+fi
+
+planck -c $classpath
+```
+
+(And if you are using Boot, replace `lein classpath` with `boot show -c`.)
