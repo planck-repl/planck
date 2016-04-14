@@ -179,8 +179,7 @@
    For additional event types, see the examples in the code.
 "}
   cljs.test
-  (:require-macros [clojure.template :as temp]
-                   [cljs.test :as test])
+  (:require-macros [cljs.test :as test])
   (:require [clojure.string :as string]
             [cljs.pprint :as pprint]
             [planck.test.ana-api :as ana-api]

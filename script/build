@@ -23,7 +23,7 @@ cd ..
 # Remove any leftover macros files so that they will not be bundled
 # We need them to be compiled by the 1st stage binary
 rm -f planck-cljs/out/planck/*macros*
-rm -f planck-cljs/out/planck/test/*macros*
+rm -f planck-cljs/out/clojure/template*macros*
 rm -f planck-cljs/out/cljs/test*macros*
 rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 
@@ -55,7 +55,7 @@ $(PWD)/$BUILD_DIR/$CONFIGURATION/planck --quiet -sdk planck-cljs/out/macros-tmp 
   'planck.core 
   'planck.shell
   'planck.from.io.aviso.ansi
-  'planck.test.macros
+  'clojure.template
   'cljs.test)
 REPL_INPUT
 
@@ -71,12 +71,12 @@ mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js.map.json planck-cljs
 mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js planck-cljs/out/planck/from/io/aviso/ansi\$macros.js
 mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.cache.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.cache.json
 mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js.map.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.js.map.json
+mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js planck-cljs/out/clojure/template\$macros.js
+mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.cache.json planck-cljs/out/clojure/template\$macros.cache.json
+mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js.map.json planck-cljs/out/clojure/template\$macros.js.map.json
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js planck-cljs/out/cljs/test\$macros.js
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.cache.json planck-cljs/out/cljs/test\$macros.cache.json
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js.map.json planck-cljs/out/planck/test\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_test_SLASH_macros\$macros.js planck-cljs/out/planck/test/macros\$macros.js
-mv planck-cljs/out/macros-tmp/planck_SLASH_test_SLASH_macros\$macros.cache.json planck-cljs/out/planck/test/macros\$macros.cache.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_test_SLASH_macros\$macros.js.map.json planck-cljs/out/planck/test/macros\$macros.js.map.json
 
 rm -rf planck-cljs/out/macros-tmp
 

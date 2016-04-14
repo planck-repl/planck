@@ -7,11 +7,10 @@
 ;   You must not remove this notice, or any other, from this software.
 
 (ns cljs.test
-  (:require-macros [planck.test.macros])
+  (:require-macros [clojure.template :as temp])
   (:require [cljs.env :as env]
             [cljs.analyzer :as ana]
             [planck.test.ana-api :as ana-api]
-            [planck.test.template]
             [planck.test.glue]))
 
 (defmacro try-expr
@@ -62,7 +61,7 @@
         (and (pos? (count argv))
           (pos? (count args))
           (zero? (mod (count args) (count argv)))))
-    `(planck.test.macros/do-template ~argv (is ~expr) ~@args)
+    `(temp/do-template ~argv (is ~expr) ~@args)
     (throw (ex-info "The number of args doesn't match are's argv." {}))))
 
 (defmacro testing
