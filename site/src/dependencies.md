@@ -22,6 +22,7 @@ Note that, since Planck employs bootstrapped ClojureScript, not all regular Cloj
 Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes most of the Google Closure library as well as namespaces like:
 
 * `cljs.test`
+* `clojure.core.reducers`
 * `clojure.data`
 * `clojure.template`
 * `clojure.string`
