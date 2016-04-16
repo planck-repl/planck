@@ -48,6 +48,7 @@
 (extract-analysis-cache "out/clojure/data.cljs.cache.edn" "out/clojure/data.cljs.cache.json")
 (extract-analysis-cache "out/clojure/walk.cljs.cache.edn" "out/clojure/walk.cljs.cache.json")
 (extract-analysis-cache "out/clojure/zip.cljs.cache.edn" "out/clojure/zip.cljs.cache.json")
+(extract-analysis-cache "out/clojure/core/reducers.cljs.cache.edn" "out/clojure/core/reducers.cljs.cache.json")
 
 (extract-analysis-cache "out/cljs/analyzer.cljc.cache.edn" "out/cljs/analyzer.cljc.cache.json")
 (extract-analysis-cache "out/cljs/compiler.cljc.cache.edn" "out/cljs/compiler.cljc.cache.json")

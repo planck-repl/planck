@@ -11,7 +11,7 @@
             [cljs.letfn-test]
             [foo.ns-shadow-test]
             [cljs.top-level]
-            #_[cljs.reducers-test]
+            [cljs.reducers-test]
             #_[cljs.keyword-test]
             [cljs.import-test]
             [cljs.ns-test.foo]
@@ -28,7 +28,7 @@
   'clojure.string-test
   'clojure.data-test
   'cljs.letfn-test
-  #_'cljs.reducers-test
+  'cljs.reducers-test
   'cljs.binding-test
   'cljs.macro-test
   'cljs.top-level

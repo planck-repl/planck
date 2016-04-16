@@ -1,6 +1,7 @@
 ;; A namespace used to cause additional libs to be included in out for bundling.
 (ns planck.bundle
   (:require
+    clojure.core.reducers
     clojure.zip
     clojure.data
     cljs.pprint
