@@ -226,5 +226,21 @@
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
      (repl/eval `(def ~name ~val) (ns-name the-ns)))))
 
+(defn- transfer-ns
+  [state ns]
+  (-> state
+    (assoc-in [:cljs.analyzer/namespaces ns]
+      (get-in @repl/st [:cljs.analyzer/namespaces ns]))))
+
+(defn init-empty-state
+  "An init function for use with cljs.js/empty-state which initializes
+  the empty state with cljs.core analysis metadata.
+
+  This is useful because Planck is built with :dump-core set to false."
+  [state]
+  (-> state
+    (transfer-ns 'cljs.core)
+    (transfer-ns 'cljs.core$macros)))
+
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")

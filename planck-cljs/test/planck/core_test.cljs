@@ -70,3 +70,11 @@
     (is (= "a\n" (spit-slurp test-file "a\n")))
     (is (= "a\nb" (spit-slurp test-file "a\nb")))
     (is (= "a\nb\n" (spit-slurp test-file "a\nb\n")))))
+
+(deftest init-empty-state-test
+  (is (= {:ns 'cljs.user, :value '(2 3 4)}
+        (cljs.js/eval-str (cljs.js/empty-state planck.core/init-empty-state)
+          "(map inc [1 2 3])"
+          nil
+          {:eval cljs.js/js-eval}
+          identity))))

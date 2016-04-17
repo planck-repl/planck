@@ -42,3 +42,16 @@ When writing macros for self-hosted ClojureScript, they must abide the same rule
 ### Source Mapping
 
 If an exception is thrown, you may see a stack trace. (If not, you can use `pst` to print the stack trace for an exception.) When trace lines correspond to code that originated from files, the line numbers are mapped from the executed JavaScript back to the original ClojureScript. 
+
+### Bootstrap ClojureScript
+
+It is possible to make use of the `cljs.js` namespace within Planck. But, since Planck is built with the `:dump-core` ClojureScript compiler option set to `false`, calls to the 0-arity version of `cljs.js/empty-state` will produce a state atom which lacks `cljs.core` analysis metadata. To produce a populated compiler state atom, you can make use of `planck.core/init-empty-state`:
+
+```
+(require 'cljs.js 'planck.core)
+
+(def st (cljs.js/empty-state planck.core/init-empty-state))
+
+(cljs.js/eval-str st "(map inc [1 2 3])" nil
+  {:eval cljs.js/js-eval :context :expr} identity)
+```
