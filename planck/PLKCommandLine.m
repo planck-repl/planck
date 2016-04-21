@@ -279,6 +279,7 @@
             printf("                             JARs\n");
             printf("    -k path, --cache=path    Cache analysis/compilation artifacts in specified\n");
             printf("                             path\n");
+            printf("    -q, --quiet              Quiet mode\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
             printf("    -t theme, --theme=theme  Sets the color theme\n");
@@ -289,7 +290,6 @@
             printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
             printf("                               args\n");
             printf("    -r, --repl                 Run a repl\n");
-            printf("    -q, --quiet                A quiet mode\n");
             printf("    path                       Run a script from a file or resource\n");
             printf("    -                          Run a script from standard input\n");
             printf("    -h, -?, --help             Print this help message and exit\n");
