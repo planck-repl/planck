@@ -7,6 +7,7 @@
 -(int)runScripts:(NSArray*)scripts
         srcPaths:(NSArray*)srcPaths
          verbose:(BOOL)verbose
+           quiet:(BOOL)quiet
       mainNsName:(NSString*)mainNsName
             repl:(BOOL)repl
          outPath:(NSString*)outPath

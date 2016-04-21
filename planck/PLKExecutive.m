@@ -15,6 +15,7 @@
 -(int)runScripts:(NSArray*)scripts
         srcPaths:(NSArray*)srcPaths
          verbose:(BOOL)verbose
+           quiet:(BOOL)quiet
       mainNsName:(NSString*)mainNsName
             repl:(BOOL)repl
          outPath:(NSString*)outPath
@@ -63,6 +64,7 @@
     } else if (repl) {
         exitValue = [[[PLKRepl alloc] init] runUsingClojureScriptEngine:self.clojureScriptEngine
                                                            dumbTerminal:dumbTerminal
+                                                                  quiet:quiet
                                                                   theme:theme
                                                              socketAddr:socketAddr
                                                              socketPort:socketPort];

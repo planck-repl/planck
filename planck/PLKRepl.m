@@ -620,6 +620,7 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
            socketAddr:(NSString *)socketAddr
                 theme:(NSString *)theme
          dumbTerminal:(BOOL)dumbTerminal
+                quiet:(BOOL)quiet
 {
     NSString * fullAddress = hostAndPort(socketAddr, socketPort);
     
@@ -679,7 +680,9 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
             
         });
         
-        printf("Planck socket REPL listening at %s.\n", [fullAddress UTF8String]);
+        if (!quiet) {
+            printf("Planck socket REPL listening at %s.\n", [fullAddress UTF8String]);
+        }
         s_shouldKeepRunning = YES;
         
         NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
@@ -692,6 +695,7 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
 
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal
+                            quiet:(BOOL)quiet
                             theme:(NSString*)theme
                        socketAddr:(NSString*)socketAddr
                        socketPort:(int)socketPort
@@ -728,7 +732,7 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
     if (socketPort == 0) {
         [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
     } else {
-        [self runSocketRepl:socketPort socketAddr:socketAddr theme:theme dumbTerminal:dumbTerminal];
+        [self runSocketRepl:socketPort socketAddr:socketAddr theme:theme dumbTerminal:dumbTerminal quiet:quiet];
     }
 
     

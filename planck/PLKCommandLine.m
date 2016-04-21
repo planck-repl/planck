@@ -320,6 +320,7 @@
             return [[[PLKExecutive alloc] init] runScripts:scripts
                                                   srcPaths:srcPaths
                                                    verbose:verbose
+                                                     quiet:quietMode
                                                 mainNsName:mainNsName
                                                       repl:repl
                                                    outPath:outPath
