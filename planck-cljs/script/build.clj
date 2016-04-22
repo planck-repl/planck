@@ -77,7 +77,6 @@
 (extract-analysis-cache "out/planck/io.cljs.cache.edn" "out/planck/io.cljs.cache.json")
 (extract-analysis-cache "out/planck/shell.cljs.cache.edn" "out/planck/shell.cljs.cache.json")
 (extract-analysis-cache "out/planck/from/io/aviso/ansi.cljs.cache.edn" "out/planck/from/io/aviso/ansi.cljs.cache.json")
-(extract-analysis-cache "out/planck/test/ana_api.cljs.cache.edn" "out/planck/test/ana_api.cljs.cache.json")
 
 (extract-analysis-cache "out/tailrecursion/cljson.cljs.cache.edn" "out/tailrecursion/cljson.cljs.cache.json")
 
