@@ -362,11 +362,25 @@
   [buffer-match-suffix candidate]
   (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
 
+(def ^:private keyword-completions
+  [:require :require-macros :import
+   :refer :refer-macros :include-macros
+   :keys :strs :syms
+   :as :or
+   :pre :post
+   :let :when :while
+   :clj :cljs
+   :default
+   :else
+   :gen-class
+   :keywordize-keys])
+
 (defn- completion-candidates
   [namespace-candidates top-form? typed-ns]
   (set (if typed-ns
          (completion-candidates-for-ns (symbol typed-ns) false)
          (concat namespace-candidates
+           (map str keyword-completions)
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
            (completion-candidates-for-ns @current-ns true)
@@ -380,7 +394,7 @@
   (let [namespace-candidates (map str (all-ns))
         top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
         typed-ns             (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
-    (let [buffer-match-suffix (re-find #"[a-zA-Z-]*$" buffer)
+    (let [buffer-match-suffix (re-find #":?[a-zA-Z-]*$" buffer)
           buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
                  []
