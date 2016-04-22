@@ -36,7 +36,7 @@ A consequence of this (as well as the fact that nearly all of the code that ship
 
 ### Using Leiningen or Boot for JAR Dependency Management
 
-Planck requires that JARs be available locally and on the classpath, but it doen't take care of downloading JARs. One solution to this is to use either [Leiningen](http://leiningen.org) or [Boot](http://boot-clj.com) to manage dependencies for you, and to have those tools emit a classpath for use with Planck.
+Planck requires that JARs be available locally and on the classpath, but it doesn't take care of downloading JARs. One solution to this is to use either [Leiningen](http://leiningen.org) or [Boot](http://boot-clj.com) to manage dependencies for you, and to have those tools emit a classpath for use with Planck.
 
 Here is an example using Leiningen: Let's say you want to use [clojurescript.csv](https://github.com/testdouble/clojurescript.csv) from Planck. First make a simple Leiningen `project.clj` just for the purpose of loading this dependency:
 
