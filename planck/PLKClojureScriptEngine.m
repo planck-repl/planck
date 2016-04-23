@@ -1090,7 +1090,16 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         // Set up REPL
         if (repl) {
             [self executeSourceType:@"text"
-                              value:@"(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])"
+                              value:@"(do (declare apropos*) (declare dir*) (declare find-doc*) (declare doc*) (declare pst*) nil)"
+                         expression:YES
+                 printNilExpression:NO
+                      inExitContext:NO
+                              setNs:@"planck.repl"
+                              theme:@"dumb"
+                    blockUntilReady:NO];
+            
+            [self executeSourceType:@"text"
+                              value:@"(require-macros '[planck.repl :refer [apropos dir find-doc doc source pst]])"
                          expression:YES
                  printNilExpression:NO
                       inExitContext:NO
