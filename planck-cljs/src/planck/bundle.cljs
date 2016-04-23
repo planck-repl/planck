@@ -6,6 +6,7 @@
     clojure.data
     cljs.pprint
     cljs.test
+    cljs.analyzer.api
     goog.Delay
     goog.Disposable
     goog.Promise
