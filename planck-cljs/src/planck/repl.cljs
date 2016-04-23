@@ -398,7 +398,7 @@
          (completion-candidates-for-ns (expand-typed-ns (symbol typed-ns)) false)
          (concat
            (map str keyword-completions)
-           (map #(str (drop-macros-suffix (str %)) "/") (all-ns))
+           (map #(drop-macros-suffix (str %)) (all-ns))
            (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
