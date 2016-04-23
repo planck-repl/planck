@@ -65,12 +65,21 @@
 
 (defn- current-alias-map
   []
-  (get-in @st [::ana/namespaces @current-ns :requires]))
+  (->> (merge (get-in @st [::ana/namespaces @current-ns :requires])
+         (get-in @st [::ana/namespaces @current-ns :require-macros]))
+    (remove (fn [[k v]] (= k v)))
+    (into {})))
 
 (defn- all-ns
   "Returns a sequence of all namespaces."
   []
   (keys (::ana/namespaces @st)))
+
+(defn- drop-macros-suffix
+  [ns-name]
+  (if (s/ends-with? ns-name "$macros")
+    (apply str (drop-last 7 ns-name))
+    ns-name))
 
 (defn- get-namespace
   "Gets the AST for a given namespace."
@@ -375,12 +384,22 @@
    :gen-class
    :keywordize-keys])
 
+(defn- expand-typed-ns
+  "Expand the typed namespace symbol to a known namespace, consulting
+  current namespace aliases if necessary."
+  [typed-ns]
+  (or (get-in st [:cljs.analyzer/namespaces typed-ns :name])
+      (typed-ns (current-alias-map))
+      typed-ns))
+
 (defn- completion-candidates
-  [namespace-candidates top-form? typed-ns]
+  [top-form? typed-ns]
   (set (if typed-ns
-         (completion-candidates-for-ns (symbol typed-ns) false)
-         (concat namespace-candidates
+         (completion-candidates-for-ns (expand-typed-ns (symbol typed-ns)) false)
+         (concat
            (map str keyword-completions)
+           (map #(str (drop-macros-suffix (str %)) "/") (all-ns))
+           (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
            (completion-candidates-for-ns @current-ns true)
@@ -391,17 +410,16 @@
 
 (defn- ^:export get-completions
   [buffer]
-  (let [namespace-candidates (map str (all-ns))
-        top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns             (second (re-find #"(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
-    (let [buffer-match-suffix (re-find #":?[a-zA-Z-]*$" buffer)
+  (let [top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
+        typed-ns             (second (re-find #"\(+(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+    (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
           buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
                  []
                  (map #(str buffer-prefix %)
                    (sort
                      (filter (partial is-completion? buffer-match-suffix)
-                       (completion-candidates namespace-candidates top-form? typed-ns)))))))))
+                       (completion-candidates top-form? typed-ns)))))))))
 
 (defn- is-completely-readable?
   [source]
@@ -953,10 +971,7 @@
                    #(re-find str-or-pattern (str %))
                    #(s/includes? (str %) (str str-or-pattern)))]
     (sort (mapcat (fn [ns]
-                    (let [ns-name (str ns)
-                          ns-name (if (s/ends-with? ns-name "$macros")
-                                    (apply str (drop-last 7 ns-name))
-                                    ns-name)]
+                    (let [ns-name (drop-macros-suffix (str ns))]
                       (map #(symbol ns-name (str %))
                         (filter matches? (public-syms ns)))))
             (all-ns)))))
