@@ -206,8 +206,7 @@ macro-crazy
 somemacro
 xfirst
 [34mnil[m
-Test doc
-[34mnil[m
+Test doc special
 [34mnil[m
 -------------------------
 cljs.core/inc
@@ -296,7 +295,6 @@ test-doc-source.core
   docstring for test-doc-source.core
 [34mnil[m
 Test source
-[34mnil[m
 Source not found
 [34mnil[m
 (defn inc
@@ -328,7 +326,7 @@ Source not found
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))
 [34mnil[m
-Test pst
+Test pst special
 [34mnil[m
 [34mtrue[m
 [34m#'cljs.user/f[m
@@ -352,7 +350,6 @@ Test load-file from classpath
 [34mnil[m
 [34mtrue[m
 Test doc support for load-file REPL special
-[34mnil[m
 -------------------------
 load-file
 ([name])
@@ -566,4 +563,4 @@ Test eval
 Ensure we can get into Planck REPL ns and all ns are loaded
 [34mnil[m
 [34mnil[m
-[34m27[m
+[34m26[m

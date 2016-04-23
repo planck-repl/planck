@@ -227,13 +227,12 @@ $PLANCK <<REPL_INPUT
 (def macro-crazy 10)
 (ns foo.bar$macros)
 (defmacro somemacro [])
-(ns cljs.user (:require [planck.repl :refer-macros [dir]]))
+(in-ns 'cljs.user)
 (dir foo.bar)
 REPL_INPUT
 
-echo "Test doc"
+echo "Test doc special"
 $PLANCK -c $SRC <<REPL_INPUT
-(ns cljs.user (:require [planck.repl :refer-macros [doc]]))
 (doc bogus)
 (doc inc)
 (doc when)
@@ -252,7 +251,6 @@ REPL_INPUT
 
 echo "Test source"
 $PLANCK -c $SRC <<REPL_INPUT
-(ns cljs.user (:require [planck.repl :refer-macros [source]]))
 (source bogus)
 (source inc)
 (source when)
@@ -263,9 +261,9 @@ $PLANCK -c $SRC <<REPL_INPUT
 (source planck.core/*reader-fn*)
 REPL_INPUT
 
-echo "Test pst"
+echo "Test pst special"
 $PLANCK <<REPL_INPUT
-(ns cljs.user (:require [planck.repl :refer-macros [pst]]))
+(require 'planck.repl)
 (set! planck.repl/*planck-integration-tests* true)
 (defn f [] (throw (js/Error. "whoah")))
 (defn g [] (throw (js/Error. "ouch")))
@@ -294,7 +292,6 @@ REPL_INPUT
 
 echo "Test doc support for load-file REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
-(ns cljs.user (:require [planck.repl :refer-macros [doc]]))
 (doc load-file)
 REPL_INPUT
 
