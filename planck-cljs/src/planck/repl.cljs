@@ -485,10 +485,9 @@
 
 (defn- extract-cache-metadata
   [source]
-  (let [file-namespace (extract-namespace source)
-        relpath        (if file-namespace
-                         (cljs/ns->relpath file-namespace)
-                         "cljs/user")]
+  (let [file-namespace (or (extract-namespace source)
+                           'cljs.user)
+        relpath        (cljs/ns->relpath file-namespace)]
     [file-namespace relpath]))
 
 (def ^:private extract-cache-metadata-mem (memoize extract-cache-metadata))
@@ -1080,7 +1079,7 @@
     (when (:source x)
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
-            cache (when file-namespace (get-namespace file-namespace))]
+            cache (get-namespace file-namespace)]
         (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
 
