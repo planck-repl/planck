@@ -51,3 +51,49 @@ Ran 1 tests containing 2 assertions.
 0 failures, 0 errors.
 nil
 ```
+
+### Custom Asserts
+
+The `cljs.test` library provides a mechanism for writing custom asserts that can be used with the `is` macro—in the form of an `assert-expr` `defmulti`.
+
+To define your own assert, simply provide a `defmethod` for `cljs.test$macros/assert-expr`. Here's an example:
+
+If you evaluate `(is (char? nil))` you will get a cryptic error report:
+
+```
+ERROR in () (isUnicodeChar@file:269:12)
+expected: (char? nil)
+  actual: #object[TypeError TypeError: null is not an object (evaluating 'ch.length')]
+```
+
+You can define a custom assert for this situation:
+
+```clojure
+(defmethod cljs.test$macros/assert-expr 'char? 
+  [menv msg form]
+  (let [arg    (second form)
+        result (and (not (nil? arg))
+                    (char? arg))]
+    `(do
+       (if ~result
+         (cljs.test/do-report
+           {:type     :pass
+            :message  ~msg
+            :expected '~form
+            :actual   (list '~'char? ~arg)})
+         (cljs.test/do-report
+           {:type     :fail
+            :message  ~msg
+            :expected '~form
+            :actual   (list '~'not 
+                        (list '~'char? ~arg))}))
+       ~result)))
+```
+
+With this, ``(is (char? nil))` yields:
+
+```
+FAIL in () (eval@[native code]:NaN:NaN)
+expected: (char? nil)
+  actual: (not (char? nil))
+```
