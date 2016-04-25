@@ -2,8 +2,6 @@
 
 It is possible to write and execute unit tests using Planck. 
 
-> Planck ships with a copy of `cljs.test` which has been ported for use with bootstrap ClojureScript.
-
 Let's say you have a namespace with a function you'd like to test.
  
 ```clojure
