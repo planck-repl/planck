@@ -45,7 +45,7 @@ $ chmod +x planck
 
 You can download Planck binaries (including older releases) at [http://planck-repl.org/download.html](download.html).
 
-Planck 1.10 supports OS X versions 10.7 Lion through 10.11 El Capitan.
+Planck 1.11 supports OS X versions 10.7 Lion through 10.11 El Capitan.
 
 ### Bug Reporting
 
