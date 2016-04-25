@@ -532,7 +532,7 @@ Test verbose w/o var code
 [34m#'cljs.user/b[m
 Test restore state when require fails
 [1;35mCould not parse ns form cljs.user[m
-[1;35mInvalid :refer, var var clojure.set/diff does not exist[m
+[1;35mInvalid :refer, var clojure.set/diff does not exist[m
 [34mnil[m
 [34mnil[m
 Test reader and analysis diagnostics
