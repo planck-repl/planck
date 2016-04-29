@@ -1,7 +1,7 @@
 ## Scripts
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/scripts.jpg">
-Planck can be used to run scripts written in ClojureScript. Planck and JavaScriptCore is fast to start up, and the ClojureScript reader and compiler have been optimized for bootstrapped mode, making this a perfectly feasible approach. It makes for a great alternative for shell scripts written in, say, Bash.
+Planck can be used to run scripts written in ClojureScript. Planck and JavaScriptCore are fast to start up, and the ClojureScript reader and compiler have been optimized for bootstrapped mode, making this a perfectly feasible approach. It makes for a great alternative for shell scripts written in, say, Bash.
 
 Perhaps the simplest way to execute a script with Planck is to create a file and to use `planck` to run it. For example, say you have `foo.cljs` with
 
