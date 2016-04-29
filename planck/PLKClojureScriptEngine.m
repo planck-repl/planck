@@ -215,7 +215,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                  compilerOutputDirectory:outURL];
         [self.contextManager setupGlobalContext];
-        [self.contextManager setUpConsoleLog];
         [self setUpTimerFunctionality];
         
         if (!useSimpleOutput) {
@@ -1100,6 +1099,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         }
 
         [self setToPrintOnSender:nil];
+        [self setUpConsoleLogInContext:self.contextManager.context];
         
         // Set up the cljs.user namespace
         
@@ -1151,6 +1151,31 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return [[[s stringByReplacingOccurrencesOfString:@"-" withString:@"_"]
              stringByReplacingOccurrencesOfString:@"!" withString:@"_BANG_"]
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
+}
+
+// This implementation is just like Ambly's, but simply prints
+
+- (void)setUpConsoleLogInContext:(JSContextRef)context
+{
+    [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+        
+        if (argc == 1)
+        {
+            NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+            
+            fprintf(stdout, "%s\n", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+            fflush(stdout);
+        }
+        
+        return JSValueMakeUndefined(ctx);
+    }
+                                        name:@"PLANCK_CONSOLE_PRINT"
+                                     argList:@"message"
+                                   inContext:_context];
+    
+    [ABYUtils evaluateScript:@"var console = {}" inContext:context];
+    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_PRINT" inContext:context];
+    
 }
 
 // This implementation is just like Ambly's apart from the canonicalization "goog/../"
