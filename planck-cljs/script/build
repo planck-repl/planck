@@ -4,9 +4,6 @@
 set -e
 set -o pipefail
 
-# Previously was building using lein
-#lein run -m clojure.main script/build.clj
-
 # Build our own copy of ClojureScript compiler
 CLJS_GIT_COMMIT=f110ed3b0adcaad90912a3c89228cc882ffe2214
 if [ ! -e clojurescript ]; then
@@ -25,5 +22,5 @@ if [ ! -e clojurescript ]; then
    popd
 fi
 
-CLJSC_CP=`lein classpath`:clojurescript/target/cljs.jar
+CLJSC_CP=`lein with-profile build classpath`:clojurescript/target/cljs.jar
 java -cp $CLJSC_CP clojure.main script/build.clj
