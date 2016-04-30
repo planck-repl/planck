@@ -1,2 +1,2 @@
 #!/bin/bash
-build/Release/planck -n 51638 -c planck-cljs/src
+build/Release/planck -n 51638 -c planck-cljs/src:planck-cljs/test
