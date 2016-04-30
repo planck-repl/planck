@@ -1,7 +1,8 @@
 (defproject planck "0.1.0"
   :profiles {:dev
              {:dependencies [[org.clojure/clojurescript "1.8.51"]
-                             [tubular "1.0.0"]]}
+                             [tubular "1.0.0"]]
+              :source-paths ["dev"]}
              :build
              {:dependencies [[com.cognitect/transit-clj "0.8.275"]]}}
   :dependencies [[org.clojure/clojure "1.8.0"]
