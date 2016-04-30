@@ -175,6 +175,46 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
+
+-(NSArray*)getSourceFromArchiveLocation:(NSString*)location path:(NSString*)path
+{
+    
+    NSString* source = nil;
+    NSDate* sourceFileModified = nil;
+    
+    ZZArchive* archive = self.openArchives[location];
+    if (!archive) {
+        NSError* err = nil;
+        archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
+                                      error:&err];
+        if (err) {
+            NSLog(@"%@", err);
+            self.openArchives[location] = [NSNull null];
+        } else {
+            self.openArchives[location] = archive;
+            self.openArchiveModificationDates[location] = [self getModificationDateForFile:location];
+        }
+    }
+    
+    NSData* data = nil;
+    if (![archive isEqual:[NSNull null]]) {
+        for (ZZArchiveEntry* entry in archive.entries)
+            if ([entry.fileName isEqualToString:path]) {
+                data = [entry newDataWithError:nil];
+                break;
+            }
+    }
+    
+    if (data) {
+        source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        sourceFileModified = self.openArchiveModificationDates[path];
+    }
+    
+    return @[source ? source : [NSNull null],
+             sourceFileModified ? sourceFileModified : [NSNull null]];
+    
+}
+
 -(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
 {
     // By default we expect :none, but this can be set if :simple
@@ -307,31 +347,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  sourceFileModified = [self getModificationDateForFile:fullPath];
                              }
                          } else if ([type isEqualToString:@"jar"]) {
-                             ZZArchive* archive = self.openArchives[location];
-                             if (!archive) {
-                                 NSError* err = nil;
-                                 archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
-                                                               error:&err];
-                                 if (err) {
-                                     NSLog(@"%@", err);
-                                     self.openArchives[location] = [NSNull null];
-                                 } else {
-                                     self.openArchives[location] = archive;
-                                     self.openArchiveModificationDates[location] = [self getModificationDateForFile:location];
-                                 }
-                             }
-                             NSData* data = nil;
-                             if (![archive isEqual:[NSNull null]]) {
-                                 for (ZZArchiveEntry* entry in archive.entries)
-                                     if ([entry.fileName isEqualToString:path]) {
-                                         data = [entry newDataWithError:nil];
-                                         break;
-                                     }
-                             }
-                             if (data) {
-                                 source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                 sourceFileModified = self.openArchiveModificationDates[path];
-                             }
+                             NSArray* sourceAndModified = [self getSourceFromArchiveLocation:location path:path];
+                             source = sourceAndModified[0] == [NSNull null] ? nil : sourceAndModified[0];
+                             sourceFileModified = sourceAndModified[1] == [NSNull null] ? nil : sourceAndModified[1];
                          }
                          if (source) {
                              break;
@@ -371,6 +389,39 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
          }
                                             name:@"PLANCK_LOAD"
                                          argList:@"path"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             NSMutableArray* depsCljsFiles = [[NSMutableArray alloc] init];
+             if (argc == 0) {
+                 
+                 for (NSArray* srcPath in srcPaths) {
+                     NSString* type = srcPath[0];
+                     NSString* location = srcPath[1];
+                     
+                     if ([type isEqualToString:@"jar"]) {
+                         NSArray* sourceAndModified = [self getSourceFromArchiveLocation:location path:@"deps.cljs"];
+                         if (sourceAndModified[0] != [NSNull null]) {
+                             [depsCljsFiles addObject:sourceAndModified[0]];
+                         }
+                     }
+                 }
+             }
+             
+             NSUInteger count = depsCljsFiles.count;
+             JSValueRef arguments[count];
+             
+             for (int i=0; i<count; i++) {
+                 arguments[i] = JSValueMakeStringFromNSString(ctx, depsCljsFiles[i]);
+              }
+             
+             return JSObjectMakeArray(ctx, count, arguments, NULL);
+             
+         }
+                                            name:@"PLANCK_LOAD_DEPS_CLJS_FILES"
+                                         argList:@""
                                        inContext:self.context];
         
         [ABYUtils installGlobalFunctionWithBlock:

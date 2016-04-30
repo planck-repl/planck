@@ -17,7 +17,9 @@
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
             [planck.themes :refer [get-theme]]
             [lazy-map.core :refer-macros [lazy-map]]
-            [cljsjs.parinfer]))
+            [cljsjs.parinfer]
+            [planck.js-deps :as js-deps]
+            [clojure.string :as string]))
 
 (def ^:private expression-name "Expression")
 
@@ -145,13 +147,26 @@
 
 (defonce ^:private app-env (atom nil))
 
+(defn- read-opts-from-file
+  [file]
+  (when-let [contents (first (js/PLANCK_READ_FILE file))]
+    (try
+      (r/read-string contents)
+      (catch :default e
+        {:failed-read (.-message e)}))))
+
 (defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
-  (reset! planck.repl/app-env (merge {:verbose    verbose
-                                      :cache-path cache-path}
-                                (when static-fns
-                                  {:static-fns true}))))
+  (let [opts (or (read-opts-from-file "opts.clj")
+                 {})]
+    (reset! planck.repl/app-env (merge {:verbose    verbose
+                                        :cache-path cache-path
+                                        :opts       opts}
+                                  (when static-fns
+                                    {:static-fns true})))
+    (js-deps/index-foreign-libs opts)
+    (js-deps/index-upstream-foreign-libs)))
 
 (defn- read-chars
   [reader]
@@ -707,6 +722,31 @@
   (when-not (load-and-callback! nil file false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
+(defonce ^:private foreign-files-loaded (atom #{}))
+
+(defn- not-yet-loaded
+  "Determines the files not yet loaded, consulting and augmenting
+  foreign-files-loaded."
+  [files-to-load]
+  (let [result (remove @foreign-files-loaded files-to-load)]
+    (swap! foreign-files-loaded conj result)
+    result))
+
+(defn- file-content
+  "Loads the content for a given file."
+  [file]
+  (first (or (js/PLANCK_READ_FILE file)
+             (js/PLANCK_LOAD file))))
+
+(defn- do-load-foreign
+  [name cb]
+  (let [files-to-load (js-deps/files-to-load name)
+        _             (when (:verbose @app-env)
+                        (println "Loading foreign libs files:" files-to-load))
+        sources       (map file-content (not-yet-loaded files-to-load))]
+    (cb {:lang   :js
+         :source (string/join "\n" sources)})))
+
 ;; Represents code for which the goog JS is already loaded
 (defn- skip-load-goog-js?
   [name]
@@ -748,6 +788,7 @@
     (skip-load? full) (cb {:lang   :js
                            :source ""})
     file (do-load-file file cb)
+    (name @js-deps/foreign-libs-index) (do-load-foreign name cb)
     (re-matches #"^goog/.*" path) (do-load-goog name cb)
     :else (do-load-other name path macros cb)))
 

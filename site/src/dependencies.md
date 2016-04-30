@@ -78,3 +78,25 @@ planck -c $classpath
 ```
 
 (And if you are using Boot, replace `lein classpath` with `boot show -c`.)
+
+### Foreign Libs
+
+It is possible to use foreign libraries with Planck.
+
+> “Foreign” libraries are implemented in a language that is not ClojureScript. (In other words, JavaScript!)
+
+Planck will honor a `deps.cljs` file embedded in a JAR file. A `deps.cljs` file will have a [`:foreign-libs`](https://github.com/clojure/clojurescript/wiki/Compiler-Options#foreign-libs) specification for upstream foreign dependencies packaged in the JAR, essentially indicating the synthetic namespace, the JavaScript file that needs to be loaded, and an indication of any other dependencies that need to be loaded. 
+
+One easy way to make use of foreign libs packaged in this manner is via the excellent [CLJSJS](http://cljsjs.github.io) project. While many of the libraries packaged by CLJSJS cannot work with Planck because they either require a browser environment or Node, some utility libraries work just fine.
+
+Here's an example. Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to place the CLJSJS `[cljsjs/long "3.0.3-1"]` dependency vector in a `project.clj` file as described in the previous section on using Leiningen for JAR deps.
+
+If you pass the Leiningen-generated classpath containing this JAR to Planck, after start up you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
+
+```clojure-repl
+cljs.user=> (require 'cljsjs.long)
+nil
+cljs.user=> (str (js/Long. 0xFFFFFFFF 0x7FFFFFFF))
+"9223372036854775807"
+cljs.user=> (str js/Long.MAX_UNSIGNED_VALUE)
+"18446744073709551615"
