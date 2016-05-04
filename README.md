@@ -4,9 +4,20 @@ A stand-alone ClojureScript REPL for OS X based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
 
-# Installing
+# Installing / Updating
 
-`brew install planck` or [download it](http://planck-repl.org/download.html).
+```
+$ brew install planck
+```
+
+or [download it](http://planck-repl.org/download.html).
+
+If you already have Planck installed via Homebrew and you'd like to update to the latest version:
+
+```
+$ brew update
+$ brew upgrade planck
+```
 
 # Using
 
