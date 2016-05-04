@@ -563,4 +563,4 @@ Test eval
 Ensure we can get into Planck REPL ns and all ns are loaded
 [34mnil[m
 [34mnil[m
-[34m26[m
+[34m27[m
