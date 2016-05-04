@@ -56,6 +56,14 @@
     printf("\n");
     printf("\n");
     
+    printf("MPEdn\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Developed by Matthew Phillips\n");
+    printf("Licensed under the Eclipse Public License v1.0.\n");
+    printf("\n");
+    printf("\n");
+    
     printf("Pretty (ANSI portion, ported for ClojureScript)\n");
     printf("-----------------------------------------------\n");
     printf("\n");
