@@ -1016,6 +1016,20 @@
                         (filter matches? (public-syms ns)))))
             (all-ns)))))
 
+(defn- undo-reader-conditional-whitespace-docstring
+  "Undoes the effect that wrapping a reader conditional around
+  a defn has on a docstring."
+  [s]
+  ;; We look for five spaces (or six, in case that the docstring
+  ;; is not aligned under the first quote) after the first newline
+  ;; (or two, in case the doctring has an unpadded blank line
+  ;; after the first), and then replace all five (or six) spaces
+  ;; after newlines with two.
+  (when-not (nil? s)
+    (if (re-find #"[^\n]*\n\n?      ?\S.*" s)
+      (s/replace-all s #"\n      ?" "\n  ")
+      s)))
+
 (defn- doc*
   [sym]
   (if-let [special-sym ('{&       fn
@@ -1040,7 +1054,8 @@
               var (assoc var :forms (-> var :meta :forms second)
                              :arglists (-> var :meta :arglists second))
               m   (select-keys var
-                    [:ns :name :doc :forms :arglists :macro :url])]
+                    [:ns :name :doc :forms :arglists :macro :url])
+              m   (update m :doc undo-reader-conditional-whitespace-docstring)]
           (cond-> (update-in m [:name] name)
             (:protocol-symbol var)
             (assoc :protocol true
