@@ -258,11 +258,11 @@ cljs.core/fn
    (fn name? ([params*] exprs*) +)
 Macro
   params => positional-params* , or positional-params* & next-param
-     positional-param => binding-form
-     next-param => binding-form
-     name => symbol
+  positional-param => binding-form
+  next-param => binding-form
+  name => symbol
 
-     Defines a function
+  Defines a function
 [34mnil[m
 -------------------------
 cljs.core/IWriter
