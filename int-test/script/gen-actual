@@ -14,7 +14,7 @@
 source int-test/script/setup-env
 COLORFGBG="0;15"
 
-export PLANCK="$PLANCK_BINARY --quiet"
+export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
 echo "Legal output"
 $PLANCK -l
 
@@ -327,7 +327,7 @@ REPL_INPUT
 echo "Shell stderr"
 $PLANCK <<REPL_INPUT
 (require 'planck.shell)
-(into (sorted-set) (planck.shell/sh "$PLANCK_BINARY" "-e" "(binding [*print-fn* *print-err-fn*] (println \"this is from stderr\"))"))
+(into (sorted-set) (planck.shell/sh "$PLANCK_BINARY" "--theme=plain" "-e" "(binding [*print-fn* *print-err-fn*] (println \"this is from stderr\"))"))
 REPL_INPUT
 
 echo "reader and read-line"
