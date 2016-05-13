@@ -44,6 +44,7 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
     -t theme, --theme=theme  Sets the color theme
     -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port
     -s, --static-fns         Generate static dispatch function calls
+    -a, --elide-asserts      Set *assert* to false to remove asserts
 
   main options:
     -m ns-name, --main=ns-name Call the -main function from a namespace with

@@ -81,6 +81,7 @@
     NSString* socketAddr = nil;
     int socketPort = 0;
     BOOL staticFns = NO;
+    BOOL elideAsserts = NO;
     BOOL quietMode = NO;
     NSString* theme = nil;
 
@@ -106,6 +107,7 @@
         {"main", required_argument, NULL, 'm'},
         {"repl", no_argument, NULL, 'r'},
         {"static-fns", no_argument, NULL, 's'},
+        {"elide-asserts", no_argument, NULL, 'a'},
         {"quiet", no_argument, NULL, 'q'},
 
         // Undocumented options used for development
@@ -114,7 +116,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?qli:e:c:vdt:n:sm:ro:k:";
+    const char *shortopts = "h?qli:e:c:vdt:n:sam:ro:k:";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -222,6 +224,11 @@
                 staticFns = YES;
                 break;
             }
+            case 'a':
+            {
+                elideAsserts = YES;
+                break;
+            }
             case 'q':
             {
                 quietMode = YES;
@@ -285,6 +292,7 @@
             printf("    -t theme, --theme=theme  Sets the color theme\n");
             printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port\n");
             printf("    -s, --static-fns         Generate static dispatch function calls\n");
+            printf("    -a, --elide-asserts      Set *assert* to false to remove asserts\n");
             printf("\n");
             printf("  main options:\n");
             printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
@@ -330,6 +338,7 @@
                                                 socketAddr:socketAddr
                                                 socketPort:socketPort
                                                  staticFns:staticFns
+                                              elideAsserts:elideAsserts
                                                       args:args
                                              planckVersion:[NSString stringWithCString:PLANCK_VERSION
                                                                               encoding:NSUTF8StringEncoding]

@@ -215,7 +215,7 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns elideAsserts:(BOOL)elideAsserts boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -1157,6 +1157,10 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         [ABYUtils evaluateScript:@"goog.provide('cljs.user')" inContext:self.context];
         [ABYUtils evaluateScript:@"goog.require('cljs.core')" inContext:self.context];
 
+        [ABYUtils evaluateScript:[NSString stringWithFormat:@"cljs.core._STAR_assert_STAR_ = %@",
+                                  elideAsserts ? @"false" : @"true"]
+                       inContext:self.context];
+         
         // Go for launch!
         
         [self signalEngineReady];

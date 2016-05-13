@@ -17,6 +17,7 @@
       socketAddr:(NSString*)socketAddr
       socketPort:(int)socketPort
        staticFns:(BOOL)staticFns
+    elideAsserts:(BOOL)elideAsserts
             args:(NSArray*)args
 planckVersion:(NSString*)planckVersion
    bundledOut:(PLKBundledOut*)bundledOut;

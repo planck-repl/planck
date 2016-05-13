@@ -537,7 +537,10 @@
 
 (defn- form-build-affecting-options
   []
-  (let [m (select-keys @app-env [:static-fns])]
+  (let [m (merge
+            (when-not *assert*
+              {:elide-asserts true})
+            (select-keys @app-env [:static-fns]))]
     (if (empty? m)
       nil
       m)))
