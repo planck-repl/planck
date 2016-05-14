@@ -21,5 +21,6 @@
 -(void)setToPrintOnSender:(void (^)(NSString*))sender;
 -(void)setToReadFrom:(NSString* (^)())input;
 -(int)getIndentSpaceCount:(NSString*)text;
+-(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest;
 
 @end

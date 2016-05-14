@@ -25,6 +25,14 @@
     printf("\n");
     printf("\n");
     
+    printf("Fipp\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Copyright © 2015 Brandon Bloom\n");
+    printf("Distributed under the Eclipse Public License, the same as Clojure.\n");
+    printf("\n");
+    printf("\n");
+    
     printf("Linenoise\n");
     printf("---------\n");
     printf("\n");

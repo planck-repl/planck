@@ -9,6 +9,7 @@
                  [org.clojure/tools.reader "1.0.0-beta1"]
                  [tailrecursion/cljson "1.0.7"]
                  [com.cognitect/transit-cljs "0.8.220"]
+                 [fipp "0.6.5"]
                  [malabarba/lazy-map "1.1"]
                  [cljsjs/parinfer "1.8.1-0"]]
   :clean-targets ["out" "target"])

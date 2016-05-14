@@ -18,6 +18,13 @@ Copyright © 2015 David Nolen
 Licensed under the Eclipse Public License.
 
 
+Fipp
+-----
+
+Copyright © 2015 Brandon Bloom
+Distributed under the Eclipse Public License, the same as Clojure.
+
+
 Linenoise
 ---------
 
@@ -577,4 +584,4 @@ nil
 Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
-27
+31

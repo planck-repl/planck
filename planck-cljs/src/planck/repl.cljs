@@ -19,7 +19,15 @@
             [lazy-map.core :refer-macros [lazy-map]]
             [cljsjs.parinfer]
             [planck.js-deps :as js-deps]
-            [clojure.string :as string]))
+            [clojure.string :as string]
+            [planck.pprint]))
+
+(def ^{:dynamic true
+       :doc     "*pprint-results* controls whether Planck REPL results are
+  pretty printed. If it is bound to logical false, results
+  are printed in a plain fashion. Otherwise, results are
+  pretty printed."}
+  *pprint-results* true)
 
 (def ^:private expression-name "Expression")
 
@@ -1186,7 +1194,7 @@
       import (process-require :import identity (rest expression-form))
       load-file (process-load-file argument (assoc opts :expression? false)))
     (when print-nil-expression?
-      (println ((:results-fn theme) "nil")))))
+      (println (str (:results-font theme) "nil" (:reset-font theme))))))
 
 (defn- process-1-2-3
   [expression-form value]
@@ -1206,6 +1214,15 @@
             cache (get-namespace file-namespace)]
         (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
+
+(defn- print-result
+  [value]
+  (if *pprint-results*
+    (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
+      (planck.pprint/pprint value {:width term-width 
+                                   :theme theme})
+      (prn value))
+    (prn value)))
 
 (defn- process-execute-source
   [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path] :as opts}]
@@ -1251,7 +1268,7 @@
             (when-not error
               (when (or print-nil-expression?
                       (not (nil? value)))
-                (println ((:results-fn theme) (pr-str value))))
+                (print-result value))
               (process-1-2-3 expression-form value)
               (reset! current-ns ns)
               nil))

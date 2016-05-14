@@ -473,6 +473,8 @@ void handleConnect (
                     }];
                 }
                 
+                [s_clojureScriptEngine setHonorTermSizeRequest:!dumbTerminal];
+                
                 self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
                                                                     value:self.input
                                                                expression:YES
@@ -482,6 +484,7 @@ void handleConnect (
                                                                     theme:theme
                                                           blockUntilReady:YES];
                 
+                [s_clojureScriptEngine setHonorTermSizeRequest:NO];
                 
                 if (self.outputStream) {
                     [s_clojureScriptEngine setToPrintOnSender:nil];

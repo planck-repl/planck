@@ -1,4 +1,6 @@
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
 #import "PLKClojureScriptEngine.h"
 #import "PLKSh.h"
 #import "ABYUtils.h"
@@ -28,6 +30,8 @@
 
 @property (nonatomic) int descriptorSequence;
 @property (nonatomic, strong) NSMutableDictionary* descriptorToObject;
+
+@property (atomic) BOOL returnTermSize;
 
 @end
 
@@ -1122,6 +1126,26 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_OUTPUT_STREAM_CLOSE"
                                          argList:@"descriptor"
                                        inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             if (self.returnTermSize) {
+                 struct winsize w;
+                 ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+                 JSValueRef  arguments[2];
+                 int num_arguments = 2;
+                 arguments[0] = JSValueMakeNumber(ctx, w.ws_row);
+                 arguments[1] = JSValueMakeNumber(ctx, w.ws_col);
+                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
+             } else {
+                 return JSValueMakeNull(ctx);
+             }
+         }
+                                            name:@"PLANCK_GET_TERM_SIZE"
+                                         argList:@""
+                                       inContext:self.context];
+        
 
         // Set up to read from stdin
         [self setToReadFrom:nil];
@@ -1608,6 +1632,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@""
                                        inContext:self.context];
     }
+}
+
+-(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest
+{
+    self.returnTermSize = honorTermSizeRequest;
 }
 
 @end

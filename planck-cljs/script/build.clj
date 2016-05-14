@@ -82,5 +82,10 @@
 
 (extract-analysis-cache "out/tailrecursion/cljson.cljs.cache.edn" "out/tailrecursion/cljson.cljs.cache.json")
 
+(extract-analysis-cache "out/planck/pprint.cljs.cache.edn" "out/planck/pprint.cljs.cache.json")
+(extract-analysis-cache "out/fipp/deque.cljc.cache.edn" "out/fipp/deque.cljc.cache.json")
+(extract-analysis-cache "out/fipp/engine.cljc.cache.edn" "out/fipp/engine.cljc.cache.json")
+(extract-analysis-cache "out/fipp/visit.cljc.cache.edn" "out/fipp/visit.cljc.cache.json")
+
 (println "Done building")
 (System/exit 0)

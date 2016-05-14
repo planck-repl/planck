@@ -44,6 +44,18 @@ At any point in entering a form, Ctrl-C can be hit to discard form entry and sta
 
 As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily hop to the matching opening delimiter.
 
+### Result Formatting
+
+When you evaluate a form at the REPL, the result is pretty printed using [Fipp](https://github.com/brandonbloom/fipp). This causes output to be wrapped and aligned in a manner that makes it easier to see the structure of the data.
+
+> The wrapping honors the width of your terminal, so if you'd like to see a form wrapped differently, resize your terminal and evaluate `*1` to have it re-printed.
+
+If you'd like to turn off pretty printing, just set `*pprint-results*` to `false`:
+
+```
+(set! planck.repl/*pprint-results* false)
+```
+
 ###  Line Editing
 
 #### Arrow Keys
