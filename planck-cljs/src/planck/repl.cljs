@@ -89,14 +89,22 @@
   {:pre [(symbol? ns)]}
   (get-in @st [::ana/namespaces ns]))
 
+(defn- ns-syms
+  "Returns a sequence of the symbols in a namespace."
+  ([ns]
+    (ns-syms ns (constantly true)))
+  ([ns pred]
+   {:pre [(symbol? ns)]}
+   (->> (get-namespace ns)
+     :defs
+     (filter pred)
+     (map key))))
+
 (defn- public-syms
   "Returns a sequence of the public symbols in a namespace."
   [ns]
   {:pre [(symbol? ns)]}
-  (->> (get-namespace ns)
-    :defs
-    (filter (comp not :private second))
-    (map key)))
+  (ns-syms ns (comp not :private second)))
 
 (defn- get-aenv
   []
@@ -859,6 +867,63 @@
   (and (instance? ExceptionInfo e)
        (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
 
+(defn- form-demunge-map
+  "Forms a map from munged function symbols (as they appear in stacktraces)
+  to their unmunged forms."
+  [ns]
+  {:pre [(symbol? ns)]}
+  (let [ns-str        (str ns)
+        munged-ns-str (s/replace ns-str #"\." "$")]
+    (into {} (for [sym (ns-syms ns)]
+               [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
+
+(def ^:private core-demunge-map
+  (delay (form-demunge-map 'cljs.core)))
+
+(defn- non-core-demunge-maps
+  []
+  (let [non-core-nss (remove #{'cljs.core 'cljs.core$macros} (all-ns))]
+    (map form-demunge-map non-core-nss)))
+
+(defn- lookup-sym
+  [demunge-maps munged-sym]
+  (some #(% munged-sym) demunge-maps))
+
+(defn- demunge-local
+  [demunge-maps munged-sym]
+  (let [[_ fn local] (re-find #"(.*)_\$_(.*)" munged-sym)]
+    (when fn
+      (when-let [fn-sym (lookup-sym demunge-maps fn)]
+        (str fn-sym " " (demunge local))))))
+
+(defn- demunge-protocol-fn
+  [demunge-maps munged-sym]
+  (let [[_ ns prot fn] (re-find #"(.*)\$(.*)\$(.*)\$arity\$.*" munged-sym)]
+    (when ns
+      (when-let [prot-sym (lookup-sym demunge-maps (str ns "$" prot))]
+        (when-let [fn-sym (lookup-sym demunge-maps (str ns "$" fn))]
+          (str fn-sym " [" prot-sym "]"))))))
+
+(defn- demunge-sym
+  [munged-sym]
+  (let [demunge-maps (cons @core-demunge-map (non-core-demunge-maps))]
+    (str (or (lookup-sym demunge-maps munged-sym)
+             (demunge-protocol-fn demunge-maps munged-sym)
+             (demunge-local demunge-maps munged-sym)
+           munged-sym))))
+
+(defn-  mapped-stacktrace-str
+  ([stacktrace sms]
+   (mapped-stacktrace-str stacktrace sms nil))
+  ([stacktrace sms opts]
+   (with-out-str
+     (doseq [{:keys [function file line column]}
+             (st/mapped-stacktrace stacktrace sms opts)]
+       (println "\t"
+         (str (when function (str (demunge-sym function) " "))
+           "(" file (when line (str ":" line))
+           (when column (str ":" column)) ")"))))))
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -888,7 +953,7 @@
                                     {:output-dir "file://(/goog/..)?"})]
          (println
            ((:ex-stack-fn theme)
-             (st/mapped-stacktrace-str
+             (mapped-stacktrace-str
                canonical-stacktrace
                (or (:source-maps @planck.repl/st) {})
                nil)))))
