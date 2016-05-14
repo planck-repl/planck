@@ -18,8 +18,8 @@
 
 
 (defn wrap-theme
-  [k theme s]
-  (str (k theme) s (:reset-font theme)))
+  [kw theme text]
+  [:span [:pass (kw theme)] [:text text] [:pass (:reset-font theme)]])
 
 (defrecord PlanckPrinter [symbols print-meta print-length print-level theme]
 
@@ -30,25 +30,25 @@
 
 
   (visit-nil [this]
-    [:text (wrap-theme :results-font theme "nil")])
+    (wrap-theme :results-font theme "nil"))
 
   (visit-boolean [this x]
-    [:text (wrap-theme :results-font theme (str x))])
+    (wrap-theme :results-font theme (str x)))
 
   (visit-string [this x]
-    [:text (wrap-theme :results-string-font theme (pr-str x))])
+    (wrap-theme :results-string-font theme (pr-str x)))
 
   (visit-character [this x]
-    [:text (wrap-theme :results-string-font theme (pr-str x))])
+    (wrap-theme :results-string-font theme (pr-str x)))
 
   (visit-symbol [this x]
     [:text (str x)])
 
   (visit-keyword [this x]
-    [:text (wrap-theme :results-keyword-font theme (pr-str x))])
+    (wrap-theme :results-keyword-font theme (pr-str x)))
 
   (visit-number [this x]
-    [:text (wrap-theme :results-font theme (pr-str x))])
+    (wrap-theme :results-font theme (pr-str x)))
 
   (visit-seq [this x]
     (if-let [pretty (symbols (first x))]
