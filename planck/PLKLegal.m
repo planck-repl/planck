@@ -64,6 +64,14 @@
     printf("\n");
     printf("\n");
     
+    printf("Parinfer\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Copyright (c) 2015 Shaun Williams and contributors\n");
+    printf("MIT License\n");
+    printf("\n");
+    printf("\n");
+    
     printf("Pretty (ANSI portion, ported for ClojureScript)\n");
     printf("-----------------------------------------------\n");
     printf("\n");

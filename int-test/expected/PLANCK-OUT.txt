@@ -55,6 +55,13 @@ Developed by Matthew Phillips
 Licensed under the Eclipse Public License v1.0.
 
 
+Parinfer
+-----
+
+Copyright (c) 2015 Shaun Williams and contributors
+MIT License
+
+
 Pretty (ANSI portion, ported for ClojureScript)
 -----------------------------------------------
 
