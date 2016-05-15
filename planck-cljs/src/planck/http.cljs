@@ -191,7 +191,7 @@
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
                      {:multipart-params [[\"name\" \"value\"]
-                                         [\"name\" \"content\" \"filename\"]"
+                                         [\"name\" [\"content\" \"filename\"]]"
   ([url] (post url {}))
   ([url opts] (request js/PLANCK_REQUEST :post url opts)))
 
