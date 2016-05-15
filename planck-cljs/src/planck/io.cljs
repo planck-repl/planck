@@ -35,7 +35,7 @@
   (as-file [f] f)
   (as-url [f] (build-uri :file nil nil (:path f) nil)))
 
-(defn as-url-or-file [f]
+(defn- as-url-or-file [f]
   (if (.startsWith f "http")
     (as-url f)
     (as-file f)))
