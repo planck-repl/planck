@@ -234,7 +234,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     
     if (data) {
         source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        sourceFileModified = self.openArchiveModificationDates[path];
+        sourceFileModified = self.openArchiveModificationDates[location];
     }
     
     return @[source ? source : [NSNull null],
