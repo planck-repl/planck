@@ -160,6 +160,3 @@
 (set! planck.core/*reader-fn* reader)
 (set! planck.core/*writer-fn* writer)
 (set! planck.core/*as-file-fn* as-file)
-
-;; Ensure planck.http is loaded so that HTTP Uri facilities are available
-(js/goog.require "planck.http")
