@@ -202,9 +202,10 @@
       (letfn [(read [] (let [return @content]
                          (reset! content nil)
                          return))]
-        (planck.core/Reader.
+        (planck.core/BufferedReader.
          read
-         (fn [])))))
+         (fn [])
+         (atom nil)))))
   (make-writer [url opts]
     (planck.core/Writer.
      (fn [s]
