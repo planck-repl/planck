@@ -202,12 +202,12 @@
       (letfn [(read [] (let [return @content]
                          (reset! content nil)
                          return))]
-        (planck.core/BufferedReader.
+        (planck.core/->BufferedReader
          read
          (fn [])
          (atom nil)))))
   (make-writer [url opts]
-    (planck.core/Writer.
+    (planck.core/->Writer
      (fn [s]
        (post url {:multipart-params [[(or (:param-name opts) "file")
                                       [s (or (:filename opts) "file.pnk")]]]})

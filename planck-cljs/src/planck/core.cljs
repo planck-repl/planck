@@ -97,7 +97,7 @@
   ^{:doc     "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
-  (BufferedReader. js/PLANCK_RAW_READ_STDIN nil (atom nil)))
+  (->BufferedReader js/PLANCK_RAW_READ_STDIN nil (atom nil)))
 
 (set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
 
@@ -105,7 +105,7 @@
   ^{:doc     "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
-  (Writer. js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
+  (->Writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
 
 (defonce
   ^{:doc     "A sequence of the supplied command line arguments, or nil if none were supplied"
