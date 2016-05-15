@@ -920,17 +920,16 @@
              (demunge-local demunge-maps munged-sym)
            munged-sym))))
 
-(defn-  mapped-stacktrace-str
+(defn- mapped-stacktrace-str
   ([stacktrace sms]
    (mapped-stacktrace-str stacktrace sms nil))
   ([stacktrace sms opts]
-   (with-out-str
-     (doseq [{:keys [function file line column]}
-             (st/mapped-stacktrace stacktrace sms opts)]
-       (println "\t"
-         (str (when function (str (demunge-sym function) " "))
-           "(" file (when line (str ":" line))
-           (when column (str ":" column)) ")"))))))
+   (apply str
+     (for [{:keys [function file line column]} (st/mapped-stacktrace stacktrace sms opts)
+           :let [demunged (str (when function (demunge-sym function)))]
+           :when (not= demunged "cljs.core/-invoke [cljs.core/IFn]")]
+       (str \tab demunged " (" file (when line (str ":" line))
+         (when column (str ":" column)) ")" \newline)))))
 
 (defn- print-error
   ([error]
