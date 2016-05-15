@@ -11,25 +11,21 @@ But, if you have scripts that don't change frequently, or are making use of larg
 
 This means that if you re-run Planck and use namespaces that have been cached, the JavaScript representing those namespaces is simply loaded into JavaScriptCore. 
 
-To enable compilation caching in Planck, you simply need to pass the `-k` or `-​-​cache` option, specifying a directory into which Planck can write cache files. Here's an example: Let's say you have a foo.cljs script file that you run via
+To enable compilation caching in Planck, you simply need to pass the `-K` or `-​-​auto-cache` option. This will automatically create a `.planck_cache` directory in the current working directory. (Alternatively, you can specify an existing directory into which Planck can write cache files using `-k` or `-​-​cache`.) 
+
+Here's an example: Let's say you have a foo.cljs script file that you run via
 
 ```sh
 planck foo.cljs
 ```
 
-First make an empty cache directory.
+Instead, you can instruct Planck to cache:
 
 ```
-mkdir cache
+planck -K foo.cljs
 ```
 
-Now you can tell Planck to use this directory for caching:
-
-```
-planck -k cache foo.cljs
-```
-
-The first time you run Planck this way, it will save the results of compilation into your cache directory. Then subsequent executions will use the cached results instead.
+The first time you run Planck this way, it will save the results of compilation into `.planck_cache`. Then subsequent executions will use the cached results instead.
 
 In addition to caching compiled JavaScript, the associated analysis metadata and source mapping information is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, _etc._, without having to consult the original source. And, if an exception occurs, the source mapping info is used in forming stack traces. For additional speed, this cached info is written using Transit.
 

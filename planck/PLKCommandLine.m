@@ -100,6 +100,7 @@
         {"eval", required_argument, NULL, 'e'},
         {"classpath", required_argument, NULL, 'c'},
         {"cache", required_argument, NULL, 'k'},
+        {"auto-cache", no_argument, NULL, 'K'},
         {"verbose", no_argument, NULL, 'v'},
         {"dumb-terminal", no_argument, NULL, 'd'},
         {"theme", required_argument, NULL, 't'},
@@ -116,7 +117,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?qli:e:c:vdt:n:sam:ro:k:";
+    const char *shortopts = "h?qli:e:c:vdt:n:sam:ro:k:K";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -219,6 +220,17 @@
                 cachePath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
+            case 'K':
+            {
+                cachePath = @".planck_cache";
+                BOOL isDir;
+                NSFileManager *fileManager= [NSFileManager defaultManager];
+                if(![fileManager fileExistsAtPath:cachePath isDirectory:&isDir])
+                    if(![fileManager createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:NULL])
+                        NSLog(@"Error: Create folder failed %@", cachePath);
+                
+                break;
+            }
             case 's':
             {
                 staticFns = YES;
@@ -284,8 +296,8 @@
             printf("                             values\n");
             printf("    -c cp, --classpath=cp    Use colon-delimited cp for source directories and\n");
             printf("                             JARs\n");
-            printf("    -k path, --cache=path    Cache analysis/compilation artifacts in specified\n");
-            printf("                             path\n");
+            printf("    -K, --auto-cache         Create and use .planck_cache dir for cache\n");
+            printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
             printf("    -q, --quiet              Quiet mode\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
             printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
