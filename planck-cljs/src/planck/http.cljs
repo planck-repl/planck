@@ -191,7 +191,7 @@
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
                      {:multipart-params [[\"name\" \"value\"]
-                                         [\"name\" \"content\" \"filename\"]"
+                                         [\"name\" [\"content\" \"filename\"]]"
   ([url] (post url {}))
   ([url opts] (request js/PLANCK_REQUEST :post url opts)))
 
@@ -208,9 +208,10 @@
          (atom nil)))))
   (make-writer [url opts]
     (planck.core/->Writer
-     (fn [s]
-       (post url {:multipart-params [[(or (:param-name opts) "file")
-                                      [s (or (:filename opts) "file.pnk")]]]})
+     (fn [content]
+       (let [name (or (:param-name opts) "file")
+             filename (or (:filename opts) "file.pnk")]
+         (post url {:multipart-params [[name [content filename]]]}))
        nil)
      (fn [])
      (fn []))))
