@@ -208,9 +208,10 @@
          (atom nil)))))
   (make-writer [url opts]
     (planck.core/->Writer
-     (fn [s]
-       (post url {:multipart-params [[(or (:param-name opts) "file")
-                                      [s (or (:filename opts) "file.pnk")]]]})
+     (fn [content]
+       (let [name (or (:param-name opts) "file")
+             filename (or (:filename opts) "file.pnk")]
+         (post url {:multipart-params [[name [content filename]]]}))
        nil)
      (fn [])
      (fn []))))
