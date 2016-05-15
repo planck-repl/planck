@@ -40,9 +40,9 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
     -k path, --cache=path    If dir exists at path, use it for cache
     -q, --quiet              Quiet mode
     -v, --verbose            Emit verbose diagnostic output
-    -d, --dumb-terminal      Disables line editing / VT100 terminal control
-    -t theme, --theme=theme  Sets the color theme
-    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port
+    -d, --dumb-terminal      Disable line editing / VT100 terminal control
+    -t theme, --theme=theme  Set the color theme
+    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port
     -s, --static-fns         Generate static dispatch function calls
     -a, --elide-asserts      Set *assert* to false to remove asserts
 
