@@ -342,7 +342,8 @@ nil
 nil
 nil
 (defonce
-  ^:dynamic
+  ^{:dynamic true
+    :private true}
   *reader-fn*
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))

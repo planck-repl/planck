@@ -145,7 +145,8 @@
    (js/PLANCK_READ_PASSWORD prompt)))
 
 (defonce
-  ^:dynamic
+  ^{:dynamic true
+    :private true}
   *as-file-fn*
   (fn [_]
     (throw (js/Error. "No *as-file-fn* fn set."))))
@@ -160,13 +161,15 @@
     (*as-file-fn* dir)))
 
 (defonce
-  ^:dynamic
+  ^{:dynamic true
+    :private true}
   *reader-fn*
   (fn [_]
     (throw (js/Error. "No *reader-fn* fn set."))))
 
 (defonce
-  ^:dynamic
+  ^{:dynamic true
+    :private true}
   *writer-fn*
   (fn [_]
     (throw (js/Error. "No *writer-fn* fn set."))))
