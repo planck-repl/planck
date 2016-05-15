@@ -33,6 +33,15 @@
      :dump-core          false
      :parallel-build     true}))
 
+(defn copy-source
+  [filename]
+  (spit (str "out/" filename)
+    (slurp (io/resource filename))))
+
+(copy-source "cljs/test.cljc")
+(copy-source "cljs/analyzer/api.cljc")
+(copy-source "clojure/template.clj")
+
 (let [res (io/resource "cljs/core.cljs.cache.aot.edn")
       cache (read-string (slurp res))]
   (doseq [key (keys cache)]
