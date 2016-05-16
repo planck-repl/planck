@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "MKBlockingQueue.h"
+#include "MPEdn.h"
 
 static PLKClojureScriptEngine* s_clojureScriptEngine = nil;
 static NSMutableArray* s_previousLines; // Used when using linenoise
@@ -472,6 +473,8 @@ void handleConnect (
                     }];
                 }
                 
+                [s_clojureScriptEngine setHonorTermSizeRequest:!dumbTerminal];
+                
                 self.exitValue = [s_clojureScriptEngine executeSourceType:@"text"
                                                                     value:self.input
                                                                expression:YES
@@ -481,6 +484,7 @@ void handleConnect (
                                                                     theme:theme
                                                           blockUntilReady:YES];
                 
+                [s_clojureScriptEngine setHonorTermSizeRequest:NO];
                 
                 if (self.outputStream) {
                     [s_clojureScriptEngine setToPrintOnSender:nil];
@@ -693,6 +697,54 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
     }
 }
 
+-(int)idForKeyMapAction:(MPEdnKeyword*)action
+{
+    NSString* actionName = [action ednName];
+    if ([actionName isEqualToString:@"go-to-beginning-of-line"]) {
+        return KM_GO_TO_START_OF_LINE;
+    } else if ([actionName isEqualToString:@"go-back-one-space"]) {
+        return KM_MOVE_LEFT;
+    } else if ([actionName isEqualToString:@"go-forward-one-space"]) {
+        return KM_MOVE_RIGHT;
+    } else if ([actionName isEqualToString:@"delete-right"]) {
+        return KM_DELETE_RIGHT;
+    } else if ([actionName isEqualToString:@"delete-backwards"]) {
+        return KM_DELETE;
+    } else if ([actionName isEqualToString:@"delete-to-end-of-line"]) {
+        return KM_DELETE_TO_END_OF_LINE;
+    } else if ([actionName isEqualToString:@"go-to-end-of-line"]) {
+        return KM_GO_TO_END_OF_LINE;
+    } else if ([actionName isEqualToString:@"clear-screen"]) {
+        return KM_CLEAR_SCREEN;
+    } else if ([actionName isEqualToString:@"next-line"]) {
+        return KM_HISTORY_NEXT;
+    } else if ([actionName isEqualToString:@"previous-line"]) {
+        return KM_HISTORY_PREVIOUS;
+    } else if ([actionName isEqualToString:@"transpose-characters"]) {
+        return KM_SWAP_CHARS;
+    } else if ([actionName isEqualToString:@"undo-typing-on-line"]) {
+        return KM_CLEAR_LINE;
+    } else if ([actionName isEqualToString:@"delete-previous-word"]) {
+        return KM_DELETE_PREVIOUS_WORD;
+    } else {
+        return -1;
+    }
+}
+
+-(char)keyCodeFor:(MPEdnKeyword*)value{
+    NSString* keyName = [value ednName];
+    if ([keyName hasPrefix:@"ctrl-"] && [keyName length] == 6) {
+        char c = [keyName characterAtIndex:5];
+        if ('a' <= c && c <= 'z') {
+            return c - 'a' + 1;
+        } else {
+            return -1;
+        }
+    } else {
+        return -1;
+    }
+}
+
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal
                             quiet:(BOOL)quiet
@@ -721,6 +773,46 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
         if (homedir) {
             self.historyFile = [NSString stringWithFormat:@"%@/.planck_history", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
             linenoiseHistoryLoad([self.historyFile cStringUsingEncoding:NSUTF8StringEncoding]);
+            
+            NSString* keymapFile = [NSString stringWithFormat:@"%@/.planck_keymap", [NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]];
+            NSString* keymapContents = [NSString stringWithContentsOfFile:keymapFile encoding:NSUTF8StringEncoding error:nil];
+            if (keymapContents) {
+                NSDictionary* keymapDict = [keymapContents ednStringToObject];
+                if ([[NSSet alloc] initWithArray:[keymapDict allValues]].count != [keymapDict allValues].count) {
+                    printf("%s: Duplicate keymap values.\n",
+                           [keymapFile cStringUsingEncoding:NSUTF8StringEncoding]);
+                }
+                for(id key in keymapDict) {
+                    if ([key class] == [MPEdnKeyword class]) {
+                        int actionId = [self idForKeyMapAction:key];
+                        if (actionId != -1) {
+                            id value = [keymapDict objectForKey:key];
+                            if ([value isKindOfClass:[MPEdnKeyword class]]) {
+                                int keyCode = [self keyCodeFor:value];
+                                if (keyCode != -1) {
+                                    linenoiseSetKeymapEntry(actionId, (char)keyCode);
+                                } else {
+                                    printf("%s: Unrecognized keymap value: :%s\n",
+                                           [keymapFile cStringUsingEncoding:NSUTF8StringEncoding],
+                                           [[value ednName] cStringUsingEncoding:NSUTF8StringEncoding]);
+                                }
+                            } else {
+                                printf("%s: Unrecognized keymap value: %s\n",
+                                       [keymapFile cStringUsingEncoding:NSUTF8StringEncoding],
+                                       [[value description] cStringUsingEncoding:NSUTF8StringEncoding]);
+                            }
+                        } else {
+                            printf("%s: Unrecognized keymap key: :%s\n",
+                                   [keymapFile cStringUsingEncoding:NSUTF8StringEncoding],
+                                   [[key ednName] cStringUsingEncoding:NSUTF8StringEncoding]);
+                        }
+                    } else {
+                        printf("%s: Unrecognized keymap key: %s\n",
+                               [keymapFile cStringUsingEncoding:NSUTF8StringEncoding],
+                               [[key description] cStringUsingEncoding:NSUTF8StringEncoding]);
+                    }
+                }
+            }
         }
         
         linenoiseSetMultiLine(1);

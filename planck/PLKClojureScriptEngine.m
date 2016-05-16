@@ -1,4 +1,6 @@
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
 #import "PLKClojureScriptEngine.h"
 #import "PLKSh.h"
 #import "ABYUtils.h"
@@ -28,6 +30,8 @@
 
 @property (nonatomic) int descriptorSequence;
 @property (nonatomic, strong) NSMutableDictionary* descriptorToObject;
+
+@property (atomic) BOOL returnTermSize;
 
 @end
 
@@ -175,7 +179,70 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return fileModificationDate;
 }
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
+NSMutableDictionary* toDictionary(JSContextRef ctx, JSObjectRef object)
+{
+    NSMutableDictionary *dict = nil;
+    if (!JSValueIsNull(ctx, object)) {
+        dict = [[NSMutableDictionary alloc] init];
+        JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(ctx, object);
+        for (size_t i=0; i< JSPropertyNameArrayGetCount(names) ; i++) {
+            NSString *key = (__bridge_transfer NSString *)JSStringCopyCFString(kCFAllocatorDefault, JSPropertyNameArrayGetNameAtIndex(names, i));
+            NSString *val = NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, object, JSPropertyNameArrayGetNameAtIndex(names, i), nil));
+            [dict setObject:val forKey:key];
+        }
+    }
+    return dict;
+}
+
+JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
+{
+    JSObjectRef obj = JSObjectMake(ctx, NULL, NULL);
+    for (NSString *key in dict) {
+        JSObjectSetProperty(ctx, obj, JSStringCreateWithUTF8CString([key UTF8String]), JSValueMakeStringFromNSString(ctx, dict[key]), kJSPropertyAttributeReadOnly, nil);
+    }
+    return obj;
+}
+
+-(NSArray*)getSourceFromArchiveLocation:(NSString*)location path:(NSString*)path
+{
+    
+    NSString* source = nil;
+    NSDate* sourceFileModified = nil;
+    
+    ZZArchive* archive = self.openArchives[location];
+    if (!archive) {
+        NSError* err = nil;
+        archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
+                                      error:&err];
+        if (err) {
+            NSLog(@"%@", err);
+            self.openArchives[location] = [NSNull null];
+        } else {
+            self.openArchives[location] = archive;
+            self.openArchiveModificationDates[location] = [self getModificationDateForFile:location];
+        }
+    }
+    
+    NSData* data = nil;
+    if (![archive isEqual:[NSNull null]]) {
+        for (ZZArchiveEntry* entry in archive.entries)
+            if ([entry.fileName isEqualToString:path]) {
+                data = [entry newDataWithError:nil];
+                break;
+            }
+    }
+    
+    if (data) {
+        source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        sourceFileModified = self.openArchiveModificationDates[location];
+    }
+    
+    return @[source ? source : [NSNull null],
+             sourceFileModified ? sourceFileModified : [NSNull null]];
+    
+}
+
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns elideAsserts:(BOOL)elideAsserts boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut
 {
     // By default we expect :none, but this can be set if :simple
     
@@ -215,7 +282,6 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         self.contextManager = [[ABYContextManager alloc] initWithContext:JSGlobalContextCreate(NULL)
                                                  compilerOutputDirectory:outURL];
         [self.contextManager setupGlobalContext];
-        [self.contextManager setUpConsoleLog];
         [self setUpTimerFunctionality];
         
         if (!useSimpleOutput) {
@@ -308,31 +374,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                  sourceFileModified = [self getModificationDateForFile:fullPath];
                              }
                          } else if ([type isEqualToString:@"jar"]) {
-                             ZZArchive* archive = self.openArchives[location];
-                             if (!archive) {
-                                 NSError* err = nil;
-                                 archive = [ZZArchive archiveWithURL:[NSURL fileURLWithPath:location]
-                                                               error:&err];
-                                 if (err) {
-                                     NSLog(@"%@", err);
-                                     self.openArchives[location] = [NSNull null];
-                                 } else {
-                                     self.openArchives[location] = archive;
-                                     self.openArchiveModificationDates[location] = [self getModificationDateForFile:location];
-                                 }
-                             }
-                             NSData* data = nil;
-                             if (![archive isEqual:[NSNull null]]) {
-                                 for (ZZArchiveEntry* entry in archive.entries)
-                                     if ([entry.fileName isEqualToString:path]) {
-                                         data = [entry newDataWithError:nil];
-                                         break;
-                                     }
-                             }
-                             if (data) {
-                                 source = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                 sourceFileModified = self.openArchiveModificationDates[path];
-                             }
+                             NSArray* sourceAndModified = [self getSourceFromArchiveLocation:location path:path];
+                             source = sourceAndModified[0] == [NSNull null] ? nil : sourceAndModified[0];
+                             sourceFileModified = sourceAndModified[1] == [NSNull null] ? nil : sourceAndModified[1];
                          }
                          if (source) {
                              break;
@@ -372,6 +416,39 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
          }
                                             name:@"PLANCK_LOAD"
                                          argList:@"path"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             NSMutableArray* depsCljsFiles = [[NSMutableArray alloc] init];
+             if (argc == 0) {
+                 
+                 for (NSArray* srcPath in srcPaths) {
+                     NSString* type = srcPath[0];
+                     NSString* location = srcPath[1];
+                     
+                     if ([type isEqualToString:@"jar"]) {
+                         NSArray* sourceAndModified = [self getSourceFromArchiveLocation:location path:@"deps.cljs"];
+                         if (sourceAndModified[0] != [NSNull null]) {
+                             [depsCljsFiles addObject:sourceAndModified[0]];
+                         }
+                     }
+                 }
+             }
+             
+             NSUInteger count = depsCljsFiles.count;
+             JSValueRef arguments[count];
+             
+             for (int i=0; i<count; i++) {
+                 arguments[i] = JSValueMakeStringFromNSString(ctx, depsCljsFiles[i]);
+              }
+             
+             return JSObjectMakeArray(ctx, count, arguments, NULL);
+             
+         }
+                                            name:@"PLANCK_LOAD_DEPS_CLJS_FILES"
+                                         argList:@""
                                        inContext:self.context];
         
         [ABYUtils installGlobalFunctionWithBlock:
@@ -567,6 +644,76 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              return  JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_IS_DIRECTORY"
+                                         argList:@"path"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeObject) {
+                 JSObjectRef  opts = JSValueToObject(ctx, argv[0], nil);
+                 NSURL* url = [NSURL URLWithString:NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("url"), nil))];
+                 time_t timeout = [NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("timeout"), nil)) longLongValue];
+                 NSString* method = NSStringFromJSValueRef(ctx, JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("method"), nil));
+                 JSValueRef body = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("body"), nil);
+                 
+                 JSObjectRef headersObject = JSValueToObject(ctx,JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("headers"), nil) , nil);
+                 
+                 NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+                 NSMutableDictionary *requestHeaders = toDictionary(ctx, headersObject);
+                
+                 if ([requestHeaders count] > 0) {
+                     [config setHTTPAdditionalHeaders:requestHeaders];
+                 }
+                 
+                 config.timeoutIntervalForResource = timeout;
+                 
+                 NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
+                 
+                 __block JSObjectRef retval = JSObjectMake(ctx, NULL, NULL);
+
+                 NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+                 
+                 if (!JSValueIsUndefined(ctx, body)) {
+                     NSString *bodyString = NSStringFromJSValueRef(ctx, body);
+                     [request setHTTPBody:[bodyString dataUsingEncoding:NSUTF8StringEncoding]];
+                 }
+                 
+                 [request setHTTPMethod:method];
+
+                 dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+                 [[session dataTaskWithRequest:request completionHandler:^(NSData *data,
+                                                                           NSURLResponse *response,
+                                                                           NSError *error) {
+                     
+                     if (data) {
+                         NSString* s = [NSString stringWithUTF8String:[data bytes]];
+                         JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("body"), JSValueMakeStringFromNSString(ctx, s), kJSPropertyAttributeReadOnly, nil);
+                     }
+                     if (error) {
+                         NSString * errordescription = [error localizedDescription];
+                         JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("error"), JSValueMakeStringFromNSString(ctx, errordescription), kJSPropertyAttributeReadOnly, nil);
+                     }
+                     NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                     
+                     JSObjectRef headers = toObjectRef(ctx, [httpResponse allHeaderFields]);
+                     NSInteger status = [httpResponse statusCode];
+                     
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("headers"), headers, kJSPropertyAttributeReadOnly, nil);
+                     
+                     JSObjectSetProperty(ctx, retval, JSStringCreateWithUTF8CString("status"), JSValueMakeNumber(ctx, status), kJSPropertyAttributeReadOnly, nil);
+                     
+                     dispatch_semaphore_signal(sema);
+                 }] resume];
+
+                 dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+                 dispatch_release(sema);
+                 
+                 return  retval;
+             }
+             
+             return JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_REQUEST"
                                          argList:@"path"
                                        inContext:self.context];
 
@@ -1072,6 +1219,26 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                             name:@"PLANCK_FILE_OUTPUT_STREAM_CLOSE"
                                          argList:@"descriptor"
                                        inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             if (self.returnTermSize) {
+                 struct winsize w;
+                 ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+                 JSValueRef  arguments[2];
+                 int num_arguments = 2;
+                 arguments[0] = JSValueMakeNumber(ctx, w.ws_row);
+                 arguments[1] = JSValueMakeNumber(ctx, w.ws_col);
+                 return JSObjectMakeArray(self.context, num_arguments, arguments, NULL);
+             } else {
+                 return JSValueMakeNull(ctx);
+             }
+         }
+                                            name:@"PLANCK_GET_TERM_SIZE"
+                                         argList:@""
+                                       inContext:self.context];
+        
 
         // Set up to read from stdin
         [self setToReadFrom:nil];
@@ -1100,12 +1267,17 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
         }
 
         [self setToPrintOnSender:nil];
+        [self setUpConsoleLogInContext:self.contextManager.context];
         
         // Set up the cljs.user namespace
         
         [ABYUtils evaluateScript:@"goog.provide('cljs.user')" inContext:self.context];
         [ABYUtils evaluateScript:@"goog.require('cljs.core')" inContext:self.context];
 
+        [ABYUtils evaluateScript:[NSString stringWithFormat:@"cljs.core._STAR_assert_STAR_ = %@",
+                                  elideAsserts ? @"false" : @"true"]
+                       inContext:self.context];
+         
         // Go for launch!
         
         [self signalEngineReady];
@@ -1151,6 +1323,31 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     return [[[s stringByReplacingOccurrencesOfString:@"-" withString:@"_"]
              stringByReplacingOccurrencesOfString:@"!" withString:@"_BANG_"]
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
+}
+
+// This implementation is just like Ambly's, but simply prints
+
+- (void)setUpConsoleLogInContext:(JSContextRef)context
+{
+    [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+        
+        if (argc == 1)
+        {
+            NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+            
+            fprintf(stdout, "%s\n", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+            fflush(stdout);
+        }
+        
+        return JSValueMakeUndefined(ctx);
+    }
+                                        name:@"PLANCK_CONSOLE_PRINT"
+                                     argList:@"message"
+                                   inContext:_context];
+    
+    [ABYUtils evaluateScript:@"var console = {}" inContext:context];
+    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_PRINT" inContext:context];
+    
 }
 
 // This implementation is just like Ambly's apart from the canonicalization "goog/../"
@@ -1528,6 +1725,11 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
                                          argList:@""
                                        inContext:self.context];
     }
+}
+
+-(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest
+{
+    self.returnTermSize = honorTermSizeRequest;
 }
 
 @end

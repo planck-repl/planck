@@ -17,7 +17,17 @@
             [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
             [planck.themes :refer [get-theme]]
             [lazy-map.core :refer-macros [lazy-map]]
-            [cljsjs.parinfer]))
+            [cljsjs.parinfer]
+            [planck.js-deps :as js-deps]
+            [clojure.string :as string]
+            [planck.pprint]))
+
+(def ^{:dynamic true
+       :doc     "*pprint-results* controls whether Planck REPL results are
+  pretty printed. If it is bound to logical false, results
+  are printed in a plain fashion. Otherwise, results are
+  pretty printed."}
+  *pprint-results* true)
 
 (def ^:private expression-name "Expression")
 
@@ -87,14 +97,22 @@
   {:pre [(symbol? ns)]}
   (get-in @st [::ana/namespaces ns]))
 
+(defn- ns-syms
+  "Returns a sequence of the symbols in a namespace."
+  ([ns]
+    (ns-syms ns (constantly true)))
+  ([ns pred]
+   {:pre [(symbol? ns)]}
+   (->> (get-namespace ns)
+     :defs
+     (filter pred)
+     (map key))))
+
 (defn- public-syms
   "Returns a sequence of the public symbols in a namespace."
   [ns]
   {:pre [(symbol? ns)]}
-  (->> (get-namespace ns)
-    :defs
-    (filter (comp not :private second))
-    (map key)))
+  (ns-syms ns (comp not :private second)))
 
 (defn- get-aenv
   []
@@ -145,13 +163,26 @@
 
 (defonce ^:private app-env (atom nil))
 
+(defn- read-opts-from-file
+  [file]
+  (when-let [contents (first (js/PLANCK_READ_FILE file))]
+    (try
+      (r/read-string contents)
+      (catch :default e
+        {:failed-read (.-message e)}))))
+
 (defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
-  (reset! planck.repl/app-env (merge {:verbose    verbose
-                                      :cache-path cache-path}
-                                (when static-fns
-                                  {:static-fns true}))))
+  (let [opts (or (read-opts-from-file "opts.clj")
+                 {})]
+    (reset! planck.repl/app-env (merge {:verbose    verbose
+                                        :cache-path cache-path
+                                        :opts       opts}
+                                  (when static-fns
+                                    {:static-fns true})))
+    (js-deps/index-foreign-libs opts)
+    (js-deps/index-upstream-foreign-libs)))
 
 (defn- read-chars
   [reader]
@@ -522,7 +553,10 @@
 
 (defn- form-build-affecting-options
   []
-  (let [m (select-keys @app-env [:static-fns])]
+  (let [m (merge
+            (when-not *assert*
+              {:elide-asserts true})
+            (select-keys @app-env [:static-fns]))]
     (if (empty? m)
       nil
       m)))
@@ -707,6 +741,31 @@
   (when-not (load-and-callback! nil file false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
+(defonce ^:private foreign-files-loaded (atom #{}))
+
+(defn- not-yet-loaded
+  "Determines the files not yet loaded, consulting and augmenting
+  foreign-files-loaded."
+  [files-to-load]
+  (let [result (remove @foreign-files-loaded files-to-load)]
+    (swap! foreign-files-loaded conj result)
+    result))
+
+(defn- file-content
+  "Loads the content for a given file."
+  [file]
+  (first (or (js/PLANCK_READ_FILE file)
+             (js/PLANCK_LOAD file))))
+
+(defn- do-load-foreign
+  [name cb]
+  (let [files-to-load (js-deps/files-to-load name)
+        _             (when (:verbose @app-env)
+                        (println "Loading foreign libs files:" files-to-load))
+        sources       (map file-content (not-yet-loaded files-to-load))]
+    (cb {:lang   :js
+         :source (string/join "\n" sources)})))
+
 ;; Represents code for which the goog JS is already loaded
 (defn- skip-load-goog-js?
   [name]
@@ -748,6 +807,7 @@
     (skip-load? full) (cb {:lang   :js
                            :source ""})
     file (do-load-file file cb)
+    (name @js-deps/foreign-libs-index) (do-load-foreign name cb)
     (re-matches #"^goog/.*" path) (do-load-goog name cb)
     :else (do-load-other name path macros cb)))
 
@@ -815,6 +875,62 @@
   (and (instance? ExceptionInfo e)
        (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
 
+(defn- form-demunge-map
+  "Forms a map from munged function symbols (as they appear in stacktraces)
+  to their unmunged forms."
+  [ns]
+  {:pre [(symbol? ns)]}
+  (let [ns-str        (str ns)
+        munged-ns-str (s/replace ns-str #"\." "$")]
+    (into {} (for [sym (ns-syms ns)]
+               [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
+
+(def ^:private core-demunge-map
+  (delay (form-demunge-map 'cljs.core)))
+
+(defn- non-core-demunge-maps
+  []
+  (let [non-core-nss (remove #{'cljs.core 'cljs.core$macros} (all-ns))]
+    (map form-demunge-map non-core-nss)))
+
+(defn- lookup-sym
+  [demunge-maps munged-sym]
+  (some #(% munged-sym) demunge-maps))
+
+(defn- demunge-local
+  [demunge-maps munged-sym]
+  (let [[_ fn local] (re-find #"(.*)_\$_(.*)" munged-sym)]
+    (when fn
+      (when-let [fn-sym (lookup-sym demunge-maps fn)]
+        (str fn-sym " " (demunge local))))))
+
+(defn- demunge-protocol-fn
+  [demunge-maps munged-sym]
+  (let [[_ ns prot fn] (re-find #"(.*)\$(.*)\$(.*)\$arity\$.*" munged-sym)]
+    (when ns
+      (when-let [prot-sym (lookup-sym demunge-maps (str ns "$" prot))]
+        (when-let [fn-sym (lookup-sym demunge-maps (str ns "$" fn))]
+          (str fn-sym " [" prot-sym "]"))))))
+
+(defn- demunge-sym
+  [munged-sym]
+  (let [demunge-maps (cons @core-demunge-map (non-core-demunge-maps))]
+    (str (or (lookup-sym demunge-maps munged-sym)
+             (demunge-protocol-fn demunge-maps munged-sym)
+             (demunge-local demunge-maps munged-sym)
+           munged-sym))))
+
+(defn- mapped-stacktrace-str
+  ([stacktrace sms]
+   (mapped-stacktrace-str stacktrace sms nil))
+  ([stacktrace sms opts]
+   (apply str
+     (for [{:keys [function file line column]} (st/mapped-stacktrace stacktrace sms opts)
+           :let [demunged (str (when function (demunge-sym function)))]
+           :when (not= demunged "cljs.core/-invoke [cljs.core/IFn]")]
+       (str \tab demunged " (" file (when line (str ":" line))
+         (when column (str ":" column)) ")" \newline)))))
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -844,7 +960,7 @@
                                     {:output-dir "file://(/goog/..)?"})]
          (println
            ((:ex-stack-fn theme)
-             (st/mapped-stacktrace-str
+             (mapped-stacktrace-str
                canonical-stacktrace
                (or (:source-maps @planck.repl/st) {})
                nil)))))
@@ -975,6 +1091,20 @@
                         (filter matches? (public-syms ns)))))
             (all-ns)))))
 
+(defn- undo-reader-conditional-whitespace-docstring
+  "Undoes the effect that wrapping a reader conditional around
+  a defn has on a docstring."
+  [s]
+  ;; We look for five spaces (or six, in case that the docstring
+  ;; is not aligned under the first quote) after the first newline
+  ;; (or two, in case the doctring has an unpadded blank line
+  ;; after the first), and then replace all five (or six) spaces
+  ;; after newlines with two.
+  (when-not (nil? s)
+    (if (re-find #"[^\n]*\n\n?      ?\S.*" s)
+      (s/replace-all s #"\n      ?" "\n  ")
+      s)))
+
 (defn- doc*
   [sym]
   (if-let [special-sym ('{&       fn
@@ -999,7 +1129,8 @@
               var (assoc var :forms (-> var :meta :forms second)
                              :arglists (-> var :meta :arglists second))
               m   (select-keys var
-                    [:ns :name :doc :forms :arglists :macro :url])]
+                    [:ns :name :doc :forms :arglists :macro :url])
+              m   (update m :doc undo-reader-conditional-whitespace-docstring)]
           (cond-> (update-in m [:name] name)
             (:protocol-symbol var)
             (assoc :protocol true
@@ -1062,7 +1193,7 @@
       import (process-require :import identity (rest expression-form))
       load-file (process-load-file argument (assoc opts :expression? false)))
     (when print-nil-expression?
-      (println ((:results-fn theme) "nil")))))
+      (println (str (:results-font theme) "nil" (:reset-font theme))))))
 
 (defn- process-1-2-3
   [expression-form value]
@@ -1082,6 +1213,15 @@
             cache (get-namespace file-namespace)]
         (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
+
+(defn- print-result
+  [value]
+  (if *pprint-results*
+    (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
+      (planck.pprint/pprint value {:width term-width 
+                                   :theme theme})
+      (prn value))
+    (prn value)))
 
 (defn- process-execute-source
   [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path] :as opts}]
@@ -1127,7 +1267,7 @@
             (when-not error
               (when (or print-nil-expression?
                       (not (nil? value)))
-                (println ((:results-fn theme) (pr-str value))))
+                (print-result value))
               (process-1-2-3 expression-form value)
               (reset! current-ns ns)
               nil))

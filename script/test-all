@@ -27,6 +27,8 @@
     (println (:out results))
     (exit 1)))
 
+(comment
+
 (println "Running core tests...")
 
 (let [results (sh "script/test-core")]
@@ -34,3 +36,4 @@
     (println (:out results))
     (println "Core tests have failed.")
     (exit 1)))
+)

@@ -1,18 +1,17 @@
-[31mhello stderr[m[31m
-[m[31mWARNING: Use of undeclared Var cljs.user/not-symbol[m[31m
-[m[31mArgument to in-ns must be a symbol.[m[31m
-[m[31mArgument to in-ns must be a symbol.[m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: planck.io/spit is deprecated. at line 1 [m[31m
-[m[31mWARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 [m[31m
-[m[37mEvaluating Expression[m[37m
-[m[37mcljs.user.a = (3)[m[37m
-[m[37mEvaluating Expression[m[37m
-[m[37mcljs.user.b = ((2) + (3))[m[37m
-[m
+hello stderr
+WARNING: Use of undeclared Var cljs.user/not-symbol
+Argument to in-ns must be a symbol.
+Argument to in-ns must be a symbol.
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: planck.io/spit is deprecated. at line 1 
+WARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 
+Evaluating Expression
+cljs.user.a = (3)
+Evaluating Expression
+cljs.user.b = ((2) + (3))

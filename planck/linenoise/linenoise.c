@@ -156,27 +156,40 @@ struct linenoiseState {
     int history_index;  /* The history index we are currently editing. */
 };
 
-enum KEY_ACTION{
-	KEY_NULL = 0,	    /* NULL */
-	CTRL_A = 1,         /* Ctrl+a */
-	CTRL_B = 2,         /* Ctrl-b */
-	CTRL_C = 3,         /* Ctrl-c */
-	CTRL_D = 4,         /* Ctrl-d */
-	CTRL_E = 5,         /* Ctrl-e */
-	CTRL_F = 6,         /* Ctrl-f */
-	CTRL_H = 8,         /* Ctrl-h */
-	TAB = 9,            /* Tab */
-	CTRL_K = 11,        /* Ctrl+k */
-	CTRL_L = 12,        /* Ctrl+l */
-	__ENTER = 13,         /* Enter */
-	CTRL_N = 14,        /* Ctrl-n */
-	CTRL_P = 16,        /* Ctrl-p */
-	CTRL_T = 20,        /* Ctrl-t */
-	CTRL_U = 21,        /* Ctrl+u */
-	CTRL_W = 23,        /* Ctrl+w */
-	ESC = 27,           /* Escape */
-	BACKSPACE =  127    /* Backspace */
+static const size_t keymapSize = 18;
+
+static char keymap[keymapSize] = {
+    1, // KM_GO_TO_START_OF_LINE
+    2, // KM_MOVE_LEFT
+    3, // KM_CANCEL
+    4, // KM_DELETE_RIGHT
+    5, // KM_GO_TO_END_OF_LINE
+    6, // KM_MOVE_RIGHT
+    8, // KM_DELETE
+    9, // KM_TAB
+    11, // KM_DELETE_TO_END_OF_LINE
+    12, // KM_CLEAR_SCREEN
+    13, // KM_ENTER
+    14, // KM_HISTORY_NEXT
+    16, // KM_HISTORY_PREVIOUS
+    20, // KM_SWAP_CHARS
+    21, // KM_CLEAR_LINE
+    23, // KM_DELETE_PREVIOUS_WORD
+    27, // KM_ESC
+    127 // KM_BACKSPACE
 };
+
+void linenoiseSetKeymapEntry(int action, char key) {
+    // First clear any associated action
+    for (size_t i = 0; i<keymapSize; i++) {
+        if (keymap[i] == key) {
+            keymap[i] = 0;
+            break;
+        }
+    }
+    // Associate the action
+    keymap[action] = key;
+}
 
 static void linenoiseAtExit(void);
 int linenoiseHistoryAdd(const char *line);
@@ -282,7 +295,7 @@ static int getCursorPosition(int ifd, int ofd) {
     buf[i] = '\0';
 
     /* Parse it. */
-    if (buf[0] != ESC || buf[1] != '[') return -1;
+    if (buf[0] != keymap[KM_ESC] || buf[1] != '[') return -1;
     if (sscanf(buf+2,"%d;%d",&rows,&cols) != 2) return -1;
     return cols;
 }
@@ -797,7 +810,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         char seq[3];
 
         nread = read(l.ifd,&c,1);
-        if (c != __ENTER) {
+        if (c != keymap[KM_ENTER]) {
             gettimeofday(&lastCharRead, NULL);
         } else {
             struct timeval now;
@@ -813,7 +826,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         /* Only autocomplete when the callback is set. It returns < 0 when
          * there was an error reading from fd. Otherwise it will return the
          * character that should be handled next. */
-        if (c == 9 && completionCallback != NULL) {
+        if (c == keymap[KM_TAB] && completionCallback != NULL) {
             c = completeLine(&l);
             /* Return on errors */
             if (c < 0) return l.len;
@@ -821,20 +834,17 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             if (c == 0) continue;
         }
 
-        switch(c) {
-        case __ENTER:    /* enter */
+        if (c == keymap[KM_ENTER]) {
             history_len--;
             free(history[history_len]);
             if (mlmode) linenoiseEditMoveEnd(&l);
             return (int)l.len;
-        case CTRL_C:     /* ctrl-c */
+        } else if (c == keymap[KM_CANCEL]) {
             errno = EAGAIN;
             return -1;
-        case BACKSPACE:   /* backspace */
-        case 8:     /* ctrl-h */
+        } else if (c == keymap[KM_BACKSPACE] || c == keymap[KM_DELETE]) {
             linenoiseEditBackspace(&l);
-            break;
-        case CTRL_D:     /* ctrl-d, remove char at right of cursor, or if the
+        } else if (c == keymap[KM_DELETE_RIGHT]) {     /* remove char at right of cursor, or if the
                             line is empty, act as end-of-file. */
             if (l.len > 0) {
                 linenoiseEditDelete(&l);
@@ -843,8 +853,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 free(history[history_len]);
                 return -1;
             }
-            break;
-        case CTRL_T:    /* ctrl-t, swaps current character with previous. */
+        } else if (c == keymap[KM_SWAP_CHARS]) { /* swaps current character with previous. */
             if (l.pos > 0 && l.pos < l.len) {
                 int aux = buf[l.pos-1];
                 buf[l.pos-1] = buf[l.pos];
@@ -852,100 +861,89 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 if (l.pos != l.len-1) l.pos++;
                 refreshLine(&l);
             }
-            break;
-        case CTRL_B:     /* ctrl-b */
+        } else if (c == keymap[KM_MOVE_LEFT]) {
             linenoiseEditMoveLeft(&l);
-            break;
-        case CTRL_F:     /* ctrl-f */
+        } else if (c == keymap[KM_MOVE_RIGHT]) {
             linenoiseEditMoveRight(&l);
-            break;
-        case CTRL_P:    /* ctrl-p */
+        } else if (c == keymap[KM_HISTORY_PREVIOUS]) {
             linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
-            break;
-        case CTRL_N:    /* ctrl-n */
+        } else if (c == keymap[KM_HISTORY_NEXT]) {
             linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
-            break;
-        case ESC:    /* escape sequence */
+        } else if (c == keymap[KM_ESC]) {    /* escape sequence */
             /* Read the next two bytes representing the escape sequence.
              * Use two calls to handle slow terminals returning the two
              * chars at different times. */
-            if (read(l.ifd,seq,1) == -1) break;
-            if (read(l.ifd,seq+1,1) == -1) break;
-
-            /* ESC [ sequences. */
-            if (seq[0] == '[') {
-                if (seq[1] >= '0' && seq[1] <= '9') {
-                    /* Extended escape, read additional byte. */
-                    if (read(l.ifd,seq+2,1) == -1) break;
-                    if (seq[2] == '~') {
-                        switch(seq[1]) {
-                        case '3': /* Delete key. */
-                            linenoiseEditDelete(&l);
-                            break;
+            if (read(l.ifd,seq,1) != -1) {
+                if (read(l.ifd,seq+1,1) != -1) {
+                    
+                    /* ESC [ sequences. */
+                    if (seq[0] == '[') {
+                        if (seq[1] >= '0' && seq[1] <= '9') {
+                            /* Extended escape, read additional byte. */
+                            if (read(l.ifd,seq+2,1) == -1) break;
+                            if (seq[2] == '~') {
+                                switch(seq[1]) {
+                                    case '3': /* Delete key. */
+                                        linenoiseEditDelete(&l);
+                                        break;
+                                }
+                            }
+                        } else {
+                            switch(seq[1]) {
+                                case 'A': /* Up */
+                                    linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
+                                    break;
+                                case 'B': /* Down */
+                                    linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
+                                    break;
+                                case 'C': /* Right */
+                                    linenoiseEditMoveRight(&l);
+                                    break;
+                                case 'D': /* Left */
+                                    linenoiseEditMoveLeft(&l);
+                                    break;
+                                case 'H': /* Home */
+                                    linenoiseEditMoveHome(&l);
+                                    break;
+                                case 'F': /* End*/
+                                    linenoiseEditMoveEnd(&l);
+                                    break;
+                            }
                         }
                     }
-                } else {
-                    switch(seq[1]) {
-                    case 'A': /* Up */
-                        linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_PREV);
-                        break;
-                    case 'B': /* Down */
-                        linenoiseEditHistoryNext(&l, LINENOISE_HISTORY_NEXT);
-                        break;
-                    case 'C': /* Right */
-                        linenoiseEditMoveRight(&l);
-                        break;
-                    case 'D': /* Left */
-                        linenoiseEditMoveLeft(&l);
-                        break;
-                    case 'H': /* Home */
-                        linenoiseEditMoveHome(&l);
-                        break;
-                    case 'F': /* End*/
-                        linenoiseEditMoveEnd(&l);
-                        break;
+                    
+                    /* ESC O sequences. */
+                    else if (seq[0] == 'O') {
+                        switch(seq[1]) {
+                            case 'H': /* Home */
+                                linenoiseEditMoveHome(&l);
+                                break;
+                            case 'F': /* End*/
+                                linenoiseEditMoveEnd(&l);
+                                break;
+                        }
                     }
                 }
             }
-
-            /* ESC O sequences. */
-            else if (seq[0] == 'O') {
-                switch(seq[1]) {
-                case 'H': /* Home */
-                    linenoiseEditMoveHome(&l);
-                    break;
-                case 'F': /* End*/
-                    linenoiseEditMoveEnd(&l);
-                    break;
-                }
-            }
-            break;
-        default:
-            if (linenoiseEditInsert(&l,c)) return -1;
-            break;
-        case CTRL_U: /* Ctrl+u, delete the whole line. */
+        } else if (c == keymap[KM_CLEAR_LINE]) { /*  delete the whole line. */
             buf[0] = '\0';
             l.pos = l.len = 0;
             refreshLine(&l);
-            break;
-        case CTRL_K: /* Ctrl+k, delete from current to end of line. */
+        } else if (c == keymap[KM_DELETE_TO_END_OF_LINE]) { /* delete from current to end of line. */
             buf[l.pos] = '\0';
             l.len = l.pos;
             refreshLine(&l);
-            break;
-        case CTRL_A: /* Ctrl+a, go to the start of the line */
+        } else if (c == keymap[KM_GO_TO_START_OF_LINE]) { /*  go to the start of the line */
             linenoiseEditMoveHome(&l);
-            break;
-        case CTRL_E: /* ctrl+e, go to the end of the line */
+        } else if (c == keymap[KM_GO_TO_END_OF_LINE]) { /* go to the end of the line */
             linenoiseEditMoveEnd(&l);
-            break;
-        case CTRL_L: /* ctrl+l, clear screen */
+        } else if (c == keymap[KM_CLEAR_SCREEN]) { /* clear screen */
             linenoiseClearScreen();
             refreshLine(&l);
-            break;
-        case CTRL_W: /* ctrl+w, delete previous word */
+        } else if (c == keymap[KM_DELETE_PREVIOUS_WORD]) { /* delete previous word */
             linenoiseEditDeletePrevWord(&l);
-            break;
+        } else {
+            if (linenoiseEditInsert(&l,c)) return -1;
         }
     }
     return l.len;

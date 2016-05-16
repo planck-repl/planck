@@ -3,7 +3,7 @@
   (:require [planck.core :refer [exit]]
             [planck.shell :refer [sh *sh-dir*]]))
 
-(def planck-version "1.11")
+(def planck-version "1.12")
 
 ;; Perhaps this file can evolve to be more like
 ;; cljs.test, and perhaps it can involve multiple
@@ -36,14 +36,15 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
                              values
     -c cp, --classpath=cp    Use colon-delimited cp for source directories and
                              JARs
-    -k path, --cache=path    Cache analysis/compilation artifacts in specified
-                             path
+    -K, --auto-cache         Create and use .planck_cache dir for cache
+    -k path, --cache=path    If dir exists at path, use it for cache
     -q, --quiet              Quiet mode
     -v, --verbose            Emit verbose diagnostic output
-    -d, --dumb-terminal      Disables line editing / VT100 terminal control
-    -t theme, --theme=theme  Sets the color theme
-    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port
+    -d, --dumb-terminal      Disable line editing / VT100 terminal control
+    -t theme, --theme=theme  Set the color theme
+    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port
     -s, --static-fns         Generate static dispatch function calls
+    -a, --elide-asserts      Set *assert* to false to remove asserts
 
   main options:
     -m ns-name, --main=ns-name Call the -main function from a namespace with

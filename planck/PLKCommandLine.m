@@ -6,7 +6,7 @@
 #import "PLKBundledOut.h"
 #import "PLKTheme.h"
 
-#define PLANCK_VERSION "1.11"
+#define PLANCK_VERSION "1.12"
 
 @implementation PLKCommandLine
 
@@ -81,6 +81,7 @@
     NSString* socketAddr = nil;
     int socketPort = 0;
     BOOL staticFns = NO;
+    BOOL elideAsserts = NO;
     BOOL quietMode = NO;
     NSString* theme = nil;
 
@@ -99,6 +100,7 @@
         {"eval", required_argument, NULL, 'e'},
         {"classpath", required_argument, NULL, 'c'},
         {"cache", required_argument, NULL, 'k'},
+        {"auto-cache", no_argument, NULL, 'K'},
         {"verbose", no_argument, NULL, 'v'},
         {"dumb-terminal", no_argument, NULL, 'd'},
         {"theme", required_argument, NULL, 't'},
@@ -106,6 +108,7 @@
         {"main", required_argument, NULL, 'm'},
         {"repl", no_argument, NULL, 'r'},
         {"static-fns", no_argument, NULL, 's'},
+        {"elide-asserts", no_argument, NULL, 'a'},
         {"quiet", no_argument, NULL, 'q'},
 
         // Undocumented options used for development
@@ -114,7 +117,7 @@
         {0, 0, 0, 0}
     };
 
-    const char *shortopts = "h?qli:e:c:vdt:n:sm:ro:k:";
+    const char *shortopts = "h?qli:e:c:vdt:n:sam:ro:k:K";
     BOOL didEncounterMainOpt = NO;
     // pass indexOfScriptPathOrHyphen instead of argc to guarantee that everything after a bare dash "-" or a script path gets earmuffed
     while (!didEncounterMainOpt && ((option = getopt_long(indexOfScriptPathOrHyphen, argv, shortopts, longopts, NULL)) != -1)) {
@@ -217,9 +220,25 @@
                 cachePath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
+            case 'K':
+            {
+                cachePath = @".planck_cache";
+                BOOL isDir;
+                NSFileManager *fileManager= [NSFileManager defaultManager];
+                if(![fileManager fileExistsAtPath:cachePath isDirectory:&isDir])
+                    if(![fileManager createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:NULL])
+                        NSLog(@"Error: Create folder failed %@", cachePath);
+                
+                break;
+            }
             case 's':
             {
                 staticFns = YES;
+                break;
+            }
+            case 'a':
+            {
+                elideAsserts = YES;
                 break;
             }
             case 'q':
@@ -277,14 +296,15 @@
             printf("                             values\n");
             printf("    -c cp, --classpath=cp    Use colon-delimited cp for source directories and\n");
             printf("                             JARs\n");
-            printf("    -k path, --cache=path    Cache analysis/compilation artifacts in specified\n");
-            printf("                             path\n");
+            printf("    -K, --auto-cache         Create and use .planck_cache dir for cache\n");
+            printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
             printf("    -q, --quiet              Quiet mode\n");
             printf("    -v, --verbose            Emit verbose diagnostic output\n");
-            printf("    -d, --dumb-terminal      Disables line editing / VT100 terminal control\n");
-            printf("    -t theme, --theme=theme  Sets the color theme\n");
-            printf("    -n x, --socket-repl=x    Enables socket REPL where x is port or IP:port\n");
+            printf("    -d, --dumb-terminal      Disable line editing / VT100 terminal control\n");
+            printf("    -t theme, --theme=theme  Set the color theme\n");
+            printf("    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port\n");
             printf("    -s, --static-fns         Generate static dispatch function calls\n");
+            printf("    -a, --elide-asserts      Set *assert* to false to remove asserts\n");
             printf("\n");
             printf("  main options:\n");
             printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
@@ -330,6 +350,7 @@
                                                 socketAddr:socketAddr
                                                 socketPort:socketPort
                                                  staticFns:staticFns
+                                              elideAsserts:elideAsserts
                                                       args:args
                                              planckVersion:[NSString stringWithCString:PLANCK_VERSION
                                                                               encoding:NSUTF8StringEncoding]

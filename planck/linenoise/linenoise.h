@@ -66,6 +66,26 @@ int linenoiseHistoryLoad(const char *filename);
 void linenoiseClearScreen(void);
 void linenoiseSetMultiLine(int ml);
 void linenoisePrintKeyCodes(void);
+void linenoiseSetKeymapEntry(int action, char key);
+
+#define KM_GO_TO_START_OF_LINE 0
+#define KM_MOVE_LEFT 1
+#define KM_CANCEL 2
+#define KM_DELETE_RIGHT 3
+#define KM_GO_TO_END_OF_LINE 4
+#define KM_MOVE_RIGHT 5
+#define KM_DELETE 6
+#define KM_TAB 7
+#define KM_DELETE_TO_END_OF_LINE 8
+#define KM_CLEAR_SCREEN 9
+#define KM_ENTER 10
+#define KM_HISTORY_NEXT 11
+#define KM_HISTORY_PREVIOUS 12
+#define KM_SWAP_CHARS 13
+#define KM_CLEAR_LINE 14
+#define KM_DELETE_PREVIOUS_WORD 15
+#define KM_ESC 16
+#define KM_BACKSPACE 17
 
 #ifdef __cplusplus
 }

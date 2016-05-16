@@ -44,6 +44,18 @@ At any point in entering a form, Ctrl-C can be hit to discard form entry and sta
 
 As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily hop to the matching opening delimiter.
 
+### Result Formatting
+
+When you evaluate a form at the REPL, the result is pretty printed using [Fipp](https://github.com/brandonbloom/fipp). This causes output to be wrapped and aligned in a manner that makes it easier to see the structure of the data.
+
+> The wrapping honors the width of your terminal, so if you'd like to see a form wrapped differently, resize your terminal and evaluate `*1` to have it re-printed.
+
+If you'd like to turn off pretty printing, just set `*pprint-results*` to `false`:
+
+```
+(set! planck.repl/*pprint-results* false)
+```
+
 ###  Line Editing
 
 #### Arrow Keys
@@ -68,14 +80,25 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 * Ctrl-E: Go to end of line
 * Ctrl-B: Go back one space
 * Ctrl-F: Go forward one space
-* Ctrl-K: Kill to the end of the line
-* Ctrl-W: Kill to beginning of the line
-* Ctrl-H: Delete backwards one character
-* Ctrl-L: Clear the screen
+* Ctrl-K: Delete to end of line
+* Ctrl-W: Delete previous word
+* Ctrl-H: Delete backwards
+* Ctrl-L: Clear screen
 * Ctrl-P: Previous line
 * Ctrl-N: Next line
-* Ctrl-T: Transpose current and previous character
-* Ctrl-U: Undo all typing on current line
+* Ctrl-T: Transpose characters
+* Ctrl-U: Undo typing on line
+
+You may override the set of control characters by creating a `.planck_keymap` file in your home directory that contains a configuration map that looks like:
+
+```clojure
+{:go-to-start-of-line  :ctrl-q
+ :delete-previous-word :ctrl-y}
+```
+
+The keys in this map correspond to actions, and the values correspond to the control keys that cause those actions (`:ctrl-a` through `:ctrl-z`).
+
+The set of actions that you can override comprises: `:go-to-beginning-of-line`, `:go-to-end-of-line`, `:go-back-one-space`, `:go-forward-one-space`, `:delete-to-end-of-line`, `:delete-previous-word`, `:delete-backwards`, `:clear-screen`, `:previous-line`, `:next-line`, `:transpose-characters`, and `:undo-typing-on-line`.
 
 ###  Color Themes
 

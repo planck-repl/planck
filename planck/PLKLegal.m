@@ -25,6 +25,14 @@
     printf("\n");
     printf("\n");
     
+    printf("Fipp\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Copyright © 2015 Brandon Bloom\n");
+    printf("Distributed under the Eclipse Public License, the same as Clojure.\n");
+    printf("\n");
+    printf("\n");
+    
     printf("Linenoise\n");
     printf("---------\n");
     printf("\n");
@@ -53,6 +61,22 @@
     printf("ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n");
     printf("(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n");
     printf("SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
+    printf("\n");
+    printf("\n");
+    
+    printf("MPEdn\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Developed by Matthew Phillips\n");
+    printf("Licensed under the Eclipse Public License v1.0.\n");
+    printf("\n");
+    printf("\n");
+    
+    printf("Parinfer\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Copyright (c) 2015 Shaun Williams and contributors\n");
+    printf("MIT License\n");
     printf("\n");
     printf("\n");
     

@@ -9,7 +9,7 @@
 
 @interface PLKClojureScriptEngine : NSObject
 
--(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut;
+-(void)startInitializationWithSrcPaths:(NSArray*)srcPaths outPath:(NSString*)outPath cachePath:(NSString*)cachePath verbose:(BOOL)verbose staticFns:(BOOL)staticFns elideAsserts:(BOOL)elideAsserts boundArgs:(NSArray*)boundArgs planckVersion:(NSString*)planckVersion repl:(BOOL)repl dumbTerminal:(BOOL)dumbTerminal bundledOut:(PLKBundledOut*)bundledOut;
 -(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady;
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args;
 -(NSString*)isReadable:(NSString*)expression theme:(NSString*)theme;
@@ -21,5 +21,6 @@
 -(void)setToPrintOnSender:(void (^)(NSString*))sender;
 -(void)setToReadFrom:(NSString* (^)())input;
 -(int)getIndentSpaceCount:(NSString*)text;
+-(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest;
 
 @end

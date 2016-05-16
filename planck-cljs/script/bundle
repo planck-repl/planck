@@ -4,14 +4,6 @@
 set -e
 set -o pipefail
 
-# extract needed files from clojure.jar
-pushd out
-jar xvf ../clojurescript/lib/clojure.jar clojure/template.clj > /dev/null
-popd
-
-cp clojurescript/src/main/cljs/cljs/test.cljc out/cljs
-mkdir -p out/cljs/analyzer
-cp clojurescript/src/main/clojure/cljs/analyzer/api.cljc out/cljs/analyzer
 cp src/planck/{repl,core,shell}.clj out/planck
 cp src/planck/from/io/aviso/ansi.clj out/planck/from/io/aviso
 

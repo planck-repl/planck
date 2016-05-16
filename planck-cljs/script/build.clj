@@ -33,6 +33,15 @@
      :dump-core          false
      :parallel-build     true}))
 
+(defn copy-source
+  [filename]
+  (spit (str "out/" filename)
+    (slurp (io/resource filename))))
+
+(copy-source "cljs/test.cljc")
+(copy-source "cljs/analyzer/api.cljc")
+(copy-source "clojure/template.clj")
+
 (let [res (io/resource "cljs/core.cljs.cache.aot.edn")
       cache (read-string (slurp res))]
   (doseq [key (keys cache)]
@@ -77,9 +86,16 @@
 (extract-analysis-cache "out/planck/core.cljs.cache.edn" "out/planck/core.cljs.cache.json")
 (extract-analysis-cache "out/planck/io.cljs.cache.edn" "out/planck/io.cljs.cache.json")
 (extract-analysis-cache "out/planck/shell.cljs.cache.edn" "out/planck/shell.cljs.cache.json")
+(extract-analysis-cache "out/planck/http.cljs.cache.edn" "out/planck/http.cljs.cache.json")
 (extract-analysis-cache "out/planck/from/io/aviso/ansi.cljs.cache.edn" "out/planck/from/io/aviso/ansi.cljs.cache.json")
+(extract-analysis-cache "out/planck/js_deps.cljs.cache.edn" "out/planck/js_deps.cljs.cache.json")
 
 (extract-analysis-cache "out/tailrecursion/cljson.cljs.cache.edn" "out/tailrecursion/cljson.cljs.cache.json")
+
+(extract-analysis-cache "out/planck/pprint.cljs.cache.edn" "out/planck/pprint.cljs.cache.json")
+(extract-analysis-cache "out/fipp/deque.cljc.cache.edn" "out/fipp/deque.cljc.cache.json")
+(extract-analysis-cache "out/fipp/engine.cljc.cache.edn" "out/fipp/engine.cljc.cache.json")
+(extract-analysis-cache "out/fipp/visit.cljc.cache.edn" "out/fipp/visit.cljc.cache.json")
 
 (println "Done building")
 (System/exit 0)

@@ -16,6 +16,15 @@
 		ED1CE2221B72563A0096585B /* PLKSh.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2211B72563A0096585B /* PLKSh.m */; };
 		ED1CE2281B72C6360096585B /* PLKFileReader.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2271B72C6360096585B /* PLKFileReader.m */; };
 		ED2C904A1C08C72A00597ABA /* MKBlockingQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = ED2C90491C08C72A00597ABA /* MKBlockingQueue.m */; };
+		ED3C43E11CD834F60009CE08 /* MPEdnBase64Codec.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43CE1CD834A20009CE08 /* MPEdnBase64Codec.m */; };
+		ED3C43E21CD834FA0009CE08 /* MPEdnDateCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43D01CD834A20009CE08 /* MPEdnDateCodec.m */; };
+		ED3C43E31CD834FD0009CE08 /* MPEdnKeyword.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43D21CD834A20009CE08 /* MPEdnKeyword.m */; };
+		ED3C43E41CD835000009CE08 /* MPEdnParser.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43D41CD834A20009CE08 /* MPEdnParser.m */; };
+		ED3C43E51CD835030009CE08 /* MPEdnSymbol.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43D61CD834A20009CE08 /* MPEdnSymbol.m */; };
+		ED3C43E61CD835080009CE08 /* MPEdnTaggedValue.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43D81CD834A20009CE08 /* MPEdnTaggedValue.m */; };
+		ED3C43E71CD835100009CE08 /* MPEdnURLCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43DC1CD834A20009CE08 /* MPEdnURLCodec.m */; };
+		ED3C43E81CD835130009CE08 /* MPEdnUUIDCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43DE1CD834A20009CE08 /* MPEdnUUIDCodec.m */; };
+		ED3C43E91CD835160009CE08 /* MPEdnWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = ED3C43E01CD834A20009CE08 /* MPEdnWriter.m */; };
 		ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */ = {isa = PBXBuildFile; fileRef = ED4919571B6EB9520084F9C5 /* linenoise.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		ED4B2E141B88021F00DF622A /* PLKUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4B2E131B88021F00DF622A /* PLKUtils.m */; };
 		ED4B2E171B88A62100DF622A /* PLKFileInputStream.m in Sources */ = {isa = PBXBuildFile; fileRef = ED4B2E161B88A62100DF622A /* PLKFileInputStream.m */; };
@@ -80,6 +89,28 @@
 		ED1CE2271B72C6360096585B /* PLKFileReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKFileReader.m; sourceTree = "<group>"; };
 		ED2C90481C08C72A00597ABA /* MKBlockingQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MKBlockingQueue.h; path = planck/MKBlockingQueue/MKBlockingQueue.h; sourceTree = "<group>"; };
 		ED2C90491C08C72A00597ABA /* MKBlockingQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MKBlockingQueue.m; path = planck/MKBlockingQueue/MKBlockingQueue.m; sourceTree = "<group>"; };
+		ED3C43CB1CD834A20009CE08 /* MPEdn-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MPEdn-Prefix.pch"; sourceTree = "<group>"; };
+		ED3C43CC1CD834A20009CE08 /* MPEdn.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdn.h; sourceTree = "<group>"; };
+		ED3C43CD1CD834A20009CE08 /* MPEdnBase64Codec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnBase64Codec.h; sourceTree = "<group>"; };
+		ED3C43CE1CD834A20009CE08 /* MPEdnBase64Codec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnBase64Codec.m; sourceTree = "<group>"; };
+		ED3C43CF1CD834A20009CE08 /* MPEdnDateCodec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnDateCodec.h; sourceTree = "<group>"; };
+		ED3C43D01CD834A20009CE08 /* MPEdnDateCodec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnDateCodec.m; sourceTree = "<group>"; };
+		ED3C43D11CD834A20009CE08 /* MPEdnKeyword.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnKeyword.h; sourceTree = "<group>"; };
+		ED3C43D21CD834A20009CE08 /* MPEdnKeyword.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnKeyword.m; sourceTree = "<group>"; };
+		ED3C43D31CD834A20009CE08 /* MPEdnParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnParser.h; sourceTree = "<group>"; };
+		ED3C43D41CD834A20009CE08 /* MPEdnParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnParser.m; sourceTree = "<group>"; };
+		ED3C43D51CD834A20009CE08 /* MPEdnSymbol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnSymbol.h; sourceTree = "<group>"; };
+		ED3C43D61CD834A20009CE08 /* MPEdnSymbol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnSymbol.m; sourceTree = "<group>"; };
+		ED3C43D71CD834A20009CE08 /* MPEdnTaggedValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnTaggedValue.h; sourceTree = "<group>"; };
+		ED3C43D81CD834A20009CE08 /* MPEdnTaggedValue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnTaggedValue.m; sourceTree = "<group>"; };
+		ED3C43D91CD834A20009CE08 /* MPEdnTaggedValueReader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnTaggedValueReader.h; sourceTree = "<group>"; };
+		ED3C43DA1CD834A20009CE08 /* MPEdnTaggedValueWriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnTaggedValueWriter.h; sourceTree = "<group>"; };
+		ED3C43DB1CD834A20009CE08 /* MPEdnURLCodec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnURLCodec.h; sourceTree = "<group>"; };
+		ED3C43DC1CD834A20009CE08 /* MPEdnURLCodec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnURLCodec.m; sourceTree = "<group>"; };
+		ED3C43DD1CD834A20009CE08 /* MPEdnUUIDCodec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnUUIDCodec.h; sourceTree = "<group>"; };
+		ED3C43DE1CD834A20009CE08 /* MPEdnUUIDCodec.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnUUIDCodec.m; sourceTree = "<group>"; };
+		ED3C43DF1CD834A20009CE08 /* MPEdnWriter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPEdnWriter.h; sourceTree = "<group>"; };
+		ED3C43E01CD834A20009CE08 /* MPEdnWriter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPEdnWriter.m; sourceTree = "<group>"; };
 		ED4919571B6EB9520084F9C5 /* linenoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linenoise.c; path = planck/linenoise/linenoise.c; sourceTree = "<group>"; };
 		ED4919581B6EB9520084F9C5 /* linenoise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = linenoise.h; path = planck/linenoise/linenoise.h; sourceTree = "<group>"; };
 		ED4B2E121B88021F00DF622A /* PLKUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKUtils.h; sourceTree = "<group>"; };
@@ -194,6 +225,36 @@
 			name = MKBlockingQueue;
 			sourceTree = "<group>";
 		};
+		ED3C43CA1CD834A20009CE08 /* MPEdn */ = {
+			isa = PBXGroup;
+			children = (
+				ED3C43CB1CD834A20009CE08 /* MPEdn-Prefix.pch */,
+				ED3C43CC1CD834A20009CE08 /* MPEdn.h */,
+				ED3C43CD1CD834A20009CE08 /* MPEdnBase64Codec.h */,
+				ED3C43CE1CD834A20009CE08 /* MPEdnBase64Codec.m */,
+				ED3C43CF1CD834A20009CE08 /* MPEdnDateCodec.h */,
+				ED3C43D01CD834A20009CE08 /* MPEdnDateCodec.m */,
+				ED3C43D11CD834A20009CE08 /* MPEdnKeyword.h */,
+				ED3C43D21CD834A20009CE08 /* MPEdnKeyword.m */,
+				ED3C43D31CD834A20009CE08 /* MPEdnParser.h */,
+				ED3C43D41CD834A20009CE08 /* MPEdnParser.m */,
+				ED3C43D51CD834A20009CE08 /* MPEdnSymbol.h */,
+				ED3C43D61CD834A20009CE08 /* MPEdnSymbol.m */,
+				ED3C43D71CD834A20009CE08 /* MPEdnTaggedValue.h */,
+				ED3C43D81CD834A20009CE08 /* MPEdnTaggedValue.m */,
+				ED3C43D91CD834A20009CE08 /* MPEdnTaggedValueReader.h */,
+				ED3C43DA1CD834A20009CE08 /* MPEdnTaggedValueWriter.h */,
+				ED3C43DB1CD834A20009CE08 /* MPEdnURLCodec.h */,
+				ED3C43DC1CD834A20009CE08 /* MPEdnURLCodec.m */,
+				ED3C43DD1CD834A20009CE08 /* MPEdnUUIDCodec.h */,
+				ED3C43DE1CD834A20009CE08 /* MPEdnUUIDCodec.m */,
+				ED3C43DF1CD834A20009CE08 /* MPEdnWriter.h */,
+				ED3C43E01CD834A20009CE08 /* MPEdnWriter.m */,
+			);
+			name = MPEdn;
+			path = planck/ZipZap/MPEdn;
+			sourceTree = "<group>";
+		};
 		ED4919561B6EB9180084F9C5 /* linenoise */ = {
 			isa = PBXGroup;
 			children = (
@@ -210,6 +271,7 @@
 				ED1CE2131B7048490096585B /* Ambly */,
 				ED4919561B6EB9180084F9C5 /* linenoise */,
 				ED2C90471C08C70700597ABA /* MKBlockingQueue */,
+				ED3C43CA1CD834A20009CE08 /* MPEdn */,
 				EDEF27721B84B79D00F2C7E4 /* ZipZap */,
 				ED9C148D1B57C21E0092866D /* Products */,
 				35A6B03D755C734C71B409B1 /* Frameworks */,
@@ -374,10 +436,14 @@
 				EDEF27AF1B84B79D00F2C7E4 /* ZZStandardDecryptInputStream.mm in Sources */,
 				EDEF27AE1B84B79D00F2C7E4 /* ZZStandardCryptoEngine.cpp in Sources */,
 				ED4B2E141B88021F00DF622A /* PLKUtils.m in Sources */,
+				ED3C43E61CD835080009CE08 /* MPEdnTaggedValue.m in Sources */,
 				EDEEDDA41B6FE2D000DF10C1 /* ABYContextManager.m in Sources */,
 				EDEEDDA51B6FE2D000DF10C1 /* ABYUtils.m in Sources */,
 				EDEF27AA1B84B79D00F2C7E4 /* ZZNewArchiveEntry.mm in Sources */,
+				ED3C43E41CD835000009CE08 /* MPEdnParser.m in Sources */,
+				ED3C43E51CD835030009CE08 /* MPEdnSymbol.m in Sources */,
 				EDBB07031B7EADE300D8C6C6 /* PLKLegal.m in Sources */,
+				ED3C43E31CD834FD0009CE08 /* MPEdnKeyword.m in Sources */,
 				EDEF27A21B84B79D00F2C7E4 /* ZZConstants.m in Sources */,
 				EDEF27AD1B84B79D00F2C7E4 /* ZZOldArchiveEntryWriter.mm in Sources */,
 				ED4B2E171B88A62100DF622A /* PLKFileInputStream.m in Sources */,
@@ -390,17 +456,22 @@
 				ED1CE2221B72563A0096585B /* PLKSh.m in Sources */,
 				ED4919591B6EB9520084F9C5 /* linenoise.c in Sources */,
 				EDEF27AB1B84B79D00F2C7E4 /* ZZNewArchiveEntryWriter.mm in Sources */,
+				ED3C43E81CD835130009CE08 /* MPEdnUUIDCodec.m in Sources */,
+				ED3C43E11CD834F60009CE08 /* MPEdnBase64Codec.m in Sources */,
 				EDEF27A81B84B79D00F2C7E4 /* ZZFileChannelOutput.m in Sources */,
 				EDBB01921C6E074400F64844 /* PLKTheme.m in Sources */,
 				ED9C14901B57C21E0092866D /* main.m in Sources */,
 				EDEF27A11B84B79D00F2C7E4 /* ZZArchiveEntry.m in Sources */,
+				ED3C43E71CD835100009CE08 /* MPEdnURLCodec.m in Sources */,
 				ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */,
 				EDEF27AC1B84B79D00F2C7E4 /* ZZOldArchiveEntry.mm in Sources */,
 				ED1CE2191B704FF10096585B /* PLKClojureScriptEngine.m in Sources */,
 				EDEF27A31B84B79D00F2C7E4 /* ZZDataChannel.m in Sources */,
 				EDEF27A41B84B79D00F2C7E4 /* ZZDataChannelOutput.m in Sources */,
+				ED3C43E21CD834FA0009CE08 /* MPEdnDateCodec.m in Sources */,
 				ED2C904A1C08C72A00597ABA /* MKBlockingQueue.m in Sources */,
 				ED1CE2161B7049670096585B /* PLKExecutive.m in Sources */,
+				ED3C43E91CD835160009CE08 /* MPEdnWriter.m in Sources */,
 				EDEF27B01B84B79D00F2C7E4 /* ZZStoreOutputStream.m in Sources */,
 				ED1CE21C1B7186B10096585B /* PLKBundledOut.m in Sources */,
 				EDEF27A71B84B79D00F2C7E4 /* ZZFileChannel.m in Sources */,
