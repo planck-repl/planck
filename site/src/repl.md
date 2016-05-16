@@ -5,7 +5,7 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 
 ```
 $ planck
-Planck 1.11
+Planck 1.12
 ClojureScript 1.8.51
     Docs: (doc function-name-here)
           (find-doc "part-of-name-here")
@@ -126,7 +126,7 @@ If you started Planck in quiet mode (by passing `-q` or `-​-quiet`) then you w
 
 REPL specials are, in essence, special forms that exist only in the REPL. (They can't be used in regular ClojureScript code and must be entered as top-level forms.)
 
-#### `in-ns` 
+#### in-ns 
 
 Planck supports `in-ns`, which will switch you to a new namespace, creating it if it doesn't already exist.
 
@@ -146,7 +146,7 @@ nil
 foo.core=> ▊
 ```
 
-#### `require`, `require-macros`, `import`
+#### require, require-macros, import
 
 The `require`, `require-macros`, and  `import` REPL specials make it possible to load namespaces and Google Closure code into Planck. These work on the namespaces and Google Closure code that ships with Planck, like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `-​-​classpath` comand-line option.
 
@@ -155,7 +155,7 @@ The `require`, `require-macros`, and  `import` REPL specials make it possible to
 cljs.user=> (require '[planck.core :as planck])
 nil
 cljs.user=> planck/*planck-version*
-"1.10"
+"1.12"
 cljs.user=> (import '[goog.events EventType])
 nil
 cljs.user=> EventType.CLICK
@@ -164,7 +164,7 @@ cljs.user=> EventType.CLICK
 
 > These REPL specials are implemented in terms of the `ns` special form, just as is done in regular ClojureScript REPLs.
 
-#### `load-file`
+#### load-file
 The `load-file` REPL special can be used to load ClojureScript source from any file on the filesystem. It causes the REPL to sequentially read and evaluate the set of forms contained in the file.
 
 ### Auto-Referred Symbols
