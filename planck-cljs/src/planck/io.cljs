@@ -1,5 +1,6 @@
 (ns planck.io
-    (:require [planck.core])
+  (:require [clojure.string :as s]
+            [planck.core])
   (:import goog.Uri))
 
 (defrecord File [path]
@@ -36,7 +37,7 @@
   (as-url [f] (build-uri :file nil nil (:path f) nil)))
 
 (defn- as-url-or-file [f]
-  (if (.startsWith f "http")
+  (if (s/starts-with? f "http")
     (as-url f)
     (as-file f)))
 
