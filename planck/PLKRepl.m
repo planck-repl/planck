@@ -159,7 +159,7 @@ void highlightCancel() {
         rv = [NSString stringWithFormat:@"%@=> ", currentNs];
     } else {
         if (!dumbTerminal) {
-            rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
+            rv = [[@"" stringByPaddingToLength:MAX((int)currentNs.length-2, 0)
                                     withString:@" "
                                startingAtIndex:0]
                   stringByAppendingString:@"#_=> "];
