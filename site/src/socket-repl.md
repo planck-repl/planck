@@ -31,7 +31,7 @@ cljs.user=>
 
 You can make as many connections as you'd like.
 
-You can exit a socket REPL connection by typing `exit`, `quit`, or `:cljs/quit`.
+You can exit a socket REPL connection by typing `:repl/quit`, `exit`, `quit`, or `:cljs/quit`.
 
 Socket REPLs can be used by IDEs, for example. It provides a side channel that an IDE can use in order to introspect the runtime environment without interfering with your primary REPL session.
 
