@@ -577,9 +577,23 @@ void handleConnect (
                 break;
             }
         } else {
+            if ([s_clojureScriptEngine isReady]) {
+                // Set thing up so we can handle prints while processing linenoise input
+                [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
+                    linenoisePrintNow([msg cStringUsingEncoding:NSUTF8StringEncoding]);
+                }];
+            }
+            
+            // Process linenoise input
             char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding],
                                    [PLKTheme promptAnsiCodeForTheme:theme],
                                    self.indentSpaceCount);
+            
+            // Reset printing handler back
+            if ([s_clojureScriptEngine isReady]) {
+                [s_clojureScriptEngine setToPrintOnSender:nil];
+            }
+            
             self.indentSpaceCount = 0;
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C was pressed

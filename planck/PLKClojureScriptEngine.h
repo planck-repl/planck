@@ -23,5 +23,6 @@
 -(void)setToReadFrom:(NSString* (^)())input;
 -(int)getIndentSpaceCount:(NSString*)text;
 -(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest;
+-(BOOL)isReady;
 
 @end

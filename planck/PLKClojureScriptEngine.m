@@ -17,7 +17,7 @@
 @interface PLKClojureScriptEngine()
 
 @property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
-@property (nonatomic) BOOL javaScriptEngineReady;
+@property (atomic) BOOL javaScriptEngineReady;
 @property (nonatomic, strong) NSCondition* cacheTasksCondition;
 @property (nonatomic) int cacheTasksOutstanding;
 @property (nonatomic) JSGlobalContextRef context;
@@ -149,7 +149,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              NSString *str = [NSString stringWithFormat:@"timer%d", incremented];
              
              dispatch_after(dispatch_time(DISPATCH_TIME_NOW, ms * NSEC_PER_MSEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+                 @synchronized (self) {
+                     [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+                 }
              });
              
              JSStringRef strRef = JSStringCreateWithCFString((__bridge CFStringRef)str);
@@ -1489,8 +1491,10 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
     arguments[5] = JSValueMakeStringFromNSString(self.context, theme);
     arguments[6] = JSValueMakeNumber(self.context, sessionId);
-    result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-    
+    @synchronized (self) {
+        result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    }
+
     return self.exitValue;
 }
 
@@ -1741,6 +1745,10 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
 -(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest
 {
     self.returnTermSize = honorTermSizeRequest;
+}
+
+-(BOOL)isReady {
+    return self.javaScriptEngineReady;
 }
 
 @end

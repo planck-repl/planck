@@ -138,6 +138,8 @@ static struct timeval lastCharRead;
 static int pasting = 0;
 static const char* currentPromptAnsiCode;
 
+static struct linenoiseState * printNowState;
+
 /* The linenoiseState structure represents the state during line editing.
  * We pass this state to functions implementing specific editing
  * functionalities. */
@@ -804,6 +806,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     }
     refreshLine(&l);
     
+    // Set things up so we can handle async prints coming int
+    printNowState = &l;
+    
     while(1) {
         char c;
         int nread;
@@ -817,7 +822,10 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             gettimeofday(&now, NULL);
             pasting = (1000000L * (now.tv_sec - lastCharRead.tv_sec) + now.tv_usec - lastCharRead.tv_usec) < 10000;
         }
-        if (nread <= 0) return l.len;
+        if (nread <= 0) {
+            printNowState = NULL;
+            return l.len;
+        }
 
         if (highlightCancelCallback != NULL) {
             highlightCancelCallback();
@@ -870,7 +878,10 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         if (c == keymap[KM_TAB] && completionCallback != NULL) {
             c = completeLine(&l);
             /* Return on errors */
-            if (c < 0) return l.len;
+            if (c < 0) {
+                printNowState = NULL;
+                return l.len;
+            }
             /* Read next character when 0 */
             if (c == 0) continue;
         }
@@ -879,9 +890,11 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             history_len--;
             free(history[history_len]);
             if (mlmode) linenoiseEditMoveEnd(&l);
+            printNowState = NULL;
             return (int)l.len;
         } else if (c == keymap[KM_CANCEL]) {
             errno = EAGAIN;
+            printNowState = NULL;
             return -1;
         } else if (c == keymap[KM_BACKSPACE] || c == keymap[KM_DELETE]) {
             linenoiseEditBackspace(&l);
@@ -892,6 +905,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             } else {
                 history_len--;
                 free(history[history_len]);
+                printNowState = NULL;
                 return -1;
             }
         } else if (c == keymap[KM_SWAP_CHARS]) { /* swaps current character with previous. */
@@ -984,9 +998,13 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         } else if (c == keymap[KM_DELETE_PREVIOUS_WORD]) { /* delete previous word */
             linenoiseEditDeletePrevWord(&l);
         } else {
-            if (linenoiseEditInsert(&l,c)) return -1;
+            if (linenoiseEditInsert(&l,c)) {
+                printNowState = NULL;
+                return -1;
+            }
         }
     }
+    printNowState = NULL;
     return l.len;
 }
 
@@ -1043,6 +1061,19 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt, int spaces
         printf("\n");
     }
     return count;
+}
+
+void linenoisePrintNow(const char* text) {
+
+    if (strcmp(text, "\n") != 0) {
+        fprintf(stdout, "\r\x1b[0K");
+        fprintf(stdout, text);
+        fprintf(stdout, "\n");
+        
+        if (printNowState) {
+            refreshLine(printNowState);
+        }
+    }
 }
 
 /* The high level function that is the main API of the linenoise library.
