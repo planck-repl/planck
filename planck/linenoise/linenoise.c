@@ -810,7 +810,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         char seq[3];
 
         nread = read(l.ifd,&c,1);
-        if (c != keymap[KM_ENTER]) {
+        if (c != keymap[KM_ENTER] && c != '>') {  // Also check for '>' so we can catch pasting involving prompt
             gettimeofday(&lastCharRead, NULL);
         } else {
             struct timeval now;
@@ -821,6 +821,47 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
 
         if (highlightCancelCallback != NULL) {
             highlightCancelCallback();
+        }
+        
+        /**
+         * When pasting a multi-line form that has been copied,
+         * detect "#_=> " preceeded by spaces, or primary prompt, 
+         * and delete portion of line entered up to that point.
+         */
+        if (pasting &&
+            c == ' ' &&
+            l.pos > 1 &&
+            l.buf[l.pos-1] == '>' &&
+            l.buf[l.pos-2] == '=') {
+ 
+            int delete = 0;
+            
+            if (l.pos > 3 &&
+                l.buf[l.pos-3] == '_' &&
+                l.buf[l.pos-4] == '#') {
+                delete = 1;
+                for (int i=0; i<l.pos-4; i++) {
+                    if (l.buf[i] != ' ') {
+                        delete = 0;
+                        break;
+                    }
+                }
+            } else if (l.pos + 1 == l.plen) { // Check for current primary prompt
+                delete = 1;
+                for (int i=0; i<l.pos; i++) {
+                    if (l.buf[i] != l.prompt[i]) {
+                        delete = 0;
+                        break;
+                    }
+                }
+            }
+            
+            if (delete) {
+                buf[0] = '\0';
+                l.pos = l.len = 0;
+                refreshLine(&l);
+                continue;
+            }
         }
         
         /* Only autocomplete when the callback is set. It returns < 0 when
