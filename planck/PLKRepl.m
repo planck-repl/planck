@@ -156,7 +156,11 @@ void highlightCancel() {
 {
     NSString* rv = nil;
     if (!secondary) {
-        rv = [NSString stringWithFormat:@"%@=> ", currentNs];
+        if (currentNs.length == 1 && !dumbTerminal) {
+            rv = [NSString stringWithFormat:@" %@=> ", currentNs];
+        } else {
+            rv = [NSString stringWithFormat:@"%@=> ", currentNs];
+        }
     } else {
         if (!dumbTerminal) {
             rv = [[@"" stringByPaddingToLength:MAX((int)currentNs.length-2, 0)
