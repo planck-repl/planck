@@ -1263,7 +1263,8 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                       inExitContext:NO
                               setNs:@"cljs.user"
                               theme:@"dumb"
-                    blockUntilReady:NO];
+                    blockUntilReady:NO
+                          sessionId:0];
         }
 
         [self setToPrintOnSender:nil];
@@ -1458,7 +1459,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady sessionId:(int)sessionId
 {
     if (blockUntilReady) {
         [self blockUntilEngineReady];
@@ -1471,9 +1472,9 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[6];
+    JSValueRef  arguments[7];
     JSValueRef result;
-    int num_arguments = 6;
+    int num_arguments = 7;
     
     {
         JSValueRef  sourceArguments[2];
@@ -1487,9 +1488,19 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
     arguments[5] = JSValueMakeStringFromNSString(self.context, theme);
+    arguments[6] = JSValueMakeNumber(self.context, sessionId);
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
     return self.exitValue;
+}
+
+-(void)clearStateForSession:(int)sessionId
+{
+    JSValueRef  arguments[1];
+    int num_arguments = 1;
+    
+    arguments[0] = JSValueMakeNumber(self.context, sessionId);
+    JSObjectCallAsFunction(self.context, [self getFunction:@"clear-state-for-session"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
 }
 
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args

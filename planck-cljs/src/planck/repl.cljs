@@ -1195,6 +1195,58 @@
     (when print-nil-expression?
       (println (str (:results-font theme) "nil" (:reset-font theme))))))
 
+;; Clojure REPLs bind thread-local state for a REPL so that set! calls are isolated.
+;; We instead employ a "context switching" strategy given the behavior of dynamic
+;; vars in ClojureScript.
+
+(defn- capture-session-state
+  "Captures all of the commonly set global vars as a session state map."
+  []
+  {:*print-meta*        *print-meta*
+   :*print-length*      *print-length*
+   :*print-level*       *print-level*
+   :*unchecked-if*      *unchecked-if*
+   :*assert*            *assert*
+   :*1                  *1
+   :*2                  *2
+   :*3                  *3
+   :*e                  *e})
+
+(defn- set-session-state
+  "Sets the session state given a sesssion state map."
+  [session-state]
+  (set! *print-meta* (:*print-meta* session-state))
+  (set! *print-length* (:*print-length* session-state))
+  (set! *print-level* (:*print-level* session-state))
+  (set! *unchecked-if* (:*unchecked-if* session-state))
+  (set! *assert* (:*assert* session-state))
+  (set! *1 (:*1 session-state))
+  (set! *2 (:*2 session-state))
+  (set! *3 (:*3 session-state))
+  (set! *e (:*e session-state)))
+
+(def ^{:private true
+       :doc     "The default state used to initialize a new REPL session."} default-session-state
+  (capture-session-state))
+
+(defonce ^{:private true
+           :doc     "The state for each session, keyed by session ID."} session-states (atom {}))
+
+(defn- ^:export clear-state-for-session
+  "Clears the session state for a completed session."
+  [session-id]
+  (swap! session-states dissoc session-id))
+
+(defn- set-session-state-for-session-id
+  "Sets the session state for a given session."
+  [session-id]
+  (set-session-state (get @session-states session-id default-session-state)))
+
+(defn- capture-session-state-for-session-id
+  "Captures the session state for a given session."
+  [session-id]
+  (swap! session-states assoc session-id (capture-session-state)))
+
 (defn- process-1-2-3
   [expression-form value]
   (when-not
@@ -1224,8 +1276,10 @@
     (prn value)))
 
 (defn- process-execute-source
-  [source-text expression-form {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path] :as opts}]
+  [source-text expression-form
+   {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path session-id] :as opts}]
   (try
+    (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns]
       ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
       (when (and expression?
@@ -1274,7 +1328,8 @@
           (when error
             (handle-error error include-stacktrace? in-exit-context?)))))
     (catch :default e
-      (handle-error e include-stacktrace? in-exit-context?))))
+      (handle-error e include-stacktrace? in-exit-context?))
+    (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
   [[source-type source-value] {:keys [expression?] :as opts}]
@@ -1328,7 +1383,7 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns theme-id]
+  [source expression? print-nil-expression? in-exit-context? set-ns theme-id session-id]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
@@ -1336,7 +1391,8 @@
     (execute-source source {:expression?           expression?
                             :print-nil-expression? print-nil-expression?
                             :in-exit-context?      in-exit-context?
-                            :include-stacktrace?   true})))
+                            :include-stacktrace?   true
+                            :session-id            session-id})))
 
 (defn- eval
   ([form]

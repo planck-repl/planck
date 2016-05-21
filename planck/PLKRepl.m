@@ -417,6 +417,7 @@ void handleConnect (
     }
     
     [s_socketRepls removeObjectForKey:@(self.socketReplSessionId)];
+    [s_clojureScriptEngine clearStateForSession:self.socketReplSessionId];
 }
 
 -(BOOL)processLine:(NSString*)inputLine dumbTerminal:(BOOL)dumbTerminal theme:(NSString*)theme
@@ -486,7 +487,8 @@ void handleConnect (
                                                             inExitContext:NO
                                                                     setNs:self.currentNs
                                                                     theme:theme
-                                                          blockUntilReady:YES];
+                                                          blockUntilReady:YES
+                                                                sessionId:self.socketReplSessionId];
                 
                 [s_clojureScriptEngine setHonorTermSizeRequest:NO];
                 
