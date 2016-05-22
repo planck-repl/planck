@@ -985,12 +985,13 @@
 
 (defn- get-var
   [env sym]
-  (let [var (or (with-compiler-env st (resolve-var env sym))
-                (some #(get-macro-var env sym %) (all-macros-ns)))]
-    (when var
-      (if (= (namespace (:name var)) (str (:ns var)))
-        (update var :name #(symbol (name %)))
-        var))))
+  (binding [ana/*cljs-warning-handlers* nil]
+    (let [var (or (with-compiler-env st (resolve-var env sym))
+                  (some #(get-macro-var env sym %) (all-macros-ns)))]
+      (when var
+        (if (= (namespace (:name var)) (str (:ns var)))
+          (update var :name #(symbol (name %)))
+          var)))))
 
 (defn- get-file-source
   [filepath]
