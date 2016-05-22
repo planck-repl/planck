@@ -1765,4 +1765,11 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     return self.javaScriptEngineReady;
 }
 
+-(BOOL)printNewline
+{
+    return JSValueToBoolean(self.context,
+                            [ABYUtils evaluateScript:@"cljs.core._STAR_print_newline_STAR_"
+                                           inContext:self.context]);
+}
+
 @end

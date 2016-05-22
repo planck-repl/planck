@@ -24,5 +24,6 @@
 -(int)getIndentSpaceCount:(NSString*)text;
 -(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest;
 -(BOOL)isReady;
+-(BOOL)printNewline;
 
 @end

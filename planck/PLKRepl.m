@@ -584,6 +584,13 @@ void handleConnect (
                 }];
             }
             
+            // If *print-newline* is off, we need to emit a newline now, otherwise
+            // the linenoise prompt and line editing will overwrite any printed
+            // output on the current line.
+            if ([s_clojureScriptEngine isReady] && ![s_clojureScriptEngine printNewline]) {
+                fprintf(stdout, "\n");
+            }
+            
             // Process linenoise input
             char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding],
                                    [PLKTheme promptAnsiCodeForTheme:theme],
