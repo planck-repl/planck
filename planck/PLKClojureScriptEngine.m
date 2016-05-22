@@ -1328,8 +1328,6 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
 }
 
-// This implementation is just like Ambly's, but simply prints
-
 - (void)setUpConsoleLogInContext:(JSContextRef)context
 {
     [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -1344,12 +1342,28 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         
         return JSValueMakeUndefined(ctx);
     }
-                                        name:@"PLANCK_CONSOLE_PRINT"
+                                        name:@"PLANCK_CONSOLE_LOG"
+                                     argList:@"message"
+                                   inContext:_context];
+    
+    [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+        
+        if (argc == 1)
+        {
+            NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+            
+            fprintf(stderr, "%s\n", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+        
+        return JSValueMakeUndefined(ctx);
+    }
+                                        name:@"PLANCK_CONSOLE_ERROR"
                                      argList:@"message"
                                    inContext:_context];
     
     [ABYUtils evaluateScript:@"var console = {}" inContext:context];
-    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_PRINT" inContext:context];
+    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_LOG" inContext:context];
+    [ABYUtils evaluateScript:@"console.error = PLANCK_CONSOLE_ERROR" inContext:context];
     
 }
 
