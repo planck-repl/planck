@@ -30,6 +30,7 @@
   *pprint-results* true)
 
 (def ^:private expression-name "Expression")
+(def ^:private could-not-eval-expr (str "Could not eval " expression-name))
 
 (defn- calc-x-line [text pos line]
   (let [x (s/index-of text "\n")]
@@ -865,7 +866,7 @@
     (and (instance? ExceptionInfo error)
          (= :cljs/analysis-error (:tag (ex-data error)))
          (or (= "ERROR" (ex-message error))
-             (= "Could not eval Expression" (ex-message error)))
+             (= could-not-eval-expr (ex-message error)))
       (ex-cause error))
     ex-cause))
 
@@ -931,15 +932,19 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
-(defn- print-column-indicator
-  [error]
+(defn- get-error-column-indicator
+  [error current-ns]
   (when (and (instance? ExceptionInfo error)
-             (= "Could not eval Expression" (ex-message error)))
+             (= could-not-eval-expr (ex-message error)))
     (when-let [cause (ex-cause error)]
       (when (is-reader-or-analysis? cause)
         (when-let [column (:column (ex-data cause))]
-          (println ((:rdr-ann-err-fn theme)
-                     (str (apply str (take (+ 3 (count (name @current-ns)) column) (repeat " "))) "⬆"))))))))
+          (str (apply str (take (+ 3 (count (name current-ns)) column) (repeat " "))) "⬆"))))))
+
+(defn- print-error-column-indicator
+  [error]
+  (when-let [indicator (get-error-column-indicator error @current-ns)]
+    (println ((:rdr-ann-err-fn theme) indicator))))
 
 (defn- print-error
   ([error]
@@ -947,7 +952,7 @@
   ([error include-stacktrace?]
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
-   (print-column-indicator error)
+   (print-error-column-indicator error)
    (let [error               (skip-cljsjs-eval-error error)
          roa?                (is-reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
