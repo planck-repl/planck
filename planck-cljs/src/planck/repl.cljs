@@ -931,12 +931,23 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
+(defn- print-column-indicator
+  [error]
+  (when (and (instance? ExceptionInfo error)
+             (= "Could not eval Expression" (ex-message error)))
+    (when-let [cause (ex-cause error)]
+      (when (is-reader-or-analysis? cause)
+        (when-let [column (:column (ex-data cause))]
+          (println ((:rdr-ann-err-fn theme)
+                     (str (apply str (take (+ 3 (count (name @current-ns)) column) (repeat " "))) "⬆"))))))))
+
 (defn- print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
+   (print-column-indicator error)
    (let [error               (skip-cljsjs-eval-error error)
          roa?                (is-reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
