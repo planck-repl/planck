@@ -177,7 +177,8 @@
   (load-core-analysis-caches repl)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
-    (reset! planck.repl/app-env (merge {:verbose    verbose
+    (reset! planck.repl/app-env (merge {:repl       repl
+                                        :verbose    verbose
                                         :cache-path cache-path
                                         :opts       opts}
                                   (when static-fns
@@ -943,8 +944,10 @@
 
 (defn- print-error-column-indicator
   [error]
-  (when-let [indicator (get-error-column-indicator error @current-ns)]
-    (println ((:rdr-ann-err-fn theme) indicator))))
+  (let [indicator (get-error-column-indicator error @current-ns)]
+    (when (and indicator
+               (:repl @app-env))
+      (println ((:rdr-ann-err-fn theme) indicator)))))
 
 (defn- print-error
   ([error]
