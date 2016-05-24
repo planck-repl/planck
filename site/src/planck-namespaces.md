@@ -17,7 +17,7 @@ To explore these namespaces, you can evaluate `(dir planck.core)`, for example, 
 
 This namespace includes basic I/O capabilities like `slurp`, `spit` and `read-line`. The I/O facilities are expressed in protocols defined in `planck.core` modeled after those in Clojure, like `IReader`, `IOutputStream`, _etc._, and these capabilities cooperate with facilities defined in `planck.io`.
 
-Planck core also hosts some dynamic vars of interest like `*comand-line-args*`, `*in*`, `*out*`.
+Planck core also hosts some dynamic vars of interest like `*command-line-args*`, `*in*`, `*out*`.
 
 The `planck.core/file-seq` function imitates `clojure.core/file-seq`.
 
