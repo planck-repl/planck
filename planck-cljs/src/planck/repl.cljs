@@ -30,6 +30,7 @@
   *pprint-results* true)
 
 (def ^:private expression-name "Expression")
+(def ^:private could-not-eval-expr (str "Could not eval " expression-name))
 
 (defn- calc-x-line [text pos line]
   (let [x (s/index-of text "\n")]
@@ -176,7 +177,8 @@
   (load-core-analysis-caches repl)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
-    (reset! planck.repl/app-env (merge {:verbose    verbose
+    (reset! planck.repl/app-env (merge {:repl       repl
+                                        :verbose    verbose
                                         :cache-path cache-path
                                         :opts       opts}
                                   (when static-fns
@@ -865,7 +867,7 @@
     (and (instance? ExceptionInfo error)
          (= :cljs/analysis-error (:tag (ex-data error)))
          (or (= "ERROR" (ex-message error))
-             (= "Could not eval Expression" (ex-message error)))
+             (= could-not-eval-expr (ex-message error)))
       (ex-cause error))
     ex-cause))
 
@@ -931,12 +933,29 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
+(defn- get-error-column-indicator
+  [error current-ns]
+  (when (and (instance? ExceptionInfo error)
+             (= could-not-eval-expr (ex-message error)))
+    (when-let [cause (ex-cause error)]
+      (when (is-reader-or-analysis? cause)
+        (when-let [column (:column (ex-data cause))]
+          (str (apply str (take (+ 3 (count (name current-ns)) column) (repeat " "))) "⬆"))))))
+
+(defn- print-error-column-indicator
+  [error]
+  (let [indicator (get-error-column-indicator error @current-ns)]
+    (when (and indicator
+               (:repl @app-env))
+      (println ((:rdr-ann-err-fn theme) indicator)))))
+
 (defn- print-error
   ([error]
    (print-error error true))
   ([error include-stacktrace?]
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
+   (print-error-column-indicator error)
    (let [error               (skip-cljsjs-eval-error error)
          roa?                (is-reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
