@@ -156,10 +156,14 @@ void highlightCancel() {
 {
     NSString* rv = nil;
     if (!secondary) {
-        rv = [NSString stringWithFormat:@"%@=> ", currentNs];
+        if (currentNs.length == 1 && !dumbTerminal) {
+            rv = [NSString stringWithFormat:@" %@=> ", currentNs];
+        } else {
+            rv = [NSString stringWithFormat:@"%@=> ", currentNs];
+        }
     } else {
         if (!dumbTerminal) {
-            rv = [[@"" stringByPaddingToLength:MAX(currentNs.length-2, 0)
+            rv = [[@"" stringByPaddingToLength:MAX((int)currentNs.length-2, 0)
                                     withString:@" "
                                startingAtIndex:0]
                   stringByAppendingString:@"#_=> "];
@@ -413,6 +417,7 @@ void handleConnect (
     }
     
     [s_socketRepls removeObjectForKey:@(self.socketReplSessionId)];
+    [s_clojureScriptEngine clearStateForSession:self.socketReplSessionId];
 }
 
 -(BOOL)processLine:(NSString*)inputLine dumbTerminal:(BOOL)dumbTerminal theme:(NSString*)theme
@@ -482,7 +487,8 @@ void handleConnect (
                                                             inExitContext:NO
                                                                     setNs:self.currentNs
                                                                     theme:theme
-                                                          blockUntilReady:YES];
+                                                          blockUntilReady:YES
+                                                                sessionId:self.socketReplSessionId];
                 
                 [s_clojureScriptEngine setHonorTermSizeRequest:NO];
                 
@@ -571,9 +577,30 @@ void handleConnect (
                 break;
             }
         } else {
+            if ([s_clojureScriptEngine isReady]) {
+                // Set thing up so we can handle prints while processing linenoise input
+                [s_clojureScriptEngine setToPrintOnSender:^(NSString* msg){
+                    linenoisePrintNow([msg cStringUsingEncoding:NSUTF8StringEncoding]);
+                }];
+            }
+            
+            // If *print-newline* is off, we need to emit a newline now, otherwise
+            // the linenoise prompt and line editing will overwrite any printed
+            // output on the current line.
+            if ([s_clojureScriptEngine isReady] && ![s_clojureScriptEngine printNewline]) {
+                fprintf(stdout, "\n");
+            }
+            
+            // Process linenoise input
             char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding],
                                    [PLKTheme promptAnsiCodeForTheme:theme],
                                    self.indentSpaceCount);
+            
+            // Reset printing handler back
+            if ([s_clojureScriptEngine isReady]) {
+                [s_clojureScriptEngine setToPrintOnSender:nil];
+            }
+            
             self.indentSpaceCount = 0;
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C was pressed

@@ -44,6 +44,8 @@ At any point in entering a form, Ctrl-C can be hit to discard form entry and sta
 
 As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily hop to the matching opening delimiter.
 
+> If you copy a previously-entered form from the Planck REPL, and paste it back into Planck, any pasted secondary prompts (`#_=>`), as well as the primary namespace prompt, will be detected and elided. (This makes for a cleaner experience when copying and pasting portions of previously-entered large multi-line forms.)
+
 ### Result Formatting
 
 When you evaluate a form at the REPL, the result is pretty printed using [Fipp](https://github.com/brandonbloom/fipp). This causes output to be wrapped and aligned in a manner that makes it easier to see the structure of the data.

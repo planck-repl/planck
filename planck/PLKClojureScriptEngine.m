@@ -17,7 +17,7 @@
 @interface PLKClojureScriptEngine()
 
 @property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
-@property (nonatomic) BOOL javaScriptEngineReady;
+@property (atomic) BOOL javaScriptEngineReady;
 @property (nonatomic, strong) NSCondition* cacheTasksCondition;
 @property (nonatomic) int cacheTasksOutstanding;
 @property (nonatomic) JSGlobalContextRef context;
@@ -149,7 +149,9 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              NSString *str = [NSString stringWithFormat:@"timer%d", incremented];
              
              dispatch_after(dispatch_time(DISPATCH_TIME_NOW, ms * NSEC_PER_MSEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                 [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+                 @synchronized (self) {
+                     [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+                 }
              });
              
              JSStringRef strRef = JSStringCreateWithCFString((__bridge CFStringRef)str);
@@ -1263,7 +1265,8 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                       inExitContext:NO
                               setNs:@"cljs.user"
                               theme:@"dumb"
-                    blockUntilReady:NO];
+                    blockUntilReady:NO
+                          sessionId:0];
         }
 
         [self setToPrintOnSender:nil];
@@ -1325,8 +1328,6 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
             stringByReplacingOccurrencesOfString:@"?" withString:@"_QMARK_"];
 }
 
-// This implementation is just like Ambly's, but simply prints
-
 - (void)setUpConsoleLogInContext:(JSContextRef)context
 {
     [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
@@ -1341,12 +1342,28 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         
         return JSValueMakeUndefined(ctx);
     }
-                                        name:@"PLANCK_CONSOLE_PRINT"
+                                        name:@"PLANCK_CONSOLE_LOG"
+                                     argList:@"message"
+                                   inContext:_context];
+    
+    [ABYUtils installGlobalFunctionWithBlock: ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+        
+        if (argc == 1)
+        {
+            NSString* message = NSStringFromJSValueRef(ctx, argv[0]);
+            
+            fprintf(stderr, "%s\n", [message cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+        
+        return JSValueMakeUndefined(ctx);
+    }
+                                        name:@"PLANCK_CONSOLE_ERROR"
                                      argList:@"message"
                                    inContext:_context];
     
     [ABYUtils evaluateScript:@"var console = {}" inContext:context];
-    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_PRINT" inContext:context];
+    [ABYUtils evaluateScript:@"console.log = PLANCK_CONSOLE_LOG" inContext:context];
+    [ABYUtils evaluateScript:@"console.error = PLANCK_CONSOLE_ERROR" inContext:context];
     
 }
 
@@ -1458,7 +1475,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady sessionId:(int)sessionId
 {
     if (blockUntilReady) {
         [self blockUntilEngineReady];
@@ -1471,9 +1488,9 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         self.exitValue = EXIT_SUCCESS;
     }
     
-    JSValueRef  arguments[6];
+    JSValueRef  arguments[7];
     JSValueRef result;
-    int num_arguments = 6;
+    int num_arguments = 7;
     
     {
         JSValueRef  sourceArguments[2];
@@ -1487,9 +1504,21 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
     arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
     arguments[5] = JSValueMakeStringFromNSString(self.context, theme);
-    result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
-    
+    arguments[6] = JSValueMakeNumber(self.context, sessionId);
+    @synchronized (self) {
+        result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
+    }
+
     return self.exitValue;
+}
+
+-(void)clearStateForSession:(int)sessionId
+{
+    JSValueRef  arguments[1];
+    int num_arguments = 1;
+    
+    arguments[0] = JSValueMakeNumber(self.context, sessionId);
+    JSObjectCallAsFunction(self.context, [self getFunction:@"clear-state-for-session"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
 }
 
 -(int)runMainInNs:(NSString*)mainNsName args:(NSArray*)args
@@ -1730,6 +1759,17 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
 -(void)setHonorTermSizeRequest:(BOOL)honorTermSizeRequest
 {
     self.returnTermSize = honorTermSizeRequest;
+}
+
+-(BOOL)isReady {
+    return self.javaScriptEngineReady;
+}
+
+-(BOOL)printNewline
+{
+    return JSValueToBoolean(self.context,
+                            [ABYUtils evaluateScript:@"cljs.core._STAR_print_newline_STAR_"
+                                           inContext:self.context]);
 }
 
 @end

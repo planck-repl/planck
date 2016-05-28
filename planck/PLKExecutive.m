@@ -143,7 +143,8 @@
                                          inExitContext:YES
                                                  setNs:nil
                                                  theme:theme
-                                       blockUntilReady:YES];
+                                       blockUntilReady:YES
+                                             sessionId:0];
 }
 
 @end

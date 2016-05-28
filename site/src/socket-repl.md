@@ -31,6 +31,8 @@ cljs.user=>
 
 You can make as many connections as you'd like.
 
+Each connection will have dedicated copies of certain session-centric vars, like `*1`, `*2`, `*3`, `*e`, as well as global vars that control assertions and printing. (The official Clojure Socket REPL capability also provides this sort of session isolation.)
+
 You can exit a socket REPL connection by typing `:repl/quit`, `exit`, `quit`, or `:cljs/quit`.
 
 Socket REPLs can be used by IDEs, for example. It provides a side channel that an IDE can use in order to introspect the runtime environment without interfering with your primary REPL session.
