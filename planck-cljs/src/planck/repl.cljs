@@ -1416,7 +1416,7 @@
 
 (defn- eval
   ([form]
-   (eval form @current-ns))
+   (eval form (.-name *ns*)))
   ([form ns]
    (let [result (atom nil)]
      (cljs/eval st form
@@ -1435,7 +1435,7 @@
 
 (defn- resolve
   [sym]
-  (ns-resolve @current-ns sym))
+  (ns-resolve (.-name *ns*) sym))
 
 (defn- ^:export wrap-color-err
   []
