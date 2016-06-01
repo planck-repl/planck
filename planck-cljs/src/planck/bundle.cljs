@@ -5,6 +5,7 @@
     clojure.zip
     clojure.data
     cljs.pprint
+    cljs.spec
     cljs.test
     cljs.analyzer.api
     goog.Delay

@@ -92,6 +92,10 @@
     (apply str (drop-last 7 ns-name))
     ns-name))
 
+(defn- add-macros-suffix
+  [sym]
+  (symbol (str (name sym) "$macros")))
+
 (defn- get-namespace
   "Gets the AST for a given namespace."
   [ns]
@@ -113,7 +117,9 @@
   "Returns a sequence of the public symbols in a namespace."
   [ns]
   {:pre [(symbol? ns)]}
-  (ns-syms ns (comp not :private second)))
+  (ns-syms ns (fn [[_ attrs]]
+                (and (not (:private attrs))
+                     (not (:anonymous attrs))))))
 
 (defn- get-aenv
   []
@@ -162,6 +168,13 @@
   (load-core-analysis-cache eager 'cljs.core "cljs/core.cljs.cache.aot.")
   (load-core-analysis-cache eager 'cljs.core$macros "cljs/core$macros.cljc.cache."))
 
+(defn- prime-analysis-cache-for-implicit-macro-loading
+  "Supports priming analysis cache in order to work around 
+  http://dev.clojure.org/jira/browse/CLJS-1657 for commonly used
+  namespaces that we cannot AOT compile."
+  [ns-sym]
+  (swap! st assoc-in [::ana/namespaces ns-sym :require-macros] {ns-sym ns-sym}))
+
 (defonce ^:private app-env (atom nil))
 
 (defn- read-opts-from-file
@@ -175,6 +188,7 @@
 (defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
+  (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec.test)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
     (reset! planck.repl/app-env (merge {:repl       repl
@@ -393,9 +407,12 @@
 (defn- completion-candidates-for-ns
   [ns-sym allow-private?]
   (map (comp str key)
-    (filter (if allow-private?
-              identity
-              #(not (:private (:meta (val %)))))
+    (into []
+      (comp
+        (filter (if allow-private?
+                  identity
+                  #(not (:private (val %)))))
+        (remove #(:anonymous (val %))))
       (apply merge
         ((juxt :defs :macros)
           (get-namespace ns-sym))))))
@@ -428,7 +445,10 @@
 (defn- completion-candidates
   [top-form? typed-ns]
   (set (if typed-ns
-         (completion-candidates-for-ns (expand-typed-ns (symbol typed-ns)) false)
+         (let [expanded-ns (expand-typed-ns (symbol typed-ns))]
+           (concat
+             (completion-candidates-for-ns expanded-ns false)
+             (completion-candidates-for-ns (add-macros-suffix expanded-ns) false)))
          (concat
            (map str keyword-completions)
            (map #(drop-macros-suffix (str %)) (all-ns))
@@ -444,7 +464,7 @@
 (defn- ^:export get-completions
   [buffer]
   (let [top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns             (second (re-find #"\(+(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+        typed-ns             (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
     (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
           buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
       (clj->js (if (= "" buffer-match-suffix)
@@ -914,13 +934,19 @@
         (when-let [fn-sym (lookup-sym demunge-maps (str ns "$" fn))]
           (str fn-sym " [" prot-sym "]"))))))
 
+(defn- gensym?
+  [sym]
+  (s/starts-with? (name sym) "G__"))
+
 (defn- demunge-sym
   [munged-sym]
   (let [demunge-maps (cons @core-demunge-map (non-core-demunge-maps))]
     (str (or (lookup-sym demunge-maps munged-sym)
              (demunge-protocol-fn demunge-maps munged-sym)
              (demunge-local demunge-maps munged-sym)
-           munged-sym))))
+             (if (gensym? munged-sym)
+               munged-sym
+               (demunge munged-sym))))))
 
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
@@ -1098,7 +1124,7 @@
   (run! prn
     (distinct (sort (concat
                       (public-syms nsname)
-                      (public-syms (symbol (str (name nsname) "$macros"))))))))
+                      (public-syms (add-macros-suffix nsname)))))))
 
 (defn- apropos*
   [str-or-pattern]

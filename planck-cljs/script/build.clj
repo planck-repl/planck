@@ -23,7 +23,7 @@
        (when-let [s (cljs.analyzer/error-message warning-type extra)]
          (binding [*out* *err*]
            (println "WARNING:" (cljs.analyzer/message env s)))
-         (System/exit 1))))]
+         #_(System/exit 1))))]
   (api/build (api/inputs "src")
     {:output-dir         "out"
      :output-to          "out/main.js"
@@ -39,6 +39,10 @@
     (slurp (io/resource filename))))
 
 (copy-source "cljs/test.cljc")
+(copy-source "cljs/spec.cljc")
+(copy-source "cljs/spec/test.cljc")
+(copy-source "cljs/spec/test.cljs")
+(copy-source "cljs/spec/impl/gen.cljc")
 (copy-source "cljs/analyzer/api.cljc")
 (copy-source "clojure/template.clj")
 
@@ -71,7 +75,8 @@
 (extract-analysis-cache "out/cljs/source_map/base64.cljs.cache.edn" "out/cljs/source_map/base64.cljs.cache.json")
 (extract-analysis-cache "out/cljs/source_map/base64_vlq.cljs.cache.edn" "out/cljs/source_map/base64_vlq.cljs.cache.json")
 (extract-analysis-cache "out/cljs/stacktrace.cljc.cache.edn" "out/cljs/stacktrace.cljc.cache.json")
-(extract-analysis-cache "out/cljs/test.cljs.cache.edn" "out/cljs/test.cljs.cache.json")
+(extract-analysis-cache "out/cljs/spec.cljs.cache.edn" "out/cljs/spec.cljs.cache.json")
+(extract-analysis-cache "out/cljs/spec/impl/gen.cljs.cache.edn" "out/cljs/spec/impl/gen.cljs.cache.json")
 (extract-analysis-cache "out/cljs/test.cljs.cache.edn" "out/cljs/test.cljs.cache.json")
 (extract-analysis-cache "out/cljs/tagged_literals.cljc.cache.edn" "out/cljs/tagged_literals.cljc.cache.json")
 (extract-analysis-cache "out/cljs/tools/reader/reader_types.cljs.cache.edn" "out/cljs/tools/reader/reader_types.cljs.cache.json")

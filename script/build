@@ -25,6 +25,8 @@ cd ..
 rm -f planck-cljs/out/planck/*macros*
 rm -f planck-cljs/out/clojure/template*macros*
 rm -f planck-cljs/out/cljs/test*macros*
+rm -f planck-cljs/out/cljs/spec*macros*
+rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
 rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 
 echo "### Bundling 1st Stage ClojureScript"
@@ -56,6 +58,8 @@ $(PWD)/$BUILD_DIR/$CONFIGURATION/planck --quiet -sdk planck-cljs/out/macros-tmp 
   'planck.shell
   'planck.from.io.aviso.ansi
   'clojure.template
+  'cljs.spec
+  'cljs.spec.impl.gen
   'cljs.test)
 REPL_INPUT
 
@@ -77,6 +81,12 @@ mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js.map.json planck-
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js planck-cljs/out/cljs/test\$macros.js
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.cache.json planck-cljs/out/cljs/test\$macros.cache.json
 mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js.map.json planck-cljs/out/planck/test\$macros.js.map.json
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js planck-cljs/out/cljs/spec\$macros.js
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.cache.json planck-cljs/out/cljs/spec\$macros.cache.json
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js.map.json planck-cljs/out/cljs/spec\$macros.js.map.json
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js planck-cljs/out/cljs/spec/impl/gen\$macros.js
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.cache.json planck-cljs/out/cljs/spec/impl/gen\$macros.cache.json
+mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js.map.json planck-cljs/out/cljs/spec/impl/gen\$macros.js.map.json
 
 rm -rf planck-cljs/out/macros-tmp
 
