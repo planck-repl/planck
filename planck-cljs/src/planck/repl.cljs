@@ -1,5 +1,6 @@
 (ns planck.repl
-  (:require-macros [cljs.env.macros :refer [with-compiler-env]])
+  (:require-macros [cljs.env.macros :refer [with-compiler-env]]
+                   [planck.repl :refer [with-err-str]])
   (:require [clojure.string :as s]
             [goog.string :as gstring]
             [cljs.analyzer :as ana]
@@ -95,6 +96,12 @@
 (defn- add-macros-suffix
   [sym]
   (symbol (str (name sym) "$macros")))
+
+(defn- eliminate-macros-suffix
+  [x]
+  (if (symbol? x)
+    (symbol (drop-macros-suffix (namespace x)) (name x))
+    x))
 
 (defn- get-namespace
   "Gets the AST for a given namespace."
@@ -959,6 +966,10 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
+(defn- form-indicator
+  [column current-ns]
+  (str (apply str (take (+ 2 (count (name current-ns)) column) (repeat " "))) "⬆"))
+
 (defn- get-error-column-indicator
   [error current-ns]
   (when (and (instance? ExceptionInfo error)
@@ -966,7 +977,7 @@
     (when-let [cause (ex-cause error)]
       (when (is-reader-or-analysis? cause)
         (when-let [column (:column (ex-data cause))]
-          (str (apply str (take (+ 3 (count (name current-ns)) column) (repeat " "))) "⬆"))))))
+          (form-indicator column current-ns))))))
 
 (defn- print-error-column-indicator
   [error]
@@ -1321,6 +1332,20 @@
       (prn value))
     (prn value)))
 
+(defn- wrap-warning-font
+  [s]
+  (str (:err-font theme) s (str (:reset-font theme))))
+
+(defn- warning-handler [warning-type env extra]
+  (let [warning-string (with-err-str
+                         (ana/default-warning-handler warning-type env
+                           (update extra :js-op eliminate-macros-suffix)))]
+    (binding [*print-fn* *print-err-fn*]
+      (when-not (empty? warning-string)
+        (when-let [column (:column env)]
+          (println (wrap-warning-font (form-indicator column @current-ns))))
+        (print (wrap-warning-font warning-string))))))
+
 (defn- process-execute-source
   [source-text expression-form
    {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path session-id] :as opts}]
@@ -1345,34 +1370,37 @@
                :eval          identity})
             identity)))
       ;; Now eval-str for true side effects
-      (cljs/eval-str
-        st
-        source-text
-        (if expression?
-          expression-name
-          (or source-path "File"))
-        (merge
-          {:ns         initial-ns
-           :verbose    (and (not expression?)
-                            (:verbose @app-env))
-           :static-fns (:static-fns @app-env)}
-          (if-not expression? {:source-map true})
-          (if expression?
-            {:context       :expr
-             :def-emits-var true}
-            (when (:cache-path @app-env)
-              {:cache-source (cache-source-fn source-text)})))
-        (fn [{:keys [ns value error] :as ret}]
-          (if expression?
-            (when-not error
-              (when (or print-nil-expression?
-                      (not (nil? value)))
-                (print-result value))
-              (process-1-2-3 expression-form value)
-              (reset! current-ns ns)
-              nil))
-          (when error
-            (handle-error error include-stacktrace? in-exit-context?)))))
+      (binding [ana/*cljs-warning-handlers* (if expression?
+                                              [warning-handler]
+                                              [ana/default-warning-handler])]
+        (cljs/eval-str
+         st
+         source-text
+         (if expression?
+           expression-name
+           (or source-path "File"))
+         (merge
+           {:ns         initial-ns
+            :verbose    (and (not expression?)
+                             (:verbose @app-env))
+            :static-fns (:static-fns @app-env)}
+           (if-not expression? {:source-map true})
+           (if expression?
+             {:context       :expr
+              :def-emits-var true}
+             (when (:cache-path @app-env)
+               {:cache-source (cache-source-fn source-text)})))
+         (fn [{:keys [ns value error] :as ret}]
+           (if expression?
+             (when-not error
+               (when (or print-nil-expression?
+                         (not (nil? value)))
+                 (print-result value))
+               (process-1-2-3 expression-form value)
+               (reset! current-ns ns)
+               nil))
+           (when error
+             (handle-error error include-stacktrace? in-exit-context?))))))
     (catch :default e
       (handle-error e include-stacktrace? in-exit-context?))
     (finally (capture-session-state-for-session-id session-id))))
