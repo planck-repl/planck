@@ -757,12 +757,14 @@
     (or
       (= name 'cljsjs.parinfer)
       (= name 'cljs.core)
+      (and (= name 'clojure.core.rrb-vector.macros) macros)
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
       (and (= name 'cljs.repl) macros)
       (and (= name 'cljs.js) macros)
       (and (= name 'cljs.pprint) macros)
+      (and (= name 'cljs.tools.reader.reader-types) macros)
       (and (= name 'tailrecursion.cljson) macros)
       (and (= name 'lazy-map.core) macros)))
 
