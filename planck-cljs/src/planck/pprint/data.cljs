@@ -1,7 +1,9 @@
-(ns planck.pprint
+(ns planck.pprint.data
   (:require [fipp.visit :refer [visit visit*]]
             [fipp.engine :refer (pprint-document)]
             [planck.themes]))
+
+;; Derived from fipp.edn
 
 (defn pretty-coll [{:keys [print-level print-length] :as printer}
                    open xs sep close f]

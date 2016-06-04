@@ -21,7 +21,8 @@
             [cljsjs.parinfer]
             [planck.js-deps :as js-deps]
             [clojure.string :as string]
-            [planck.pprint]))
+            [planck.pprint.code]
+            [planck.pprint.data]))
 
 (def ^{:dynamic true
        :doc     "*pprint-results* controls whether Planck REPL results are
@@ -1324,11 +1325,14 @@
     (cb {:value nil})))
 
 (defn- print-result
-  [value]
+  [value as-code?]
   (if *pprint-results*
     (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
-      (planck.pprint/pprint value {:width term-width 
-                                   :theme theme})
+      ((if as-code?
+         planck.pprint.code/pprint
+         planck.pprint.data/pprint)
+        value {:width term-width
+               :theme theme})
       (prn value))
     (prn value)))
 
@@ -1345,6 +1349,12 @@
         (when-let [column (:column env)]
           (println (wrap-warning-font (form-indicator column @current-ns))))
         (print (wrap-warning-font warning-string))))))
+
+(defn- macroexpand-form?
+  "Determines if the expression is a macroexpansion expression."
+  [expression-form]
+  (contains? '#{macroexpand macroexpand-1} (and (seq? expression-form)
+                                                (first expression-form))))
 
 (defn- process-execute-source
   [source-text expression-form
@@ -1395,7 +1405,7 @@
              (when-not error
                (when (or print-nil-expression?
                          (not (nil? value)))
-                 (print-result value))
+                 (print-result value (macroexpand-form? expression-form)))
                (process-1-2-3 expression-form value)
                (reset! current-ns ns)
                nil))
