@@ -605,3 +605,18 @@ $PLANCK << REPL_INPUT
 (in-ns 'planck.repl)
 (count (keys (:cljs.analyzer/namespaces @st)))
 REPL_INPUT
+
+echo "Test timers keep REPL going"
+$PLANCK - << REPL_INPUT
+(println "start")
+(js/setTimeout (fn [] (println "from timer")) 200)
+(println "end")
+REPL_INPUT
+
+echo "Can exit with timer"
+$PLANCK << REPL_INPUT
+(println "start")
+(js/setTimeout (fn [] (println "from timer")) 2000000)
+(println "end")
+:cljs/quit
+REPL_INPUT

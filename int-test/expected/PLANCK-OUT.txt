@@ -586,3 +586,13 @@ Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
 49
+Test timers keep REPL going
+start
+end
+from timer
+Can exit with timer
+start
+nil
+nil
+end
+nil
