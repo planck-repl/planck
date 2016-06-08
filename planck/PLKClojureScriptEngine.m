@@ -19,7 +19,9 @@
 @property (nonatomic, strong) NSCondition* javaScriptEngineReadyCondition;
 @property (atomic) BOOL javaScriptEngineReady;
 @property (nonatomic, strong) NSCondition* cacheTasksCondition;
+@property (nonatomic, strong) NSCondition* timersCondition;
 @property (nonatomic) int cacheTasksOutstanding;
+@property (nonatomic) int timersOutstanding;
 @property (nonatomic) JSGlobalContextRef context;
 @property (nonatomic, strong) ABYContextManager* contextManager;
 @property (nonatomic, strong) PLKBundledOut* bundledOut;
@@ -128,6 +130,36 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
     [self.cacheTasksCondition unlock];
 }
 
+-(void)initalizeTimersConditionVars
+{
+    self.timersCondition = [[NSCondition alloc] init];
+    self.timersOutstanding = 0;
+}
+
+-(void)blockUntilTimersComplete
+{
+    [self.timersCondition lock];
+    while (self.timersOutstanding > 0)
+        [self.timersCondition wait];
+    
+    [self.timersCondition unlock];
+}
+
+-(void)startTimer
+{
+    [self.timersCondition lock];
+    self.timersOutstanding++;
+    [self.timersCondition unlock];
+}
+
+-(void)signalTimerComplete
+{
+    [self.timersCondition lock];
+    self.timersOutstanding--;
+    [self.timersCondition signal];
+    [self.timersCondition unlock];
+}
+
 - (void)setUpTimerFunctionality
 {
     
@@ -148,9 +180,12 @@ NSString* NSStringFromJSValueRef(JSContextRef ctx, JSValueRef jsValueRef)
              
              NSString *str = [NSString stringWithFormat:@"timer%d", incremented];
              
+             [self startTimer];
+             
              dispatch_after(dispatch_time(DISPATCH_TIME_NOW, ms * NSEC_PER_MSEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                  @synchronized (self) {
                      [ABYUtils evaluateScript:[NSString stringWithFormat:@"runTimeout(\"%@\");", str] inContext:self.contextManager.context];
+                     [self signalTimerComplete];
                  }
              });
              
@@ -919,7 +954,11 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
              
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeNumber) {
                  
-                 weakSelf.exitValue = JSValueToNumber(ctx, argv[0], NULL);
+                 int exitValue = JSValueToNumber(ctx, argv[0], NULL);
+                 if (exitValue == 0) {
+                     exitValue = PLANK_EXIT_SUCCESS_TERMINATE_INTERNAL;
+                 }
+                 weakSelf.exitValue = exitValue;
                  
              }
              
@@ -1262,7 +1301,6 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                               value:@"(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])"
                          expression:YES
                  printNilExpression:NO
-                      inExitContext:NO
                               setNs:@"cljs.user"
                               theme:@"dumb"
                     blockUntilReady:NO
@@ -1289,8 +1327,11 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     });
 }
 
--(void)awaitShutdown
+-(void)awaitShutdown:(BOOL)waitForTimers
 {
+    if (waitForTimers) {
+        [self blockUntilTimersComplete];
+    }
     [self blockUntilCacheTasksComplete];
 }
 
@@ -1475,22 +1516,17 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     return JSValueToObject(self.context, rv, NULL);
 }
 
--(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression inExitContext:(BOOL)inExitContext setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady sessionId:(int)sessionId
+-(int)executeSourceType:(NSString*)sourceType value:(NSString*)sourceValue expression:(BOOL)expression printNilExpression:(BOOL)printNilExpression setNs:(NSString*)setNs theme:(NSString*)theme blockUntilReady:(BOOL)blockUntilReady sessionId:(int)sessionId
 {
     if (blockUntilReady) {
         [self blockUntilEngineReady];
     }
     
-    if (!inExitContext) {
-        // Default return value will indicate non-terminating successful exit
-        self.exitValue = PLANK_EXIT_SUCCESS_NONTERMINATE;
-    } else {
-        self.exitValue = EXIT_SUCCESS;
-    }
+    self.exitValue = EXIT_SUCCESS;
     
-    JSValueRef  arguments[7];
+    JSValueRef  arguments[6];
     JSValueRef result;
-    int num_arguments = 7;
+    int num_arguments = 6;
     
     {
         JSValueRef  sourceArguments[2];
@@ -1501,10 +1537,9 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     
     arguments[1] = JSValueMakeBoolean(self.context, expression);
     arguments[2] = JSValueMakeBoolean(self.context, printNilExpression);
-    arguments[3] = JSValueMakeBoolean(self.context, inExitContext);
-    arguments[4] = JSValueMakeStringFromNSString(self.context, setNs);
-    arguments[5] = JSValueMakeStringFromNSString(self.context, theme);
-    arguments[6] = JSValueMakeNumber(self.context, sessionId);
+    arguments[3] = JSValueMakeStringFromNSString(self.context, setNs);
+    arguments[4] = JSValueMakeStringFromNSString(self.context, theme);
+    arguments[5] = JSValueMakeNumber(self.context, sessionId);
     @synchronized (self) {
         result = JSObjectCallAsFunction(self.context, [self getFunction:@"execute"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     }

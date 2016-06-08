@@ -390,11 +390,11 @@
             (when is-self-require?
               (reset! current-ns restore-ns))
             (when e
-              (handle-error e false false)
+              (handle-error e false)
               (reset! st current-st))
             (cb))))
       (catch :default e
-        (handle-error e true false)
+        (handle-error e true)
         (reset! st current-st)))))
 
 (defn- resolve-var
@@ -846,12 +846,12 @@
 (declare skip-cljsjs-eval-error)
 
 (defn- handle-error
-  [e include-stacktrace? in-exit-context?]
+  [e include-stacktrace?]
   (let [cause                     (or (.-cause e) e)
         is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
     (when-not is-planck-exit-exception?
       (print-error e include-stacktrace?))
-    (if (and in-exit-context? (not is-planck-exit-exception?))
+    (if (and (not is-planck-exit-exception?) (not (:repl @app-env)))
       (js/PLANCK_SET_EXIT_VALUE 1)
       (set! *e (skip-cljsjs-eval-error e)))))
 
@@ -873,7 +873,7 @@
               (try
                 (apply value args)
                 (catch :default e
-                  (handle-error e true true))))))
+                  (handle-error e true))))))
         `[(quote ~(symbol main-ns))]))
     nil))
 
@@ -1115,7 +1115,7 @@
 (declare execute-source)
 
 (defn- process-execute-path
-  [file {:keys [in-exit-context?] :as opts}]
+  [file opts]
   (binding [theme (assoc theme :err-font (:verbose-font theme))]
     (load {:file file}
       (fn [{:keys [lang source source-url cache]}]
@@ -1125,13 +1125,13 @@
             :js (process-macros-deps cache
                   (fn [res]
                     (if-let [error (:error res)]
-                      (handle-error (js/Error. error) false in-exit-context?)
+                      (handle-error (js/Error. error) false)
                       (process-libs-deps cache
                         (fn [res]
                           (if-let [error (:error res)]
-                            (handle-error (js/Error. error) false in-exit-context?)
+                            (handle-error (js/Error. error) false)
                             (js-eval source source-url))))))))
-          (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?))))))
+          (handle-error (js/Error. (str "Could not load file " file)) false))))))
 
 (defn- dir*
   [nsname]
@@ -1236,15 +1236,15 @@
         (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file
-  [argument {:keys [in-exit-context?] :as opts}]
+  [argument opts]
   (let [filename argument]
     (try
       (execute-source ["path" filename] opts)
       (catch :default e
-        (handle-error e false in-exit-context?)))))
+        (handle-error e false)))))
 
 (defn- process-repl-special
-  [expression-form {:keys [print-nil-expression? in-exit-context?] :as opts}]
+  [expression-form {:keys [print-nil-expression?] :as opts}]
   (let [argument (second expression-form)]
     (case (first expression-form)
       in-ns (process-in-ns argument)
@@ -1360,7 +1360,7 @@
 
 (defn- process-execute-source
   [source-text expression-form
-   {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path session-id] :as opts}]
+   {:keys [expression? print-nil-expression? include-stacktrace? source-path session-id] :as opts}]
   (try
     (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns]
@@ -1412,9 +1412,9 @@
                (reset! current-ns ns)
                nil))
            (when error
-             (handle-error error include-stacktrace? in-exit-context?))))))
+             (handle-error error include-stacktrace?))))))
     (catch :default e
-      (handle-error e include-stacktrace? in-exit-context?))
+      (handle-error e include-stacktrace?))
     (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
@@ -1469,14 +1469,13 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns theme-id session-id]
+  [source expression? print-nil-expression? set-ns theme-id session-id]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
   (binding [theme (get-theme (keyword theme-id))]
     (execute-source source {:expression?           expression?
                             :print-nil-expression? print-nil-expression?
-                            :in-exit-context?      in-exit-context?
                             :include-stacktrace?   true
                             :session-id            session-id})))
 
@@ -1491,7 +1490,7 @@
         :def-emits-var true}
        (fn [{:keys [value error]}]
          (if error
-           (handle-error error true false)
+           (handle-error error true)
            (reset! result value))))
      @result)))
 

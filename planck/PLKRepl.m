@@ -435,6 +435,9 @@ void handleConnect (
     // Check for explicit exit
     
     if ([self.exitCommands containsObject:self.input]) {
+        if (self.socketReplSessionId == 0) {
+            self.exitValue = PLANK_EXIT_SUCCESS_TERMINATE_INTERNAL;
+        }
         return YES;
     }
     
@@ -484,7 +487,6 @@ void handleConnect (
                                                                     value:self.input
                                                                expression:YES
                                                        printNilExpression:YES
-                                                            inExitContext:NO
                                                                     setNs:self.currentNs
                                                                     theme:theme
                                                           blockUntilReady:YES
@@ -503,7 +505,7 @@ void handleConnect (
                 
                 [s_evalLock unlock];
                 
-                if (self.exitValue != PLANK_EXIT_SUCCESS_NONTERMINATE) {
+                if (self.exitValue != 0) {
                     return YES;
                 }
                 
@@ -611,6 +613,7 @@ void handleConnect (
                     printf("\n");
                     continue;
                 } else { // Ctrl-D was pressed
+                    self.exitValue = PLANK_EXIT_SUCCESS_TERMINATE_INTERNAL;
                     break;
                 }
             }
@@ -854,12 +857,6 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
         [self runSocketRepl:socketPort socketAddr:socketAddr theme:theme dumbTerminal:dumbTerminal quiet:quiet];
     }
 
-    
-    // PLANK_EXIT_SUCCESS_NONTERMINATE is for internal use only, so to the rest of the world
-    // it is a standard successful exit
-    if (self.exitValue == PLANK_EXIT_SUCCESS_NONTERMINATE) {
-        self.exitValue = EXIT_SUCCESS;
-    }
     return self.exitValue;
 }
 
