@@ -312,6 +312,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     // Now, start initializing JavaScriptCore in a background thread and return
     
     [self initalizeEngineReadyConditionVars];
+    [self initalizeTimersConditionVars];
     [self initalizeCacheTaskConditionVars];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^() {
