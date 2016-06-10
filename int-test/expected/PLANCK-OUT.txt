@@ -228,6 +228,7 @@ somemacro
 xfirst
 nil
 Test doc special
+
 nil
 -------------------------
 cljs.core/inc
