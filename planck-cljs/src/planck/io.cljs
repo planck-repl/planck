@@ -152,6 +152,20 @@
   [dir]
   (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
+(defn- create-listener [fn]
+  (fn [socket client]
+    (let [m (js/PLANCK_SOCKET_READ socket client)]
+      (println "message was" m)
+      (fn m))))
+
+(defn socket-open [host port fn]
+  (let [socket (js/PLANCK_SOCKET_OPEN host port)]
+    (js/PLANCK_SOCKET_LISTEN socket (create-listener fn))))
+
+(comment 
+  (planck.io/socket-open "localhost" 8080 #(do
+                                           (println "Foo")
+                                           (str "you said: " % "\n"))))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)

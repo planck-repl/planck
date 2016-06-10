@@ -1,5 +1,6 @@
 #import "PLKRepl.h"
 #import "PLKTheme.h"
+#import "PLKSocket.h"
 #import "PLKClojureScriptEngine.h"
 #include <stdio.h>
 #include "linenoise.h"
@@ -140,7 +141,9 @@ void highlightCancel() {
 @property (strong, nonatomic) NSString* historyFile;
 
 @property (strong, nonatomic) NSObject* sendLock;
-
+@property NSString* theme;
+@property BOOL dumbTerminal;
+@property BOOL quiet;
 // Data currently being sent. (In flight iff dataBeingSent != nil)
 @property (strong, atomic) NSData* dataBeingSent;
 @property (atomic) NSUInteger dataBytesSent;
@@ -196,55 +199,6 @@ void highlightCancel() {
 {
     NSCharacterSet *charSet = [NSCharacterSet whitespaceCharacterSet];
     return [[s stringByTrimmingCharactersInSet:charSet] isEqualToString:@""];
-}
-
-void handleConnect (
-                    CFSocketRef s,
-                    CFSocketCallBackType callbackType,
-                    CFDataRef address,
-                    const void *data,
-                    void *info
-                    )
-{
-    if( callbackType & kCFSocketAcceptCallBack)
-    {
-        CFReadStreamRef clientInput = NULL;
-        CFWriteStreamRef clientOutput = NULL;
-        
-        CFSocketNativeHandle nativeSocketHandle = *(CFSocketNativeHandle *)data;
-        
-        CFStreamCreatePairWithSocket(kCFAllocatorDefault, nativeSocketHandle, &clientInput, &clientOutput);
-        
-        CFReadStreamSetProperty(clientInput, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
-        CFWriteStreamSetProperty(clientOutput, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
-        
-        PLKRepl* server = [[PLKRepl alloc] init];
-
-        server.socketReplSessionId = OSAtomicAdd32(1, &socketReplSessionIdSequence);
-        
-        [s_socketRepls setObject:server forKey:@(server.socketReplSessionId)];
-        
-        server.previousLines = [[NSMutableArray alloc] init];
-        
-        server.exitValue = EXIT_SUCCESS;
-        
-        server.currentNs = @"cljs.user";
-        server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO dumbTerminal:YES];
-        server.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", @":repl/quit", nil];
-        server.input = nil;
-        server.sendLock = @"";
-        
-        NSInputStream* inputStream = (__bridge NSInputStream*)clientInput;
-        NSOutputStream* outputStream = (__bridge NSOutputStream*)clientOutput;
-        
-        [PLKRepl setUpStream:inputStream server:server];
-        [PLKRepl setUpStream:outputStream server:server];
-        
-        server.inputStream = inputStream;
-        server.outputStream = outputStream;
-        
-        [server sendData:[@"cljs.user=> " dataUsingEncoding:NSUTF8StringEncoding]];
-    }
 }
 
 -(void)processInputBuffer:(NSUInteger)newlineIndex
@@ -561,7 +515,7 @@ void handleConnect (
 }
 
 
--(void)runCommandLineLoopDumbTerminal:(BOOL)dumbTerminal theme:(NSString*)theme
+-(void)runCommandLineLoopDumbTerminal
 {
     self.indentSpaceCount = 0;
     
@@ -571,7 +525,7 @@ void handleConnect (
         
         NSString* inputLine;
         
-        if (dumbTerminal) {
+        if (self.dumbTerminal) {
             [self displayPrompt:self.currentPrompt];
             inputLine = [self getInput];
             if (inputLine == nil) { // ^D has been pressed
@@ -595,7 +549,7 @@ void handleConnect (
             
             // Process linenoise input
             char *line = linenoise([self.currentPrompt cStringUsingEncoding:NSUTF8StringEncoding],
-                                   [PLKTheme promptAnsiCodeForTheme:theme],
+                                   [PLKTheme promptAnsiCodeForTheme:self.theme],
                                    self.indentSpaceCount);
             
             // Reset printing handler back
@@ -627,7 +581,7 @@ void handleConnect (
             free(line);
         }
         
-        BOOL breakOut = [self processLine:inputLine dumbTerminal:dumbTerminal theme:theme];
+        BOOL breakOut = [self processLine:inputLine dumbTerminal:self.dumbTerminal theme:self.theme];
         if (breakOut) {
             break;
         }
@@ -650,81 +604,68 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
     return [NSString stringWithString:tmp];
 }
 
-- (void)runSocketRepl:(int)socketPort
-           socketAddr:(NSString *)socketAddr
-                theme:(NSString *)theme
-         dumbTerminal:(BOOL)dumbTerminal
-                quiet:(BOOL)quiet
+- (void) socketFail:(int)socketPort socketAddr:(NSString *)socketAddr
 {
     NSString * fullAddress = hostAndPort(socketAddr, socketPort);
+    printf("Planck socket REPL could not bind to %s.\n", [fullAddress UTF8String]);
+    self.exitValue = EXIT_FAILURE;
+}
+
+- (void) socketSuccess:(int)socketPort socketAddr:(NSString *)socketAddr
+{
+    NSString * fullAddress = hostAndPort(socketAddr, socketPort);
+    dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
+    s_socketRepls = [[NSMutableDictionary alloc] init];
+    s_evalLock = [[NSLock alloc] init];
+    dispatch_async(thread, ^{
+        
+        [self runCommandLineLoopDumbTerminal];
+        
+        s_shouldKeepRunning = NO;
+        
+    });
     
-    CFSocketContext socketCtxt = {0, (__bridge void *)self, NULL, NULL, NULL};
-    
-    CFSocketRef myipv4cfsock = CFSocketCreate(
-                                              kCFAllocatorDefault,
-                                              PF_INET,
-                                              SOCK_STREAM,
-                                              IPPROTO_TCP,
-                                              kCFSocketAcceptCallBack, handleConnect, &socketCtxt);
-    
-    struct sockaddr_in sin;
-    
-    memset(&sin, 0, sizeof(sin));
-    sin.sin_len = sizeof(sin);
-    sin.sin_family = AF_INET; /* Address family */
-    sin.sin_port = htons(socketPort);
-    if (socketAddr) {
-        inet_aton([socketAddr cStringUsingEncoding:NSUTF8StringEncoding], &sin.sin_addr);
-    } else {
-        sin.sin_addr.s_addr= INADDR_ANY;
+    if (!self.quiet) {
+        printf("Planck socket REPL listening at %s.\n", [fullAddress UTF8String]);
     }
-    CFDataRef sincfd = CFDataCreate(
-                                    kCFAllocatorDefault,
-                                    (UInt8 *)&sin,
-                                    sizeof(sin));
+    s_shouldKeepRunning = YES;
     
-    if (CFSocketSetAddress(myipv4cfsock, sincfd) != kCFSocketSuccess) {
-        
-        
-        printf("Planck socket REPL could not bind to %s.\n", [fullAddress UTF8String]);
-        self.exitValue = EXIT_FAILURE;
-    } else {
-        s_socketRepls = [[NSMutableDictionary alloc] init];
-        s_evalLock = [[NSLock alloc] init];
-        
-        CFRelease(sincfd);
-        
-        CFRunLoopSourceRef socketsource = CFSocketCreateRunLoopSource(
-                                                                      kCFAllocatorDefault,
-                                                                      myipv4cfsock,
-                                                                      0);
-        
-        CFRunLoopAddSource(
-                           CFRunLoopGetCurrent(),
-                           socketsource,
-                           kCFRunLoopDefaultMode);
-        
-        
-        dispatch_queue_t thread = dispatch_queue_create("CLIUI", NULL);
-        dispatch_async(thread, ^{
-            
-            [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
-            
-            s_shouldKeepRunning = NO;
-            
-        });
-        
-        if (!quiet) {
-            printf("Planck socket REPL listening at %s.\n", [fullAddress UTF8String]);
-        }
-        s_shouldKeepRunning = YES;
-        
-        NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-        while (s_shouldKeepRunning &&
-               [runLoop runMode:NSDefaultRunLoopMode
-                     beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
-        
-    }
+    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    while (s_shouldKeepRunning &&
+           [runLoop runMode:NSDefaultRunLoopMode
+                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);   s_socketRepls = [[NSMutableDictionary alloc] init];
+    s_evalLock = [[NSLock alloc] init];
+    
+
+}
+
+- (void) setupSocket:(PLKSocket*)socket
+{
+    PLKRepl* server = [[PLKRepl alloc] init];
+    
+    server.socketReplSessionId = OSAtomicAdd32(1, &socketReplSessionIdSequence);
+    
+    [s_socketRepls setObject:server forKey:@(server.socketReplSessionId)];
+    
+    server.previousLines = [[NSMutableArray alloc] init];
+    
+    server.exitValue = EXIT_SUCCESS;
+    
+    server.currentNs = @"cljs.user";
+    server.currentPrompt = [server formPrompt:server.currentNs isSecondary:NO dumbTerminal:YES];
+    server.exitCommands = [NSSet setWithObjects:@":cljs/quit", @"quit", @"exit", @":repl/quit", nil];
+    server.input = nil;
+    server.sendLock = @"";
+    
+    
+    [PLKRepl setUpStream:socket.inputStream server:server];
+    [PLKRepl setUpStream:socket.outputStream server:server];
+    
+    server.inputStream = socket.inputStream;
+    server.outputStream = socket.outputStream;
+    
+    [server sendData:[@"cljs.user=> " dataUsingEncoding:NSUTF8StringEncoding]];
+    
 }
 
 -(int)idForKeyMapAction:(MPEdnKeyword*)action
@@ -850,11 +791,15 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
         linenoiseSetHighlightCallback(highlight);
         linenoiseSetHighlightCancelCallback(highlightCancel);
     }
-    
+    self.dumbTerminal = dumbTerminal;
+    self.theme = theme;
+    self.quiet = quiet;
     if (socketPort == 0) {
-        [self runCommandLineLoopDumbTerminal:dumbTerminal theme:theme];
+        [self runCommandLineLoopDumbTerminal];
     } else {
-        [self runSocketRepl:socketPort socketAddr:socketAddr theme:theme dumbTerminal:dumbTerminal quiet:quiet];
+        [PLKSocket open:socketAddr
+                   port:socketPort
+                 client: self];
     }
 
     return self.exitValue;
