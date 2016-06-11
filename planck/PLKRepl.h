@@ -1,8 +1,10 @@
 #import <Foundation/Foundation.h>
-
+#import "PLKSocket.h"
 @class PLKClojureScriptEngine;
 
-@interface PLKRepl : NSObject<NSStreamDelegate>
+@interface PLKRepl : NSObject<NSStreamDelegate, PLKSocketClient>
+
+-(void)setupSocket:(PLKSocket *)socket;
 
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal

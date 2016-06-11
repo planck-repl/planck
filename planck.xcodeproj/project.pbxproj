@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03D4A1EB1D0AB25A00565E4B /* PLKSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 03D4A1E81D0AB25A00565E4B /* PLKSocket.m */; };
+		03D4A1EC1D0AB25A00565E4B /* PLKConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 03D4A1EA1D0AB25A00565E4B /* PLKConnection.m */; };
 		E7FE09C31B713C70009D090C /* PLKScript.m in Sources */ = {isa = PBXBuildFile; fileRef = E7FE09C21B713C70009D090C /* PLKScript.m */; };
 		ED1CE20F1B70464F0096585B /* PLKRepl.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE20E1B70464F0096585B /* PLKRepl.m */; };
 		ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */ = {isa = PBXBuildFile; fileRef = ED1CE2111B7047B70096585B /* PLKCommandLine.m */; };
@@ -71,6 +73,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03D4A1E71D0AB25A00565E4B /* PLKSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKSocket.h; sourceTree = "<group>"; };
+		03D4A1E81D0AB25A00565E4B /* PLKSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKSocket.m; sourceTree = "<group>"; };
+		03D4A1E91D0AB25A00565E4B /* PLKConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKConnection.h; sourceTree = "<group>"; };
+		03D4A1EA1D0AB25A00565E4B /* PLKConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKConnection.m; sourceTree = "<group>"; };
 		E7FE09C11B713C70009D090C /* PLKScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKScript.h; sourceTree = "<group>"; };
 		E7FE09C21B713C70009D090C /* PLKScript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLKScript.m; sourceTree = "<group>"; };
 		ED1CE20D1B70464F0096585B /* PLKRepl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLKRepl.h; sourceTree = "<group>"; };
@@ -289,6 +295,10 @@
 		ED9C148E1B57C21E0092866D /* planck */ = {
 			isa = PBXGroup;
 			children = (
+				03D4A1E71D0AB25A00565E4B /* PLKSocket.h */,
+				03D4A1E81D0AB25A00565E4B /* PLKSocket.m */,
+				03D4A1E91D0AB25A00565E4B /* PLKConnection.h */,
+				03D4A1EA1D0AB25A00565E4B /* PLKConnection.m */,
 				ED9C148F1B57C21E0092866D /* main.m */,
 				ED1CE2101B7047B70096585B /* PLKCommandLine.h */,
 				ED1CE2111B7047B70096585B /* PLKCommandLine.m */,
@@ -431,8 +441,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDEF27A51B84B79D00F2C7E4 /* ZZDeflateOutputStream.m in Sources */,
+				03D4A1EC1D0AB25A00565E4B /* PLKConnection.m in Sources */,
 				ED1CE2121B7047B70096585B /* PLKCommandLine.m in Sources */,
 				ED1CE2281B72C6360096585B /* PLKFileReader.m in Sources */,
+				03D4A1EB1D0AB25A00565E4B /* PLKSocket.m in Sources */,
 				EDEF27AF1B84B79D00F2C7E4 /* ZZStandardDecryptInputStream.mm in Sources */,
 				EDEF27AE1B84B79D00F2C7E4 /* ZZStandardCryptoEngine.cpp in Sources */,
 				ED4B2E141B88021F00DF622A /* PLKUtils.m in Sources */,

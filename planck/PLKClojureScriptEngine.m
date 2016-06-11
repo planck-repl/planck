@@ -8,6 +8,7 @@
 #import "PLKBundledOut.h"
 #import "PLKFileReader.h"
 #import "PLKFileWriter.h"
+#import "PLKSocket.h"
 #import "PLKFileInputStream.h"
 #import "PLKFileOutputStream.h"
 #import "ZZArchive.h"
@@ -685,6 +686,69 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                                          argList:@"path"
                                        inContext:self.context];
         
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 &&
+                 JSValueGetType (ctx, argv[0]) == kJSTypeString &&
+                 JSValueGetType (ctx, argv[1]) == kJSTypeNumber) {
+                 
+                 int port = [NSStringFromJSValueRef(ctx, argv[1]) intValue];
+                 NSString* socketAddr = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 return [self registerAndGetDescriptor:[PLKSocket open:socketAddr
+                                                                  port:port
+                                                                client:nil //todo
+                                                        ]];
+             }
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_SOCKET_OPEN"
+                                         argList:@"host, port"
+                                       inContext:self.context];
+        
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString
+                 && JSValueGetType(ctx, argv[1]) == kJSTypeObject) {
+                 NSString* descriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 
+                 PLKSocket* socket = self.descriptorToObject[descriptor];
+                 
+                 NSString* f = NSStringFromJSValueRef(ctx, argv[1]);
+                 
+                 [socket registerCallback:f ctx:ctx fd:descriptor];
+             }
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_SOCKET_LISTEN"
+                                         argList:@"fd, callback"
+                                       inContext:self.context];
+        
+        [ABYUtils installGlobalFunctionWithBlock:
+         ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
+             
+             if (argc == 2 && JSValueGetType (ctx, argv[0]) == kJSTypeString
+                 && JSValueGetType (ctx, argv[0]) == kJSTypeString) {
+                 NSString* socketDescriptor = NSStringFromJSValueRef(ctx, argv[0]);
+                 NSString* clientDescriptor = NSStringFromJSValueRef(ctx, argv[1]);
+                 
+                 PLKSocket* socket = self.descriptorToObject[socketDescriptor];
+                 
+                 NSData* data = [socket read:clientDescriptor];
+                 NSString* newStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                 
+                 return  JSValueMakeStringFromNSString(ctx, newStr);
+             }
+             return  JSValueMakeNull(ctx);
+         }
+                                            name:@"PLANCK_SOCKET_READ"
+                                         argList:@"fd, clientId"
+                                       inContext:self.context];
+
+
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              if (argc == 1 && JSValueGetType (ctx, argv[0]) == kJSTypeObject) {
