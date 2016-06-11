@@ -15,8 +15,8 @@
 (defmacro find-doc
   "Prints documentation for any var whose documentation or name
   contains a match for re-string-or-pattern"
-  [str-or-pattern]
-  `(planck.repl/find-doc* '~str-or-pattern))
+  [re-string-or-pattern]
+  `(planck.repl/find-doc* '~re-string-or-pattern))
 
 (defmacro doc
   "Prints documentation for a var or special form given its name"

@@ -12,6 +12,7 @@
             [cljs.env :as env]
             [cljs.js :as cljs]
             [cljs.repl :as repl]
+            [cljs.spec :as s]
             [cljs.stacktrace :as st]
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
@@ -23,6 +24,18 @@
             [clojure.string :as string]
             [planck.pprint.code]
             [planck.pprint.data]))
+
+(s/fdef planck.repl$macros/dir
+  :args (s/cat :sym symbol?))
+
+(s/fdef planck.repl$macros/doc
+  :args (s/cat :sym symbol?))
+
+(s/fdef planck.repl$macros/find-doc
+  :args (s/cat :re-string-or-pattern (s/or :string string? :regexp regexp?)))
+
+(s/fdef planck.repl$macros/source
+  :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
        :doc     "*pprint-results* controls whether Planck REPL results are
@@ -1165,48 +1178,93 @@
       (string/replace-all s #"\n      ?" "\n  ")
       s)))
 
+(defn- print-doc [{n :ns nm :name :as m}]
+  (println "-------------------------")
+  (println (str (when-let [ns (:ns m)] (str ns "/")) (:name m)))
+  (when (:protocol m)
+    (println "Protocol"))
+  (cond
+    (:forms m) (doseq [f (:forms m)]
+                 (println "  " f))
+    (:arglists m) (let [arglists (:arglists m)]
+                    (if (or (:macro m)
+                            (:repl-special-function m))
+                      (prn arglists)
+                      (prn
+                        (if (= 'quote (first arglists))
+                          (second arglists)
+                          arglists)))))
+  (if (:special-form m)
+    (do
+      (println "Special Form")
+      (println " " (:doc m))
+      (if (contains? m :url)
+        (when (:url m)
+          (println (str "\n  Please see http://clojure.org/" (:url m))))
+        (println (str "\n  Please see http://clojure.org/special_forms#"
+                   (:name m)))))
+    (do
+      (when (:macro m)
+        (println "Macro"))
+      (when (:repl-special-function m)
+        (println "REPL Special Function"))
+      (println " " (:doc m))
+      (when (:protocol m)
+        (doseq [[name {:keys [doc arglists]}] (:methods m)]
+          (println)
+          (println " " name)
+          (println " " arglists)
+          (when doc
+            (println " " doc))))
+      (when n
+        (let [spec-lookup (fn [ns-suffix]
+                            (s/fn-specs (symbol (str (ns-name n) ns-suffix) (name nm))))
+              specs       (concat (spec-lookup "") (spec-lookup "$macros"))]
+          (when (some identity (vals specs))
+            (print "Spec")
+            (run! (fn [[role spec]]
+                    (when (and spec (not (= spec ::s/unknown)))
+                      (print (str "\n " (name role) ":") (s/describe spec))))
+              specs)
+            (println)))))))
+
 (defn- doc*
   [sym]
-  (let [doc-output
-        (with-out-str
-          (if-let [special-sym ('{&       fn
-                                  catch   try
-                                  finally try} sym)]
-            (doc* special-sym)
-            (cond
+  (if-let [special-sym ('{&       fn
+                          catch   try
+                          finally try} sym)]
+    (doc* special-sym)
+    (cond
 
-              (special-doc-map sym)
-              (repl/print-doc (special-doc sym))
+      (special-doc-map sym)
+      (print-doc (special-doc sym))
 
-              (repl-special-doc-map sym)
-              (repl/print-doc (repl-special-doc sym))
+      (repl-special-doc-map sym)
+      (print-doc (repl-special-doc sym))
 
-              (get-namespace sym)
-              (repl/print-doc
-                (select-keys (get-namespace sym) [:name :doc]))
+      (get-namespace sym)
+      (print-doc
+        (select-keys (get-namespace sym) [:name :doc]))
 
-              (get-var (get-aenv) sym)
-              (repl/print-doc
-                (let [var (get-var (get-aenv) sym)
-                      var (assoc var :forms (-> var :meta :forms second)
-                                     :arglists (-> var :meta :arglists second))
-                      m   (select-keys var
-                            [:ns :name :doc :forms :arglists :macro :url])
-                      m   (update m :doc undo-reader-conditional-whitespace-docstring)]
-                  (cond-> (update-in m [:name] name)
-                    (:protocol-symbol var)
-                    (assoc :protocol true
-                           :methods
-                           (->> (get-in var [:protocol-info :methods])
-                             (map (fn [[fname sigs]]
-                                    [fname {:doc      (:doc
-                                                        (get-var (get-aenv)
-                                                          (symbol (str (:ns var)) (str fname))))
-                                            :arglists (seq sigs)}]))
-                             (into {})))))))))]
-    (print doc-output)
-    (when-not (= \newline (last doc-output))
-      (println))))
+      (get-var (get-aenv) sym)
+      (print-doc
+        (let [var (get-var (get-aenv) sym)
+              var (assoc var :forms (-> var :meta :forms second)
+                             :arglists (-> var :meta :arglists second))
+              m (select-keys var
+                  [:ns :name :doc :forms :arglists :macro :url])
+              m (update m :doc undo-reader-conditional-whitespace-docstring)]
+          (cond-> (update-in m [:name] name)
+            (:protocol-symbol var)
+            (assoc :protocol true
+                   :methods
+                   (->> (get-in var [:protocol-info :methods])
+                     (map (fn [[fname sigs]]
+                            [fname {:doc      (:doc
+                                                (get-var (get-aenv)
+                                                  (symbol (str (:ns var)) (str fname))))
+                                    :arglists (seq sigs)}]))
+                     (into {})))))))))
 
 (defn- find-doc*
   [re-string-or-pattern]
