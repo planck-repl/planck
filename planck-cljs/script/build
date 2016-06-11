@@ -6,7 +6,7 @@ set -o pipefail
 
 # Uncomment to build our own copy of ClojureScript compiler
 # Also see change needed in project.clj
-CLJS_GIT_COMMIT=81fb24e2adc96c53834486b706b975336a4a0d23
+CLJS_GIT_COMMIT=HEAD
 
 if [ -z "$CLJS_GIT_COMMIT" ]; then
   CLJSC_CP=`lein with-profile build classpath`
