@@ -1,7 +1,7 @@
 (ns planck.repl
   (:require-macros [cljs.env.macros :refer [with-compiler-env]]
                    [planck.repl :refer [with-err-str]])
-  (:require [clojure.string :as s]
+  (:require [clojure.string :as string]
             [goog.string :as gstring]
             [cljs.analyzer :as ana]
             [cljs.compiler :as comp]
@@ -35,7 +35,7 @@
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
 
 (defn- calc-x-line [text pos line]
-  (let [x (s/index-of text "\n")]
+  (let [x (string/index-of text "\n")]
     (if (or (nil? x)
             (< pos (inc x)))
       {:cursorX    pos
@@ -90,7 +90,7 @@
 
 (defn- drop-macros-suffix
   [ns-name]
-  (if (s/ends-with? ns-name "$macros")
+  (if (string/ends-with? ns-name "$macros")
     (apply str (drop-last 7 ns-name))
     ns-name))
 
@@ -529,7 +529,7 @@
   position in that line."
   [pos buffer previous-lines]
   (let [previous-lines  (js->clj previous-lines)
-        previous-source (s/join "\n" previous-lines)
+        previous-source (string/join "\n" previous-lines)
         total-source    (if (empty? previous-lines)
                           buffer
                           (str previous-source "\n" buffer))
@@ -579,7 +579,7 @@
 
 (defn- is-macros?
   [cache]
-  (s/ends-with? (str (:name cache)) "$macros"))
+  (string/ends-with? (str (:name cache)) "$macros"))
 
 (defn- form-build-affecting-options
   []
@@ -656,7 +656,7 @@
 
 (defn- add-suffix
   [file suffix]
-  (let [candidate (s/replace file #".clj[sc]?$" suffix)]
+  (let [candidate (string/replace file #".clj[sc]?$" suffix)]
     (if (gstring/endsWith candidate suffix)
       candidate
       (str file suffix))))
@@ -694,7 +694,7 @@
 
 (defn- strip-first-line
   [source]
-  (subs source (inc (s/index-of source "\n"))))
+  (subs source (inc (string/index-of source "\n"))))
 
 (defn- cached-callback-data
   [name path macros cache-prefix source source-modified raw-load]
@@ -913,7 +913,7 @@
   [ns]
   {:pre [(symbol? ns)]}
   (let [ns-str        (str ns)
-        munged-ns-str (s/replace ns-str #"\." "$")]
+        munged-ns-str (string/replace ns-str #"\." "$")]
     (into {} (for [sym (ns-syms ns)]
                [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
 
@@ -946,7 +946,7 @@
 
 (defn- gensym?
   [sym]
-  (s/starts-with? (name sym) "G__"))
+  (string/starts-with? (name sym) "G__"))
 
 (defn- demunge-sym
   [munged-sym]
@@ -1007,7 +1007,7 @@
          message             (if (instance? ExceptionInfo error)
                                (ex-message error)
                                (.-message error))]
-     (when (or (not ((fnil s/starts-with? "") printed-message message))
+     (when (or (not ((fnil string/starts-with? "") printed-message message))
              include-stacktrace?)
        (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
      (when include-stacktrace?
@@ -1040,7 +1040,7 @@
 (defn- all-macros-ns
   []
   (->> (all-ns)
-    (filter #(s/ends-with? (str %) "$macros"))))
+    (filter #(string/ends-with? (str %) "$macros"))))
 
 (defn- get-var
   [env sym]
@@ -1055,8 +1055,8 @@
 (defn- get-file-source
   [filepath]
   (if (symbol? filepath)
-    (let [without-extension (s/replace
-                              (s/replace (name filepath) #"\." "/")
+    (let [without-extension (string/replace
+                              (string/replace (name filepath) #"\." "/")
                               #"-" "_")]
       (or
         (first (js/PLANCK_LOAD (str without-extension ".clj")))
@@ -1064,9 +1064,9 @@
         (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
-          (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^/.*/planck-cljs/src/" "")))))))
+          (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
+        (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
+        (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" "")))))))
 
 (defn- fetch-source
   [var]
@@ -1144,7 +1144,7 @@
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
-                   #(s/includes? (str %) (str str-or-pattern)))]
+                   #(string/includes? (str %) (str str-or-pattern)))]
     (sort (mapcat (fn [ns]
                     (let [ns-name (drop-macros-suffix (str ns))]
                       (map #(symbol ns-name (str %))
@@ -1162,7 +1162,7 @@
   ;; after newlines with two.
   (when-not (nil? s)
     (if (re-find #"[^\n]*\n\n?      ?\S.*" s)
-      (s/replace-all s #"\n      ?" "\n  ")
+      (string/replace-all s #"\n      ?" "\n  ")
       s)))
 
 (defn- doc*
