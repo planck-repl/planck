@@ -1,5 +1,6 @@
 (ns planck.io
-  (:require [clojure.string :as s]
+  (:require [clojure.string :as string]
+            [cljs.spec :as s]
             [planck.core])
   (:import goog.Uri))
 
@@ -17,6 +18,13 @@
       (.setPath uri)
       (.setQuery query-string true)))
 
+(s/fdef build-uri
+  :args (s/cat :scheme  (s/nilable (s/or :string string? :named #(implements? INamed %)))
+          :server-name  (s/nilable string?)
+          :server-port  (s/nilable (s/or :integer integer? :string string?))
+          :uri          (s/nilable string?)
+          :query-string (s/nilable string?))
+  :ret #(instance? Uri %))
 
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
@@ -37,7 +45,7 @@
   (as-url [f] (build-uri :file nil nil (:path f) nil)))
 
 (defn- as-url-or-file [f]
-  (if (s/starts-with? f "http")
+  (if (string/starts-with? f "http")
     (as-url f)
     (as-file f)))
 
@@ -130,6 +138,10 @@
   ([parent & more]
    (File. (apply str parent (interleave (repeat path-separator) more)))))
 
+(s/fdef file
+  :args (s/cat :path-or-parent string? :more (s/* string?))
+  :ret #(instance? File %))
+
 (defn file-attributes
   "Returns a map containing the attributes of the item at a given path."
   [path]
@@ -142,16 +154,26 @@
           (update-in [:created] #(js/Date. %))
           (update-in [:modified] #(js/Date. %))))
 
+(s/fdef file-attributes
+  :args (s/cat :path ::coercible-file?)
+  :ret map?)
+
 (defn delete-file
   "Delete file f."
   [f]
   (js/PLANCK_DELETE (:path (as-file f))))
 
-(defn directory?
+(s/fdef delete-file
+  :args (s/cat :f ::coercible-file?))
+
+(defn ^boolean directory?
   "Checks if dir is a directory."
   [dir]
   (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
+(s/fdef directory?
+  :args (s/cat :dir ::coercible-file?)
+  :ret boolean?)
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
@@ -161,3 +183,5 @@
 (set! planck.core/*reader-fn* reader)
 (set! planck.core/*writer-fn* writer)
 (set! planck.core/*as-file-fn* as-file)
+
+(s/def ::coercible-file? (s/or :string string? :file #(instance? File %)))

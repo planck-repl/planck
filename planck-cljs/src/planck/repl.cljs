@@ -209,6 +209,7 @@
 (defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
+  (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec)
   (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec.test)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]

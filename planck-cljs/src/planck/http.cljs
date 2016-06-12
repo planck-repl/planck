@@ -3,7 +3,8 @@
     (:require
      [planck.core]
      [planck.io]
-     [clojure.string :as string]))
+     [clojure.string :as string]
+     [cljs.spec :as s]))
 
 
 (def content-types {:json            "application/json"
@@ -185,6 +186,20 @@
   ([url] (get url {}))
   ([url opts] (request js/PLANCK_REQUEST :get url opts)))
 
+(s/def ::timeout integer?)
+(s/def ::debug boolean?)
+(s/def ::accepts (s/or :kw #{:json :xml} :str string?))
+(s/def ::content-type (s/or :kw #{:json :xml} :str string?))
+(s/def ::headers (s/and map? (fn [m]
+                               (and (every? keyword? (keys m))
+                                    (every? string? (vals m))))))
+(s/def ::body string?)
+(s/def ::status integer?)
+
+(s/fdef get
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers])))
+  :ret (s/keys :req-un [::body ::headers ::status]))
+
 (defn post
   "Performs a POST requeest. It takes an URL and an optional map of options
   These options include the options for get in addition to:
@@ -194,6 +209,14 @@
                                          [\"name\" [\"content\" \"filename\"]]"
   ([url] (post url {}))
   ([url opts] (request js/PLANCK_REQUEST :post url opts)))
+
+(s/def ::form-params map?)
+(s/def ::multipart-params seq?)
+
+(s/fdef post
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers
+                                                        ::form-params ::multipart-params])))
+  :ret (s/keys :req-un [::body ::headers ::status]))
 
 (extend-protocol planck.io/IOFactory
   js/goog.Uri

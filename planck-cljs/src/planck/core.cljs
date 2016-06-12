@@ -1,6 +1,18 @@
 (ns planck.core
-  (:require [planck.repl :as repl])
+  (:require [cljs.spec :as s]
+            [planck.repl :as repl])
   (:import [goog.string StringBuffer]))
+
+(s/def ::binding
+  (s/cat :name symbol? :value ::s/any))
+
+(s/def ::bindings
+  (s/and vector?
+         #(even? (count %))
+         (s/* ::binding)))
+
+(s/fdef planck.core$macros/with-open
+  :args (s/cat :bindings ::bindings :body (s/* ::s/any)))
 
 (def *planck-version* js/PLANCK_VERSION)
 
@@ -9,6 +21,9 @@
   [exit-value]
   (js/PLANCK_SET_EXIT_VALUE exit-value)
   (throw (js/Error. "PLANCK_EXIT")))
+
+(s/fdef exit
+  :args (s/cat :exit-value integer?))
 
 (defprotocol IClosable
   (-close [this]))
@@ -130,6 +145,10 @@
   []
   (-read-line *in*))
 
+(s/fdef read-line
+  :args (s/cat)
+  :ret string?)
+
 (defn line-seq
   "Returns the lines of text from rdr as a lazy sequence of strings.
   rdr must implement IBufferedReader."
@@ -137,12 +156,20 @@
   (when-let [line (-read-line rdr)]
     (cons line (lazy-seq (line-seq rdr)))))
 
+(s/fdef line-seq
+  :args (s/cat :rdr #(instance? IBufferedReader %))
+  :ret seq?)
+
 (defn read-password
   "Reads the next line from console with echoing disabled.
   It will print out a prompt if supplied"
   ([] (read-password ""))
   ([prompt]
    (js/PLANCK_READ_PASSWORD prompt)))
+
+(s/fdef read-password
+  :args (s/cat :prompt (s/? string?))
+  :ret string?)
 
 (defonce
   ^{:dynamic true
@@ -159,6 +186,10 @@
     (fn [d] (map *as-file-fn*
               (js->clj (js/PLANCK_LIST_FILES (:path d)))))
     (*as-file-fn* dir)))
+
+(s/fdef file-seq
+  :args (s/cat :dir :planck.core/coercible-file?)
+  :ret? seq?)
 
 (defonce
   ^{:dynamic true
@@ -190,6 +221,10 @@
       (finally
         (-close r)))))
 
+(s/fdef slurp
+  :args (s/cat :f :planck.io/coercible-file? :opts (s/* ::s/any))
+  :ret string?)
+
 (defn spit
   "Opposite of slurp.  Opens f with writer, writes content, then
   closes f. Options passed to planck.io/writer."
@@ -200,10 +235,17 @@
       (finally
         (-close w)))))
 
+(s/fdef spit
+  :args (s/cat :f :planck.io/coercible-file? :content ::s/any :opts (s/* ::s/any)))
+
 (defn eval
   "Evaluates the form data structure (not text!) and returns the result."
   [form]
   (repl/eval form))
+
+(s/fdef eval
+  :args (s/cat :form ::s/any)
+  :ret ::s/any)
 
 (defn ns-resolve
   "Returns the var to which a symbol will be resolved in the namespace,
@@ -211,11 +253,19 @@
   [ns sym]
   (repl/ns-resolve ns sym))
 
+(s/fdef ns-resolve
+  :args (s/cat :ns symbol? :sym symbol?)
+  :ret (s/nilable var?))
+
 (defn resolve
   "Returns the var to which a symbol will be resolved in the current
   namespace, else nil."
   [sym]
   (repl/resolve sym))
+
+(s/fdef resolve
+  :args (s/cat :sym symbol?)
+  :ret (s/nilable var?))
 
 (defn intern
   "Finds or creates a var named by the symbol name in the namespace
@@ -229,6 +279,11 @@
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
      (repl/eval `(def ~name ~val) (ns-name the-ns)))))
 
+(s/fdef intern
+  :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %))
+          :name symbol?
+          :val (s/? ::s/any)))
+
 (defn- transfer-ns
   [state ns]
   (-> state
@@ -239,11 +294,17 @@
   "An init function for use with cljs.js/empty-state which initializes
   the empty state with cljs.core analysis metadata.
 
-  This is useful because Planck is built with :dump-core set to false."
+  This is useful because Planck is built with :dump-core set to false.
+
+  Usage: (cljs.js/empty-state init-empty-state)"
   [state]
   (-> state
     (transfer-ns 'cljs.core)
     (transfer-ns 'cljs.core$macros)))
+
+(s/fdef init-empty-state
+  :args (s/cat :state map?)
+  :ret map?)
 
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")

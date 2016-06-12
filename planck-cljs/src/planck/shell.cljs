@@ -44,8 +44,6 @@
          :out  out
          :err  err}))))
 
-(s/def ::valid-sh-dir? (s/or :string string? :file #(instance? planck.io/File %)))
-
 (s/def ::string-string-map? (s/and map? (fn [m]
                                           (and (every? string? (keys m))
                                                (every? string? (vals m))))))
@@ -54,7 +52,7 @@
                    :in      (s/cat :key #{:in}      :val string?)
                    :in-enc  (s/cat :key #{:in-enc}  :val string?)
                    :out-enc (s/cat :key #{:out-enc} :val string?)
-                   :dir     (s/cat :key #{:dir}     :val ::valid-sh-dir?)
+                   :dir     (s/cat :key #{:dir}     :val :planck.io/coercible-file?)
                    :env     (s/cat :key #{:env}     :val ::string-string-map?)))
 
 (s/def ::sh-args (s/cat :cmd (s/+ string?) :opts (s/* ::sh-opt)))
