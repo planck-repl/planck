@@ -170,11 +170,12 @@
                                   (symbol "cljs.core$macros" (name sym))]))]
              [sym pretty-fn])))
 
-(def default-symbols
+(defn default-symbols
+  [spec?]
   (build-symbol-map
-    {pretty-arrow '[. .. -> ->> and doto or some-> some->>]
+    {pretty-arrow (concat '[. .. -> ->> and doto some-> some->>] (when spec? '[* ? + &]) (when-not spec? '[or]))
      pretty-case  '[case cond-> cond->>]
-     pretty-cond  '[cond]
+     pretty-cond  (concat '[cond] (when spec? '[cat keys alt or]))
      pretty-condp '[condp]
      pretty-defn  '[defmacro defmulti defn defn-]
      pretty-fn    '[fn]
@@ -191,4 +192,4 @@
 (defn pprint
   ([x] (pprint x {}))
   ([x options]
-   (planck.pprint.data/pprint x (merge {:symbols default-symbols} options))))
+   (planck.pprint.data/pprint x (merge {:symbols (default-symbols (:spec? options))} options))))
