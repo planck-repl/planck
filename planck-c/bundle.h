@@ -1,0 +1,1 @@
+char *bundle_get_contents(char *path);
