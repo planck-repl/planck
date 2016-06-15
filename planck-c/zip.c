@@ -18,7 +18,6 @@ char *get_contents_zip(char *path, char *name, time_t *last_modified) {
 
 	zip_stat_t stat;
 	if (zip_stat(archive, name, 0, &stat) < 0) {
-		print_zip_err("zip_stat", archive);
 		goto close_archive;
 	}
 
