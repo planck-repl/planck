@@ -23,7 +23,6 @@ char *read_all(FILE *f) {
 			break;
 		}
 		if (ferror(f)) {
-			// fprintf(stderr, "Error: %s: %s\n", __func__, strerror(errno));
 			return NULL;
 		}
 	}
@@ -32,21 +31,13 @@ char *read_all(FILE *f) {
 }
 
 char *get_contents(char *path, time_t *last_modified) {
-/*#ifdef DEBUG
-	printf("get_contents(\"%s\")\n", path);
-#endif*/
-
-	char *err_prefix;
-
 	FILE *f = fopen(path, "r");
 	if (f == NULL) {
-		err_prefix = "fopen";
 		goto err;
 	}
 
 	struct stat f_stat;
 	if (fstat(fileno(f), &f_stat) < 0) {
-		err_prefix = "fstat";
 		goto err;
 	}
 
@@ -59,30 +50,24 @@ char *get_contents(char *path, time_t *last_modified) {
 	fread(buf, f_stat.st_size, 1, f);
 	buf[f_stat.st_size] = '\0';
 	if (ferror(f)) {
-		err_prefix = "fread";
 		free(buf);
 		goto err;
 	}
 
 	if (fclose(f) < 0) {
-		err_prefix = "fclose";
 		goto err;
 	}
 
 	return buf;
 
 err:
-	//printf("get_contents(\"%s\"): %s: %s\n", path, err_prefix, strerror(errno));
 	return NULL;
 }
 
 void write_contents(char *path, char *contents) {
-	char *err_prefix;
-
 	FILE *f = fopen(path, "w");
 	if (f == NULL) {
-		err_prefix = "fopen";
-		goto err;
+		return;
 	}
 
 	int len = strlen(contents);
@@ -90,21 +75,15 @@ void write_contents(char *path, char *contents) {
 	do {
 		int res = fwrite(contents+offset, 1, len-offset, f);
 		if (res < 0) {
-			err_prefix = "fwrite";
-			goto err;
+			return;
 		}
 		offset += res;
 	} while (offset < len);
 
 	if (fclose(f) < 0) {
-		err_prefix = "fclose";
-		goto err;
+		return;
 	}
 
-	return;
-
-err:
-	// printf("write_contents(\"%s\", ...): %s: %s\n", path, err_prefix, strerror(errno));
 	return;
 }
 
