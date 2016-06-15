@@ -36,7 +36,7 @@ rm $filegz
 data_ref=${filegz//\//_}
 data_ref=${data_ref//\./_}
 data_ref=${data_ref//\$/_}
-file_size=`wc -c $file | cut -d' ' -f1`
+file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 echo "unsigned int ${data_ref}_len_uncompressed = ${file_size};" >> ../bundle.c
 cat <<EOF >> ../bundle_dict.c
 	else if (strcmp("${file}", path) == 0) {
