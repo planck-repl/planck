@@ -40,6 +40,10 @@ You can run tests by doing:
 
 Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
 
+# Planck 2.0 Alpha
+
+Instructions on building the Planck 2.0 alpha on Linux and OS X are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
+
 # License
 
 Copyright © 2015–2016 Mike Fikes and Contributors
