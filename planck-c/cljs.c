@@ -202,7 +202,6 @@ void bootstrap(JSContextRef ctx, char *out_path) {
 void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 	int num_arguments = argc + 1;
 	JSValueRef arguments[num_arguments];
-	JSValueRef result;
 	arguments[0] = c_string_to_value(ctx, ns);
 	for (int i=1; i<num_arguments; i++) {
 		arguments[i] = c_string_to_value(ctx, argv[i-1]);
@@ -210,5 +209,5 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 
 	JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
 	JSObjectRef run_main_fn = get_function(ctx, "planck.repl", "run-main");
-	result = JSObjectCallAsFunction(ctx, run_main_fn, global_obj, num_arguments, arguments, NULL);
+	JSObjectCallAsFunction(ctx, run_main_fn, global_obj, num_arguments, arguments, NULL);
 }
