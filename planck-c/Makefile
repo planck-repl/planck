@@ -13,8 +13,8 @@ ifeq ($(UNAME_S),Linux)
 endif
 ifeq ($(UNAME_S),Darwin)
 	DEPS = libzip
-	LIBFLAGS += -lJavaScriptCore -lzip -lz
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
+	LIBFLAGS += -framework JavaScriptCore -lz $(shell pkg-config --libs $(DEPS))
 endif
 CFLAGS += $(EXTRA_CFLAGS)
 
