@@ -1,0 +1,4 @@
+install: make lein maven javascriptcoregtk-3.0 libglib2.0-dev libzip-dev
+language: c
+script: cd planck-c && make bundle-and-build
+compiler: clang
