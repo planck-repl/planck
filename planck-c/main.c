@@ -17,6 +17,7 @@
 
 #include "bundle.h"
 #include "cljs.h"
+#include "http.h"
 #include "io.h"
 #include "jsc_utils.h"
 #include "legal.h"
@@ -703,6 +704,8 @@ int main(int argc, char **argv) {
 	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDOUT", function_raw_flush_stdout);
 	register_global_function(ctx, "PLANCK_RAW_WRITE_STDERR", function_raw_write_stderr);
 	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDERR", function_raw_flush_stderr);
+
+	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 
 	{
 		JSValueRef arguments[num_rest_args];
