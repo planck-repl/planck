@@ -211,3 +211,11 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 	JSObjectRef run_main_fn = get_function(ctx, "planck.repl", "run-main");
 	JSObjectCallAsFunction(ctx, run_main_fn, global_obj, num_arguments, arguments, NULL);
 }
+
+char *get_current_ns(JSContextRef ctx) {
+	int num_arguments = 0;
+	JSValueRef arguments[num_arguments];
+	JSObjectRef get_current_ns_fn = get_function(ctx, "planck.repl", "get-current-ns");
+	JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+	return value_to_c_string(ctx, result);
+}
