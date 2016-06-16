@@ -787,10 +787,10 @@ int main(int argc, char **argv) {
 			linenoiseHistoryLoad(history_path);
 		}
 
-		char *prompt = javascript ? " > " : " => ";
+		char *prompt = javascript ? " > " : "cljs.user=> ";
 
 		char *line;
-		while ((line = linenoise(prompt)) != NULL) {
+		while ((line = linenoise(prompt, "\x1b[36m", 0)) != NULL) {
 			if (javascript) {
 				JSValueRef res = evaluate_script(ctx, line, "<stdin>");
 				print_value("", ctx, res);
