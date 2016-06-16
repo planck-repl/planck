@@ -15,6 +15,8 @@ platforms.
 - `make bundle-and-build`
 - have fun: `./planck`
 
+[![Build Status](https://travis-ci.org/mfikes/planck.svg?branch=master)](https://travis-ci.org/mfikes/planck)
+
 ## Implementation
 
 - based on JavaScriptCore (from webkitgtk)

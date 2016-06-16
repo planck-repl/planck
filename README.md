@@ -36,8 +36,6 @@ You can run tests by doing:
 
 1. `script/test`
 
-[![Circle CI](https://circleci.com/gh/mfikes/planck.svg?style=svg)](https://circleci.com/gh/mfikes/planck)
-
 Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
 
 # Planck 2.0 Alpha
