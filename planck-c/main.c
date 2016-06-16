@@ -38,6 +38,8 @@ struct src_path *src_paths = NULL;
 int num_src_paths = 0;
 char *out_path = NULL;
 
+void completion(const char *buf, linenoiseCompletions *lc);
+
 #ifdef DEBUG
 #define debug_print_value(prefix, ctx, val)	print_value(prefix ": ", ctx, val)
 #else
@@ -513,6 +515,8 @@ char *main_ns_name = NULL;
 
 bool javascript = false;
 
+JSContextRef global_ctx = NULL;
+
 struct script {
 	char *type;
 	bool expression;
@@ -655,6 +659,7 @@ int main(int argc, char **argv) {
 	}
 
 	JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);
+	global_ctx = ctx;
 
 	JSStringRef nameRef = JSStringCreateWithUTF8CString("planck");
 	JSGlobalContextSetName(ctx, nameRef);
@@ -787,6 +792,10 @@ int main(int argc, char **argv) {
 			linenoiseHistoryLoad(history_path);
 		}
 
+		if (!javascript) {
+			linenoiseSetCompletionCallback(completion);
+		}
+
 		char *prompt = javascript ? " > " : "cljs.user=> ";
 		char *current_ns = get_current_ns(ctx);
 		if (!javascript) {
@@ -815,4 +824,14 @@ int main(int argc, char **argv) {
 	}
 
 	return exit_value;
+}
+
+void completion(const char *buf, linenoiseCompletions *lc) {
+	int num_completions = 0;
+	char **completions = get_completions(global_ctx, buf, &num_completions);
+	for (int i = 0; i < num_completions; i++) {
+		linenoiseAddCompletion(lc, completions[i]);
+		free(completions[i]);
+	}
+	free(completions);
 }

@@ -219,3 +219,29 @@ char *get_current_ns(JSContextRef ctx) {
 	JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
 	return value_to_c_string(ctx, result);
 }
+
+char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions) {
+	int num_arguments = 1;
+	JSValueRef arguments[num_arguments];
+	arguments[0] = c_string_to_value(ctx, (char *)buffer);
+	JSObjectRef completions_fn = get_function(ctx, "planck.repl", "get-completions");
+	JSValueRef result = JSObjectCallAsFunction(ctx, completions_fn, JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+
+	assert(JSValueIsObject(ctx, result));
+	JSObjectRef array = JSValueToObject(ctx, result, NULL);
+	JSStringRef length_prop = JSStringCreateWithUTF8CString("length");
+	JSValueRef array_len = JSObjectGetProperty(ctx, array, length_prop, NULL);
+	JSStringRelease(length_prop);
+	assert(JSValueIsNumber(ctx, array_len));
+	int n = (int)JSValueToNumber(ctx, array_len, NULL);
+
+	char **completions = malloc(n * sizeof(char*));
+
+	for (int i = 0; i < n; i++) {
+		JSValueRef v = JSObjectGetPropertyAtIndex(ctx, array, i, NULL);
+		completions[i] = value_to_c_string(ctx, v);
+	}
+
+	*num_completions = n;
+	return completions;
+}
