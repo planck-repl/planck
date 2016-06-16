@@ -1,7 +1,7 @@
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y maven javascriptcoregtk-3.0 libglib2.0-dev libzip-dev
+  - sudo apt-get install -y maven javascriptcoregtk-4.0 libglib2.0-dev libzip-dev
+  - cd planck-cljs
 language: clojure
-lein: lein2
-compiler: clang
-script: cd planck-c && make bundle-and-build
+jdk: oraclejdk8
+script: cd ../planck-c && make bundle-and-build && ./planck -e'(map inc (range e))'
