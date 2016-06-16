@@ -194,7 +194,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 		int status = 0;
 		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &status);
 
-		printf("%d bytes, %x\n", body_state.offset, body_state.data);
+		// printf("%d bytes, %x\n", body_state.offset, body_state.data);
 		if (body_state.data != NULL) {
 			JSStringRef body_str = JSStringCreateWithUTF8CString(body_state.data);
 			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"), JSValueMakeString(ctx, body_str), kJSPropertyAttributeReadOnly, NULL);
