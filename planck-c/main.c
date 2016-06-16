@@ -788,6 +788,10 @@ int main(int argc, char **argv) {
 		}
 
 		char *prompt = javascript ? " > " : "cljs.user=> ";
+		char *current_ns = get_current_ns(ctx);
+		if (!javascript) {
+			prompt = str_concat(current_ns, "=> ");
+		}
 
 		char *line;
 		while ((line = linenoise(prompt, "\x1b[36m", 0)) != NULL) {
@@ -795,7 +799,12 @@ int main(int argc, char **argv) {
 				JSValueRef res = evaluate_script(ctx, line, "<stdin>");
 				print_value("", ctx, res);
 			} else {
-				evaluate_source(ctx, "text", line, true, true, "cljs.user", theme);
+				evaluate_source(ctx, "text", line, true, true, current_ns, theme);
+				char *new_ns = get_current_ns(ctx);
+				free(current_ns);
+				free(prompt);
+				current_ns = new_ns;
+				prompt = str_concat(current_ns, "=> ");
 			}
 			linenoiseHistoryAdd(line);
 			if (history_path != NULL) {
