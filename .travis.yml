@@ -1,6 +1,7 @@
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y leiningen maven javascriptcoregtk-3.0 libglib2.0-dev libzip-dev
+  - sudo apt-get install -y maven javascriptcoregtk-3.0 libglib2.0-dev libzip-dev
 language: c
 compiler: clang
+lein: lein2
 script: cd planck-c && make bundle-and-build
