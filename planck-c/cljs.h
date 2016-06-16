@@ -9,3 +9,4 @@ JSObjectRef get_function(JSContextRef ctx, char *namespace, char *name);
 void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv);
 
 char *get_current_ns();
+char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions);
