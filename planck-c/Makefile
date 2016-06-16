@@ -40,10 +40,10 @@ planck: $(OBJECTS)
 	$(CC) $(LIBFLAGS) $(OBJECTS) -o $@
 
 linenoise.c: linenoise.h
-	curl -LsSfo $@ https://github.com/antirez/linenoise/raw/master/linenoise.c
+	cp ../planck/linenoise/linenoise.c .
 
 linenoise.h:
-	curl -LsSfo $@ https://github.com/antirez/linenoise/raw/master/linenoise.h
+	cp ../planck/linenoise/linenoise.h .
 
 bundle-test:
 	$(CC) -lz -DBUNDLE_TEST bundle.c -o $@
