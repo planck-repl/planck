@@ -7,6 +7,13 @@
 
 #include "zip.h"
 
+#ifndef ZIP_RDONLY
+typedef struct zip zip_t;
+typedef struct zip_stat zip_stat_t;
+typedef struct zip_file zip_file_t;
+#define ZIP_RDONLY 16
+#endif
+
 void print_zip_err(char *prefix, zip_t *zip);
 
 char *get_contents_zip(char *path, char *name, time_t *last_modified) {
@@ -53,9 +60,7 @@ close_archive:
 }
 
 void print_zip_err(char *prefix, zip_t *zip) {
-		zip_error_t *err = zip_get_error(zip);
-		printf("%s: %s\n", prefix, zip_error_strerror(err));
-		zip_error_fini(err);
+		printf("%s: %s\n", prefix, zip_strerror(zip));
 }
 
 #ifdef ZIP_TEST

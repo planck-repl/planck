@@ -7,7 +7,7 @@ CC = clang
 CFLAGS = -Wall -DDEBUG
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	DEPS = javascriptcoregtk-4.0 libzip libcurl
+	DEPS = javascriptcoregtk-3.0 libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS = $(shell pkg-config --libs $(DEPS))
 endif
