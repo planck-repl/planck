@@ -1,4 +1,4 @@
-.PHONY: build bundle-and-build release bundle-test zip-test clean
+.PHONY: build bundle-and-build release bundle-test http-test zip-test clean
 
 VERSION = $(shell git describe --tags)
 
@@ -7,12 +7,12 @@ CC = clang
 CFLAGS = -Wall -DDEBUG
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	DEPS = javascriptcoregtk-4.0 libzip
+	DEPS = javascriptcoregtk-4.0 libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS = $(shell pkg-config --libs $(DEPS))
 endif
 ifeq ($(UNAME_S),Darwin)
-	DEPS = libzip
+	DEPS = libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS += -framework JavaScriptCore -lz $(shell pkg-config --libs $(DEPS))
 endif
@@ -37,7 +37,7 @@ release:
 
 
 planck: $(OBJECTS)
-	$(CC) $(LIBFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(LIBFLAGS) $(OBJECTS) -o $@
 
 linenoise.c: linenoise.h
 	cp ../planck/linenoise/linenoise.c .
@@ -47,6 +47,9 @@ linenoise.h:
 
 bundle-test:
 	$(CC) -lz -DBUNDLE_TEST bundle.c -o $@
+
+http-test: jsc_utils.o
+	$(CC) $(shell pkg-config --cflags --libs javascriptcoregtk-3.0 libcurl) -DHTTP_TEST jsc_utils.o http.c -o $@
 
 zip-test:
 	$(CC) $(shell pkg-config --cflags --libs libzip) -DZIP_TEST zip.c -o $@

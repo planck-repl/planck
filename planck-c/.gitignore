@@ -1,5 +1,6 @@
 /planck
 /bundle-test
+/http-test
 /zip-test
 /*.o
 /*.tar.gz
