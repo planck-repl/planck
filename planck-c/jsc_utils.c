@@ -51,6 +51,10 @@ JSValueRef evaluate_script(JSContextRef ctx, char *script, char *source) {
 }
 
 char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
+	if (JSValueIsNull(ctx, val)) {
+		return NULL;
+	}
+
 	if (!JSValueIsString(ctx, val)) {
 #ifdef DEBUG
 		fprintf(stderr, "WARN: not a string\n");
