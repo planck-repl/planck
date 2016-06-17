@@ -20,6 +20,7 @@
 #include "io.h"
 #include "jsc_utils.h"
 #include "legal.h"
+#include "repl.h"
 #include "str.h"
 #include "zip.h"
 
@@ -41,7 +42,7 @@ void usage(char *program_name) {
 	printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
 	printf("    -q, --quiet              Quiet mode\n");
 	printf("    -v, --verbose            Emit verbose diagnostic output\n");
-	// printf("    -d, --dumb-terminal      Disable line editing / VT100 terminal control\n");
+	printf("    -d, --dumb-terminal      Disable line editing / VT100 terminal control\n");
 	printf("    -t theme, --theme=theme  Set the color theme\n");
 	// printf("    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port\n");
 	printf("    -s, --static-fns         Generate static dispatch function calls\n");
@@ -101,7 +102,8 @@ void banner() {
 }
 
 struct config config;
-int exit_value;
+int exit_value = 0;
+bool return_termsize = false;
 JSContextRef global_ctx = NULL;
 
 int main(int argc, char **argv) {
@@ -113,6 +115,7 @@ int main(int argc, char **argv) {
 	config.elide_asserts = false;
 	config.cache_path = NULL;
 	config.theme = "light";
+	config.dumb_terminal = false;
 
 	config.out_path = NULL;
 	config.num_src_paths = 0;
@@ -133,6 +136,7 @@ int main(int argc, char **argv) {
 		{"cache", required_argument, NULL, 'k'},
 		{"eval", required_argument, NULL, 'e'},
 		{"theme", required_argument, NULL, 't'},
+		{"dumb-terminal", no_argument, NULL, 'd'},
 		{"classpath", required_argument, NULL, 'c'},
 		{"auto-cache", no_argument, NULL, 'K'},
 		{"init", required_argument, NULL, 'i'},
@@ -145,7 +149,7 @@ int main(int argc, char **argv) {
 		{0, 0, 0, 0}
 	};
 	int opt, option_index;
-	while ((opt = getopt_long(argc, argv, "h?lvrsak:je:t:c:o:Ki:qm:", long_options, &option_index)) != -1) {
+	while ((opt = getopt_long(argc, argv, "h?lvrsak:je:t:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'h':
 			usage(argv[0]);
@@ -205,6 +209,9 @@ int main(int argc, char **argv) {
 		case 't':
 			config.theme = argv[optind - 1];
 			break;
+		case 'd':
+			config.dumb_terminal = true;
+			break;
 		case 'c':
 			{
 				char *classpath = argv[optind - 1];
@@ -234,6 +241,10 @@ int main(int argc, char **argv) {
 		default:
 			printf("unhandled argument: %c\n", opt);
 		}
+	}
+
+	if (config.dumb_terminal) {
+		config.theme = "dumb";
 	}
 
 	config.num_rest_args = 0;
@@ -295,57 +306,8 @@ int main(int argc, char **argv) {
 			banner();
 		}
 
-		char *home = getenv("HOME");
-		char *history_path = NULL;
-		if (home != NULL) {
-			char history_name[] = ".planck_history";
-			int len = strlen(home) + strlen(history_name) + 2;
-			history_path = malloc(len * sizeof(char));
-			snprintf(history_path, len, "%s/%s", home, history_name);
-
-			linenoiseHistoryLoad(history_path);
-		}
-
-		if (!config.javascript) {
-			linenoiseSetCompletionCallback(completion);
-		}
-
-		char *prompt = config.javascript ? " > " : "cljs.user=> ";
-		char *current_ns = strdup("cljs.user");
-		if (!config.javascript) {
-			prompt = str_concat(current_ns, "=> ");
-		}
-
-		char *line;
-		while ((line = linenoise(prompt, "\x1b[36m", 0)) != NULL) {
-			if (config.javascript) {
-				JSValueRef res = evaluate_script(ctx, line, "<stdin>");
-				print_value("", ctx, res);
-			} else {
-				evaluate_source(ctx, "text", line, true, true, current_ns, config.theme, true);
-				char *new_ns = get_current_ns(ctx);
-				free(current_ns);
-				free(prompt);
-				current_ns = new_ns;
-				prompt = str_concat(current_ns, "=> ");
-			}
-			linenoiseHistoryAdd(line);
-			if (history_path != NULL) {
-				linenoiseHistorySave(history_path);
-			}
-			free(line);
-		}
+		run_repl(ctx);
 	}
 
 	return exit_value;
-}
-
-void completion(const char *buf, linenoiseCompletions *lc) {
-	int num_completions = 0;
-	char **completions = get_completions(global_ctx, buf, &num_completions);
-	for (int i = 0; i < num_completions; i++) {
-		linenoiseAddCompletion(lc, completions[i]);
-		free(completions[i]);
-	}
-	free(completions);
 }

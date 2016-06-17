@@ -24,6 +24,7 @@ struct config {
 	bool static_fns;
 	bool elide_asserts;
 	char *theme;
+	bool dumb_terminal;
 
 	char *main_ns_name;
 	int num_rest_args;
@@ -43,3 +44,4 @@ extern struct config config;
 // Mutable variables
 
 extern int exit_value;
+extern bool return_termsize;

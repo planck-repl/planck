@@ -254,14 +254,16 @@ JSValueRef function_eval(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
 
 JSValueRef function_get_term_size(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
-	// if (return_term_size)
-	struct winsize w;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-	JSValueRef  arguments[2];
-	arguments[0] = JSValueMakeNumber(ctx, w.ws_row);
-	arguments[1] = JSValueMakeNumber(ctx, w.ws_col);
-	return JSObjectMakeArray(ctx, 2, arguments, NULL);
-	// return JSValueMakeNull(ctx);
+	if (return_termsize) {
+		struct winsize w;
+		ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+		JSValueRef  arguments[2];
+		arguments[0] = JSValueMakeNumber(ctx, w.ws_row);
+		arguments[1] = JSValueMakeNumber(ctx, w.ws_col);
+		return JSObjectMakeArray(ctx, 2, arguments, NULL);
+	} else {
+		return JSValueMakeNull(ctx);
+	}
 }
 
 JSValueRef function_print_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
