@@ -15,14 +15,14 @@
 #include "jsc_utils.h"
 #include "str.h"
 
-bool engine_ready = false;
+bool cljs_engine_ready = false;
 pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t engine_init_cond = PTHREAD_COND_INITIALIZER;
 pthread_t engine_init_thread;
 
 void block_until_engine_ready() {
 	pthread_mutex_lock(&engine_init_lock);
-	while (!engine_ready) {
+	while (!cljs_engine_ready) {
 		pthread_cond_wait(&engine_init_cond, &engine_init_lock);
 	}
 	pthread_mutex_unlock(&engine_init_lock);
@@ -30,7 +30,7 @@ void block_until_engine_ready() {
 
 void signal_engine_ready() {
 	pthread_mutex_lock(&engine_init_lock);
-	engine_ready = true;
+	cljs_engine_ready = true;
 	pthread_cond_signal(&engine_init_cond);
 	pthread_mutex_unlock(&engine_init_lock);
 }
@@ -399,4 +399,74 @@ void cljs_engine_init(JSContextRef ctx) {
 		exit(1);
 	}
 	pthread_attr_destroy(&attr);
+}
+
+void (*cljs_sender)(const char* msg) = NULL;
+
+JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+		size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1 && JSValueIsString(ctx, args[0])) {
+		char *str = value_to_c_string(ctx, args[0]);
+
+		cljs_sender(str);
+
+		free(str);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+void cljs_set_print_sender(JSContextRef ctx, void (*sender)(const char* msg)) {
+	if (sender) {
+		cljs_sender = sender;
+		register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn_sender);
+		register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_fn_sender);
+	} else {
+		register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
+		register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
+	}
+}
+
+bool cljs_print_newline(JSContextRef ctx) {
+	return JSValueToBoolean(ctx, evaluate_script(ctx, "cljs.core._STAR_print_newline_STAR_", "<cljs.c:cljs_print_newline>"));
+}
+
+char *cljs_is_readable(JSContextRef ctx, char *expression) {
+	block_until_engine_ready();
+
+	int num_arguments = 2;
+	JSValueRef arguments[num_arguments];
+	arguments[0] = c_string_to_value(ctx, expression);
+	arguments[1] = c_string_to_value(ctx, config.theme);
+	JSValueRef result = JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "is-readable?"), JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+	return value_to_c_string(ctx, result);
+}
+
+bool cljs_indent_space_count(JSContextRef ctx, char *text) {
+	block_until_engine_ready();
+
+	int num_arguments = 1;
+	JSValueRef arguments[num_arguments];
+	arguments[0] = c_string_to_value(ctx, text);
+	JSValueRef result = JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "indent-space-count"), JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+    return JSValueToNumber(ctx, result, NULL);
+}
+
+void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, char *buf, int num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos) {
+	block_until_engine_ready();
+
+	int num_arguments = 3;
+	JSValueRef arguments[num_arguments];
+    arguments[0] = JSValueMakeNumber(ctx, pos);
+    arguments[1] = c_string_to_value(ctx, buf);
+	JSValueRef prev_lines[num_previous_lines];
+	for (int i = 0; i < num_previous_lines; i++) {
+		prev_lines[i] = c_string_to_value(ctx, previous_lines[i]);
+	}
+	arguments[2] = JSObjectMakeArray(ctx, num_previous_lines, prev_lines, NULL);
+	JSValueRef result = JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "get-highlight-coords"), JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+
+	JSObjectRef array = JSValueToObject(ctx, result, NULL);
+	*num_lines_up = (int)JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 0, NULL), NULL);
+	*highlight_pos = (int)JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 1, NULL), NULL);
 }

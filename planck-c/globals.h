@@ -44,3 +44,4 @@ extern struct config config;
 // Mutable variables
 
 extern int exit_value;
+extern bool return_termsize;

@@ -101,7 +101,8 @@ void banner() {
 }
 
 struct config config;
-int exit_value;
+int exit_value = 0;
+bool return_termsize = false;
 JSContextRef global_ctx = NULL;
 
 int main(int argc, char **argv) {
