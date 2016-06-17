@@ -265,8 +265,6 @@ planck.repl/doc
 ([sym])
 Macro
   Prints documentation for a var or special form given its name
-Spec
- args: (cat :sym symbol?)
 nil
 -------------------------
 cljs.core/fn
