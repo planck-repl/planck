@@ -71,11 +71,8 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 	JSValueRef ns_val = NULL;
 
 	// printf("get_value: '%s'\n", namespace);
-	int len = strlen(namespace) + 1;
-	char *ns_tmp = malloc(len * sizeof(char));
-	strncpy(ns_tmp, namespace, len);
+	char *ns_tmp = strdup(namespace);
 	char *ns_part = strtok(ns_tmp, ".");
-	ns_tmp = NULL;
 	while (ns_part != NULL) {
 		char *munged_ns_part = munge(ns_part);
 		if (ns_val) {
@@ -87,7 +84,7 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
 		ns_part = strtok(NULL, ".");
 	}
-	//free(ns_tmp);
+	free(ns_tmp);
 
 	char *munged_name = munge(name);
 	JSValueRef val = get_value_on_object(ctx, JSValueToObject(ctx, ns_val, NULL), munged_name);
