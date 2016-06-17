@@ -385,6 +385,8 @@ void *cljs_do_engine_init(void *data) {
 void cljs_engine_init(JSContextRef ctx) {
 	sigset_t set;
 	sigemptyset(&set);
+	// FIXME: Figure out where SIGUSR2 comes from
+	//   (Without blocking SIGUSR2 things mysteriously don't work)
 	sigaddset(&set, SIGUSR2);
 	pthread_sigmask(SIG_BLOCK, &set, NULL);
 
