@@ -4,11 +4,11 @@ VERSION = $(shell git describe --tags)
 
 CC = clang
 
-CFLAGS = -Wall -DDEBUG -pthread
+CFLAGS = -Wall -DDEBUG
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	DEPS = javascriptcoregtk-3.0 libzip libcurl
-	CFLAGS += $(shell pkg-config --cflags $(DEPS))
+	CFLAGS += -pthread $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS = $(shell pkg-config --libs $(DEPS))
 endif
 ifeq ($(UNAME_S),Darwin)
