@@ -320,7 +320,7 @@ void highlight(const char *buf, int pos) {
 			hl_restore.num_lines_up = num_lines_up;
 			hl_restore.relative_horiz = relative_horiz;
 
-			int timeout = 250 * 1000 * 1000;
+			int timeout = 500 * 1000 * 1000;
 			pthread_attr_t attr;
 			pthread_attr_init(&attr);
 			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
