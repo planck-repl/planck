@@ -264,7 +264,11 @@ void *do_highlight_restore(void *data) {
 		struct timespec t;
 		t.tv_sec = 0;
 		t.tv_nsec = *timeout;
+#ifdef CLOCK_REALTIME
 		clock_nanosleep(CLOCK_REALTIME, 0, &t, NULL);
+#else
+		nanosleep(&t, NULL);
+#endif
 	}
 
 	if (hl_restore.num_lines_up != 0) {
