@@ -167,7 +167,7 @@ bool process_line(JSContextRef ctx, char *input_line) {
 			}
 		} else {
 			// Prepare for reading non-1st of input with secondary prompt
-			if (history_path == NULL) {
+			if (history_path != NULL) {
 				indent_space_count = cljs_indent_space_count(ctx, input);
 			}
 

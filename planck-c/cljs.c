@@ -442,7 +442,7 @@ char *cljs_is_readable(JSContextRef ctx, char *expression) {
 	return value_to_c_string(ctx, result);
 }
 
-bool cljs_indent_space_count(JSContextRef ctx, char *text) {
+int cljs_indent_space_count(JSContextRef ctx, char *text) {
 	block_until_engine_ready();
 
 	int num_arguments = 1;
