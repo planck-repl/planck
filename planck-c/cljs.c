@@ -1,14 +1,39 @@
 #include <assert.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
 #include "bundle.h"
+#include "functions.h"
+#include "globals.h"
+#include "http.h"
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
+
+bool engine_ready = false;
+pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t engine_init_cond = PTHREAD_COND_INITIALIZER;
+pthread_t engine_init_thread;
+
+void block_until_engine_ready() {
+	pthread_mutex_lock(&engine_init_lock);
+	while (!engine_ready) {
+		pthread_cond_wait(&engine_init_cond, &engine_init_lock);
+	}
+	pthread_mutex_unlock(&engine_init_lock);
+}
+
+void signal_engine_ready() {
+	pthread_mutex_lock(&engine_init_lock);
+	engine_ready = true;
+	pthread_cond_signal(&engine_init_cond);
+	pthread_mutex_unlock(&engine_init_lock);
+}
 
 char *munge(char *s) {
 	int len = strlen(s);
@@ -71,11 +96,8 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 	JSValueRef ns_val = NULL;
 
 	// printf("get_value: '%s'\n", namespace);
-	int len = strlen(namespace) + 1;
-	char *ns_tmp = malloc(len * sizeof(char));
-	strncpy(ns_tmp, namespace, len);
+	char *ns_tmp = strdup(namespace);
 	char *ns_part = strtok(ns_tmp, ".");
-	ns_tmp = NULL;
 	while (ns_part != NULL) {
 		char *munged_ns_part = munge(ns_part);
 		if (ns_val) {
@@ -87,7 +109,7 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
 		ns_part = strtok(NULL, ".");
 	}
-	//free(ns_tmp);
+	free(ns_tmp);
 
 	char *munged_name = munge(name);
 	JSValueRef val = get_value_on_object(ctx, JSValueToObject(ctx, ns_val, NULL), munged_name);
@@ -101,7 +123,11 @@ JSObjectRef get_function(JSContextRef ctx, char *namespace, char *name) {
 	return JSValueToObject(ctx, val, NULL);
 }
 
-JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme) {
+JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme, bool block_until_ready) {
+	if (block_until_ready) {
+		block_until_engine_ready();
+	}
+
 	JSValueRef args[6];
 	int num_args = 6;
 
@@ -200,6 +226,8 @@ void bootstrap(JSContextRef ctx, char *out_path) {
 }
 
 void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
+	block_until_engine_ready();
+
 	int num_arguments = argc + 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, ns);
@@ -213,6 +241,8 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 }
 
 char *get_current_ns(JSContextRef ctx) {
+	block_until_engine_ready();
+
 	int num_arguments = 0;
 	JSValueRef arguments[num_arguments];
 	JSObjectRef get_current_ns_fn = get_function(ctx, "planck.repl", "get-current-ns");
@@ -221,6 +251,8 @@ char *get_current_ns(JSContextRef ctx) {
 }
 
 char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions) {
+	block_until_engine_ready();
+
 	int num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, (char *)buffer);
@@ -244,4 +276,127 @@ char **get_completions(JSContextRef ctx, const char *buffer, int *num_completion
 
 	*num_completions = n;
 	return completions;
+}
+
+void register_global_function(JSContextRef ctx, char *name, JSObjectCallAsFunctionCallback handler) {
+	JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
+
+	JSStringRef fn_name = JSStringCreateWithUTF8CString(name);
+	JSObjectRef fn_obj = JSObjectMakeFunctionWithCallback(ctx, fn_name, handler);
+
+	JSObjectSetProperty(ctx, global_obj, fn_name, fn_obj, kJSPropertyAttributeNone, NULL);
+}
+
+void *cljs_do_engine_init(void *data) {
+	JSGlobalContextRef ctx = data;
+
+	JSStringRef nameRef = JSStringCreateWithUTF8CString("planck");
+	JSGlobalContextSetName(ctx, nameRef);
+
+	evaluate_script(ctx, "var global = this;", "<init>");
+
+	register_global_function(ctx, "AMBLY_IMPORT_SCRIPT", function_import_script);
+	bootstrap(ctx, config.out_path);
+
+	register_global_function(ctx, "PLANCK_CONSOLE_LOG", function_console_log);
+	register_global_function(ctx, "PLANCK_CONSOLE_ERROR", function_console_error);
+
+	evaluate_script(ctx, "var console = {};"\
+			"console.log = PLANCK_CONSOLE_LOG;"\
+			"console.error = PLANCK_CONSOLE_ERROR;", "<init>");
+
+	// require app namespaces
+	evaluate_script(ctx, "goog.require('planck.repl');", "<init>");
+
+	// without this things won't work
+	evaluate_script(ctx, "var window = global;", "<init>");
+
+	register_global_function(ctx, "PLANCK_READ_FILE", function_read_file);
+	register_global_function(ctx, "PLANCK_LOAD", function_load);
+	register_global_function(ctx, "PLANCK_LOAD_DEPS_CLJS_FILES", function_load_deps_cljs_files);
+	register_global_function(ctx, "PLANCK_CACHE", function_cache);
+
+	register_global_function(ctx, "PLANCK_EVAL", function_eval);
+
+	register_global_function(ctx, "PLANCK_GET_TERM_SIZE", function_get_term_size);
+	register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
+	register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
+
+	register_global_function(ctx, "PLANCK_SET_EXIT_VALUE", function_set_exit_value);
+
+	register_global_function(ctx, "PLANCK_RAW_READ_STDIN", function_raw_read_stdin);
+	register_global_function(ctx, "PLANCK_RAW_WRITE_STDOUT", function_raw_write_stdout);
+	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDOUT", function_raw_flush_stdout);
+	register_global_function(ctx, "PLANCK_RAW_WRITE_STDERR", function_raw_write_stderr);
+	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDERR", function_raw_flush_stderr);
+
+	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
+
+	{
+		JSValueRef arguments[config.num_rest_args];
+		for (int i = 0; i < config.num_rest_args; i++) {
+			arguments[i] = c_string_to_value(ctx, config.rest_args[i]);
+		}
+		JSValueRef args_ref = JSObjectMakeArray(ctx, config.num_rest_args, arguments, NULL);
+
+		JSValueRef global_obj = JSContextGetGlobalObject(ctx);
+		JSStringRef prop = JSStringCreateWithUTF8CString("PLANCK_INITIAL_COMMAND_LINE_ARGS");
+		JSObjectSetProperty(ctx, JSValueToObject(ctx, global_obj, NULL), prop, args_ref, kJSPropertyAttributeNone, NULL);
+		JSStringRelease(prop);
+	}
+
+	evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
+	evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
+
+	char *elide_script = str_concat("cljs.core._STAR_assert_STAR_ = ", config.elide_asserts ? "false" : "true");
+	evaluate_script(ctx, elide_script, "<init>");
+	free(elide_script);
+
+	{
+		JSValueRef arguments[4];
+		arguments[0] = JSValueMakeBoolean(ctx, config.repl);
+		arguments[1] = JSValueMakeBoolean(ctx, config.verbose);
+		JSValueRef cache_path_ref = NULL;
+		if (config.cache_path != NULL) {
+			JSStringRef cache_path_str = JSStringCreateWithUTF8CString(config.cache_path);
+			cache_path_ref = JSValueMakeString(ctx, cache_path_str);
+		}
+		arguments[2] = cache_path_ref;
+		arguments[3] = JSValueMakeBoolean(ctx, config.static_fns);
+		JSValueRef ex = NULL;
+		JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "init"), JSContextGetGlobalObject(ctx), 4, arguments, &ex);
+		debug_print_value("planck.repl/init", ctx, ex);
+	}
+
+	if (config.repl) {
+		evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])", true, false, "cljs.user", "dumb", false);
+	}
+
+	evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
+	evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
+
+	evaluate_script(ctx, "cljs.core._STAR_assert_STAR_ = true;", "<init>");
+
+	signal_engine_ready();
+
+	return NULL;
+}
+
+void cljs_engine_init(JSContextRef ctx) {
+	sigset_t set;
+	sigemptyset(&set);
+	// FIXME: Figure out where SIGUSR2 comes from
+	//   (Without blocking SIGUSR2 things mysteriously don't work)
+	sigaddset(&set, SIGUSR2);
+	pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	int ret = pthread_create(&engine_init_thread, &attr, cljs_do_engine_init, (void*)ctx);
+	if (ret != 0) {
+		perror("pthread_create");
+		exit(1);
+	}
+	pthread_attr_destroy(&attr);
 }

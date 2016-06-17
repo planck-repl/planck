@@ -4,7 +4,7 @@ VERSION = $(shell git describe --tags)
 
 CC = clang
 
-CFLAGS = -Wall -DDEBUG
+CFLAGS = -Wall -DDEBUG -pthread
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	DEPS = javascriptcoregtk-3.0 libzip libcurl
