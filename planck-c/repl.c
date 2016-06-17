@@ -31,6 +31,15 @@ char **previous_lines = NULL;
 
 int socket_repl_session_id = 0;
 
+void empty_previous_lines() {
+	for (int i = 0; i < num_previous_lines; i++) {
+		free(previous_lines[i]);
+	}
+	free(previous_lines);
+	num_previous_lines = 0;
+	previous_lines = NULL;
+}
+
 char *form_prompt(char *current_ns, bool is_secondary) {
 	char *prompt = NULL;
 	if (!is_secondary) {
@@ -146,12 +155,7 @@ bool process_line(JSContextRef ctx, char *input_line) {
 			free(input);
 			input = balance_text;
 
-			for (int i = 0; i < num_previous_lines; i++) {
-				free(previous_lines[i]);
-			}
-			free(previous_lines);
-			num_previous_lines = 0;
-			previous_lines = NULL;
+			empty_previous_lines();
 
 			// Fetch the current namespace and use it to set the prompt
 			free(current_ns);
@@ -216,7 +220,7 @@ void run_cmdline_loop(JSContextRef ctx) {
 				if (errno == EAGAIN) { // Ctrl-C
 					errno = 0;
 					input = NULL;
-					// empty_previous_lines
+					empty_previous_lines();
 					current_prompt = form_prompt(current_ns, false);
 					printf("\n");
 					continue;
