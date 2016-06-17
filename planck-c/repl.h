@@ -1,0 +1,1 @@
+int run_repl(JSContextRef ctx);

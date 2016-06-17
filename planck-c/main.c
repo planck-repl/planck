@@ -20,6 +20,7 @@
 #include "io.h"
 #include "jsc_utils.h"
 #include "legal.h"
+#include "repl.h"
 #include "str.h"
 #include "zip.h"
 
@@ -305,57 +306,8 @@ int main(int argc, char **argv) {
 			banner();
 		}
 
-		char *home = getenv("HOME");
-		char *history_path = NULL;
-		if (home != NULL) {
-			char history_name[] = ".planck_history";
-			int len = strlen(home) + strlen(history_name) + 2;
-			history_path = malloc(len * sizeof(char));
-			snprintf(history_path, len, "%s/%s", home, history_name);
-
-			linenoiseHistoryLoad(history_path);
-		}
-
-		if (!config.javascript) {
-			linenoiseSetCompletionCallback(completion);
-		}
-
-		char *prompt = config.javascript ? " > " : "cljs.user=> ";
-		char *current_ns = strdup("cljs.user");
-		if (!config.javascript) {
-			prompt = str_concat(current_ns, "=> ");
-		}
-
-		char *line;
-		while ((line = linenoise(prompt, "\x1b[36m", 0)) != NULL) {
-			if (config.javascript) {
-				JSValueRef res = evaluate_script(ctx, line, "<stdin>");
-				print_value("", ctx, res);
-			} else {
-				evaluate_source(ctx, "text", line, true, true, current_ns, config.theme, true);
-				char *new_ns = get_current_ns(ctx);
-				free(current_ns);
-				free(prompt);
-				current_ns = new_ns;
-				prompt = str_concat(current_ns, "=> ");
-			}
-			linenoiseHistoryAdd(line);
-			if (history_path != NULL) {
-				linenoiseHistorySave(history_path);
-			}
-			free(line);
-		}
+		run_repl(ctx);
 	}
 
 	return exit_value;
-}
-
-void completion(const char *buf, linenoiseCompletions *lc) {
-	int num_completions = 0;
-	char **completions = get_completions(global_ctx, buf, &num_completions);
-	for (int i = 0; i < num_completions; i++) {
-		linenoiseAddCompletion(lc, completions[i]);
-		free(completions[i]);
-	}
-	free(completions);
 }
