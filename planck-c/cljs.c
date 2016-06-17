@@ -305,6 +305,8 @@ void *cljs_do_engine_init(void *data) {
 			"console.log = PLANCK_CONSOLE_LOG;"\
 			"console.error = PLANCK_CONSOLE_ERROR;", "<init>");
 
+	evaluate_script(ctx, "var PLANCK_VERSION = \"" PLANCK_VERSION "\";", "<init>");
+
 	// require app namespaces
 	evaluate_script(ctx, "goog.require('planck.repl');", "<init>");
 
