@@ -41,7 +41,7 @@ void usage(char *program_name) {
 	printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
 	printf("    -q, --quiet              Quiet mode\n");
 	printf("    -v, --verbose            Emit verbose diagnostic output\n");
-	// printf("    -d, --dumb-terminal      Disable line editing / VT100 terminal control\n");
+	printf("    -d, --dumb-terminal      Disable line editing / VT100 terminal control\n");
 	printf("    -t theme, --theme=theme  Set the color theme\n");
 	// printf("    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port\n");
 	printf("    -s, --static-fns         Generate static dispatch function calls\n");
@@ -113,6 +113,7 @@ int main(int argc, char **argv) {
 	config.elide_asserts = false;
 	config.cache_path = NULL;
 	config.theme = "light";
+	config.dumb_terminal = false;
 
 	config.out_path = NULL;
 	config.num_src_paths = 0;
@@ -133,6 +134,7 @@ int main(int argc, char **argv) {
 		{"cache", required_argument, NULL, 'k'},
 		{"eval", required_argument, NULL, 'e'},
 		{"theme", required_argument, NULL, 't'},
+		{"dumb-terminal", no_argument, NULL, 'd'},
 		{"classpath", required_argument, NULL, 'c'},
 		{"auto-cache", no_argument, NULL, 'K'},
 		{"init", required_argument, NULL, 'i'},
@@ -145,7 +147,7 @@ int main(int argc, char **argv) {
 		{0, 0, 0, 0}
 	};
 	int opt, option_index;
-	while ((opt = getopt_long(argc, argv, "h?lvrsak:je:t:c:o:Ki:qm:", long_options, &option_index)) != -1) {
+	while ((opt = getopt_long(argc, argv, "h?lvrsak:je:t:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
 		switch (opt) {
 		case 'h':
 			usage(argv[0]);
@@ -205,6 +207,9 @@ int main(int argc, char **argv) {
 		case 't':
 			config.theme = argv[optind - 1];
 			break;
+		case 'd':
+			config.dumb_terminal = true;
+			break;
 		case 'c':
 			{
 				char *classpath = argv[optind - 1];
@@ -234,6 +239,10 @@ int main(int argc, char **argv) {
 		default:
 			printf("unhandled argument: %c\n", opt);
 		}
+	}
+
+	if (config.dumb_terminal) {
+		config.theme = "dumb";
 	}
 
 	config.num_rest_args = 0;
