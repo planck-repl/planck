@@ -25,16 +25,16 @@
             [planck.pprint.code]
             [planck.pprint.data]))
 
-(s/fdef planck.repl$macros/dir
+#_(s/fdef planck.repl$macros/dir
   :args (s/cat :sym symbol?))
 
-(s/fdef planck.repl$macros/doc
+#_(s/fdef planck.repl$macros/doc
   :args (s/cat :sym symbol?))
 
-(s/fdef planck.repl$macros/find-doc
+#_(s/fdef planck.repl$macros/find-doc
   :args (s/cat :re-string-or-pattern (s/or :string string? :regexp regexp?)))
 
-(s/fdef planck.repl$macros/source
+#_(s/fdef planck.repl$macros/source
   :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
@@ -1236,7 +1236,7 @@
             (println " " doc))))
       (when n
         (let [spec-lookup (fn [ns-suffix]
-                            (s/fn-spec (symbol (str (ns-name n) ns-suffix) (name nm))))]
+                            (s/get-spec (symbol (str (ns-name n) ns-suffix) (name nm))))]
           (when-let [fnspec (or (spec-lookup "")
                                 (spec-lookup "$macros"))]
             (print "Spec")

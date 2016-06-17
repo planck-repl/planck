@@ -11,7 +11,7 @@
          #(even? (count %))
          (s/* ::binding)))
 
-(s/fdef planck.core$macros/with-open
+#_(s/fdef planck.core$macros/with-open
   :args (s/cat :bindings ::bindings :body (s/* ::s/any)))
 
 (def *planck-version* js/PLANCK_VERSION)
