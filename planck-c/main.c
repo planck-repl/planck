@@ -108,6 +108,7 @@ int main(int argc, char **argv) {
 	config.verbose = false;
 	config.quiet = false;
 	config.repl = false;
+	config.javascript = false;
 	config.static_fns = false;
 	config.elide_asserts = false;
 	config.cache_path = NULL;
@@ -200,6 +201,7 @@ int main(int argc, char **argv) {
 			break;
 		case 'm':
 			config.main_ns_name = argv[optind - 1];
+			break;
 		case 't':
 			config.theme = argv[optind - 1];
 			break;
@@ -250,7 +252,8 @@ int main(int argc, char **argv) {
 	}
 
 	if (config.main_ns_name != NULL && config.repl) {
-		printf("Only one main-opt can be specified.");
+		printf("Only one main-opt can be specified.\n");
+		exit(1);
 	}
 
 	config.is_tty = isatty(STDIN_FILENO) == 1;
