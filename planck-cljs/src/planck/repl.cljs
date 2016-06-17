@@ -1236,14 +1236,13 @@
             (println " " doc))))
       (when n
         (let [spec-lookup (fn [ns-suffix]
-                            (s/fn-specs (symbol (str (ns-name n) ns-suffix) (name nm))))
-              specs       (concat (spec-lookup "") (spec-lookup "$macros"))]
-          (when (some identity (vals specs))
+                            (s/fn-spec (symbol (str (ns-name n) ns-suffix) (name nm))))]
+          (when-let [fnspec (or (spec-lookup "")
+                                (spec-lookup "$macros"))]
             (print "Spec")
-            (run! (fn [[role spec]]
-                    (when (and spec (not (= spec ::s/unknown)))
-                      (print (str "\n " (name role) ":") (format-spec spec (+ 3 (count (name role))) n))))
-              specs)
+            (doseq [role [:args :ret :fn]]
+              (when-let [spec (get fnspec role)]
+                (print (str "\n " (name role) ":") (format-spec spec (+ 3 (count (name role))) n))))
             (println)))))))
 
 (defn- doc*
