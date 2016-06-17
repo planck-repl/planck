@@ -4,6 +4,8 @@
 
 #include <JavaScriptCore/JavaScript.h>
 
+#include "jsc_utils.h"
+
 JSStringRef to_string(JSContextRef ctx, JSValueRef val) {
 	if (JSValueIsUndefined(ctx, val)) {
 		return JSStringCreateWithUTF8CString("undefined");
@@ -17,6 +19,15 @@ JSStringRef to_string(JSContextRef ctx, JSValueRef val) {
 		JSValueRef obj_val = JSObjectCallAsFunction(ctx, to_string_obj, obj, 0, NULL, NULL);
 
 		return JSValueToStringCopy(ctx, obj_val, NULL);
+	}
+}
+
+void print_value(char *prefix, JSContextRef ctx, JSValueRef val) {
+	if (val != NULL) {
+		JSStringRef str = to_string(ctx, val);
+		char *ex_str = value_to_c_string(ctx, JSValueMakeString(ctx, str));
+		printf("%s%s\n", prefix, ex_str);
+		free(ex_str);
 	}
 }
 
