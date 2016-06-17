@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < config.num_scripts; i++) {
 		// TODO: exit if not successfull
 		struct script script = config.scripts[i];
-		evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme);
+		evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme, true);
 	}
 
 	// Process main arguments
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
 			script.expression = false;
 		}
 
-		evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme);
+		evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme, true);
 	} else if (config.repl) {
 		if (!config.quiet) {
 			banner();
@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
 				JSValueRef res = evaluate_script(ctx, line, "<stdin>");
 				print_value("", ctx, res);
 			} else {
-				evaluate_source(ctx, "text", line, true, true, current_ns, config.theme);
+				evaluate_source(ctx, "text", line, true, true, current_ns, config.theme, true);
 				char *new_ns = get_current_ns(ctx);
 				free(current_ns);
 				free(prompt);

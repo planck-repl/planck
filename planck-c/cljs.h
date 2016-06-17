@@ -1,6 +1,6 @@
 #include <JavaScriptCore/JavaScript.h>
 
-JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source_value, bool expression, bool print_nil, char *set_ns, char *theme);
+JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source_value, bool expression, bool print_nil, char *set_ns, char *theme, bool block_until_ready);
 char *munge(char *s);
 
 void bootstrap(JSContextRef ctx, char *out_path);

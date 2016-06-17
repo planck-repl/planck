@@ -1,7 +1,9 @@
 #include <assert.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -12,6 +14,26 @@
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
+
+bool engine_ready = false;
+pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t engine_init_cond = PTHREAD_COND_INITIALIZER;
+pthread_t engine_init_thread;
+
+void block_until_engine_ready() {
+	pthread_mutex_lock(&engine_init_lock);
+	while (!engine_ready) {
+		pthread_cond_wait(&engine_init_cond, &engine_init_lock);
+	}
+	pthread_mutex_unlock(&engine_init_lock);
+}
+
+void signal_engine_ready() {
+	pthread_mutex_lock(&engine_init_lock);
+	engine_ready = true;
+	pthread_cond_signal(&engine_init_cond);
+	pthread_mutex_unlock(&engine_init_lock);
+}
 
 char *munge(char *s) {
 	int len = strlen(s);
@@ -101,7 +123,11 @@ JSObjectRef get_function(JSContextRef ctx, char *namespace, char *name) {
 	return JSValueToObject(ctx, val, NULL);
 }
 
-JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme) {
+JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme, bool block_until_ready) {
+	if (block_until_ready) {
+		block_until_engine_ready();
+	}
+
 	JSValueRef args[6];
 	int num_args = 6;
 
@@ -200,6 +226,8 @@ void bootstrap(JSContextRef ctx, char *out_path) {
 }
 
 void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
+	block_until_engine_ready();
+
 	int num_arguments = argc + 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, ns);
@@ -213,6 +241,8 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 }
 
 char *get_current_ns(JSContextRef ctx) {
+	block_until_engine_ready();
+
 	int num_arguments = 0;
 	JSValueRef arguments[num_arguments];
 	JSObjectRef get_current_ns_fn = get_function(ctx, "planck.repl", "get-current-ns");
@@ -221,6 +251,8 @@ char *get_current_ns(JSContextRef ctx) {
 }
 
 char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions) {
+	block_until_engine_ready();
+
 	int num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, (char *)buffer);
@@ -255,7 +287,9 @@ void register_global_function(JSContextRef ctx, char *name, JSObjectCallAsFuncti
 	JSObjectSetProperty(ctx, global_obj, fn_name, fn_obj, kJSPropertyAttributeNone, NULL);
 }
 
-void cljs_engine_init(JSContextRef ctx) {
+void *cljs_do_engine_init(void *data) {
+	JSGlobalContextRef ctx = data;
+
 	JSStringRef nameRef = JSStringCreateWithUTF8CString("planck");
 	JSGlobalContextSetName(ctx, nameRef);
 
@@ -335,11 +369,32 @@ void cljs_engine_init(JSContextRef ctx) {
 	}
 
 	if (config.repl) {
-		evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])", true, false, "cljs.user", "dumb");
+		evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])", true, false, "cljs.user", "dumb", false);
 	}
 
 	evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
 	evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
 
 	evaluate_script(ctx, "cljs.core._STAR_assert_STAR_ = true;", "<init>");
+
+	signal_engine_ready();
+
+	return NULL;
+}
+
+void cljs_engine_init(JSContextRef ctx) {
+	sigset_t set;
+	sigemptyset(&set);
+	sigaddset(&set, SIGUSR2);
+	pthread_sigmask(SIG_BLOCK, &set, NULL);
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	int ret = pthread_create(&engine_init_thread, &attr, cljs_do_engine_init, (void*)ctx);
+	if (ret != 0) {
+		perror("pthread_create");
+		exit(1);
+	}
+	pthread_attr_destroy(&attr);
 }
