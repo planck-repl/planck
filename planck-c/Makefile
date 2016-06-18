@@ -14,7 +14,7 @@ endif
 ifeq ($(UNAME_S),Darwin)
 	DEPS = libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
-	LIBFLAGS += -framework JavaScriptCore -lz $(shell pkg-config --libs $(DEPS))
+	LIBFLAGS += -framework JavaScriptCore $(shell pkg-config --libs $(DEPS))
 endif
 CFLAGS += $(EXTRA_CFLAGS)
 
