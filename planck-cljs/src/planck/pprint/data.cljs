@@ -1,7 +1,9 @@
-(ns planck.pprint
+(ns planck.pprint.data
   (:require [fipp.visit :refer [visit visit*]]
             [fipp.engine :refer (pprint-document)]
             [planck.themes]))
+
+;; Derived from fipp.edn
 
 (defn pretty-coll [{:keys [print-level print-length] :as printer}
                    open xs sep close f]
@@ -21,7 +23,7 @@
   [kw theme text]
   [:span [:pass (kw theme)] [:text text] [:pass (:reset-font theme)]])
 
-(defrecord PlanckPrinter [symbols print-meta print-length print-level theme]
+(defrecord PlanckPrinter [symbols print-meta print-length print-level theme keyword-ns]
 
   fipp.visit/IVisitor
 
@@ -45,7 +47,11 @@
     [:text (str x)])
 
   (visit-keyword [this x]
-    (wrap-theme :results-keyword-font theme (pr-str x)))
+    (wrap-theme :results-keyword-font theme
+      (if (and keyword-ns
+               (= (namespace x) (str keyword-ns)))
+        (str "::" (name x))
+        (pr-str x))))
 
   (visit-number [this x]
     (wrap-theme :results-font theme (pr-str x)))

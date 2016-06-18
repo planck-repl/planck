@@ -71,7 +71,13 @@
                                                              socketPort:socketPort];
     }
     
-    [self.clojureScriptEngine awaitShutdown];
+    [self.clojureScriptEngine awaitShutdown:exitValue == 0];
+    
+    // PLANK_EXIT_SUCCESS_TERMINATE_INTERNAL is for internal use only, so to the rest of the world
+    // it is a standard successful exit
+    if (exitValue == PLANK_EXIT_SUCCESS_TERMINATE_INTERNAL) {
+        exitValue = EXIT_SUCCESS;
+    }
     
     return exitValue;
 }
@@ -140,7 +146,6 @@
                                                  value:script.sourceValue
                                             expression:script.expression
                                     printNilExpression:NO
-                                         inExitContext:YES
                                                  setNs:nil
                                                  theme:theme
                                        blockUntilReady:YES

@@ -233,14 +233,12 @@ nil
 cljs.core/inc
 ([x])
   Returns a number one greater than num.
-Spec
 nil
 -------------------------
 cljs.core/when
 ([test & body])
 Macro
   Evaluates test. If logical true, evaluates body in an implicit do.
-Spec
 nil
 -------------------------
 if
@@ -267,7 +265,6 @@ planck.repl/doc
 ([sym])
 Macro
   Prints documentation for a var or special form given its name
-Spec
 nil
 -------------------------
 cljs.core/fn
@@ -280,7 +277,6 @@ Macro
   name => symbol
 
   Defines a function
-Spec
 nil
 -------------------------
 cljs.core/IWriter
@@ -294,14 +290,12 @@ Protocol
   -flush
   ([writer])
   Flush writer.
-Spec
 nil
 #'cljs.user/f
 -------------------------
 cljs.user/f
 ([param])
   docstring
-Spec
 nil
 nil
 -------------------------
@@ -309,14 +303,12 @@ test-doc-source.core/my-function
 ([x])
   This is a cool
   function with a docstring.
-Spec
 nil
 -------------------------
 test-doc-source.core/my-function
 ([x])
   This is a cool
   function with a docstring.
-Spec
 nil
 -------------------------
 test-doc-source.core
@@ -593,4 +585,14 @@ nil
 Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
-38
+49
+Test timers keep REPL going
+start
+end
+from timer
+Can exit with timer
+start
+nil
+nil
+end
+nil

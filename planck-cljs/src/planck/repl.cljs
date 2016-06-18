@@ -1,6 +1,7 @@
 (ns planck.repl
-  (:require-macros [cljs.env.macros :refer [with-compiler-env]])
-  (:require [clojure.string :as s]
+  (:require-macros [cljs.env.macros :refer [with-compiler-env]]
+                   [planck.repl :refer [with-err-str]])
+  (:require [clojure.string :as string]
             [goog.string :as gstring]
             [cljs.analyzer :as ana]
             [cljs.compiler :as comp]
@@ -11,6 +12,7 @@
             [cljs.env :as env]
             [cljs.js :as cljs]
             [cljs.repl :as repl]
+            [cljs.spec :as s]
             [cljs.stacktrace :as st]
             [cognitect.transit :as transit]
             [tailrecursion.cljson :refer [cljson->clj]]
@@ -20,7 +22,20 @@
             [cljsjs.parinfer]
             [planck.js-deps :as js-deps]
             [clojure.string :as string]
-            [planck.pprint]))
+            [planck.pprint.code]
+            [planck.pprint.data]))
+
+#_(s/fdef planck.repl$macros/dir
+  :args (s/cat :sym symbol?))
+
+#_(s/fdef planck.repl$macros/doc
+  :args (s/cat :sym symbol?))
+
+#_(s/fdef planck.repl$macros/find-doc
+  :args (s/cat :re-string-or-pattern (s/or :string string? :regexp regexp?)))
+
+#_(s/fdef planck.repl$macros/source
+  :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
        :doc     "*pprint-results* controls whether Planck REPL results are
@@ -33,7 +48,7 @@
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
 
 (defn- calc-x-line [text pos line]
-  (let [x (s/index-of text "\n")]
+  (let [x (string/index-of text "\n")]
     (if (or (nil? x)
             (< pos (inc x)))
       {:cursorX    pos
@@ -88,13 +103,19 @@
 
 (defn- drop-macros-suffix
   [ns-name]
-  (if (s/ends-with? ns-name "$macros")
+  (if (string/ends-with? ns-name "$macros")
     (apply str (drop-last 7 ns-name))
     ns-name))
 
 (defn- add-macros-suffix
   [sym]
   (symbol (str (name sym) "$macros")))
+
+(defn- eliminate-macros-suffix
+  [x]
+  (if (symbol? x)
+    (symbol (drop-macros-suffix (namespace x)) (name x))
+    x))
 
 (defn- get-namespace
   "Gets the AST for a given namespace."
@@ -188,6 +209,7 @@
 (defn- ^:export init
   [repl verbose cache-path static-fns]
   (load-core-analysis-caches repl)
+  (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec)
   (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec.test)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
@@ -382,11 +404,11 @@
             (when is-self-require?
               (reset! current-ns restore-ns))
             (when e
-              (handle-error e false false)
+              (handle-error e false)
               (reset! st current-st))
             (cb))))
       (catch :default e
-        (handle-error e true false)
+        (handle-error e true)
         (reset! st current-st)))))
 
 (defn- resolve-var
@@ -521,7 +543,7 @@
   position in that line."
   [pos buffer previous-lines]
   (let [previous-lines  (js->clj previous-lines)
-        previous-source (s/join "\n" previous-lines)
+        previous-source (string/join "\n" previous-lines)
         total-source    (if (empty? previous-lines)
                           buffer
                           (str previous-source "\n" buffer))
@@ -571,7 +593,7 @@
 
 (defn- is-macros?
   [cache]
-  (s/ends-with? (str (:name cache)) "$macros"))
+  (string/ends-with? (str (:name cache)) "$macros"))
 
 (defn- form-build-affecting-options
   []
@@ -648,7 +670,7 @@
 
 (defn- add-suffix
   [file suffix]
-  (let [candidate (s/replace file #".clj[sc]?$" suffix)]
+  (let [candidate (string/replace file #".clj[sc]?$" suffix)]
     (if (gstring/endsWith candidate suffix)
       candidate
       (str file suffix))))
@@ -686,7 +708,7 @@
 
 (defn- strip-first-line
   [source]
-  (subs source (inc (s/index-of source "\n"))))
+  (subs source (inc (string/index-of source "\n"))))
 
 (defn- cached-callback-data
   [name path macros cache-prefix source source-modified raw-load]
@@ -749,12 +771,14 @@
     (or
       (= name 'cljsjs.parinfer)
       (= name 'cljs.core)
+      (and (= name 'clojure.core.rrb-vector.macros) macros)
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
       (and (= name 'cljs.repl) macros)
       (and (= name 'cljs.js) macros)
       (and (= name 'cljs.pprint) macros)
+      (and (= name 'cljs.tools.reader.reader-types) macros)
       (and (= name 'tailrecursion.cljson) macros)
       (and (= name 'lazy-map.core) macros)))
 
@@ -836,12 +860,12 @@
 (declare skip-cljsjs-eval-error)
 
 (defn- handle-error
-  [e include-stacktrace? in-exit-context?]
+  [e include-stacktrace?]
   (let [cause                     (or (.-cause e) e)
         is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
     (when-not is-planck-exit-exception?
       (print-error e include-stacktrace?))
-    (if (and in-exit-context? (not is-planck-exit-exception?))
+    (if (and (not is-planck-exit-exception?) (not (:repl @app-env)))
       (js/PLANCK_SET_EXIT_VALUE 1)
       (set! *e (skip-cljsjs-eval-error e)))))
 
@@ -863,7 +887,7 @@
               (try
                 (apply value args)
                 (catch :default e
-                  (handle-error e true true))))))
+                  (handle-error e true))))))
         `[(quote ~(symbol main-ns))]))
     nil))
 
@@ -903,7 +927,7 @@
   [ns]
   {:pre [(symbol? ns)]}
   (let [ns-str        (str ns)
-        munged-ns-str (s/replace ns-str #"\." "$")]
+        munged-ns-str (string/replace ns-str #"\." "$")]
     (into {} (for [sym (ns-syms ns)]
                [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
 
@@ -936,7 +960,7 @@
 
 (defn- gensym?
   [sym]
-  (s/starts-with? (name sym) "G__"))
+  (string/starts-with? (name sym) "G__"))
 
 (defn- demunge-sym
   [munged-sym]
@@ -959,6 +983,10 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
+(defn- form-indicator
+  [column current-ns]
+  (str (apply str (take (+ 2 (count (name current-ns)) column) (repeat " "))) "⬆"))
+
 (defn- get-error-column-indicator
   [error current-ns]
   (when (and (instance? ExceptionInfo error)
@@ -966,7 +994,7 @@
     (when-let [cause (ex-cause error)]
       (when (is-reader-or-analysis? cause)
         (when-let [column (:column (ex-data cause))]
-          (str (apply str (take (+ 3 (count (name current-ns)) column) (repeat " "))) "⬆"))))))
+          (form-indicator column current-ns))))))
 
 (defn- print-error-column-indicator
   [error]
@@ -993,7 +1021,7 @@
          message             (if (instance? ExceptionInfo error)
                                (ex-message error)
                                (.-message error))]
-     (when (or (not ((fnil s/starts-with? "") printed-message message))
+     (when (or (not ((fnil string/starts-with? "") printed-message message))
              include-stacktrace?)
        (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
      (when include-stacktrace?
@@ -1026,7 +1054,7 @@
 (defn- all-macros-ns
   []
   (->> (all-ns)
-    (filter #(s/ends-with? (str %) "$macros"))))
+    (filter #(string/ends-with? (str %) "$macros"))))
 
 (defn- get-var
   [env sym]
@@ -1041,8 +1069,8 @@
 (defn- get-file-source
   [filepath]
   (if (symbol? filepath)
-    (let [without-extension (s/replace
-                              (s/replace (name filepath) #"\." "/")
+    (let [without-extension (string/replace
+                              (string/replace (name filepath) #"\." "/")
                               #"-" "_")]
       (or
         (first (js/PLANCK_LOAD (str without-extension ".clj")))
@@ -1050,9 +1078,9 @@
         (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
     (let [file-source (first (js/PLANCK_LOAD filepath))]
       (or file-source
-          (first (js/PLANCK_LOAD (s/replace filepath #"^out/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^src/" "")))
-        (first (js/PLANCK_LOAD (s/replace filepath #"^/.*/planck-cljs/src/" "")))))))
+          (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
+        (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
+        (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" "")))))))
 
 (defn- fetch-source
   [var]
@@ -1101,7 +1129,7 @@
 (declare execute-source)
 
 (defn- process-execute-path
-  [file {:keys [in-exit-context?] :as opts}]
+  [file opts]
   (binding [theme (assoc theme :err-font (:verbose-font theme))]
     (load {:file file}
       (fn [{:keys [lang source source-url cache]}]
@@ -1111,13 +1139,13 @@
             :js (process-macros-deps cache
                   (fn [res]
                     (if-let [error (:error res)]
-                      (handle-error (js/Error. error) false in-exit-context?)
+                      (handle-error (js/Error. error) false)
                       (process-libs-deps cache
                         (fn [res]
                           (if-let [error (:error res)]
-                            (handle-error (js/Error. error) false in-exit-context?)
+                            (handle-error (js/Error. error) false)
                             (js-eval source source-url))))))))
-          (handle-error (js/Error. (str "Could not load file " file)) false in-exit-context?))))))
+          (handle-error (js/Error. (str "Could not load file " file)) false))))))
 
 (defn- dir*
   [nsname]
@@ -1130,7 +1158,7 @@
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
-                   #(s/includes? (str %) (str str-or-pattern)))]
+                   #(string/includes? (str %) (str str-or-pattern)))]
     (sort (mapcat (fn [ns]
                     (let [ns-name (drop-macros-suffix (str ns))]
                       (map #(symbol ns-name (str %))
@@ -1148,8 +1176,74 @@
   ;; after newlines with two.
   (when-not (nil? s)
     (if (re-find #"[^\n]*\n\n?      ?\S.*" s)
-      (s/replace-all s #"\n      ?" "\n  ")
+      (string/replace-all s #"\n      ?" "\n  ")
       s)))
+
+(defn- str-butlast
+  [s]
+  (subs s 0 (dec (count s))))
+
+(declare print-result)
+
+(defn- format-spec
+  [spec left-margin ns]
+  (let [raw-print (binding [theme (get-theme :plain)]
+                    (with-out-str (print-result (s/describe spec)
+                                    {::keyword-ns     ns
+                                     ::spec?          true
+                                     ::as-code?       true
+                                     ::term-width-adj (- left-margin)})))]
+    (string/replace (str-butlast raw-print) #"\n"
+      (apply str \newline (repeat left-margin " ")))))
+
+(defn- print-doc [{n :ns nm :name :as m}]
+  (println "-------------------------")
+  (println (str (when-let [ns (:ns m)] (str ns "/")) (:name m)))
+  (when (:protocol m)
+    (println "Protocol"))
+  (cond
+    (:forms m) (doseq [f (:forms m)]
+                 (println "  " f))
+    (:arglists m) (let [arglists (:arglists m)]
+                    (if (or (:macro m)
+                            (:repl-special-function m))
+                      (prn arglists)
+                      (prn
+                        (if (= 'quote (first arglists))
+                          (second arglists)
+                          arglists)))))
+  (if (:special-form m)
+    (do
+      (println "Special Form")
+      (println " " (:doc m))
+      (if (contains? m :url)
+        (when (:url m)
+          (println (str "\n  Please see http://clojure.org/" (:url m))))
+        (println (str "\n  Please see http://clojure.org/special_forms#"
+                   (:name m)))))
+    (do
+      (when (:macro m)
+        (println "Macro"))
+      (when (:repl-special-function m)
+        (println "REPL Special Function"))
+      (println " " (:doc m))
+      (when (:protocol m)
+        (doseq [[name {:keys [doc arglists]}] (:methods m)]
+          (println)
+          (println " " name)
+          (println " " arglists)
+          (when doc
+            (println " " doc))))
+      (when n
+        (let [spec-lookup (fn [ns-suffix]
+                            (s/get-spec (symbol (str (ns-name n) ns-suffix) (name nm))))]
+          (when-let [fnspec (or (spec-lookup "")
+                                (spec-lookup "$macros"))]
+            (print "Spec")
+            (doseq [role [:args :ret :fn]]
+              (when-let [spec (get fnspec role)]
+                (print (str "\n " (name role) ":") (format-spec spec (+ 3 (count (name role))) n))))
+            (println)))))))
 
 (defn- doc*
   [sym]
@@ -1160,23 +1254,23 @@
     (cond
 
       (special-doc-map sym)
-      (repl/print-doc (special-doc sym))
+      (print-doc (special-doc sym))
 
       (repl-special-doc-map sym)
-      (repl/print-doc (repl-special-doc sym))
+      (print-doc (repl-special-doc sym))
 
       (get-namespace sym)
-      (repl/print-doc
+      (print-doc
         (select-keys (get-namespace sym) [:name :doc]))
 
       (get-var (get-aenv) sym)
-      (repl/print-doc
+      (print-doc
         (let [var (get-var (get-aenv) sym)
               var (assoc var :forms (-> var :meta :forms second)
                              :arglists (-> var :meta :arglists second))
-              m   (select-keys var
-                    [:ns :name :doc :forms :arglists :macro :url])
-              m   (update m :doc undo-reader-conditional-whitespace-docstring)]
+              m (select-keys var
+                  [:ns :name :doc :forms :arglists :macro :url])
+              m (update m :doc undo-reader-conditional-whitespace-docstring)]
           (cond-> (update-in m [:name] name)
             (:protocol-symbol var)
             (assoc :protocol true
@@ -1222,15 +1316,15 @@
         (catch js/Error e (prn :caught e)))))
 
 (defn- process-load-file
-  [argument {:keys [in-exit-context?] :as opts}]
+  [argument opts]
   (let [filename argument]
     (try
       (execute-source ["path" filename] opts)
       (catch :default e
-        (handle-error e false in-exit-context?)))))
+        (handle-error e false)))))
 
 (defn- process-repl-special
-  [expression-form {:keys [print-nil-expression? in-exit-context?] :as opts}]
+  [expression-form {:keys [print-nil-expression?] :as opts}]
   (let [argument (second expression-form)]
     (case (first expression-form)
       in-ns (process-in-ns argument)
@@ -1313,17 +1407,49 @@
     (cb {:value nil})))
 
 (defn- print-result
-  [value]
+  [value opts]
   (if *pprint-results*
     (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
-      (planck.pprint/pprint value {:width term-width 
-                                   :theme theme})
+      ((if (::as-code? opts)
+         planck.pprint.code/pprint
+         planck.pprint.data/pprint)
+        value {:width ((fnil + 0) term-width (::term-width-adj opts))
+               :theme theme
+               :spec? (::spec? opts)
+               :keyword-ns (::keyword-ns opts)})
       (prn value))
     (prn value)))
 
+(s/def ::as-code? boolean?)
+(s/def ::spec? boolean?)
+(s/def ::keyword-ns symbol?)
+(s/def ::term-width-adj integer?)
+(s/fdef print-result
+  :args (s/cat :value ::s/any :opts (s/keys :opt [::as-code? ::term-width-adj ::spec ::keyword-ns])))
+
+(defn- wrap-warning-font
+  [s]
+  (str (:err-font theme) s (str (:reset-font theme))))
+
+(defn- warning-handler [warning-type env extra]
+  (let [warning-string (with-err-str
+                         (ana/default-warning-handler warning-type env
+                           (update extra :js-op eliminate-macros-suffix)))]
+    (binding [*print-fn* *print-err-fn*]
+      (when-not (empty? warning-string)
+        (when-let [column (:column env)]
+          (println (wrap-warning-font (form-indicator column @current-ns))))
+        (print (wrap-warning-font warning-string))))))
+
+(defn- macroexpand-form?
+  "Determines if the expression is a macroexpansion expression."
+  [expression-form]
+  (contains? '#{macroexpand macroexpand-1} (and (seq? expression-form)
+                                                (first expression-form))))
+
 (defn- process-execute-source
   [source-text expression-form
-   {:keys [expression? print-nil-expression? in-exit-context? include-stacktrace? source-path session-id] :as opts}]
+   {:keys [expression? print-nil-expression? include-stacktrace? source-path session-id] :as opts}]
   (try
     (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns]
@@ -1345,36 +1471,39 @@
                :eval          identity})
             identity)))
       ;; Now eval-str for true side effects
-      (cljs/eval-str
-        st
-        source-text
-        (if expression?
-          expression-name
-          (or source-path "File"))
-        (merge
-          {:ns         initial-ns
-           :verbose    (and (not expression?)
-                            (:verbose @app-env))
-           :static-fns (:static-fns @app-env)}
-          (if-not expression? {:source-map true})
-          (if expression?
-            {:context       :expr
-             :def-emits-var true}
-            (when (:cache-path @app-env)
-              {:cache-source (cache-source-fn source-text)})))
-        (fn [{:keys [ns value error] :as ret}]
-          (if expression?
-            (when-not error
-              (when (or print-nil-expression?
-                      (not (nil? value)))
-                (print-result value))
-              (process-1-2-3 expression-form value)
-              (reset! current-ns ns)
-              nil))
-          (when error
-            (handle-error error include-stacktrace? in-exit-context?)))))
+      (binding [ana/*cljs-warning-handlers* (if expression?
+                                              [warning-handler]
+                                              [ana/default-warning-handler])]
+        (cljs/eval-str
+         st
+         source-text
+         (if expression?
+           expression-name
+           (or source-path "File"))
+         (merge
+           {:ns         initial-ns
+            :verbose    (and (not expression?)
+                             (:verbose @app-env))
+            :static-fns (:static-fns @app-env)}
+           (if-not expression? {:source-map true})
+           (if expression?
+             {:context       :expr
+              :def-emits-var true}
+             (when (:cache-path @app-env)
+               {:cache-source (cache-source-fn source-text)})))
+         (fn [{:keys [ns value error] :as ret}]
+           (if expression?
+             (when-not error
+               (when (or print-nil-expression?
+                         (not (nil? value)))
+                 (print-result value {::as-code? (macroexpand-form? expression-form)}))
+               (process-1-2-3 expression-form value)
+               (reset! current-ns ns)
+               nil))
+           (when error
+             (handle-error error include-stacktrace?))))))
     (catch :default e
-      (handle-error e include-stacktrace? in-exit-context?))
+      (handle-error e include-stacktrace?))
     (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
@@ -1429,14 +1558,13 @@
   (emit-fn f))
 
 (defn- ^:export execute
-  [source expression? print-nil-expression? in-exit-context? set-ns theme-id session-id]
+  [source expression? print-nil-expression? set-ns theme-id session-id]
   (clear-fns!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
   (binding [theme (get-theme (keyword theme-id))]
     (execute-source source {:expression?           expression?
                             :print-nil-expression? print-nil-expression?
-                            :in-exit-context?      in-exit-context?
                             :include-stacktrace?   true
                             :session-id            session-id})))
 
@@ -1451,7 +1579,7 @@
         :def-emits-var true}
        (fn [{:keys [value error]}]
          (if error
-           (handle-error error true false)
+           (handle-error error true)
            (reset! result value))))
      @result)))
 

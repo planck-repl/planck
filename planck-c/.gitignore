@@ -1,0 +1,16 @@
+/planck
+/bundle-test
+/http-test
+/zip-test
+/*.o
+/*.tar.gz
+
+/linenoise.c
+/linenoise.h
+/jsc-funcs
+
+/.planck_cache
+/out
+
+/*.js
+/*.jar

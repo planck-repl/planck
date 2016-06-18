@@ -32,37 +32,19 @@ rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 
 echo "### Bundling 1st Stage ClojureScript"
 cd planck-cljs
-script/bundle
+script/bundle-c
 checkCmdSuccess
 cd ..
 
-# Xcode
-BUILD_DIR=build
-CONFIGURATION=Release
-OS_VERSION="`sw_vers -productVersion`"
-OS_LION_RE='^10\.7\..*'
-
 echo "### Building 1st Stage Binary"
-if [[ $OS_VERSION =~ $OS_LION_RE ]] ; then
-    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR
-else
-    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR -derivedDataPath $BUILD_DIR/DerivedData
-fi
+cd planck-c
+make build
+cd ..
 checkCmdSuccess
 
 echo "### Compiling Macro Namespaces"
 mkdir -p planck-cljs/out/macros-tmp
-$(PWD)/$BUILD_DIR/$CONFIGURATION/planck --quiet -sdk planck-cljs/out/macros-tmp <<REPL_INPUT
-(require-macros 
-  'planck.repl
-  'planck.core 
-  'planck.shell
-  'planck.from.io.aviso.ansi
-  'clojure.template
-  'cljs.spec
-  'cljs.spec.impl.gen
-  'cljs.test)
-REPL_INPUT
+planck-c/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
 
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
@@ -93,16 +75,14 @@ rm -rf planck-cljs/out/macros-tmp
 
 echo "### Bundling ClojureScript"
 cd planck-cljs
-script/bundle
+script/bundle-c
 checkCmdSuccess
 cd ..
 
 echo "### Building 2nd Stage Binary"
-if [[ $OS_VERSION =~ $OS_LION_RE ]] ; then
-    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR
-else
-    xcodebuild -project planck.xcodeproj -scheme planck -configuration $CONFIGURATION SYMROOT=$(PWD)/$BUILD_DIR -derivedDataPath $BUILD_DIR/DerivedData
-fi
+cd planck-c
+make build
+cd ..
 checkCmdSuccess
 
-echo "Binary located at $(PWD)/$BUILD_DIR/$CONFIGURATION/planck"
+echo "Binary located at $PWD/planck-c/planck"

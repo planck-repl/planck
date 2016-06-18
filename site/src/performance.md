@@ -40,7 +40,7 @@ The caching mechanism works whether your are running `planck` to execute a scrip
 Planck uses a (naïve) file timestamp mechanism to know if cache files are stale, and it additionally looks at comments like the following
 
 ```
-// Compiled by ClojureScript 1.9.14 {:static-fns true, :elide-asserts true}
+// Compiled by ClojureScript 1.9.71 {:static-fns true, :elide-asserts true}
 ```
 
 in the compiled JavaScript to see if the files are applicable. If a file can’t be used, it is replaced with an updated copy.

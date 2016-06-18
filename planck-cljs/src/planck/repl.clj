@@ -15,8 +15,8 @@
 (defmacro find-doc
   "Prints documentation for any var whose documentation or name
   contains a match for re-string-or-pattern"
-  [str-or-pattern]
-  `(planck.repl/find-doc* '~str-or-pattern))
+  [re-string-or-pattern]
+  `(planck.repl/find-doc* '~re-string-or-pattern))
 
 (defmacro doc
   "Prints documentation for a var or special form given its name"
@@ -40,3 +40,14 @@
    `(planck.repl/pst*))
   ([e]
    `(planck.repl/pst* '~e)))
+
+(defmacro ^:private with-err-str
+  "Evaluates exprs in a context in which *print-fn* is bound to .append
+  on a fresh StringBuffer.  Returns the string created by any nested
+  printing calls."
+  [& body]
+  `(let [sb# (js/goog.string.StringBuffer.)]
+     (binding [cljs.core/*print-newline* true
+               cljs.core/*print-err-fn* (fn [x#] (.append sb# x#))]
+       ~@body)
+     (str sb#)))

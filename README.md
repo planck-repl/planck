@@ -36,9 +36,11 @@ You can run tests by doing:
 
 1. `script/test`
 
-[![Circle CI](https://circleci.com/gh/mfikes/planck.svg?style=svg)](https://circleci.com/gh/mfikes/planck)
-
 Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
+
+# Planck 2.0 Alpha
+
+Instructions on building the Planck 2.0 alpha on Linux and OS X are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
 
 # License
 
