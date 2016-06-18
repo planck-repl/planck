@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm -f bundle_dict.c
+git update-index --no-assume-unchanged ../planck-c/bundle.c
+git checkout -- ../planck-c/bundle.c
