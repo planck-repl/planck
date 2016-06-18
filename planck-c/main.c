@@ -106,6 +106,14 @@ int exit_value = 0;
 bool return_termsize = false;
 JSContextRef global_ctx = NULL;
 
+char* ensure_trailing_slash(char* s) {
+	if (str_has_suffix(s, "/") == 0) {
+		return strdup(s);
+	} else {
+		return str_concat(s, "/");
+	}
+}
+
 int main(int argc, char **argv) {
 	config.verbose = false;
 	config.quiet = false;
@@ -225,7 +233,7 @@ int main(int argc, char **argv) {
 					config.num_src_paths += 1;
 					config.src_paths = realloc(config.src_paths, config.num_src_paths * sizeof(struct src_path));
 					config.src_paths[config.num_src_paths - 1].type = type;
-					config.src_paths[config.num_src_paths - 1].path = strdup(source);
+					config.src_paths[config.num_src_paths - 1].path = strcmp(type, "jar") == 0 ? strdup(source) : ensure_trailing_slash(source);
 
 					source = strtok(NULL, ":");
 				}
@@ -233,7 +241,7 @@ int main(int argc, char **argv) {
 				break;
 			}
 		case 'o':
-			config.out_path = argv[optind - 1];
+			config.out_path = ensure_trailing_slash(argv[optind - 1]);
 			break;
 		case '?':
 			usage(argv[0]);
