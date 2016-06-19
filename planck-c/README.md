@@ -18,6 +18,8 @@ platforms.
 
 [![Build Status](https://travis-ci.org/mfikes/planck.svg?branch=master)](https://travis-ci.org/mfikes/planck)
 
+You can run the "integration tests" by executing the following from the root of the repo tree: `int-test/script/run-tests-c`. (Those don't all pass yet.)
+
 ## Implementation
 
 - based on JavaScriptCore (from webkitgtk)

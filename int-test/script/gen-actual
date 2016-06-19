@@ -11,7 +11,6 @@
 # using ClojureScript instead of Bash. :)
 ######################################################
 
-source int-test/script/setup-env
 COLORFGBG="0;15"
 
 export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
