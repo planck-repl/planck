@@ -71,3 +71,21 @@ then this works:
 $ planck -m foo.core ClojureScript
 Hello ClojureScript!
 ```
+
+### Shell Interaction
+
+The `planck.shell` namespace provides functions for interacting with the shell.
+Commands can be executed by running the `sh` function as seen in the following example:
+
+```
+#!/usr/bin/env planck
+(ns foo.core
+  (:require [planck.shell :refer [sh]]
+            [planck.core :refer [*command-line-args*]]))
+
+(defn list-files [dir]
+  (println "listing files in" dir)
+  (println (sh "ls" "-l" dir)))
+
+(list-files (first *command-line-args*))
+```

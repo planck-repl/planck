@@ -7,14 +7,15 @@ CC = clang
 CFLAGS = -Wall -DDEBUG
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	DEPS = javascriptcoregtk-3.0 libzip libcurl
+	JSCDEP = $(shell pkg-config --exists javascriptcoregtk-4.0 && echo "javascriptcoregtk-4.0" || echo "javascriptcoregtk-3.0")
+	DEPS = $(JSCDEP) libzip libcurl
 	CFLAGS += -pthread $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS = $(shell pkg-config --libs $(DEPS))
 endif
 ifeq ($(UNAME_S),Darwin)
 	DEPS = libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
-	LIBFLAGS += -framework JavaScriptCore -lz $(shell pkg-config --libs $(DEPS))
+	LIBFLAGS += -framework JavaScriptCore $(shell pkg-config --libs $(DEPS))
 endif
 CFLAGS += $(EXTRA_CFLAGS)
 
