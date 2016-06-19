@@ -40,6 +40,8 @@ Additional details on developing Planck are [available](https://github.com/mfike
 
 # Planck 2.0 Alpha
 
+Planck 2.0 alpha Ubuntu binaries are available [for download](http://planck-repl.org/download-alpha.html).
+
 Instructions on building the Planck 2.0 alpha on Linux and OS X are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
 
 # License
