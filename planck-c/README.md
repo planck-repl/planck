@@ -7,12 +7,12 @@ platforms.
 
 ## Development
 
-- prerequisites: Java, lein
+- prerequisites: Java, `clang`
 - install `javascriptcore`, `libzip`, `zlib`
     - on mac: `brew install pkg-config libzip`
-    - on arch: `pacman -S clang webkitgtk libzip zlib`
-    - on Ubuntu 14.04: `sudo apt-get install clang javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
-    - on Ubuntu 16.04: `sudo apt-get install clang javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
+    - on arch: `pacman -S webkitgtk libzip zlib`
+    - on Ubuntu 14.04: `sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
+    - on Ubuntu 16.04: `sudo apt-get install javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
 - `make bundle-and-build`
 - have fun: `./planck`
 
