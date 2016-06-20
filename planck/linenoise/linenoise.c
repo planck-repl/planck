@@ -1067,7 +1067,7 @@ void linenoisePrintNow(const char* text) {
 
     if (strcmp(text, "\n") != 0) {
         fprintf(stdout, "\r\x1b[0K");
-        fprintf(stdout, text);
+        fprintf(stdout, "%s", text);
         fprintf(stdout, "\n");
         
         if (printNowState) {
