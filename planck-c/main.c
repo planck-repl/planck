@@ -1,30 +1,18 @@
-#include <assert.h>
 #include <errno.h>
 #include <getopt.h>
 #include <libgen.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <time.h>
 #include <unistd.h>
-
-#include <JavaScriptCore/JavaScript.h>
-
-#include "linenoise.h"
 
 #include "bundle.h"
 #include "cljs.h"
 #include "globals.h"
 #include "io.h"
-#include "jsc_utils.h"
 #include "legal.h"
 #include "repl.h"
 #include "str.h"
-#include "zip.h"
-
-void completion(const char *buf, linenoiseCompletions *lc);
 
 void usage(char *program_name) {
 	printf("Planck %s\n", PLANCK_VERSION);
