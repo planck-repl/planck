@@ -306,11 +306,7 @@ void highlight(const char *buf, int pos) {
 	if (current == ']' || current == '}' || current == ')') {
 		int num_lines_up = -1;
 		int highlight_pos = 0;
-		char *buf_copy = malloc((pos + 2) * sizeof(char));
-		strncpy(buf_copy, buf, pos);
-		buf_copy[pos + 1] = '\0';
-		cljs_highlight_coords_for_pos(global_ctx, pos, (char*)buf, num_previous_lines, previous_lines, &num_lines_up, &highlight_pos);
-		free(buf_copy);
+		cljs_highlight_coords_for_pos(global_ctx, pos, buf, num_previous_lines, previous_lines, &num_lines_up, &highlight_pos);
 
 		int current_pos = pos + 1;
 
