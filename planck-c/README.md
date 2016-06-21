@@ -1,9 +1,8 @@
 # planck-c
 
-This is an in-progress port of Planck to C, supporting multiple
-platforms.
+Planck 2.0: This is an in-progress port of Planck 1.x to C, supporting Linux and OS X.
 
-**Warning:** *This is very much a work in progress.  Lots of stuff is still missing, things might not work, ...  Feel free to port things from the Objective-C version of planck.*
+**Warning:** *This is very much a work in progress.  Lots of stuff is still missing, things might not work.  Feel free to port things from the Objective-C version of Planck 1.x. See [TODOs](https://github.com/mfikes/planck/wiki/Planck-C-TODOs).*
 
 ## Development
 
@@ -25,6 +24,6 @@ You can run the "integration tests" by executing the following from the root of 
 - based on JavaScriptCore (from webkitgtk)
 - uses `planck-cljs`
 - access to native capabilities via a reimplementation of
-    planck's Objective-C part
+    Planck's Objective-C part
 
 A lot of stuff is still missing (in fact most of it).
