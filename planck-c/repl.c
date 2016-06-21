@@ -250,39 +250,53 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 	free(completions);
 }
 
+pthread_mutex_t highlight_restore_sequence_mutex = PTHREAD_MUTEX_INITIALIZER;
+int highlight_restore_sequence = 0;
+
 struct hl_restore {
-	bool should_restore;
+	int id;
 	int num_lines_up;
 	int relative_horiz;
-
 };
-struct hl_restore hl_restore;
 
-void *do_highlight_restore(void *data) {
-	if (data != NULL) {
-		int *timeout = data;
-		struct timespec t;
-		t.tv_sec = 0;
-		t.tv_nsec = *timeout;
-		nanosleep(&t, NULL);
+struct hl_restore hl_restore = { 0, 0, 0 };
+
+void do_highlight_restore(struct hl_restore *hl_restore) {
+
+	int highlight_restore_sequence_value;
+	pthread_mutex_lock(&highlight_restore_sequence_mutex);
+	highlight_restore_sequence_value = highlight_restore_sequence;
+	pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+       
+	if (hl_restore->id == highlight_restore_sequence_value) {
+
+		pthread_mutex_lock(&highlight_restore_sequence_mutex);
+		++highlight_restore_sequence;
+		pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+
+		if (hl_restore->num_lines_up != 0) {
+			fprintf(stdout,"\x1b[%dB", hl_restore->num_lines_up);
+		}
+
+		if (hl_restore->relative_horiz < 0) {
+			fprintf(stdout,"\x1b[%dC", -hl_restore->relative_horiz);
+		} else if (hl_restore->relative_horiz > 0){
+			fprintf(stdout,"\x0b[%dD", hl_restore->relative_horiz);
+		}
+
+		fflush(stdout);
+
 	}
 
-	if (hl_restore.num_lines_up != 0) {
-		fprintf(stdout,"\x1b[%dB", hl_restore.num_lines_up);
-	}
+	free(hl_restore);
+}
 
-	if (hl_restore.relative_horiz < 0) {
-		fprintf(stdout,"\x1b[%dC", -hl_restore.relative_horiz);
-	} else if (hl_restore.relative_horiz > 0){
-		fprintf(stdout,"\x1b[%dD", hl_restore.relative_horiz);
-	}
-
-	fflush(stdout);
-
-	hl_restore.should_restore = false;
-	hl_restore.num_lines_up = 0;
-	hl_restore.relative_horiz = 0;
-
+void *highlight_restore_timer(void* data) {
+	struct timespec t;
+        t.tv_sec = 0;
+	t.tv_nsec = 500 * 1000 * 1000;
+	nanosleep(&t, NULL);
+	do_highlight_restore((struct hl_restore *)data);
 	return NULL;
 }
 
@@ -315,24 +329,29 @@ void highlight(const char *buf, int pos) {
 
 			fflush(stdout);
 
-			// struct hl_restore *hl_restore = malloc(sizeof(struct hl_restore));
-			hl_restore.should_restore = true;
-			hl_restore.num_lines_up = num_lines_up;
-			hl_restore.relative_horiz = relative_horiz;
+			struct hl_restore *hl_restore_local = malloc(sizeof(struct hl_restore));
+			pthread_mutex_lock(&highlight_restore_sequence_mutex);
+			hl_restore_local->id = ++highlight_restore_sequence;
+			pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+			hl_restore_local->num_lines_up = num_lines_up;
+			hl_restore_local->relative_horiz = relative_horiz;
 
-			int timeout = 500 * 1000 * 1000;
+			hl_restore = *hl_restore_local;
+
 			pthread_attr_t attr;
 			pthread_attr_init(&attr);
 			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 			pthread_t thread;
-			pthread_create(&thread, &attr, do_highlight_restore, (void*)&timeout);
+			pthread_create(&thread, &attr, highlight_restore_timer, (void*)hl_restore_local);
 		}
 	}
 }
 
 void highlight_cancel() {
-	if (hl_restore.should_restore) {
-		do_highlight_restore(NULL);
+	if (hl_restore.id != 0) {
+                struct hl_restore *hl_restore_tmp = malloc(sizeof(struct hl_restore));
+		*hl_restore_tmp = hl_restore;
+		do_highlight_restore(hl_restore_tmp);
 	}
 }
 
