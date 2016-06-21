@@ -1,30 +1,18 @@
-#include <assert.h>
 #include <errno.h>
 #include <getopt.h>
 #include <libgen.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <time.h>
 #include <unistd.h>
-
-#include <JavaScriptCore/JavaScript.h>
-
-#include "linenoise.h"
 
 #include "bundle.h"
 #include "cljs.h"
 #include "globals.h"
 #include "io.h"
-#include "jsc_utils.h"
 #include "legal.h"
 #include "repl.h"
 #include "str.h"
-#include "zip.h"
-
-void completion(const char *buf, linenoiseCompletions *lc);
 
 void usage(char *program_name) {
 	printf("Planck %s\n", PLANCK_VERSION);
@@ -181,7 +169,7 @@ int main(int argc, char **argv) {
 			config.elide_asserts = true;
 			break;
 		case 'k':
-			config.cache_path = argv[optind - 1];
+			config.cache_path = strdup(optarg);
 			break;
 		case 'K':
 			config.cache_path = ".planck_cache";
@@ -202,27 +190,27 @@ int main(int argc, char **argv) {
 			config.scripts = realloc(config.scripts, config.num_scripts * sizeof(struct script));
 			config.scripts[config.num_scripts - 1].type = "text";
 			config.scripts[config.num_scripts - 1].expression = true;
-			config.scripts[config.num_scripts - 1].source = argv[optind - 1];
+			config.scripts[config.num_scripts - 1].source = strdup(optarg);
 			break;
 		case 'i':
 			config.num_scripts += 1;
 			config.scripts = realloc(config.scripts, config.num_scripts * sizeof(struct script));
 			config.scripts[config.num_scripts - 1].type = "path";
 			config.scripts[config.num_scripts - 1].expression = false;
-			config.scripts[config.num_scripts - 1].source = argv[optind - 1];
+			config.scripts[config.num_scripts - 1].source = strdup(optarg);
 			break;
 		case 'm':
-			config.main_ns_name = argv[optind - 1];
+			config.main_ns_name = strdup(optarg);
 			break;
 		case 't':
-			config.theme = argv[optind - 1];
+			config.theme = strdup(optarg);
 			break;
 		case 'd':
 			config.dumb_terminal = true;
 			break;
 		case 'c':
 			{
-				char *classpath = argv[optind - 1];
+				char *classpath = strdup(optarg);
 				char *source = strtok(classpath, ":");
 				while (source != NULL) {
 					char *type = "src";
@@ -241,7 +229,7 @@ int main(int argc, char **argv) {
 				break;
 			}
 		case 'o':
-			config.out_path = ensure_trailing_slash(argv[optind - 1]);
+			config.out_path = ensure_trailing_slash(strdup(optarg));
 			break;
 		case '?':
 			usage(argv[0]);
