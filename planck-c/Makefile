@@ -4,7 +4,7 @@ VERSION = $(shell git describe --tags)
 
 CC = clang
 
-CFLAGS = -Wall -DDEBUG -fsanitize=address
+CFLAGS = -Wall -DDEBUG #-fsanitize=address
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	JSCDEP = $(shell pkg-config --exists javascriptcoregtk-4.0 && echo "javascriptcoregtk-4.0" || echo "javascriptcoregtk-3.0")
