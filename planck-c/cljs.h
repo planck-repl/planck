@@ -19,4 +19,4 @@ bool cljs_print_newline(JSContextRef ctx);
 
 char *cljs_is_readable(JSContextRef ctx, char *expression);
 int cljs_indent_space_count(JSContextRef ctx, char *text);
-void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, char *buf, int num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos);
+void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, const char *buf, int num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos);
