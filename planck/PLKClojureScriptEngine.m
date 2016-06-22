@@ -697,7 +697,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  
                  return [self registerAndGetDescriptor:[PLKSocket open:socketAddr
                                                                   port:port
-                                                                client:nil //todo
+                                                                client:[PLKConnection init] //todo
                                                         ]];
              }
              return  JSValueMakeNull(ctx);

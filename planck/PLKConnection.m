@@ -99,8 +99,8 @@
 {
     NSLog(@"Setting up stream");
     [stream setDelegate:self];
-    [stream  scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [stream  open];
+    [stream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [stream open];
 }
 
 - (void)tearDownStream:(NSStream*)stream
@@ -108,6 +108,22 @@
     [stream close];
     [stream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [stream setDelegate:nil];
+}
+
+- (void) setupSocket:(PLKSocket*)socket
+{
+
+}
+
+-(void) socketFail:(int)socketPort
+        socketAddr:(NSString*)socketAddr
+{
+    
+}
+
+-(void) socketSuccess:(int)socketPort socketAddr:(NSString *)socketAddr
+{
+    
 }
 
 @end

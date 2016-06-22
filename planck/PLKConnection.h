@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 #include <JavaScriptCore/JavaScriptCore.h>
+#import "PLKSocket.h"
 
-@interface PLKConnection : NSObject<NSStreamDelegate>
+@interface PLKConnection : NSObject<NSStreamDelegate, PLKSocketClient>
 @property JSContextRef ctx;
 @property NSString* callback;
 @property NSString* fd;
