@@ -33,7 +33,7 @@
     (when (nil? cmd)
       (throw (s/explain ::sh-args args)))
     (let [{:keys [in in-enc out-enc env dir]}
-          (merge {:out-enc nil :in-enc nil :dir *sh-dir* :env *sh-env*}
+          (merge {:out-enc nil :in-enc nil :dir (and *sh-dir* [:sh-dir *sh-dir*]) :env *sh-env*}
             (into {} (map (comp (juxt :key :val) second) opts)))
           dir (and dir (:path (as-file (second dir))))
           [exit out err] (js->clj (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc (clj->js (seq env)) dir))]
