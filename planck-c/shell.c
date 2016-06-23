@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <JavaScriptCore/JavaScript.h>
 #include "jsc_utils.h"
 
