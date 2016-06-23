@@ -53,7 +53,7 @@ static char** env(JSContextRef ctx, const JSObjectRef map) {
       free(key);
       free(value);
       result[i] = combined;
-#ifdef DEBUG
+#ifdef SHELLDBG
       printf("env[%d]: %s\n", i, combined);
 #endif
     }
@@ -71,16 +71,16 @@ static char* read_child_pipe(int pipe) {
   const int BLOCK_SIZE = 1024;
   int block_count = 1;
   char* res = malloc(BLOCK_SIZE * block_count);
-  int count = 0;
-  int total = 0;
+  int count = 0, total = 0, num_to_read = 0;
   do {
-    count = read(pipe, res + total, BLOCK_SIZE);
+    num_to_read = BLOCK_SIZE - (total % BLOCK_SIZE) - 1;
+    res = realloc(res, BLOCK_SIZE * block_count);
+    count = read(pipe, res + total, num_to_read);
     if (count > 0) {
       total += count;
       block_count += 1;
-      res = realloc(res, BLOCK_SIZE * block_count);
     }
-  } while (count == BLOCK_SIZE);
+  } while (count == num_to_read);
   res[total] = 0;
   return res;
 }
@@ -131,7 +131,7 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
   if (argc == 6) {
     char* joined = cmd(ctx, (JSObjectRef) args[0]);
     if (joined) {
-#ifdef DEBUG
+#ifdef SHELLDBG
       printf("cmd: %s\n", joined);
 #endif
       char** environment = NULL;
@@ -141,12 +141,12 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
       char* dir = NULL;
       if (!JSValueIsNull(ctx, args[5])) {
         dir = value_to_c_string(ctx, args[5]);
-#ifdef DEBUG
+#ifdef SHELLDBG
         printf("dir: %s\n", dir);
 #endif
       }
       struct SystemResult result = system_call(joined, environment, dir);
-#ifdef DEBUG
+#ifdef SHELLDBG
       printf("stdout: %s\n", result.stdout);
       printf("stderr: %s\n", result.stderr);
 #endif
