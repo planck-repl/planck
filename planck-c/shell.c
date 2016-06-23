@@ -71,16 +71,16 @@ static char* read_child_pipe(int pipe) {
   const int BLOCK_SIZE = 1024;
   int block_count = 1;
   char* res = malloc(BLOCK_SIZE * block_count);
-  int count = 0;
-  int total = 0;
+  int count = 0, total = 0, num_to_read = 0;
   do {
-    count = read(pipe, res + total, BLOCK_SIZE);
+    num_to_read = BLOCK_SIZE - (total % BLOCK_SIZE);
+    res = realloc(res, BLOCK_SIZE * block_count);
+    count = read(pipe, res + total, num_to_read);
     if (count > 0) {
       total += count;
       block_count += 1;
-      res = realloc(res, BLOCK_SIZE * block_count);
     }
-  } while (count == BLOCK_SIZE);
+  } while (count == num_to_read);
   res[total] = 0;
   return res;
 }
