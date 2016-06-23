@@ -1,0 +1,40 @@
+#!planck-c/planck -sc planck-cljs/clojurescript/src/test/cljs
+(ns planck.test-core
+  (:require [cljs.test :refer-macros [run-tests]]
+            [cljs.core-test :as core-test]
+            [cljs.reader-test]
+            [cljs.binding-test]
+            #_[cljs.ns-test]
+            [clojure.string-test]
+            [clojure.data-test]
+            [cljs.macro-test]
+            [cljs.letfn-test]
+            [foo.ns-shadow-test]
+            [cljs.top-level]
+            [cljs.reducers-test]
+            #_[cljs.keyword-test]
+            [cljs.import-test]
+            [cljs.ns-test.foo]
+            #_[cljs.pprint]
+            [planck.core :refer [exit]]))
+
+(defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
+  (when-not (cljs.test/successful? m)
+    (exit 1)))
+
+(run-tests
+  'cljs.core-test
+  'cljs.reader-test
+  'clojure.string-test
+  'clojure.data-test
+  'cljs.letfn-test
+  'cljs.reducers-test
+  'cljs.binding-test
+  'cljs.macro-test
+  'cljs.top-level
+  #_'cljs.keyword-test
+  #_'cljs.ns-test
+  'cljs.ns-test.foo
+  'foo.ns-shadow-test
+  'cljs.import-test
+  #_'cljs.pprint)
