@@ -117,8 +117,10 @@ struct SystemResult system_call(char* cmd, char** env, char* dir) {
     close(err[1]);
     close(in[1]);
     if (waitpid(pid, &res.status, 0) != pid) res.status = -1;
-    res.stderr = read_child_pipe(err[0]);
-    res.stdout = read_child_pipe(in[0]);
+    else {
+      res.stderr = read_child_pipe(err[0]);
+      res.stdout = read_child_pipe(in[0]);
+    }
   }
   return res;
 }
