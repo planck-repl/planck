@@ -142,13 +142,13 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
       if (!JSValueIsNull(ctx, args[5])) {
         dir = value_to_c_string(ctx, args[5]);
 #ifdef DEBUG
-        printf("dir: %s", dir);
+        printf("dir: %s\n", dir);
 #endif
       }
       struct SystemResult result = system_call(joined, environment, dir);
 #ifdef DEBUG
-      printf("stdout: %s", result.stdout);
-      printf("stderr: %s", result.stderr);
+      printf("stdout: %s\n", result.stdout);
+      printf("stderr: %s\n", result.stderr);
 #endif
 
       JSValueRef arguments[3];
