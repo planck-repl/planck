@@ -11,6 +11,7 @@
 #include "functions.h"
 #include "globals.h"
 #include "http.h"
+#include "shell.h"
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
@@ -325,6 +326,8 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
 
 	register_global_function(ctx, "PLANCK_SET_EXIT_VALUE", function_set_exit_value);
+
+	register_global_function(ctx, "PLANCK_SHELL_SH", function_shellexec);
 
 	register_global_function(ctx, "PLANCK_RAW_READ_STDIN", function_raw_read_stdin);
 	register_global_function(ctx, "PLANCK_RAW_WRITE_STDOUT", function_raw_write_stdout);
