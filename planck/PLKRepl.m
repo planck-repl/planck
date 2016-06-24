@@ -637,7 +637,7 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
 
 }
 
-- (void) setupSocket:(PLKSocket*)socket
+- (void) clientConnect:(PLKSocket*)socket
 {
     PLKRepl* server = [[PLKRepl alloc] init];
     

@@ -9,6 +9,7 @@
 #import "PLKFileReader.h"
 #import "PLKFileWriter.h"
 #import "PLKSocket.h"
+#import "PLKConnection.h"
 #import "PLKFileInputStream.h"
 #import "PLKFileOutputStream.h"
 #import "ZZArchive.h"
@@ -740,7 +741,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  
                  PLKSocket* socket = self.descriptorToObject[socketDescriptor];
                  
-                 NSData* data = [socket read:clientDescriptor];
+                 NSData* data = [socket.client read:clientDescriptor];
                  NSString* newStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                  
                  return  JSValueMakeStringFromNSString(ctx, newStr);
@@ -762,7 +763,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  
                  PLKSocket* socket = self.descriptorToObject[socketDescriptor];
                  
-                 [socket write:clientDescriptor
+                 [socket.client write:clientDescriptor
                            msg:msg];
                  
                  return  JSValueMakeNull(ctx);
@@ -783,7 +784,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  
                  PLKSocket* socket = self.descriptorToObject[socketDescriptor];
                  
-                 [socket close:clientDescriptor];
+                 [socket.client close:clientDescriptor];
                  
                  return  JSValueMakeNull(ctx);
              }

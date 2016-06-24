@@ -47,11 +47,11 @@ void handleConnect (CFSocketRef s,
         socket.outputStream = (__bridge NSOutputStream*)clientOutput;
         
         
-        [socket.client setupSocket:socket];
+        [socket.client clientConnect:socket];
     }
 }
 
--(NSString *)registerAndGetDescriptor:(PLKConnection*)client
+-(NSString *)registerAndGetDescriptor:(NSObject<PLKSocketClient>*)client
 {
     NSString* descriptor = [NSString stringWithFormat:@"PLANCK_SOCKET_CLIENT_%d", ++self.descriptorSequence];
     [self.servers setObject:client forKey:descriptor];
@@ -118,26 +118,6 @@ void handleConnect (CFSocketRef s,
             ];
 }
 
--(NSData*)read:(NSString *) client
-{
-    PLKConnection* connection = self.servers[client];
-    return connection.inputBuffer;
-}
-
--(void)write:(NSString *) client
-           msg:(NSString *)msg
-{
-    PLKConnection* connection = self.servers[client];
-    [connection write:msg];
-
-}
-
--(void)close:(NSString *) client;
-{
-    PLKConnection* connection = self.servers[client];
-    [connection close];
-    [self.servers removeObjectForKey:client];
-}
 
 -(void)close
 {

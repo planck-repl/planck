@@ -4,7 +4,7 @@
 
 @interface PLKRepl : NSObject<NSStreamDelegate, PLKSocketClient>
 
--(void)setupSocket:(PLKSocket *)socket;
+-(void)clientConnect:(PLKSocket *)socket;
 
 -(int)runUsingClojureScriptEngine:(PLKClojureScriptEngine*)clojureScriptEngine
                      dumbTerminal:(BOOL)dumbTerminal

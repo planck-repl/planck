@@ -1,8 +1,6 @@
 #import <Foundation/Foundation.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <JavaScriptCore/JavaScriptCore.h>
-#include "PLKConnection.h"
 
 @protocol PLKSocketClient;
 
@@ -16,14 +14,8 @@
              port:(int) port
            client:(NSObject<PLKSocketClient>*) client;
 
--(NSData*)read:(NSString*)descriptor;
-
 -(NSString *)registerAndGetDescriptor:(NSObject<PLKSocketClient>*)client;
 
--(void)write:(NSString*)client
-         msg:(NSString*)msg;
-
--(void)close:(NSString*)client;
 -(void)close;
 
 @end
@@ -31,10 +23,13 @@
 @protocol PLKSocketClient
 -(void) registerListener:(NSString*)listener
                 socketId:socketId;
--(void) setupSocket:(PLKSocket*)socket;
+-(void) clientConnect:(PLKSocket*)socket;
 -(void) socketFail:(int)socketPort
         socketAddr:(NSString*)socketAddr;
 -(void) socketSuccess:(int)socketPort
         socketAddr:(NSString*)socketAddr;
-
+-(void) close:(NSString*)clientId;
+-(void) write:(NSString*)clientId
+          msg:(NSString*)msg;
+-(NSData*) read:(NSString*)msg;
 @end
