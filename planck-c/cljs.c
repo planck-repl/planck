@@ -15,6 +15,7 @@
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
+#include "cljs.h"
 
 bool cljs_engine_ready = false;
 pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -288,6 +289,10 @@ void register_global_function(JSContextRef ctx, char *name, JSObjectCallAsFuncti
 	JSObjectSetProperty(ctx, global_obj, fn_name, fn_obj, kJSPropertyAttributeNone, NULL);
 }
 
+void discarding_sender(const char* msg) {
+	/* Intentionally empty. */
+}
+
 void *cljs_do_engine_init(void *data) {
 	JSGlobalContextRef ctx = data;
 
@@ -322,8 +327,6 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_EVAL", function_eval);
 
 	register_global_function(ctx, "PLANCK_GET_TERM_SIZE", function_get_term_size);
-	register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
-	register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
 
 	register_global_function(ctx, "PLANCK_SET_EXIT_VALUE", function_set_exit_value);
 
@@ -350,12 +353,7 @@ void *cljs_do_engine_init(void *data) {
 		JSStringRelease(prop);
 	}
 
-	evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
-	evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
-
-	char *elide_script = str_concat("cljs.core._STAR_assert_STAR_ = ", config.elide_asserts ? "false" : "true");
-	evaluate_script(ctx, elide_script, "<init>");
-	free(elide_script);
+	cljs_set_print_sender(ctx, &discarding_sender);
 
 	{
 		JSValueRef arguments[4];
@@ -377,10 +375,14 @@ void *cljs_do_engine_init(void *data) {
 		evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])", true, false, "cljs.user", "dumb", false);
 	}
 
+	cljs_set_print_sender(ctx, NULL);
+
 	evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
 	evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
 
-	evaluate_script(ctx, "cljs.core._STAR_assert_STAR_ = true;", "<init>");
+	char *elide_script = str_concat("cljs.core._STAR_assert_STAR_ = ", config.elide_asserts ? "false" : "true");
+	evaluate_script(ctx, elide_script, "<init>");
+	free(elide_script);
 
 	signal_engine_ready();
 
@@ -430,6 +432,10 @@ void cljs_set_print_sender(JSContextRef ctx, void (*sender)(const char* msg)) {
 		register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
 		register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
 	}
+
+	evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
+	evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
+
 }
 
 bool cljs_print_newline(JSContextRef ctx) {
