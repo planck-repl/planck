@@ -9,9 +9,6 @@
 
 @property (nonatomic) int descriptorSequence;
 @property (nonatomic, strong) NSMutableDictionary* servers;
-@property (nonatomic, strong) NSString* callback;
-@property (nonatomic, strong) NSString* fd;
-@property JSContextRef ctx;
 @end
 
 @implementation PLKSocket
@@ -24,23 +21,6 @@
     
     struct sockaddr_in          from;
     unsigned char               buffer[4096];
-    
-    BOOL keepRunning;
-}
-
-
-
-void setupSocket(PLKSocket* socket)
-{
-   
-    PLKConnection * connection = [[PLKConnection alloc] initWithStuff:socket.ctx
-                                                                   fd:socket.fd
-                                                             callback:socket.callback
-                                                          inputStream:socket.inputStream
-                                                         outputStream:socket.outputStream];
-    
-    connection.clientId = [socket registerAndGetDescriptor:connection];
-    [connection createiife];
 }
 
 void handleConnect (CFSocketRef s,
@@ -71,10 +51,10 @@ void handleConnect (CFSocketRef s,
     }
 }
 
--(NSString *)registerAndGetDescriptor:(PLKConnection*)o
+-(NSString *)registerAndGetDescriptor:(PLKConnection*)client
 {
-    NSString* descriptor = [NSString stringWithFormat:@"PLANCK_SOCKET_CONNECTION_%d", ++self.descriptorSequence];
-    [self.servers setObject:o forKey:descriptor];
+    NSString* descriptor = [NSString stringWithFormat:@"PLANCK_SOCKET_CLIENT_%d", ++self.descriptorSequence];
+    [self.servers setObject:client forKey:descriptor];
     return descriptor;
 }
 
@@ -111,18 +91,14 @@ void handleConnect (CFSocketRef s,
     
     if (CFSocketSetAddress(myipv4cfsock, sincfd) != kCFSocketSuccess) {
         [client socketFail:socketPort socketAddr:socketAddr];
+        return NULL;
     } else {
-        
         self.servers = [[NSMutableDictionary alloc] init];
-    
         CFRelease(sincfd);
-    
-    
         CFRunLoopSourceRef socketsource = CFSocketCreateRunLoopSource(
                                                                   kCFAllocatorDefault,
                                                                   myipv4cfsock,
                                                                   0);
-    
         CFRunLoopAddSource(
                             CFRunLoopGetCurrent(),
                             socketsource,
@@ -142,33 +118,31 @@ void handleConnect (CFSocketRef s,
             ];
 }
 
--(void)registerCallback:(NSString *)callback
-                    ctx:(JSContextRef)ctx
-                     fd:(NSString* )fd
-{
-    NSLog(@"setting up callback");
-    
-    self.ctx = ctx;
-    self.callback = callback;
-    self.fd = fd;
-    
-    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-    keepRunning = YES;
-    NSLog(@"starting runloop");
-    while (keepRunning && [runLoop runMode:NSDefaultRunLoopMode
-                                beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
-}
-
 -(NSData*)read:(NSString *) client
 {
     PLKConnection* connection = self.servers[client];
     return connection.inputBuffer;
 }
 
+-(void)write:(NSString *) client
+           msg:(NSString *)msg
+{
+    PLKConnection* connection = self.servers[client];
+    [connection write:msg];
+
+}
+
+-(void)close:(NSString *) client;
+{
+    PLKConnection* connection = self.servers[client];
+    [connection close];
+    [self.servers removeObjectForKey:client];
+}
+
 -(void)close
 {
-    keepRunning = NO;
     [self.inputStream close];
+
 }
 
 @end

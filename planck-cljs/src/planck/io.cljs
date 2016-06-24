@@ -152,20 +152,40 @@
   [dir]
   (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
-(defn- create-listener [fn]
+(defn create-listener [cb]
   (fn [socket client]
     (let [m (js/PLANCK_SOCKET_READ socket client)]
       (println "message was" m)
-      (fn m))))
+      (cb m))))
 
-(defn socket-open [host port fn]
+(defn socket-open [host port cb]
   (let [socket (js/PLANCK_SOCKET_OPEN host port)]
-    (js/PLANCK_SOCKET_LISTEN socket (create-listener fn))))
+    (js/PLANCK_SOCKET_LISTEN socket cb)))
 
-(comment 
-  (planck.io/socket-open "localhost" 8080 #(do
-                                           (println "Foo")
-                                           (str "you said: " % "\n"))))
+(comment
+  (require 'planck.io)
+  (require 'planck.core)
+
+  (def in-play (atom {}))
+
+  (defn execute [socket-id client-id msg]
+    (let [cmd (get @in-play client-id "")]
+      (if (or (= "\n" msg) (= "\r\n" msg))
+        (do
+          (swap! in-play (fn [m] (dissoc m client-id)))
+          (let [[verb path] (clojure.string/split cmd #"\s")]
+            (when (= "GET" verb)
+              (js/PLANCK_SOCKET_CLIENT_WRITE socket-id client-id
+                                      (planck.core/slurp (str "." path)))))
+          (js/PLANCK_SOCKET_CLIENT_CLOSE socket-id client-id))
+        (do
+          (swap! in-play assoc client-id (str cmd msg))
+          ""))))
+
+  (planck.io/socket-open "localhost" 8081 (fn [socket-id client-id]
+                                            (let [msg (js/PLANCK_SOCKET_CLIENT_READ socket-id client-id)]
+                                              (cljs.user/execute socket-id client-id msg))))
+  )
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)

@@ -633,9 +633,7 @@ NSString * hostAndPort(NSString *socketAddr, int socketPort)
     NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
     while (s_shouldKeepRunning &&
            [runLoop runMode:NSDefaultRunLoopMode
-                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);   s_socketRepls = [[NSMutableDictionary alloc] init];
-    s_evalLock = [[NSLock alloc] init];
-    
+                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:1]]);
 
 }
 

@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #include <JavaScriptCore/JavaScriptCore.h>
-#import "PLKSocket.h"
+#include "PLKSocket.h"
+
+@protocol PLKSocketClient;
 
 @interface PLKConnection : NSObject<NSStreamDelegate, PLKSocketClient>
 @property JSContextRef ctx;
@@ -12,13 +14,14 @@
 @property NSString* clientId;
 @property NSString* iife;
 
-- (id)initWithStuff:(JSContextRef) ctx
-                 fd:(NSString*)fd
-           callback:(NSString*) callback
-        inputStream:(NSInputStream*) inputStream
-       outputStream:(NSOutputStream*) outputStream;
+- (id)init:(JSContextRef) ctx;
+
+- (void)setupStuff:(NSInputStream*) inputStream
+      outputStream:(NSOutputStream*) outputStream;
 
 -(void)setUpStream:(NSStream*)stream;
 -(void)createiife;
+-(void)close;
+-(void)write:(NSString*) msg;
 
 @end
