@@ -36,7 +36,6 @@ release:
 	tar -uf planck-$(VERSION).tar --transform='s/^/planck-$(VERSION)\//' bundle.c linenoise.c linenoise.h
 	gzip --force planck-$(VERSION).tar
 
-
 planck: $(OBJECTS)
 	$(CC) $(CFLAGS) $(LIBFLAGS) $(OBJECTS) -o $@
 

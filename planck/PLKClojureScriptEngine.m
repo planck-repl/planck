@@ -610,7 +610,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 6) {
+             if (argc == 7) {
                  
                  int argsCount = JSArrayGetCount(ctx, (JSObjectRef)argv[0]);
                  NSMutableArray* args = [[NSMutableArray alloc] init];
@@ -645,7 +645,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
              return JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_SHELL_SH"
-                                         argList:@"args, arg_in, encoding_in, encoding_out, env, dir"
+                                         argList:@"args, arg_in, encoding_in, encoding_out, env, dir, cb"
                                        inContext:self.context];
         
         

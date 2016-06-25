@@ -1,11 +1,14 @@
 #include <assert.h>
+#include <pthread.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <JavaScriptCore/JavaScript.h>
+#include "cljs.h"
 #include "jsc_utils.h"
+#include "repl.h"
 
 static int JSArrayGetCount(JSContextRef ctx, JSObjectRef arr)
 {
@@ -92,8 +95,61 @@ struct SystemResult {
   char* stderr;
 };
 
-struct SystemResult system_call(char* cmd, char** env, char* dir) {
-  struct SystemResult res = {0};
+static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult* result) {
+  JSValueRef arguments[3];
+  arguments[0] = JSValueMakeNumber(ctx, result->status);
+  arguments[1] = c_string_to_value(ctx, result->stdout);
+  arguments[2] = c_string_to_value(ctx, result->stderr);
+
+#ifdef SHELLDBG
+  printf("stdout: %s\n", result->stdout);
+  printf("stderr: %s\n", result->stderr);
+#endif
+
+  free(result->stdout);
+  free(result->stderr);
+
+  return JSObjectMakeArray(ctx, 3, arguments, NULL);
+}
+
+struct ThreadParams {
+  struct SystemResult res;
+  int errpipe;
+  int outpipe;
+  pid_t pid;
+  int cb_idx;
+};
+
+static struct SystemResult* wait_for_child(struct ThreadParams* params) {
+  if (waitpid(params->pid, &params->res.status, 0) != params->pid) params->res.status = -1;
+  else {
+    params->res.stderr = read_child_pipe(params->errpipe);
+    params->res.stdout = read_child_pipe(params->outpipe);
+  }
+  if (params->cb_idx == -1) return &params->res;
+  else {
+    JSValueRef args[1];
+    args[0] = result_to_object_ref(global_ctx, &params->res);
+    JSObjectRef translateResult = get_function(global_ctx, "global", "translate_async_result");
+    JSObjectRef result = (JSObjectRef)JSObjectCallAsFunction(global_ctx, translateResult, NULL,
+                                                             1, args, NULL);
+
+    args[0] = JSValueMakeNumber(global_ctx, params->cb_idx);
+    JSObjectCallAsFunction(global_ctx, get_function(global_ctx, "global", "do_async_sh_callback"),
+                           result, 1, args, NULL);
+
+    free(params);
+    return NULL;
+  }
+}
+
+static void* thread_proc(void* params) {
+  return (void*)wait_for_child((struct ThreadParams*) params);
+}
+
+static JSValueRef system_call(JSContextRef ctx, char* cmd, char** env, char* dir, int cb_idx) {
+  struct SystemResult result = {0};
+  struct SystemResult* res = &result;
 
   int in[2]; pipe(in);
   int out[2]; pipe(out);
@@ -112,24 +168,41 @@ struct SystemResult system_call(char* cmd, char** env, char* dir) {
     char* argv[] = { "/bin/sh", "-c", cmd, 0 };
     execve(argv[0], &argv[0], env);
     _exit(EXIT_FAILURE);
-  } else if (pid < 0) {
-    res.status = -1;
   } else {
-    close(out[0]);
-    close(err[1]);
-    close(in[1]);
-    if (waitpid(pid, &res.status, 0) != pid) res.status = -1;
+    if (pid < 0) res->status = -1;
     else {
-      res.stderr = read_child_pipe(err[0]);
-      res.stdout = read_child_pipe(in[0]);
+      close(out[0]);
+      close(err[1]);
+      close(in[1]);
+
+      struct ThreadParams tp;
+      struct ThreadParams* params = &tp;
+      if (cb_idx != -1) {
+        params = malloc(sizeof(struct ThreadParams));
+      }
+      params->res = result;
+      params->errpipe = err[0];
+      params->outpipe = in[0];
+      params->pid = pid;
+      params->cb_idx = cb_idx;
+      if (cb_idx == -1) res = wait_for_child(params);
+      else {
+        pthread_t thrd;
+        pthread_create(&thrd, NULL, thread_proc, params);
+      }
     }
+
+    free(cmd); free(env); free(dir);
+
+    if (cb_idx != -1) return JSValueMakeNull(ctx);
+    else return (JSValueRef)result_to_object_ref(ctx, res);
   }
-  return res;
+  return JSValueMakeNull(ctx);
 }
 
 JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
-  if (argc == 6) {
+  if (argc == 7) {
     char* joined = cmd(ctx, (JSObjectRef) args[0]);
     if (joined) {
 #ifdef SHELLDBG
@@ -146,26 +219,12 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
         printf("dir: %s\n", dir);
 #endif
       }
-      struct SystemResult result = system_call(joined, environment, dir);
-#ifdef SHELLDBG
-      printf("stdout: %s\n", result.stdout);
-      printf("stderr: %s\n", result.stderr);
-#endif
-
-      JSValueRef arguments[3];
-      arguments[0] = JSValueMakeNumber(ctx, result.status);
-      arguments[1] = c_string_to_value(ctx, result.stdout);
-      arguments[2] = c_string_to_value(ctx, result.stderr);
-
-      free(result.stdout);
-      free(result.stderr);
-      free(dir);
-      free(environment);
-      free(joined);
-
-      return JSObjectMakeArray(ctx, 3, arguments, NULL);
+      int callback_idx = -1;
+      if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[6])) {
+        callback_idx = JSValueToNumber(ctx, args[6], NULL);
+      }
+      return system_call(ctx, joined, environment, dir, callback_idx);
     }
   }
   return JSValueMakeNull(ctx);
 }
-
