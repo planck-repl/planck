@@ -6,7 +6,7 @@
 #import "PLKBundledOut.h"
 #import "PLKTheme.h"
 
-#define PLANCK_VERSION "1.15"
+#define PLANCK_VERSION "1.16"
 
 @implementation PLKCommandLine
 
