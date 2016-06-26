@@ -232,6 +232,7 @@
   "Returns a vector of the first read form, and any balance text."
   [source]
   (binding [ana/*cljs-ns* @current-ns
+            *ns* (create-ns @current-ns)
             env/*compiler* st
             r/*data-readers* tags/*cljs-data-readers*
             r/resolve-symbol ana/resolve-symbol
@@ -500,6 +501,7 @@
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
     (binding [ana/*cljs-ns* @current-ns
+              *ns* (create-ns @current-ns)
               env/*compiler* st
               r/*data-readers* tags/*cljs-data-readers*
               r/resolve-symbol ana/resolve-symbol
