@@ -5,7 +5,7 @@
               :source-paths ["dev"]}
              :build {}}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.89"]       ; comment if building own, and revise planck-cljs/script/build
+                 #_[org.clojure/clojurescript "1.9.89"]       ; comment if building own, and revise planck-cljs/script/build
                  [org.clojure/tools.reader "1.0.0-beta3"]
                  [tailrecursion/cljson "1.0.7"]
                  [com.cognitect/transit-clj "0.8.285"]
