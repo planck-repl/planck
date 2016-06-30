@@ -1,4 +1,5 @@
 (ns planck.shell
+  (:require-macros planck.shell)
   (:require [cljs.spec :as s]
             [planck.io :refer [as-file]]))
 

@@ -1,4 +1,5 @@
 (ns planck.core
+  (:require-macros planck.core)
   (:require [cljs.spec :as s]
             [planck.repl :as repl])
   (:import [goog.string StringBuffer]))
