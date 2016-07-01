@@ -13,12 +13,12 @@
   (let [idx (swap! cb-idx inc)]
     (swap! callbacks assoc idx cb)
     idx))
-(defn do-callback [idx]
+(defn- do-callback [idx]
   (this-as this ((@callbacks idx) this))
   (swap! callbacks dissoc idx))
 (aset js/global "do_async_sh_callback" do-callback)
 
-(defn translate-result [js-res]
+(defn- translate-result [js-res]
   (let [[exit out err] (js->clj js-res)]
     {:exit exit :out out :err err}))
 (aset js/global "translate_async_result" translate-result)
