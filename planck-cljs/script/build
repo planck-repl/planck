@@ -19,7 +19,7 @@ else
      pushd clojurescript
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
-     # curl -L http://dev.clojure.org/jira/secure/attachment/15609/CLJS-1612.patch | git apply
+     curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
