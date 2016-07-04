@@ -338,6 +338,14 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_RAW_WRITE_STDERR", function_raw_write_stderr);
 	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDERR", function_raw_flush_stderr);
 
+	register_global_function(ctx, "PLANCK_FILE_READER_OPEN", function_file_reader_open);
+	register_global_function(ctx, "PLANCK_FILE_READER_READ", function_file_reader_read);
+	register_global_function(ctx, "PLANCK_FILE_READER_CLOSE", function_file_reader_close);
+
+	register_global_function(ctx, "PLANCK_FILE_WRITER_OPEN", function_file_writer_open);
+	register_global_function(ctx, "PLANCK_FILE_WRITER_WRITE", function_file_writer_write);
+	register_global_function(ctx, "PLANCK_FILE_WRITER_CLOSE", function_file_writer_close);
+
 	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 
 	{

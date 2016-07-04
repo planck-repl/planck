@@ -7,11 +7,11 @@ Planck 2.0: This is an in-progress port of Planck 1.x to C, supporting Linux and
 ## Development
 
 - prerequisites: Java, `clang`
-- install `javascriptcore`, `libzip`, `zlib`
+- install deps
     - on mac: `brew install pkg-config libzip`
     - on arch: `pacman -S webkitgtk libzip zlib`
-    - on Ubuntu 14.04: `sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
-    - on Ubuntu 16.04: `sudo apt-get install javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev`
+    - on Ubuntu 14.04: `sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
+    - on Ubuntu 16.04: `sudo apt-get install javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
 - `make bundle-and-build`
 - have fun: `./planck`
 

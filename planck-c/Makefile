@@ -8,14 +8,16 @@ CFLAGS = -Wall -DDEBUG #-fsanitize=address
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	JSCDEP = $(shell pkg-config --exists javascriptcoregtk-4.0 && echo "javascriptcoregtk-4.0" || echo "javascriptcoregtk-3.0")
-	DEPS = $(JSCDEP) libzip libcurl
+	DEPS = $(JSCDEP) libzip libcurl icu-uc icu-io
 	CFLAGS += -pthread $(shell pkg-config --cflags $(DEPS))
 	LIBFLAGS = $(shell pkg-config --libs $(DEPS))
 endif
 ifeq ($(UNAME_S),Darwin)
 	DEPS = libzip libcurl
 	CFLAGS += $(shell pkg-config --cflags $(DEPS))
+	CFLAGS += -I/usr/local/opt/icu4c/include -DU_DISABLE_RENAMING
 	LIBFLAGS += -framework JavaScriptCore $(shell pkg-config --libs $(DEPS))
+	LIBFLAGS += -L/usr/local/opt/icu4c/lib -licucore
 endif
 CFLAGS += $(EXTRA_CFLAGS)
 
