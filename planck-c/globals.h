@@ -27,15 +27,15 @@ struct config {
 	bool dumb_terminal;
 
 	char *main_ns_name;
-	int num_rest_args;
+	size_t num_rest_args;
 	char **rest_args;
 
 	char *out_path;
 	char *cache_path;
 
-	int num_src_paths;
+	size_t num_src_paths;
 	struct src_path *src_paths;
-	int num_scripts;
+	size_t num_scripts;
 	struct script *scripts;
 };
 

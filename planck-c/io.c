@@ -11,13 +11,13 @@ char *read_all(FILE *f) {
 	int len = CHUNK_SIZE + 1;
 	char *buf = malloc(len * sizeof(char));
 
-	int offset = 0;
+	size_t offset = 0;
 	for (;;) {
 		if (len - offset < CHUNK_SIZE) {
 			len = 2 * len + CHUNK_SIZE;
 			buf = realloc(buf, len * sizeof(char));
 		}
-		int n = fread(buf + offset, 1, CHUNK_SIZE, f);
+		size_t n = fread(buf + offset, 1, CHUNK_SIZE, f);
 		offset += n;
 		if (feof(f)) {
 			break;
@@ -70,7 +70,7 @@ void write_contents(char *path, char *contents) {
 		return;
 	}
 
-	int len = strlen(contents);
+	size_t len = strlen(contents);
 	int offset = 0;
 	do {
 		int res = fwrite(contents+offset, 1, len-offset, f);

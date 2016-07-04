@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
 	config.num_rest_args = 0;
 	config.rest_args = NULL;
 	if (optind < argc) {
-		config.num_rest_args = argc - optind;
+		config.num_rest_args = (size_t)(argc - optind);
 		config.rest_args = malloc((argc - optind) * sizeof(char*));
 		int i = 0;
 		while (optind < argc) {

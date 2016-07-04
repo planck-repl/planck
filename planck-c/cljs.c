@@ -38,8 +38,8 @@ void signal_engine_ready() {
 }
 
 char *munge(char *s) {
-	int len = strlen(s);
-	int new_len = 0;
+	size_t len = strlen(s);
+	size_t new_len = 0;
 	for (int i = 0; i < len; i++) {
 		switch (s[i]) {
 		case '!':
@@ -131,7 +131,7 @@ JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expr
 	}
 
 	JSValueRef args[6];
-	int num_args = 6;
+	size_t num_args = 6;
 
 	{
 		JSValueRef source_args[2];
@@ -227,10 +227,10 @@ void bootstrap(JSContextRef ctx, char *out_path) {
 			"};", source);
 }
 
-void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
+void run_main_in_ns(JSContextRef ctx, char *ns, size_t argc, char **argv) {
 	block_until_engine_ready();
 
-	int num_arguments = argc + 1;
+	size_t num_arguments = argc + 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, ns);
 	for (int i=1; i<num_arguments; i++) {
@@ -245,7 +245,7 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 char *get_current_ns(JSContextRef ctx) {
 	block_until_engine_ready();
 
-	int num_arguments = 0;
+	size_t num_arguments = 0;
 	JSValueRef arguments[num_arguments];
 	JSObjectRef get_current_ns_fn = get_function(ctx, "planck.repl", "get-current-ns");
 	JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
@@ -255,7 +255,7 @@ char *get_current_ns(JSContextRef ctx) {
 char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions) {
 	block_until_engine_ready();
 
-	int num_arguments = 1;
+	size_t num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, (char *)buffer);
 	JSObjectRef completions_fn = get_function(ctx, "planck.repl", "get-completions");
@@ -271,7 +271,7 @@ char **get_completions(JSContextRef ctx, const char *buffer, int *num_completion
 
 	char **completions = malloc(n * sizeof(char*));
 
-	for (int i = 0; i < n; i++) {
+	for (unsigned int i = 0; i < n; i++) {
 		JSValueRef v = JSObjectGetPropertyAtIndex(ctx, array, i, NULL);
 		completions[i] = value_to_c_string(ctx, v);
 	}
@@ -445,7 +445,7 @@ bool cljs_print_newline(JSContextRef ctx) {
 char *cljs_is_readable(JSContextRef ctx, char *expression) {
 	block_until_engine_ready();
 
-	int num_arguments = 2;
+	size_t num_arguments = 2;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, expression);
 	arguments[1] = c_string_to_value(ctx, config.theme);
@@ -456,17 +456,17 @@ char *cljs_is_readable(JSContextRef ctx, char *expression) {
 int cljs_indent_space_count(JSContextRef ctx, char *text) {
 	block_until_engine_ready();
 
-	int num_arguments = 1;
+	size_t num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, text);
 	JSValueRef result = JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "indent-space-count"), JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
-    return JSValueToNumber(ctx, result, NULL);
+    return (int)JSValueToNumber(ctx, result, NULL);
 }
 
-void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, const char *buf, int num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos) {
+void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, const char *buf, size_t num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos) {
 	block_until_engine_ready();
 
-	int num_arguments = 3;
+	size_t num_arguments = 3;
 	JSValueRef arguments[num_arguments];
     arguments[0] = JSValueMakeNumber(ctx, pos);
     arguments[1] = c_string_to_value(ctx, buf);

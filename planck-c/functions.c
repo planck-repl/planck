@@ -153,7 +153,7 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
 
 JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
-	int num_files = 0;
+	size_t num_files = 0;
 	char **deps_cljs_files = NULL;
 
 	if (argc == 0) {
@@ -201,7 +201,7 @@ JSValueRef function_cache(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 
 		char *suffix = NULL;
 		int max_suffix_len = 20;
-		int prefix_len = strlen(cache_prefix);
+		size_t prefix_len = strlen(cache_prefix);
 		char *path = malloc((prefix_len + max_suffix_len) * sizeof(char));
 		memset(path, 0, prefix_len + max_suffix_len);
 
@@ -297,7 +297,7 @@ JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjec
 JSValueRef function_set_exit_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	if (argc == 1 && JSValueGetType (ctx, args[0]) == kJSTypeNumber) {
-		exit_value = JSValueToNumber(ctx, args[0], NULL);
+		exit_value = (int)JSValueToNumber(ctx, args[0], NULL);
 	}
 	return JSValueMakeNull(ctx);
 }
@@ -306,7 +306,7 @@ JSValueRef function_raw_read_stdin(JSContextRef ctx, JSObjectRef function, JSObj
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	char buf[1024 + 1];
 
-	int n = fread(buf, 1, config.is_tty ? 1 : 1024, stdin);
+	size_t n = fread(buf, 1, config.is_tty ? 1 : 1024, stdin);
 	if (n > 0) {
 		buf[n] = '\0';
 		return c_string_to_value(ctx, buf);

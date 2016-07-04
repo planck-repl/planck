@@ -26,7 +26,7 @@ char *history_path = NULL;
 char *input = NULL;
 int indent_space_count = 0;
 
-int num_previous_lines = 0;
+size_t num_previous_lines = 0;
 char **previous_lines = NULL;
 
 int socket_repl_session_id = 0;
@@ -51,7 +51,7 @@ char *form_prompt(char *current_ns, bool is_secondary) {
 		}
 	} else {
 		if (!config.dumb_terminal) {
-			int len = strlen(current_ns) - 2;
+			size_t len = strlen(current_ns) - 2;
 			prompt = malloc((len + 6) * sizeof(char));
 			memset(prompt, ' ', len);
 			sprintf(prompt + len, "#_=> ");
@@ -64,7 +64,7 @@ char *form_prompt(char *current_ns, bool is_secondary) {
 char *get_input() {
 	char *line = NULL;
 	size_t len = 0;
-	int n = getline(&line, &len, stdin);
+	ssize_t n = getline(&line, &len, stdin);
 	if (n > 0) {
 		if (line[n-1] == '\n') {
 			line[n-1] = '\0';
@@ -81,7 +81,7 @@ void display_prompt(char *prompt) {
 }
 
 bool is_whitespace(char *s) {
-	int len = strlen(s);
+	size_t len = strlen(s);
 	for (int i = 0; i < len; i++) {
 		if (!isspace(s[i])) {
 			return false;
@@ -363,7 +363,7 @@ int run_repl(JSContextRef ctx) {
 		char *home = getenv("HOME");
 		if (home != NULL) {
 			char history_name[] = ".planck_history";
-			int len = strlen(home) + strlen(history_name) + 2;
+			size_t len = strlen(home) + strlen(history_name) + 2;
 			history_path = malloc(len * sizeof(char));
 			snprintf(history_path, len, "%s/%s", home, history_name);
 

@@ -45,8 +45,8 @@ size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void 
 	// printf("'%s'\n", buffer);
 
 	int key_end = -1;
-	int val_end = size * nitems;
-	for (int i = 0; i < size * nitems; i++) {
+	size_t val_end = size * nitems;
+	for (size_t i = 0; i < size * nitems; i++) {
 		if (buffer[i] == ':' && key_end == -1) {
 			key_end = i;
 		}
@@ -66,7 +66,7 @@ size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void 
 	JSStringRef key_str = JSStringCreateWithUTF8CString(key);
 
 	int val_start = key_end + 2;
-	int val_len = val_end - val_start;
+	size_t val_len = val_end - val_start;
 	char val[val_len];
 	strncpy(val, buffer + val_start, val_end - val_start);
 	val[val_len] = '\0';
@@ -130,20 +130,20 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 		struct curl_slist *headers = NULL;
 		if (!JSValueIsNull(ctx, headers_obj)) {
 			JSPropertyNameArrayRef properties = JSObjectCopyPropertyNames(ctx, headers_obj);
-			int n = JSPropertyNameArrayGetCount(properties);
+			size_t n = JSPropertyNameArrayGetCount(properties);
 			for (int i = 0; i < n; i++) {
 				JSStringRef key_str = JSPropertyNameArrayGetNameAtIndex(properties, i);
 				JSValueRef val_ref = JSObjectGetProperty(ctx, headers_obj, key_str, NULL);
 
-				int len = JSStringGetLength(key_str) + 1;
+				size_t len = JSStringGetLength(key_str) + 1;
 				char *key = malloc(len * sizeof(char));
 				JSStringGetUTF8CString(key_str, key, len);
 				JSStringRef val_as_str = to_string(ctx, val_ref);
 				char *val = value_to_c_string(ctx, JSValueMakeString(ctx, val_as_str));
 				JSStringRelease(val_as_str);
 
-				int len_key = strlen(key);
-				int len_val = strlen(val);
+				size_t len_key = strlen(key);
+				size_t len_val = strlen(val);
 				char *header = malloc((len_key + len_val + 2 + 1) * sizeof(char));
 				sprintf(header, "%s: %s", key, val);
 				curl_slist_append(headers, header);
