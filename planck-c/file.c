@@ -20,8 +20,7 @@ uint64_t file_open_read(const char* path, const char* encoding) {
 }
 
 uint64_t file_open_write(const char* path,  bool append, const char* encoding) {
-    // TODO support append
-    return file_open(path, encoding, "w");
+    return file_open(path, encoding, (append ? "a" : "w"));
 }
 
 JSStringRef file_read(uint64_t descriptor) {
