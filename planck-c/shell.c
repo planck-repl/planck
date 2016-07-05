@@ -20,24 +20,23 @@ static int JSArrayGetCount(JSContextRef ctx, JSObjectRef arr)
 
 #define JSArrayGetValueAtIndex(ctx, array, i) JSObjectGetPropertyAtIndex(ctx, array, i, NULL)
 
-static char* cmd(JSContextRef ctx, const JSObjectRef array) {
+static char** cmd(JSContextRef ctx, const JSObjectRef array) {
   int argc = JSArrayGetCount(ctx, array);
-  char** args = malloc(sizeof(char*) * argc);
-  int total_size = 0;
-  for (int i = 0; i < argc; i++) {
-    JSValueRef val = JSArrayGetValueAtIndex(ctx, array, i);
-    if (JSValueGetType(ctx, val) != kJSTypeString) return NULL;
-    args[i] = value_to_c_string(ctx, val);
-    total_size += strlen(args[i]) + 1;
+  char** result = NULL;
+  if (argc > 0) {
+    result = malloc(sizeof(char*) * (argc + 1));
+    for (int i = 0; i < argc; i++) {
+      JSValueRef val = JSArrayGetValueAtIndex(ctx, array, i);
+      if (JSValueGetType(ctx, val) != kJSTypeString) {
+        for (int j = 0; j < i; j++)
+          free(result[j]);
+        free(result);
+        return NULL;
+      }
+      result[i] = value_to_c_string(ctx, val);
+    }
+    result[argc] = 0;
   }
-  char* result = malloc(total_size + 1 + argc);
-  result[0] = 0;
-  for (int i = 0; i < argc; i++) {
-    strcat(result, args[i]);
-    strcat(result, " ");
-    free(args[i]);
-  }
-  free(args);
   return result;
 }
 
@@ -147,7 +146,7 @@ static void* thread_proc(void* params) {
   return (void*)wait_for_child((struct ThreadParams*) params);
 }
 
-static JSValueRef system_call(JSContextRef ctx, char* cmd, char** env, char* dir, int cb_idx) {
+static JSValueRef system_call(JSContextRef ctx, char** cmd, char** env, char* dir, int cb_idx) {
   struct SystemResult result = {0};
   struct SystemResult* res = &result;
 
@@ -165,8 +164,11 @@ static JSValueRef system_call(JSContextRef ctx, char* cmd, char** env, char* dir
     close(out[1]);
     close(err[0]);
     close(in[0]);
-    char* argv[] = { "/bin/sh", "-c", cmd, 0 };
-    execve(argv[0], &argv[0], env);
+    if (env) {
+      extern char **environ;
+      environ = env;
+    }
+    execvp(cmd[0], cmd);
     _exit(EXIT_FAILURE);
   } else {
     if (pid < 0) res->status = -1;
@@ -192,7 +194,15 @@ static JSValueRef system_call(JSContextRef ctx, char* cmd, char** env, char* dir
       }
     }
 
-    free(cmd); free(env); free(dir);
+    for (int i = 0; cmd[i] != NULL; i++)
+      free(cmd[i]);
+    free(cmd);
+    if (env) {
+      for (int i = 0; env[i] != NULL; i++)
+        free(env[i]);
+      free(env);
+    }
+    free(dir);
 
     if (cb_idx != -1) return JSValueMakeNull(ctx);
     else return (JSValueRef)result_to_object_ref(ctx, res);
@@ -203,10 +213,13 @@ static JSValueRef system_call(JSContextRef ctx, char* cmd, char** env, char* dir
 JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
   if (argc == 7) {
-    char* joined = cmd(ctx, (JSObjectRef) args[0]);
-    if (joined) {
+    char** command = cmd(ctx, (JSObjectRef) args[0]);
+    if (command) {
 #ifdef SHELLDBG
-      printf("cmd: %s\n", joined);
+      printf("cmd: [");
+      for (int i = 0; command[i] != NULL; i++)
+        printf("%s\"%s\"", i > 0 ? ", " : "", command[i]);
+      printf("]\n");
 #endif
       char** environment = NULL;
       if (!JSValueIsNull(ctx, args[4])) {
@@ -223,7 +236,7 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
       if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[6])) {
         callback_idx = JSValueToNumber(ctx, args[6], NULL);
       }
-      return system_call(ctx, joined, environment, dir, callback_idx);
+      return system_call(ctx, command, environment, dir, callback_idx);
     }
   }
   return JSValueMakeNull(ctx);
