@@ -457,6 +457,54 @@
    :gen-class
    :keywordize-keys])
 
+(def ^:private namespace-completion-exclusions
+  '[planck.from.io.aviso.ansi
+    planck.pprint.code
+    planck.pprint.data
+    planck.bundle
+    planck.js-deps
+    planck.repl
+    planck.repl-resources
+    planck.themes
+    tailrecursion.cljson
+    clojure.core.rrb-vector
+    clojure.core.rrb-vector.interop
+    clojure.core.rrb-vector.nodes
+    clojure.core.rrb-vector.protocols
+    clojure.core.rrb-vector.rrbt
+    clojure.core.rrb-vector.transients
+    clojure.core.rrb-vector.trees
+    cognitect.transit
+    fipp.deque
+    fipp.engine
+    fipp.visit
+    lazy-map.core
+    cljs.source-map
+    cljs.source-map.base64
+    cljs.source-map.base64-vlq
+    cljs.repl
+    cljs.tools.reader.impl.commons
+    cljs.tools.reader.impl.utils
+    cljs.stacktrace])
+
+(def ^:private namespace-completion-additons
+  '[planck.core
+    planck.io
+    planck.http
+    planck.shell
+    clojure.test
+    clojure.spec
+    clojure.pprint])
+
+(defn- namespace-completions
+  []
+  (->> (all-ns)
+    (map #(drop-macros-suffix (str %)))
+    (remove (into #{} (map str namespace-completion-exclusions)))
+    (concat (map str namespace-completion-additons))
+    sort
+    distinct))
+
 (defn- expand-typed-ns
   "Expand the typed namespace symbol to a known namespace, consulting
   current namespace aliases if necessary."
@@ -474,7 +522,7 @@
              (completion-candidates-for-ns (add-macros-suffix expanded-ns) false)))
          (concat
            (map str keyword-completions)
-           (map #(drop-macros-suffix (str %)) (all-ns))
+           (namespace-completions)
            (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
