@@ -455,7 +455,9 @@
    :default
    :else
    :gen-class
-   :keywordize-keys])
+   :keywordize-keys
+   :req :req-un :opt :opt-un
+   :args :ret :fn])
 
 (def ^:private namespace-completion-exclusions
   '[planck.from.io.aviso.ansi
