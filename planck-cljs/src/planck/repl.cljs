@@ -206,8 +206,14 @@
       (catch :default e
         {:failed-read (.-message e)}))))
 
+(declare default-session-state)
+
+(defn- setup-asserts [elide-asserts]
+  (set! *assert* (not elide-asserts))
+  (swap! default-session-state assoc :*assert* elide-asserts))
+
 (defn- ^:export init
-  [repl verbose cache-path static-fns]
+  [repl verbose cache-path static-fns elide-asserts]
   (load-core-analysis-caches repl)
   (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec)
   (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec.test)
@@ -220,7 +226,8 @@
                                   (when static-fns
                                     {:static-fns true})))
     (js-deps/index-foreign-libs opts)
-    (js-deps/index-upstream-foreign-libs)))
+    (js-deps/index-upstream-foreign-libs))
+  (setup-asserts elide-asserts))
 
 (defn- read-chars
   [reader]
@@ -1419,7 +1426,7 @@
 
 (def ^{:private true
        :doc     "The default state used to initialize a new REPL session."} default-session-state
-  (capture-session-state))
+  (atom (capture-session-state)))
 
 (defonce ^{:private true
            :doc     "The state for each session, keyed by session ID."} session-states (atom {}))
@@ -1432,7 +1439,7 @@
 (defn- set-session-state-for-session-id
   "Sets the session state for a given session."
   [session-id]
-  (set-session-state (get @session-states session-id default-session-state)))
+  (set-session-state (get @session-states session-id @default-session-state)))
 
 (defn- capture-session-state-for-session-id
   "Captures the session state for a given session."

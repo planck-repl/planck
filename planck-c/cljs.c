@@ -364,7 +364,7 @@ void *cljs_do_engine_init(void *data) {
 	cljs_set_print_sender(ctx, &discarding_sender);
 
 	{
-		JSValueRef arguments[4];
+		JSValueRef arguments[5];
 		arguments[0] = JSValueMakeBoolean(ctx, config.repl);
 		arguments[1] = JSValueMakeBoolean(ctx, config.verbose);
 		JSValueRef cache_path_ref = NULL;
@@ -374,8 +374,9 @@ void *cljs_do_engine_init(void *data) {
 		}
 		arguments[2] = cache_path_ref;
 		arguments[3] = JSValueMakeBoolean(ctx, config.static_fns);
+		arguments[4] = JSValueMakeBoolean(ctx, config.elide_asserts);
 		JSValueRef ex = NULL;
-		JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "init"), JSContextGetGlobalObject(ctx), 4, arguments, &ex);
+		JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "init"), JSContextGetGlobalObject(ctx), 5, arguments, &ex);
 		debug_print_value("planck.repl/init", ctx, ex);
 	}
 
@@ -387,10 +388,6 @@ void *cljs_do_engine_init(void *data) {
 
 	evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
 	evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
-
-	char *elide_script = str_concat("cljs.core._STAR_assert_STAR_ = ", config.elide_asserts ? "false" : "true");
-	evaluate_script(ctx, elide_script, "<init>");
-	free(elide_script);
 
 	signal_engine_ready();
 

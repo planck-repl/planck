@@ -619,3 +619,9 @@ $PLANCK << REPL_INPUT
 (println "end")
 :cljs/quit
 REPL_INPUT
+
+echo "Disable asserts"
+$PLANCK -a << REPL_INPUT
+(assert false)
+REPL_INPUT
+
