@@ -194,6 +194,10 @@ static JSValueRef system_call(JSContextRef ctx, char** cmd, char** env, char* di
       }
     }
 
+    close(out[1]);
+    close(err[0]);
+    close(in[0]);
+
     for (int i = 0; cmd[i] != NULL; i++)
       free(cmd[i]);
     free(cmd);
