@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <JavaScriptCore/JavaScript.h>
@@ -506,6 +507,100 @@ JSValueRef function_file_writer_close(JSContextRef ctx, JSObjectRef function, JS
 		char *descriptor = value_to_c_string(ctx, args[0]);
 		file_close(descriptor_str_to_int(descriptor));
 		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+		struct stat file_stat;
+
+		int retval = lstat(path, &file_stat);
+
+		if (retval == 0) {
+			JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
+
+			char *type = "unknown";
+			if (S_ISDIR(file_stat.st_mode)) {
+				type = "directory";
+			} else if (S_ISREG(file_stat.st_mode)) {
+				type = "file";
+			} else if (S_ISLNK(file_stat.st_mode)) {
+				type = "symbolic-link";
+			} else if (S_ISSOCK(file_stat.st_mode)) {
+				type = "socket";
+			} else if (S_ISFIFO(file_stat.st_mode)) {
+				type = "fifo";
+			} else if (S_ISCHR(file_stat.st_mode)) {
+				type = "character-special";
+			} else if (S_ISBLK(file_stat.st_mode)) {
+				type = "block-special";
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("type"),
+								c_string_to_value(ctx, type),
+								kJSPropertyAttributeReadOnly, NULL);
+
+
+			double device_id = (double)file_stat.st_rdev;
+			if (device_id) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("device-id"),
+									JSValueMakeNumber(ctx, device_id),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			double file_number = (double)file_stat.st_ino;
+			if (file_number) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("file-number"),
+									JSValueMakeNumber(ctx, file_number),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("permissions"),
+								JSValueMakeNumber(ctx, (double)(ACCESSPERMS & file_stat.st_mode)),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("reference-count"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_nlink),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("uid"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_uid),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("gid"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_gid),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			// TODO uname, gname
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("file-size"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_size),
+								kJSPropertyAttributeReadOnly, NULL);
+
+#ifdef __APPLE__
+#define birthtime(x) x.st_birthtime
+#else
+#define birthtime(x) x.st_ctime
+#endif
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("created"),
+								JSValueMakeNumber(ctx, 1000*birthtime(file_stat)),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("modified"),
+								JSValueMakeNumber(ctx, 1000*file_stat.st_mtime),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			return result;
+		}
+
+		free(path);
 	}
 	return JSValueMakeNull(ctx);
 }

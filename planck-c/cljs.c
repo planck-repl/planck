@@ -346,6 +346,8 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_FILE_WRITER_WRITE", function_file_writer_write);
 	register_global_function(ctx, "PLANCK_FILE_WRITER_CLOSE", function_file_writer_close);
 
+	register_global_function(ctx, "PLANCK_FSTAT", function_fstat);
+
 	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 
 	{
