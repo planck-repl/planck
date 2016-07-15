@@ -5,7 +5,7 @@
   (:import [goog.string StringBuffer]))
 
 (s/def ::binding
-  (s/cat :name symbol? :value ::s/any))
+  (s/cat :name symbol? :value any?))
 
 (s/def ::bindings
   (s/and vector?
@@ -13,7 +13,7 @@
          (s/* ::binding)))
 
 #_(s/fdef planck.core$macros/with-open
-  :args (s/cat :bindings ::bindings :body (s/* ::s/any)))
+  :args (s/cat :bindings ::bindings :body (s/* any?)))
 
 (def *planck-version* js/PLANCK_VERSION)
 
@@ -223,7 +223,7 @@
         (-close r)))))
 
 (s/fdef slurp
-  :args (s/cat :f :planck.io/coercible-file? :opts (s/* ::s/any))
+  :args (s/cat :f :planck.io/coercible-file? :opts (s/* any?))
   :ret string?)
 
 (defn spit
@@ -237,7 +237,7 @@
         (-close w)))))
 
 (s/fdef spit
-  :args (s/cat :f :planck.io/coercible-file? :content ::s/any :opts (s/* ::s/any)))
+  :args (s/cat :f :planck.io/coercible-file? :content any? :opts (s/* any?)))
 
 (defn eval
   "Evaluates the form data structure (not text!) and returns the result."
@@ -245,8 +245,8 @@
   (repl/eval form))
 
 (s/fdef eval
-  :args (s/cat :form ::s/any)
-  :ret ::s/any)
+  :args (s/cat :form any?)
+  :ret any?)
 
 (defn ns-resolve
   "Returns the var to which a symbol will be resolved in the namespace,
@@ -283,7 +283,7 @@
 (s/fdef intern
   :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %))
           :name symbol?
-          :val (s/? ::s/any)))
+          :val (s/? any?)))
 
 (defn- transfer-ns
   [state ns]

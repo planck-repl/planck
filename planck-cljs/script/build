@@ -9,7 +9,7 @@ script/lein -v
 
 # Uncomment to build our own copy of ClojureScript compiler
 # Also see change needed in project.clj
-CLJS_GIT_COMMIT=053d7f1ead6698b38e7ff656e0910ebc8bb8f729
+CLJS_GIT_COMMIT=d49c020135757e68c730268a57bdbc90a02d9b33
 
 if [ -z "$CLJS_GIT_COMMIT" ]; then
   CLJSC_CP=`script/lein with-profile build classpath`
@@ -19,7 +19,7 @@ else
      pushd clojurescript
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
-     curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
+     # curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
