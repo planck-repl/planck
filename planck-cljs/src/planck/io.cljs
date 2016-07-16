@@ -66,6 +66,11 @@
   (make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
   (make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
 
+(defonce ^:private open-file-reader-descriptors (atom #{}))
+(defonce ^:private open-file-writer-descriptors (atom #{}))
+(defonce ^:private open-file-input-stream-descriptors (atom #{}))
+(defonce ^:private open-file-output-stream-descriptors (atom #{}))
+
 (extend-protocol IOFactory
   string
   (make-reader [s opts]
@@ -79,33 +84,61 @@
 
   File
   (make-reader [file opts]
-    (let [file-reader (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
+    (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
+      (swap! open-file-reader-descriptors conj file-descriptor)
       (planck.core/BufferedReader.
-        (fn [] (let [[result err] (js/PLANCK_FILE_READER_READ file-reader)]
-                 (if err
-                   (throw (js/Error. err)))
-                 result))
-        (fn [] (js/PLANCK_FILE_READER_CLOSE file-reader))
+        (fn []
+          (if (contains? @open-file-reader-descriptors file-descriptor)
+            (let [[result err] (js/PLANCK_FILE_READER_READ file-descriptor)]
+              (if err
+                (throw (js/Error. err)))
+              result)
+            (throw (js/Error. "File closed."))))
+        (fn []
+          (when (contains? @open-file-reader-descriptors file-descriptor)
+            (swap! open-file-reader-descriptors disj file-descriptor)
+            (js/PLANCK_FILE_READER_CLOSE file-descriptor)))
         (atom nil))))
   (make-writer [file opts]
-    (let [file-writer (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
+    (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
+      (swap! open-file-writer-descriptors conj file-descriptor)
       (planck.core/Writer.
-        (fn [s] (if-let [err (js/PLANCK_FILE_WRITER_WRITE file-writer s)]
-                  (throw (js/Error. err)))
+        (fn [s]
+          (if (contains? @open-file-writer-descriptors file-descriptor)
+            (if-let [err (js/PLANCK_FILE_WRITER_WRITE file-descriptor s)]
+              (throw (js/Error. err)))
+            (throw (js/Error. "File closed.")))
           nil)
         (fn [])
-        (fn [] (js/PLANCK_FILE_WRITER_CLOSE file-writer)))))
+        (fn []
+          (when (contains? @open-file-writer-descriptors file-descriptor)
+            (swap! open-file-writer-descriptors disj file-descriptor)
+            (js/PLANCK_FILE_WRITER_CLOSE file-descriptor))))))
   (make-input-stream [file opts]
-    (let [file-input-stream (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
+    (let [file-descriptor (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
+      (swap! open-file-input-stream-descriptors conj file-descriptor)
       (planck.core/InputStream.
-        (fn [] (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-input-stream)))
-        (fn [] (js/PLANCK_FILE_INPUT_STREAM_CLOSE file-input-stream)))))
+        (fn []
+          (if (contains? @open-file-input-stream-descriptors file-descriptor)
+            (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor))
+            (throw (js/Error. "File closed."))))
+        (fn []
+          (when (contains? @open-file-input-stream-descriptors file-descriptor)
+            (swap! open-file-input-stream-descriptors disj file-descriptor)
+            (js/PLANCK_FILE_INPUT_STREAM_CLOSE file-descriptor))))))
   (make-output-stream [file opts]
-    (let [file-output-stream (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
+    (let [file-descriptor (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
+      (swap! open-file-output-stream-descriptors conj file-descriptor)
       (planck.core/OutputStream.
-        (fn [byte-array] (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-output-stream (clj->js byte-array)))
+        (fn [byte-array]
+          (if (contains? @open-file-output-stream-descriptors file-descriptor)
+            (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (clj->js byte-array))
+            (throw (js/Error. "File closed."))))
         (fn [])
-        (fn [] (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-output-stream))))))
+        (fn []
+          (when (contains? @open-file-output-stream-descriptors file-descriptor)
+            (swap! open-file-output-stream-descriptors disj file-descriptor)
+            (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-descriptor)))))))
 
 (defn reader
   "Attempts to coerce its argument into an open IBufferedReader."
