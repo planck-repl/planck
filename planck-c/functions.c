@@ -5,6 +5,8 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -573,11 +575,25 @@ JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 								JSValueMakeNumber(ctx, (double)file_stat.st_uid),
 								kJSPropertyAttributeReadOnly, NULL);
 
+			struct passwd * uid_passwd = getpwuid(file_stat.st_uid);
+
+			if (uid_passwd) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("uname"),
+									c_string_to_value(ctx, uid_passwd->pw_name),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
 			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("gid"),
 								JSValueMakeNumber(ctx, (double)file_stat.st_gid),
 								kJSPropertyAttributeReadOnly, NULL);
 
-			// TODO uname, gname
+			struct group * gid_group = getgrgid(file_stat.st_gid);
+
+			if (gid_group) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("gname"),
+									c_string_to_value(ctx, gid_group->gr_name),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
 
 			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("file-size"),
 								JSValueMakeNumber(ctx, (double)file_stat.st_size),
