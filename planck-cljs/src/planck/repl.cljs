@@ -21,7 +21,6 @@
             [lazy-map.core :refer-macros [lazy-map]]
             [cljsjs.parinfer]
             [planck.js-deps :as js-deps]
-            [clojure.string :as string]
             [planck.pprint.code]
             [planck.pprint.data]))
 
@@ -541,18 +540,44 @@
                (map str (keys special-doc-map))
                (map str (keys repl-special-doc-map))))))))
 
+(defn- spec-registered-keywords
+  [ns]
+  (->> (s/registry)
+    keys
+    (filter keyword?)
+    (filter #(= (str ns) (namespace %)))))
+
+(defn- local-keyword-str
+  [kw]
+  (str "::" (name kw)))
+
+(defn- local-keyword
+  "Returns foo for ::foo, otherwise nil"
+  [buffer]
+  (second (re-find #"::([a-zA-Z-]*)$" buffer)))
+
+(defn- local-keyword-completions
+  [buffer kw-name]
+  (let [buffer-prefix (subs buffer 0 (- (count buffer) (count kw-name) 2))]
+    (clj->js (->> (spec-registered-keywords @current-ns)
+               (map local-keyword-str)
+               (filter #(string/starts-with? % (str "::" kw-name)))
+               (map #(str buffer-prefix %))))))
+
 (defn- ^:export get-completions
   [buffer]
-  (let [top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns             (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
-    (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
-          buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
-      (clj->js (if (= "" buffer-match-suffix)
-                 []
-                 (map #(str buffer-prefix %)
-                   (sort
-                     (filter (partial is-completion? buffer-match-suffix)
-                       (completion-candidates top-form? typed-ns)))))))))
+  (if-let [kw-name (local-keyword buffer)]
+    (local-keyword-completions buffer kw-name)
+    (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
+          typed-ns (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+      (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
+            buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+        (clj->js (if (= "" buffer-match-suffix)
+                   []
+                   (map #(str buffer-prefix %)
+                     (sort
+                       (filter (partial is-completion? buffer-match-suffix)
+                         (completion-candidates top-form? typed-ns))))))))))
 
 (defn- is-completely-readable?
   [source]
