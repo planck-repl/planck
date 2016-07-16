@@ -176,7 +176,13 @@ static JSValueRef system_call(JSContextRef ctx, char** cmd, char** env, char* di
       environ = env;
     }
     execvp(cmd[0], cmd);
-    _exit(EXIT_FAILURE);
+    if (errno == EACCES || errno == EPERM) {
+      exit(126);
+    } else if (errno == ENOENT) {
+      exit(127);
+    } else {
+      exit(1);
+    }
   } else {
     if (pid < 0) res->status = -1;
     else {

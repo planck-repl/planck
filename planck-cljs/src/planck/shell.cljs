@@ -23,6 +23,8 @@
     {:exit exit :out out :err err}))
 (aset js/global "translate_async_result" translate-result)
 
+(def ^:private launch-fail "launch path not accessible")
+
 (def ^:private nil-func (fn [_] nil))
 (defn- sh-internal
   [& args]
@@ -37,9 +39,11 @@
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc
                                                            (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
-      (if (and (== -1 exit)
-               (= "launch path not accessible" err))
-        (throw (js/Error. err))
+      (if (or (== 126 exit)
+              (== 127 exit)
+              (and (== -1 exit)
+                   (= launch-fail err)))
+        (throw (js/Error. launch-fail))
         (if async? nil translated)))))
 
 (defn sh
