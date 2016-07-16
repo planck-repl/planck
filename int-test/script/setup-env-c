@@ -2,6 +2,6 @@
 
 export EXPECTED_PATH=int-test/expected
 export ACTUAL_PATH=/tmp
-export PLANCK_BINARY=planck-c/planck
+export PLANCK_BINARY=planck-c/build/planck
 export HOME=int-test
 export SRC=$HOME/src

@@ -36,15 +36,30 @@ script/bundle-c
 checkCmdSuccess
 cd ..
 
+if [ ! -e planck-c/linenoise.h ] || [ planck/linenoise/linenoise.h -nt planck-c/linenoise.h ] || 
+   [ ! -e planck-c/linenoise.c ] || [ planck/linenoise/linenoise.c -nt planck-c/linenoise.c ]
+then
+   echo "### Copying over linenoise source"
+   cp planck/linenoise/linenoise.h planck-c
+   cp planck/linenoise/linenoise.c planck-c
+fi
+
 echo "### Building 1st Stage Binary"
 cd planck-c
-make build
-cd ..
+mkdir -p build
+cd build
+if [ ! -e Makefile ]
+then
+   export CC=clang
+   cmake ..
+fi
+make
+cd ../..
 checkCmdSuccess
 
 echo "### Compiling Macro Namespaces"
 mkdir -p planck-cljs/out/macros-tmp
-planck-c/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
+planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
 
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
@@ -80,9 +95,9 @@ checkCmdSuccess
 cd ..
 
 echo "### Building 2nd Stage Binary"
-cd planck-c
-make build
-cd ..
+cd planck-c/build
+make
+cd ../..
 checkCmdSuccess
 
-echo "Binary located at $PWD/planck-c/planck"
+echo "Binary located at $PWD/planck-c/build/planck"

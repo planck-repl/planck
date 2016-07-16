@@ -9,8 +9,8 @@
 (defn file-exists? [filename]
   (succeeded? (sh "ls" filename)))
 
-(when-not (file-exists? "planck-c/planck")
-  (println "ERROR: You must run `make bundle-and-build` in planck-c before running script/test-int-c")
+(when-not (file-exists? "planck-c/build/planck")
+  (println "ERROR: You must run `script/build-c` before running script/test-int-c")
   (exit 1))
 
 (println "Running integration tests...")
