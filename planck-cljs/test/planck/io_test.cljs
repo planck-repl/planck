@@ -19,12 +19,7 @@
     (is (string? (:gname (planck.io/file-attributes "/tmp"))))
     (is (= js/Date (type (:created (planck.io/file-attributes "/tmp")))))
     (is (= js/Date (type (:modified (planck.io/file-attributes "/tmp")))))
-    (is (number? (:creator-code (planck.io/file-attributes "/tmp"))))
-    (is (number? (:type-code (planck.io/file-attributes "/tmp"))))
-    (is (number? (:file-size (planck.io/file-attributes "/tmp"))))
-    (let [extension-hidden (:extension-hidden (planck.io/file-attributes "/tmp"))]
-      (is (or (true? extension-hidden)
-              (false? extension-hidden))))))
+    (is (number? (:file-size (planck.io/file-attributes "/tmp"))))))
 
 (deftest coercions
   (testing "as-file coerceions"
