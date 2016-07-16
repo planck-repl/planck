@@ -122,6 +122,13 @@ struct ThreadParams {
 static struct SystemResult* wait_for_child(struct ThreadParams* params) {
   if (waitpid(params->pid, &params->res.status, 0) != params->pid) params->res.status = -1;
   else {
+    if (WIFEXITED(params->res.status)) {
+      params->res.status = WEXITSTATUS(params->res.status);
+    } else if (WIFSIGNALED(params->res.status)) {
+      params->res.status = 128 + WTERMSIG(params->res.status);
+    } else {
+      params->res.status = -1;
+    }
     params->res.stderr = read_child_pipe(params->errpipe);
     params->res.stdout = read_child_pipe(params->outpipe);
   }
