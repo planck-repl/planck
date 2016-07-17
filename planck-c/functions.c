@@ -406,7 +406,7 @@ JSValueRef function_file_reader_open(JSContextRef ctx, JSObjectRef function, JSO
 		char *path = value_to_c_string(ctx, args[0]);
 		char *encoding = value_to_c_string(ctx, args[1]);
 
-		uint64_t descriptor = file_open_read(path, encoding);
+		uint64_t descriptor = ufile_open_read(path, encoding);
 
 		free(path);
 		free(encoding);
@@ -428,7 +428,7 @@ JSValueRef function_file_reader_read(JSContextRef ctx, JSObjectRef function, JSO
 
 		char *descriptor = value_to_c_string(ctx, args[0]);
 
-		JSStringRef result = file_read(descriptor_str_to_int(descriptor));
+		JSStringRef result = ufile_read(descriptor_str_to_int(descriptor));
 
 		free(descriptor);
 
@@ -452,7 +452,7 @@ JSValueRef function_file_reader_close(JSContextRef ctx, JSObjectRef function, JS
 		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
 
 		char *descriptor = value_to_c_string(ctx, args[0]);
-		file_close(descriptor_str_to_int(descriptor));
+		ufile_close(descriptor_str_to_int(descriptor));
 		free(descriptor);
 	}
 	return JSValueMakeNull(ctx);
@@ -468,7 +468,7 @@ JSValueRef function_file_writer_open(JSContextRef ctx, JSObjectRef function, JSO
 		bool append = JSValueToBoolean(ctx, args[1]);
 		char *encoding = value_to_c_string(ctx, args[2]);
 
-		uint64_t descriptor =  file_open_write(path, append, encoding);
+		uint64_t descriptor =  ufile_open_write(path, append, encoding);
 
 		free(path);
 		free(encoding);
@@ -492,7 +492,7 @@ JSValueRef function_file_writer_write(JSContextRef ctx, JSObjectRef function, JS
 		char *descriptor = value_to_c_string(ctx, args[0]);
 		JSStringRef str_ref = JSValueToStringCopy(ctx, args[1], NULL);
 
-		file_write(descriptor_str_to_int(descriptor), str_ref);
+		ufile_write(descriptor_str_to_int(descriptor), str_ref);
 
 		free(descriptor);
 		JSStringRelease(str_ref);
@@ -502,6 +502,132 @@ JSValueRef function_file_writer_write(JSContextRef ctx, JSObjectRef function, JS
 }
 
 JSValueRef function_file_writer_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		ufile_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+		uint64_t descriptor = file_open_read(path);
+
+		free(path);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+
+		size_t buf_size = 4096;
+		uint8_t* buf = malloc(buf_size * sizeof(uint8_t));
+
+		size_t read = file_read(descriptor_str_to_int(descriptor), buf_size, buf);
+
+		free(descriptor);
+
+		JSValueRef arguments[read];
+		int num_arguments = (int)read;
+		for (int i=0; i<num_arguments; i++) {
+			arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+		}
+
+		return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		file_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeBoolean) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		bool append = JSValueToBoolean(ctx, args[1]);
+
+		uint64_t descriptor =  file_open_write(path, append);
+
+		free(path);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeObject) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+
+		unsigned int count = (unsigned int)array_get_count(ctx, (JSObjectRef)args[1]);
+		uint8_t buf[count];
+		for (unsigned int i=0; i<count; i++) {
+			JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef)args[1], i);
+			if (JSValueIsNumber(ctx, v)) {
+				double n = JSValueToNumber(ctx, v, NULL);
+				if (0 <= n && n <=255) {
+					buf[i] = (uint8_t)n;
+				} else {
+					fprintf(stderr, "Output stream value out of range %f", n);
+				}
+			} else {
+				fprintf(stderr, "Output stream value not a number");
+			}
+		}
+
+		file_write(descriptor_str_to_int(descriptor), count, buf);
+
+		free(descriptor);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	if (argc == 1
 		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {

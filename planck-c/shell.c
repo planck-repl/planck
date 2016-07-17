@@ -11,23 +11,13 @@
 #include "jsc_utils.h"
 #include "repl.h"
 
-static int JSArrayGetCount(JSContextRef ctx, JSObjectRef arr)
-{
-  JSStringRef pname = JSStringCreateWithUTF8CString("length");
-  JSValueRef val = JSObjectGetProperty(ctx, arr, pname, NULL);
-  JSStringRelease(pname);
-  return JSValueToNumber(ctx, val, NULL);
-}
-
-#define JSArrayGetValueAtIndex(ctx, array, i) JSObjectGetPropertyAtIndex(ctx, array, i, NULL)
-
 static char** cmd(JSContextRef ctx, const JSObjectRef array) {
-  int argc = JSArrayGetCount(ctx, array);
+  int argc = array_get_count(ctx, array);
   char** result = NULL;
   if (argc > 0) {
     result = malloc(sizeof(char*) * (argc + 1));
     for (int i = 0; i < argc; i++) {
-      JSValueRef val = JSArrayGetValueAtIndex(ctx, array, i);
+      JSValueRef val = array_get_value_at_index(ctx, array, i);
       if (JSValueGetType(ctx, val) != kJSTypeString) {
         for (int j = 0; j < i; j++)
           free(result[j]);
@@ -42,14 +32,14 @@ static char** cmd(JSContextRef ctx, const JSObjectRef array) {
 }
 
 static char** env(JSContextRef ctx, const JSObjectRef map) {
-  int argc = JSArrayGetCount(ctx, map);
+  int argc = array_get_count(ctx, map);
   char** result = NULL;
   if (argc > 0) {
     result = malloc(sizeof(char*) * (argc + 1));
     for (int i = 0; i < argc; i++) {
-      JSObjectRef keyVal = (JSObjectRef) JSArrayGetValueAtIndex(ctx, map, i);
-      char* key = value_to_c_string(ctx, JSArrayGetValueAtIndex(ctx, keyVal, 0));
-      char* value = value_to_c_string(ctx, JSArrayGetValueAtIndex(ctx, keyVal, 1));
+      JSObjectRef keyVal = (JSObjectRef) array_get_value_at_index(ctx, map, i);
+      char* key = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 0));
+      char* value = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 1));
       int len = strlen(key) + strlen(value) + 2;
       char* combined = malloc(len);
       combined[0] = 0;

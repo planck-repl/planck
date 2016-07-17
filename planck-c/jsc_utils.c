@@ -76,3 +76,11 @@ JSValueRef c_string_to_value(JSContextRef ctx, const char *s) {
 	JSStringRef str = JSStringCreateWithUTF8CString(s);
 	return JSValueMakeString(ctx, str);
 }
+
+int array_get_count(JSContextRef ctx, JSObjectRef arr)
+{
+	JSStringRef pname = JSStringCreateWithUTF8CString("length");
+	JSValueRef val = JSObjectGetProperty(ctx, arr, pname, NULL);
+	JSStringRelease(pname);
+	return (int)JSValueToNumber(ctx, val, NULL);
+}
