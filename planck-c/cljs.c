@@ -356,6 +356,8 @@ void *cljs_do_engine_init(void *data) {
 
 	register_global_function(ctx, "PLANCK_DELETE_FILE", function_delete_file);
 
+	register_global_function(ctx, "PLANCK_LIST_FILES", function_list_files);
+
 	register_global_function(ctx, "PLANCK_IS_DIRECTORY", function_is_directory);
 
 	register_global_function(ctx, "PLANCK_FSTAT", function_fstat);

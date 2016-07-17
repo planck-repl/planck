@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <pwd.h>
 #include <grp.h>
+#include <dirent.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -651,6 +652,56 @@ JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObject
 	return JSValueMakeNull(ctx);
 }
 
+JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+								size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+        size_t capacity = 32;
+        size_t count = 0;
+        JSValueRef* paths = malloc(capacity*sizeof(paths));
+
+        DIR *d;
+        struct dirent *dir;
+        d = opendir(path);
+
+        size_t path_len = strlen(path);
+        if (path_len && path[path_len - 1] == '/') {
+            path[--path_len] = 0;
+        }
+
+        if (d) {
+            while ((dir = readdir(d)) != NULL) {
+                if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")) {
+
+                    char* buf = malloc((path_len + strlen(dir->d_name) + 2));
+                    sprintf(buf, "%s/%s", path, dir->d_name);
+                    paths[count++] = c_string_to_value(ctx, buf);
+                    free(buf);
+
+                    if (count == capacity) {
+                        capacity *= 2;
+                        paths = realloc(paths, capacity * sizeof(paths));
+                    }
+                }
+            }
+
+            closedir(d);
+        }
+
+        free(path);
+
+        JSValueRef rv = JSObjectMakeArray(ctx, count, paths, NULL);
+        free(paths);
+
+        return rv;
+	}
+	return JSValueMakeNull(ctx);
+}
+
+
 JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 											 size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	if (argc == 1
@@ -662,7 +713,7 @@ JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjec
 
 		struct stat file_stat;
 
-		int retval = lstat(path, &file_stat);
+		int retval = stat(path, &file_stat);
 
 		free(path);
 

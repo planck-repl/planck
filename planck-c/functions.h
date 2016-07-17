@@ -41,6 +41,8 @@ JSValueRef function_file_output_stream_close(JSContextRef ctx, JSObjectRef funct
 
 JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[], JSValueRef* exception);
 
+JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[], JSValueRef* exception);
+
 JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[], JSValueRef* exception);
 
 JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[], JSValueRef* exception);
