@@ -14,8 +14,6 @@
 COLORFGBG="0;15"
 
 export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
-echo "Legal output"
-$PLANCK -l
 
 echo "Repeated ordered -e and -i, supressing nil"
 $PLANCK -i $SRC/no-ns/foo.cljs -e ':a' -e 'nil' -i $SRC/no-ns/bar.cljs -e 2 -i $SRC/no-ns/foo.cljs
