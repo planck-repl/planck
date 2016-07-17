@@ -393,8 +393,8 @@ uint64_t descriptor_str_to_int(const char* s) {
 }
 
 char * descriptor_int_to_str(uint64_t i) {
-	char* rv;
-	asprintf(&rv, "%llu", (unsigned long long)i);
+	char* rv = malloc(21);
+	sprintf(rv, "%llu", (unsigned long long)i);
 	return rv;
 }
 
