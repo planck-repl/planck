@@ -1,4 +1,4 @@
-#!planck-c/planck -sc planck-cljs/clojurescript/src/test/cljs
+#!planck-c/build/planck -s --classpath=planck-cljs/clojurescript/src/test/cljs
 (ns planck.test-core
   (:require [cljs.test :refer-macros [run-tests]]
             [cljs.core-test :as core-test]

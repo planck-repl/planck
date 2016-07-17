@@ -1,4 +1,4 @@
-#!planck-c/build/planck -sc planck-cljs/test
+#!planck-c/build/planck --classpath=planck-cljs/test
 (ns planck.unit-test
   (:require [cljs.test]
             [planck.test-runner]

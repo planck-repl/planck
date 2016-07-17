@@ -1,4 +1,4 @@
-#!/usr/bin/env planck
+#!planck-c/build/planck
 (ns planck.test
   (:require [planck.shell :refer [sh]]
             [planck.core :refer [exit]]))
@@ -8,10 +8,6 @@
 
 (defn file-exists? [filename]
   (succeeded? (sh "ls" filename)))
-
-(when-not (file-exists? "planck-c/build/planck")
-  (println "ERROR: You must run `script/build-c` before running script/test-int-c")
-  (exit 1))
 
 (println "Running integration tests...")
 

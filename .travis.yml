@@ -3,4 +3,4 @@ before_install:
   - sudo apt-get install -y default-jdk javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev
 dist: trusty
 language: c
-script: script/build-c && ./planck-c/build/planck -e '(map inc (range 3))'
+script: script/build-c && script/test-c
