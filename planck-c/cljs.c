@@ -354,6 +354,8 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_WRITE", function_file_output_stream_write);
 	register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_CLOSE", function_file_output_stream_close);
 
+	register_global_function(ctx, "PLANCK_DELETE_FILE", function_delete_file);
+
 	register_global_function(ctx, "PLANCK_FSTAT", function_fstat);
 
 	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);

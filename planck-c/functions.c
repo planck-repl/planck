@@ -639,6 +639,18 @@ JSValueRef function_file_output_stream_close(JSContextRef ctx, JSObjectRef funct
 	return JSValueMakeNull(ctx);
 }
 
+JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+											 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		remove(path);
+		free(path);
+	}
+	return JSValueMakeNull(ctx);
+}
+
 JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	if (argc == 1
