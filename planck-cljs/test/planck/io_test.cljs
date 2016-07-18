@@ -41,3 +41,13 @@
     (let [w (planck.io/writer "/tmp/plnk-writer-test.txt")]
       (planck.core/-close w)
       (is (thrown-with-msg? js/Error #"File closed" (cljs.core/-write w "hi"))))))
+
+(deftest io-factory-on-std-streams-test
+  (is (identical? *out* (planck.io/writer *out*)))
+  (is (identical? planck.core/*err* (planck.io/writer planck.core/*err*)))
+  (is (identical? planck.core/*in* (planck.io/reader planck.core/*in*))))
+
+(deftest io-factory-on-std-streams-fail-test
+  (is (thrown? js/Error (planck.io/reader *out*)))
+  (is (thrown? js/Error (planck.io/reader planck.core/*err*)))
+  (is (thrown? js/Error (planck.io/writer planck.core/*in*))))

@@ -113,15 +113,33 @@
   ^{:doc     "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
-  (->BufferedReader js/PLANCK_RAW_READ_STDIN nil (atom nil)))
+  (let [closed (atom false)]
+    (->BufferedReader
+      (fn []
+        (when-not @closed
+          (js/PLANCK_RAW_READ_STDIN)))
+      #(reset! closed true)
+      (atom nil))))
 
-(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
+(defn- make-closeable-raw-writer
+  [raw-write raw-flush]
+  (let [closed (atom false)]
+    (->Writer
+      (fn [s]
+        (when-not @closed
+          (raw-write s)))
+      (fn []
+        (when-not @closed
+          (raw-flush)))
+      #(reset! closed true))))
+
+(set! cljs.core/*out* (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT))
 
 (defonce
   ^{:doc     "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
-  (->Writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
+  (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
 (defonce
   ^{:doc     "A sequence of the supplied command line arguments, or nil if none were supplied"

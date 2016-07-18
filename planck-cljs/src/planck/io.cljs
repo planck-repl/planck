@@ -138,7 +138,25 @@
         (fn []
           (when (contains? @open-file-output-stream-descriptors file-descriptor)
             (swap! open-file-output-stream-descriptors disj file-descriptor)
-            (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-descriptor)))))))
+            (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-descriptor))))))
+
+  default
+  (make-reader [x _]
+    (if (satisfies? planck.core/IReader x)
+      x
+      (throw (ex-info (str "Can't make a reader from " x) {}))))
+  (make-writer [x _] nil
+    (if (satisfies? IWriter x)
+      x
+      (throw (ex-info (str "Can't make a writer from " x) {}))))
+  (make-input-stream [x _]
+    (if (satisfies? planck.core/IInputStream x)
+      x
+      (throw (ex-info (str "Can't make an input stream from " x) {}))))
+  (make-output-stream [x _]
+    (if (satisfies? planck.core/IOutputStream x)
+      x
+      (throw (ex-info (str "Can't make an output stream from " x) {})))))
 
 (defn reader
   "Attempts to coerce its argument into an open IBufferedReader."
