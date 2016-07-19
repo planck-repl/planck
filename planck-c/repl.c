@@ -11,6 +11,7 @@
 #include "cljs.h"
 #include "globals.h"
 #include "str.h"
+#include "theme.h"
 
 #define EXIT_SUCCESS_INTERNAL 0
 
@@ -208,7 +209,7 @@ void run_cmdline_loop(JSContextRef ctx) {
 				fprintf(stdout, "\n");
 			}
 
-			char *line = linenoise(current_prompt, "\x1b[36m", indent_space_count);
+			char *line = linenoise(current_prompt, prompt_ansi_code_for_theme(config.theme), indent_space_count);
 
 			// Reset printing handler back
 			if (cljs_engine_ready) {

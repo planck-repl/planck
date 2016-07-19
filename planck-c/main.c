@@ -13,6 +13,7 @@
 #include "legal.h"
 #include "repl.h"
 #include "str.h"
+#include "theme.h"
 
 void usage(char *program_name) {
 	printf("Planck %s\n", PLANCK_VERSION);
@@ -110,7 +111,7 @@ int main(int argc, char **argv) {
 	config.static_fns = false;
 	config.elide_asserts = false;
 	config.cache_path = NULL;
-	config.theme = "light";
+	config.theme = NULL;
 	config.dumb_terminal = false;
 
 	config.out_path = NULL;
@@ -241,6 +242,10 @@ int main(int argc, char **argv) {
 
 	if (config.dumb_terminal) {
 		config.theme = "dumb";
+	} else {
+		if (!config.theme) {
+			config.theme = default_theme_for_terminal();
+		}
 	}
 
 	config.num_rest_args = 0;
@@ -256,6 +261,10 @@ int main(int argc, char **argv) {
 
 	if (config.num_scripts == 0 && config.main_ns_name == NULL && config.num_rest_args == 0) {
 		config.repl = true;
+	}
+
+	if (!check_theme(config.theme)) {
+		exit(1);
 	}
 
 	if (config.main_ns_name != NULL && config.repl) {

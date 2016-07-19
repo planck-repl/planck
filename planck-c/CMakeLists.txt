@@ -31,6 +31,8 @@ set(SOURCE_FILES
     shell.h
     str.c
     str.h
+    theme.c
+    theme.h
     zip.c
     zip.h)
 
