@@ -364,6 +364,8 @@ void *cljs_do_engine_init(void *data) {
 
 	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 
+	register_global_function(ctx, "PLANCK_READ_PASSWORD", function_read_password);
+
 	{
 		JSValueRef arguments[config.num_rest_args];
 		for (int i = 0; i < config.num_rest_args; i++) {

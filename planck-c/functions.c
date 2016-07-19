@@ -834,3 +834,27 @@ JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 	}
 	return JSValueMakeNull(ctx);
 }
+
+JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+								size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *prompt = value_to_c_string(ctx, args[0]);
+
+		char* pass = getpass(prompt);
+
+		JSValueRef rv;
+
+		if (pass) {
+			rv = c_string_to_value(ctx, pass);
+			memset(pass, 0, strlen(pass));
+		} else {
+			rv = JSValueMakeNull(ctx);
+		}
+
+		free(prompt);
+		return rv;
+	}
+	return JSValueMakeNull(ctx);
+}
