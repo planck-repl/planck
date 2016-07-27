@@ -68,7 +68,7 @@ if(APPLE)
 elseif(UNIX)
    pkg_check_modules(ICU_UC REQUIRED icu-uc)
    pkg_check_modules(ICU_IO REQUIRED icu-io)
-   target_link_libraries(planck ${ICU_IC_LDFLAGS} ${ICU_IO_LDFLAGS})
+   target_link_libraries(planck ${ICU_UC_LDFLAGS} ${ICU_IO_LDFLAGS})
 endif(APPLE)
 
 if(APPLE)
