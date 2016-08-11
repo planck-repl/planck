@@ -16,6 +16,8 @@
             [cljs.import-test]
             [cljs.ns-test.foo]
             #_[cljs.pprint]
+            [cljs.spec-test]
+            [cljs.clojure-alias-test]
             [planck.core :refer [exit]]))
 
 (defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
@@ -37,4 +39,6 @@
   'cljs.ns-test.foo
   'foo.ns-shadow-test
   'cljs.import-test
-  #_'cljs.pprint)
+  #_'cljs.pprint
+  'cljs.spec-test
+  'cljs.clojure-alias-test)
