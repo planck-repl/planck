@@ -155,7 +155,11 @@ static JSValueRef system_call(JSContextRef ctx, char** cmd, char** env, char* di
   pid_t pid;
   pid = fork();
   if (pid == 0) {
-    if (dir) chdir(dir);
+    if (dir) {
+      if (chdir(dir) == -1) {
+        exit(1);
+      }
+    }
     preopen(out[0], STDIN_FILENO);
     preopen(err[1], STDERR_FILENO);
     preopen(in[1], STDOUT_FILENO);
