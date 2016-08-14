@@ -480,7 +480,7 @@ nil
 Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
-49
+48
 Test timers keep REPL going
 start
 end
