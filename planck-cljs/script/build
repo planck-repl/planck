@@ -9,7 +9,7 @@ script/lein -v
 
 # Uncomment to build our own copy of ClojureScript compiler
 # Also see change needed in project.clj
-CLJS_GIT_COMMIT=85bab0736aae442d55d7f25ffc502b5195afe5c1
+CLJS_GIT_COMMIT=709cc57d003590945329ea8745b799e75ac4ba88
 
 if [ -z "$CLJS_GIT_COMMIT" ]; then
   CLJSC_CP=`script/lein with-profile build classpath`
