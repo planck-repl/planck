@@ -1,5 +1,5 @@
 (ns planck.js-deps-test
-  (:require [cljs.test :refer-macros [deftest is]]
+  (:require [clojure.test :refer [deftest is]]
             [planck.js-deps :as js-deps]))
 
 (deftest add-foreign-libs-test

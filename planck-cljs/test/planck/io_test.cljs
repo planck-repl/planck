@@ -1,5 +1,5 @@
 (ns planck.io-test
-  (:require [cljs.test :refer-macros [deftest testing is]]
+  (:require [clojure.test :refer [deftest testing is]]
    [planck.io]
    [planck.core]))
 

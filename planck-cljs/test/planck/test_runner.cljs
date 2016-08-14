@@ -1,5 +1,5 @@
 (ns planck.test-runner
-  (:require [cljs.test :refer-macros [run-tests]]
+  (:require [clojure.test :refer [run-tests]]
             [planck.core-test]
             [planck.io-test]
             [planck.shell-test]

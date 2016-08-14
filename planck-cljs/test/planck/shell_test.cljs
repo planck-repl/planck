@@ -1,5 +1,5 @@
 (ns planck.shell-test
-  (:require [cljs.test :refer-macros [deftest is]]
+  (:require [clojure.test :refer [deftest is]]
             [clojure.string :as string]
             [planck.io]
             [planck.shell :include-macros true]))

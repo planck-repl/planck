@@ -1,6 +1,6 @@
 (ns planck.repl-test
   (:require-macros [planck.repl])
-  (:require [cljs.test :refer-macros [deftest testing is]]
+  (:require [clojure.test :refer [deftest testing is]]
             [planck.repl :as repl]))
 
 (deftest get-highlight-coords
