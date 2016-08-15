@@ -836,7 +836,7 @@ JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 }
 
 JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
-								size_t argc, const JSValueRef args[], JSValueRef* exception) {
+                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {
 	if (argc == 1
 		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
 
