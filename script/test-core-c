@@ -1,4 +1,4 @@
-#!build/Release/planck -sc planck-cljs/clojurescript/src/test/cljs
+#!planck-c/build/planck -s --classpath=planck-cljs/clojurescript/src/test/cljs
 (ns planck.test-core
   (:require [cljs.test :refer-macros [run-tests]]
             [cljs.core-test :as core-test]
@@ -16,8 +16,6 @@
             [cljs.import-test]
             [cljs.ns-test.foo]
             #_[cljs.pprint]
-            [cljs.spec-test]
-            [cljs.clojure-alias-test]
             [planck.core :refer [exit]]))
 
 (defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
@@ -39,6 +37,4 @@
   'cljs.ns-test.foo
   'foo.ns-shadow-test
   'cljs.import-test
-  #_'cljs.pprint
-  'cljs.spec-test
-  'cljs.clojure-alias-test)
+  #_'cljs.pprint)

@@ -1,0 +1,11 @@
+#!planck-c/build/planck --classpath=planck-cljs/test
+(ns planck.unit-test
+  (:require [cljs.test]
+            [planck.test-runner]
+            [planck.core :refer [exit]]))
+
+(defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
+  (when-not (cljs.test/successful? m)
+    (exit 1)))
+
+(planck.test-runner/run-all-tests)

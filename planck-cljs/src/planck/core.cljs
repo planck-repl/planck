@@ -1,10 +1,11 @@
 (ns planck.core
+  (:require-macros planck.core)
   (:require [cljs.spec :as s]
             [planck.repl :as repl])
   (:import [goog.string StringBuffer]))
 
 (s/def ::binding
-  (s/cat :name symbol? :value ::s/any))
+  (s/cat :name symbol? :value any?))
 
 (s/def ::bindings
   (s/and vector?
@@ -12,7 +13,7 @@
          (s/* ::binding)))
 
 #_(s/fdef planck.core$macros/with-open
-  :args (s/cat :bindings ::bindings :body (s/* ::s/any)))
+  :args (s/cat :bindings ::bindings :body (s/* any?)))
 
 (def *planck-version* js/PLANCK_VERSION)
 
@@ -112,15 +113,33 @@
   ^{:doc     "A planck.io/IReader representing standard input for read operations."
     :dynamic true}
   *in*
-  (->BufferedReader js/PLANCK_RAW_READ_STDIN nil (atom nil)))
+  (let [closed (atom false)]
+    (->BufferedReader
+      (fn []
+        (when-not @closed
+          (js/PLANCK_RAW_READ_STDIN)))
+      #(reset! closed true)
+      (atom nil))))
 
-(set! cljs.core/*out* (Writer. js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT nil))
+(defn- make-closeable-raw-writer
+  [raw-write raw-flush]
+  (let [closed (atom false)]
+    (->Writer
+      (fn [s]
+        (when-not @closed
+          (raw-write s)))
+      (fn []
+        (when-not @closed
+          (raw-flush)))
+      #(reset! closed true))))
+
+(set! cljs.core/*out* (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT))
 
 (defonce
   ^{:doc     "A cljs.core/IWriter representing standard error for print operations."
     :dynamic true}
   *err*
-  (->Writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR nil))
+  (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
 (defonce
   ^{:doc     "A sequence of the supplied command line arguments, or nil if none were supplied"
@@ -222,7 +241,7 @@
         (-close r)))))
 
 (s/fdef slurp
-  :args (s/cat :f :planck.io/coercible-file? :opts (s/* ::s/any))
+  :args (s/cat :f :planck.io/coercible-file? :opts (s/* any?))
   :ret string?)
 
 (defn spit
@@ -236,7 +255,7 @@
         (-close w)))))
 
 (s/fdef spit
-  :args (s/cat :f :planck.io/coercible-file? :content ::s/any :opts (s/* ::s/any)))
+  :args (s/cat :f :planck.io/coercible-file? :content any? :opts (s/* any?)))
 
 (defn eval
   "Evaluates the form data structure (not text!) and returns the result."
@@ -244,8 +263,8 @@
   (repl/eval form))
 
 (s/fdef eval
-  :args (s/cat :form ::s/any)
-  :ret ::s/any)
+  :args (s/cat :form any?)
+  :ret any?)
 
 (defn ns-resolve
   "Returns the var to which a symbol will be resolved in the namespace,
@@ -282,7 +301,7 @@
 (s/fdef intern
   :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %))
           :name symbol?
-          :val (s/? ::s/any)))
+          :val (s/? any?)))
 
 (defn- transfer-ns
   [state ns]

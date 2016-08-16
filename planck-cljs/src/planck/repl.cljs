@@ -21,7 +21,6 @@
             [lazy-map.core :refer-macros [lazy-map]]
             [cljsjs.parinfer]
             [planck.js-deps :as js-deps]
-            [clojure.string :as string]
             [planck.pprint.code]
             [planck.pprint.data]))
 
@@ -189,13 +188,6 @@
   (load-core-analysis-cache eager 'cljs.core "cljs/core.cljs.cache.aot.")
   (load-core-analysis-cache eager 'cljs.core$macros "cljs/core$macros.cljc.cache."))
 
-(defn- prime-analysis-cache-for-implicit-macro-loading
-  "Supports priming analysis cache in order to work around 
-  http://dev.clojure.org/jira/browse/CLJS-1657 for commonly used
-  namespaces that we cannot AOT compile."
-  [ns-sym]
-  (swap! st assoc-in [::ana/namespaces ns-sym :require-macros] {ns-sym ns-sym}))
-
 (defonce ^:private app-env (atom nil))
 
 (defn- read-opts-from-file
@@ -206,11 +198,15 @@
       (catch :default e
         {:failed-read (.-message e)}))))
 
+(declare default-session-state)
+
+(defn- setup-asserts [elide-asserts]
+  (set! *assert* (not elide-asserts))
+  (swap! default-session-state assoc :*assert* elide-asserts))
+
 (defn- ^:export init
-  [repl verbose cache-path static-fns]
+  [repl verbose cache-path static-fns elide-asserts]
   (load-core-analysis-caches repl)
-  (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec)
-  (prime-analysis-cache-for-implicit-macro-loading 'cljs.spec.test)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
     (reset! planck.repl/app-env (merge {:repl       repl
@@ -220,7 +216,8 @@
                                   (when static-fns
                                     {:static-fns true})))
     (js-deps/index-foreign-libs opts)
-    (js-deps/index-upstream-foreign-libs)))
+    (js-deps/index-upstream-foreign-libs))
+  (setup-asserts elide-asserts))
 
 (defn- read-chars
   [reader]
@@ -232,6 +229,7 @@
   "Returns a vector of the first read form, and any balance text."
   [source]
   (binding [ana/*cljs-ns* @current-ns
+            *ns* (create-ns @current-ns)
             env/*compiler* st
             r/*data-readers* tags/*cljs-data-readers*
             r/resolve-symbol ana/resolve-symbol
@@ -454,7 +452,57 @@
    :default
    :else
    :gen-class
-   :keywordize-keys])
+   :keywordize-keys
+   :req :req-un :opt :opt-un
+   :args :ret :fn])
+
+(def ^:private namespace-completion-exclusions
+  '[planck.from.io.aviso.ansi
+    planck.pprint.code
+    planck.pprint.data
+    planck.bundle
+    planck.js-deps
+    planck.repl
+    planck.repl-resources
+    planck.themes
+    tailrecursion.cljson
+    clojure.core.rrb-vector
+    clojure.core.rrb-vector.interop
+    clojure.core.rrb-vector.nodes
+    clojure.core.rrb-vector.protocols
+    clojure.core.rrb-vector.rrbt
+    clojure.core.rrb-vector.transients
+    clojure.core.rrb-vector.trees
+    cognitect.transit
+    fipp.deque
+    fipp.engine
+    fipp.visit
+    lazy-map.core
+    cljs.source-map
+    cljs.source-map.base64
+    cljs.source-map.base64-vlq
+    cljs.repl
+    cljs.tools.reader.impl.commons
+    cljs.tools.reader.impl.utils
+    cljs.stacktrace])
+
+(def ^:private namespace-completion-additons
+  '[planck.core
+    planck.io
+    planck.http
+    planck.shell
+    clojure.test
+    clojure.spec
+    clojure.pprint])
+
+(defn- namespace-completions
+  []
+  (->> (all-ns)
+    (map #(drop-macros-suffix (str %)))
+    (remove (into #{} (map str namespace-completion-exclusions)))
+    (concat (map str namespace-completion-additons))
+    sort
+    distinct))
 
 (defn- expand-typed-ns
   "Expand the typed namespace symbol to a known namespace, consulting
@@ -473,7 +521,7 @@
              (completion-candidates-for-ns (add-macros-suffix expanded-ns) false)))
          (concat
            (map str keyword-completions)
-           (map #(drop-macros-suffix (str %)) (all-ns))
+           (namespace-completions)
            (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
@@ -483,23 +531,50 @@
                (map str (keys special-doc-map))
                (map str (keys repl-special-doc-map))))))))
 
+(defn- spec-registered-keywords
+  [ns]
+  (->> (s/registry)
+    keys
+    (filter keyword?)
+    (filter #(= (str ns) (namespace %)))))
+
+(defn- local-keyword-str
+  [kw]
+  (str "::" (name kw)))
+
+(defn- local-keyword
+  "Returns foo for ::foo, otherwise nil"
+  [buffer]
+  (second (re-find #"::([a-zA-Z-]*)$" buffer)))
+
+(defn- local-keyword-completions
+  [buffer kw-name]
+  (let [buffer-prefix (subs buffer 0 (- (count buffer) (count kw-name) 2))]
+    (clj->js (->> (spec-registered-keywords @current-ns)
+               (map local-keyword-str)
+               (filter #(string/starts-with? % (str "::" kw-name)))
+               (map #(str buffer-prefix %))))))
+
 (defn- ^:export get-completions
   [buffer]
-  (let [top-form?            (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-        typed-ns             (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
-    (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
-          buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
-      (clj->js (if (= "" buffer-match-suffix)
-                 []
-                 (map #(str buffer-prefix %)
-                   (sort
-                     (filter (partial is-completion? buffer-match-suffix)
-                       (completion-candidates top-form? typed-ns)))))))))
+  (if-let [kw-name (local-keyword buffer)]
+    (local-keyword-completions buffer kw-name)
+    (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
+          typed-ns (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+      (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
+            buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+        (clj->js (if (= "" buffer-match-suffix)
+                   []
+                   (map #(str buffer-prefix %)
+                     (sort
+                       (filter (partial is-completion? buffer-match-suffix)
+                         (completion-candidates top-form? typed-ns))))))))))
 
 (defn- is-completely-readable?
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
     (binding [ana/*cljs-ns* @current-ns
+              *ns* (create-ns @current-ns)
               env/*compiler* st
               r/*data-readers* tags/*cljs-data-readers*
               r/resolve-symbol ana/resolve-symbol
@@ -1367,7 +1442,7 @@
 
 (def ^{:private true
        :doc     "The default state used to initialize a new REPL session."} default-session-state
-  (capture-session-state))
+  (atom (capture-session-state)))
 
 (defonce ^{:private true
            :doc     "The state for each session, keyed by session ID."} session-states (atom {}))
@@ -1380,7 +1455,7 @@
 (defn- set-session-state-for-session-id
   "Sets the session state for a given session."
   [session-id]
-  (set-session-state (get @session-states session-id default-session-state)))
+  (set-session-state (get @session-states session-id @default-session-state)))
 
 (defn- capture-session-state-for-session-id
   "Captures the session state for a given session."

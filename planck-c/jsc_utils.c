@@ -63,7 +63,7 @@ char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
 	}
 
 	JSStringRef str_ref = JSValueToStringCopy(ctx, val, NULL);
-	size_t len = JSStringGetLength(str_ref) + 1;
+	size_t len = JSStringGetMaximumUTF8CStringSize(str_ref);
 	char *str = malloc(len * sizeof(char));
 	memset(str, 0, len);
 	JSStringGetUTF8CString(str_ref, str, len);
@@ -72,7 +72,15 @@ char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
 	return str;
 }
 
-JSValueRef c_string_to_value(JSContextRef ctx, char *s) {
+JSValueRef c_string_to_value(JSContextRef ctx, const char *s) {
 	JSStringRef str = JSStringCreateWithUTF8CString(s);
 	return JSValueMakeString(ctx, str);
+}
+
+int array_get_count(JSContextRef ctx, JSObjectRef arr)
+{
+	JSStringRef pname = JSStringCreateWithUTF8CString("length");
+	JSValueRef val = JSObjectGetProperty(ctx, arr, pname, NULL);
+	JSStringRelease(pname);
+	return (int)JSValueToNumber(ctx, val, NULL);
 }

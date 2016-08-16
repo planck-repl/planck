@@ -11,12 +11,9 @@
 # using ClojureScript instead of Bash. :)
 ######################################################
 
-source int-test/script/setup-env
 COLORFGBG="0;15"
 
 export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
-echo "Legal output"
-$PLANCK -l
 
 echo "Repeated ordered -e and -i, supressing nil"
 $PLANCK -i $SRC/no-ns/foo.cljs -e ':a' -e 'nil' -i $SRC/no-ns/bar.cljs -e 2 -i $SRC/no-ns/foo.cljs
@@ -620,3 +617,9 @@ $PLANCK << REPL_INPUT
 (println "end")
 :cljs/quit
 REPL_INPUT
+
+echo "Disable asserts"
+$PLANCK -a << REPL_INPUT
+(assert false)
+REPL_INPUT
+

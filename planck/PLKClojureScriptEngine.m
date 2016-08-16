@@ -610,7 +610,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         [ABYUtils installGlobalFunctionWithBlock:
          ^JSValueRef(JSContextRef ctx, size_t argc, const JSValueRef argv[]) {
              
-             if (argc == 6) {
+             if (argc == 7) {
                  
                  int argsCount = JSArrayGetCount(ctx, (JSObjectRef)argv[0]);
                  NSMutableArray* args = [[NSMutableArray alloc] init];
@@ -645,7 +645,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
              return JSValueMakeNull(ctx);
          }
                                             name:@"PLANCK_SHELL_SH"
-                                         argList:@"args, arg_in, encoding_in, encoding_out, env, dir"
+                                         argList:@"args, arg_in, encoding_in, encoding_out, env, dir, cb"
                                        inContext:self.context];
         
         
@@ -1287,12 +1287,13 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         [self setToPrintOnSender:^(NSString* msg){}];
 
         {
-            JSValueRef  arguments[4];
-            int num_arguments = 4;
+            JSValueRef  arguments[5];
+            int num_arguments = 5;
             arguments[0] = JSValueMakeBoolean(self.context, repl);
             arguments[1] = JSValueMakeBoolean(self.context, verbose);
             arguments[2] = JSValueMakeStringFromNSString(self.context, cachePath);
             arguments[3] = JSValueMakeBoolean(self.context, staticFns);
+            arguments[4] = JSValueMakeBoolean(self.context, elideAsserts);
             JSObjectCallAsFunction(self.context, [self getFunction:@"init"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
         }
         
@@ -1316,10 +1317,6 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
         [ABYUtils evaluateScript:@"goog.provide('cljs.user')" inContext:self.context];
         [ABYUtils evaluateScript:@"goog.require('cljs.core')" inContext:self.context];
 
-        [ABYUtils evaluateScript:[NSString stringWithFormat:@"cljs.core._STAR_assert_STAR_ = %@",
-                                  elideAsserts ? @"false" : @"true"]
-                       inContext:self.context];
-         
         // Go for launch!
         
         [self signalEngineReady];

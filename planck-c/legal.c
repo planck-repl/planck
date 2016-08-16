@@ -14,14 +14,6 @@ void legal() {
 	printf("which is hereby acknowledged.\n");
 	printf("\n");
 	
-	// printf("Ambly\n");
-	// printf("-----\n");
-	// printf("\n");
-	// printf("Copyright © 2015 David Nolen\n");
-	// printf("Licensed under the Eclipse Public License.\n");
-	// printf("\n");
-	// printf("\n");
-	
 	printf("Fipp\n");
 	printf("-----\n");
 	printf("\n");
@@ -61,14 +53,6 @@ void legal() {
 	printf("\n");
 	printf("\n");
 	
-	// printf("MPEdn\n");
-	// printf("-----\n");
-	// printf("\n");
-	// printf("Developed by Matthew Phillips\n");
-	// printf("Licensed under the Eclipse Public License v1.0.\n");
-	// printf("\n");
-	// printf("\n");
-	
 	printf("Parinfer\n");
 	printf("-----\n");
 	printf("\n");
@@ -84,33 +68,4 @@ void legal() {
 	printf("\n");
 	printf("Apache Software License 2.0.\n");
 	printf("http://www.apache.org/licenses/LICENSE-2.0\n");
-	// printf("\n");
-	// printf("\n");
-	
-	// printf("ZipZap\n");
-	// printf("------\n");
-	// printf("\n");
-	// printf("Copyright (c) 2012, Pixelglow Software.\n");
-	// printf("All rights reserved.\n");
-	// printf("\n");
-	// printf("Redistribution and use in source and binary forms, with or without\n");
-	// printf("modification, are permitted provided that the following conditions are met:\n");
-	// printf("\n");
-	// printf("* Redistributions of source code must retain the above copyright notice,\n");
-	// printf("this list of conditions and the following disclaimer.\n");
-	// printf("\n");
-	// printf("* Redistributions in binary form must reproduce the above copyright notice,\n");
-	// printf("this list of conditions and the following disclaimer in the documentation\n");
-	// printf("and/or other materials provided with the distribution.\n");
-	// printf("\n");
-	// printf("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n");
-	// printf("ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n");
-	// printf("WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n");
-	// printf("DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR\n");
-	// printf("ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n");
-	// printf("(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n");
-	// printf("LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\n");
-	// printf("ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n");
-	// printf("(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n");
-	// printf("SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
 }

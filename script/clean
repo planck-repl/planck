@@ -11,6 +11,9 @@
 ; Xcode
 (sh "rm" "-rf" "build")
 
+; CMake
+(sh "rm" "-rf" "planck-c/build")
+
 ; Site
 (binding [*sh-dir* "site"]
   (sh "/usr/local/bin/planck" "script/clean"))

@@ -11,9 +11,11 @@
 #include "functions.h"
 #include "globals.h"
 #include "http.h"
+#include "shell.h"
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
+#include "cljs.h"
 
 bool cljs_engine_ready = false;
 pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -36,8 +38,8 @@ void signal_engine_ready() {
 }
 
 char *munge(char *s) {
-	int len = strlen(s);
-	int new_len = 0;
+	size_t len = strlen(s);
+	size_t new_len = 0;
 	for (int i = 0; i < len; i++) {
 		switch (s[i]) {
 		case '!':
@@ -129,7 +131,7 @@ JSValueRef evaluate_source(JSContextRef ctx, char *type, char *source, bool expr
 	}
 
 	JSValueRef args[6];
-	int num_args = 6;
+	size_t num_args = 6;
 
 	{
 		JSValueRef source_args[2];
@@ -225,10 +227,10 @@ void bootstrap(JSContextRef ctx, char *out_path) {
 			"};", source);
 }
 
-void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
+void run_main_in_ns(JSContextRef ctx, char *ns, size_t argc, char **argv) {
 	block_until_engine_ready();
 
-	int num_arguments = argc + 1;
+	size_t num_arguments = argc + 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, ns);
 	for (int i=1; i<num_arguments; i++) {
@@ -243,7 +245,7 @@ void run_main_in_ns(JSContextRef ctx, char *ns, int argc, char **argv) {
 char *get_current_ns(JSContextRef ctx) {
 	block_until_engine_ready();
 
-	int num_arguments = 0;
+	size_t num_arguments = 0;
 	JSValueRef arguments[num_arguments];
 	JSObjectRef get_current_ns_fn = get_function(ctx, "planck.repl", "get-current-ns");
 	JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
@@ -253,7 +255,7 @@ char *get_current_ns(JSContextRef ctx) {
 char **get_completions(JSContextRef ctx, const char *buffer, int *num_completions) {
 	block_until_engine_ready();
 
-	int num_arguments = 1;
+	size_t num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, (char *)buffer);
 	JSObjectRef completions_fn = get_function(ctx, "planck.repl", "get-completions");
@@ -269,7 +271,7 @@ char **get_completions(JSContextRef ctx, const char *buffer, int *num_completion
 
 	char **completions = malloc(n * sizeof(char*));
 
-	for (int i = 0; i < n; i++) {
+	for (unsigned int i = 0; i < n; i++) {
 		JSValueRef v = JSObjectGetPropertyAtIndex(ctx, array, i, NULL);
 		completions[i] = value_to_c_string(ctx, v);
 	}
@@ -285,6 +287,10 @@ void register_global_function(JSContextRef ctx, char *name, JSObjectCallAsFuncti
 	JSObjectRef fn_obj = JSObjectMakeFunctionWithCallback(ctx, fn_name, handler);
 
 	JSObjectSetProperty(ctx, global_obj, fn_name, fn_obj, kJSPropertyAttributeNone, NULL);
+}
+
+void discarding_sender(const char* msg) {
+	/* Intentionally empty. */
 }
 
 void *cljs_do_engine_init(void *data) {
@@ -321,10 +327,10 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_EVAL", function_eval);
 
 	register_global_function(ctx, "PLANCK_GET_TERM_SIZE", function_get_term_size);
-	register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
-	register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
 
 	register_global_function(ctx, "PLANCK_SET_EXIT_VALUE", function_set_exit_value);
+
+	register_global_function(ctx, "PLANCK_SHELL_SH", function_shellexec);
 
 	register_global_function(ctx, "PLANCK_RAW_READ_STDIN", function_raw_read_stdin);
 	register_global_function(ctx, "PLANCK_RAW_WRITE_STDOUT", function_raw_write_stdout);
@@ -332,7 +338,33 @@ void *cljs_do_engine_init(void *data) {
 	register_global_function(ctx, "PLANCK_RAW_WRITE_STDERR", function_raw_write_stderr);
 	register_global_function(ctx, "PLANCK_RAW_FLUSH_STDERR", function_raw_flush_stderr);
 
+	register_global_function(ctx, "PLANCK_FILE_READER_OPEN", function_file_reader_open);
+	register_global_function(ctx, "PLANCK_FILE_READER_READ", function_file_reader_read);
+	register_global_function(ctx, "PLANCK_FILE_READER_CLOSE", function_file_reader_close);
+
+	register_global_function(ctx, "PLANCK_FILE_WRITER_OPEN", function_file_writer_open);
+	register_global_function(ctx, "PLANCK_FILE_WRITER_WRITE", function_file_writer_write);
+	register_global_function(ctx, "PLANCK_FILE_WRITER_CLOSE", function_file_writer_close);
+
+	register_global_function(ctx, "PLANCK_FILE_INPUT_STREAM_OPEN", function_file_input_stream_open);
+	register_global_function(ctx, "PLANCK_FILE_INPUT_STREAM_READ", function_file_input_stream_read);
+	register_global_function(ctx, "PLANCK_FILE_INPUT_STREAM_CLOSE", function_file_input_stream_close);
+
+	register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_OPEN", function_file_output_stream_open);
+	register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_WRITE", function_file_output_stream_write);
+	register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_CLOSE", function_file_output_stream_close);
+
+	register_global_function(ctx, "PLANCK_DELETE", function_delete_file);
+
+	register_global_function(ctx, "PLANCK_LIST_FILES", function_list_files);
+
+	register_global_function(ctx, "PLANCK_IS_DIRECTORY", function_is_directory);
+
+	register_global_function(ctx, "PLANCK_FSTAT", function_fstat);
+
 	register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
+
+	register_global_function(ctx, "PLANCK_READ_PASSWORD", function_read_password);
 
 	{
 		JSValueRef arguments[config.num_rest_args];
@@ -347,15 +379,10 @@ void *cljs_do_engine_init(void *data) {
 		JSStringRelease(prop);
 	}
 
-	evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
-	evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
-
-	char *elide_script = str_concat("cljs.core._STAR_assert_STAR_ = ", config.elide_asserts ? "false" : "true");
-	evaluate_script(ctx, elide_script, "<init>");
-	free(elide_script);
+	cljs_set_print_sender(ctx, &discarding_sender);
 
 	{
-		JSValueRef arguments[4];
+		JSValueRef arguments[5];
 		arguments[0] = JSValueMakeBoolean(ctx, config.repl);
 		arguments[1] = JSValueMakeBoolean(ctx, config.verbose);
 		JSValueRef cache_path_ref = NULL;
@@ -365,8 +392,9 @@ void *cljs_do_engine_init(void *data) {
 		}
 		arguments[2] = cache_path_ref;
 		arguments[3] = JSValueMakeBoolean(ctx, config.static_fns);
+		arguments[4] = JSValueMakeBoolean(ctx, config.elide_asserts);
 		JSValueRef ex = NULL;
-		JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "init"), JSContextGetGlobalObject(ctx), 4, arguments, &ex);
+		JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "init"), JSContextGetGlobalObject(ctx), 5, arguments, &ex);
 		debug_print_value("planck.repl/init", ctx, ex);
 	}
 
@@ -374,10 +402,10 @@ void *cljs_do_engine_init(void *data) {
 		evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])", true, false, "cljs.user", "dumb", false);
 	}
 
+	cljs_set_print_sender(ctx, NULL);
+
 	evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
 	evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
-
-	evaluate_script(ctx, "cljs.core._STAR_assert_STAR_ = true;", "<init>");
 
 	signal_engine_ready();
 
@@ -427,6 +455,10 @@ void cljs_set_print_sender(JSContextRef ctx, void (*sender)(const char* msg)) {
 		register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn);
 		register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_err_fn);
 	}
+
+	evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
+	evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
+
 }
 
 bool cljs_print_newline(JSContextRef ctx) {
@@ -436,7 +468,7 @@ bool cljs_print_newline(JSContextRef ctx) {
 char *cljs_is_readable(JSContextRef ctx, char *expression) {
 	block_until_engine_ready();
 
-	int num_arguments = 2;
+	size_t num_arguments = 2;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, expression);
 	arguments[1] = c_string_to_value(ctx, config.theme);
@@ -447,17 +479,17 @@ char *cljs_is_readable(JSContextRef ctx, char *expression) {
 int cljs_indent_space_count(JSContextRef ctx, char *text) {
 	block_until_engine_ready();
 
-	int num_arguments = 1;
+	size_t num_arguments = 1;
 	JSValueRef arguments[num_arguments];
 	arguments[0] = c_string_to_value(ctx, text);
 	JSValueRef result = JSObjectCallAsFunction(ctx, get_function(ctx, "planck.repl", "indent-space-count"), JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
-    return JSValueToNumber(ctx, result, NULL);
+    return (int)JSValueToNumber(ctx, result, NULL);
 }
 
-void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, char *buf, int num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos) {
+void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, const char *buf, size_t num_previous_lines, char **previous_lines, int *num_lines_up, int *highlight_pos) {
 	block_until_engine_ready();
 
-	int num_arguments = 3;
+	size_t num_arguments = 3;
 	JSValueRef arguments[num_arguments];
     arguments[0] = JSValueMakeNumber(ctx, pos);
     arguments[1] = c_string_to_value(ctx, buf);

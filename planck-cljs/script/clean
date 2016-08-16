@@ -1,5 +1,5 @@
 #!/bin/bash
-lein clean
+script/lein clean
 rm -rf resources
 rm -rf tools.reader
 rm -rf clojurescript

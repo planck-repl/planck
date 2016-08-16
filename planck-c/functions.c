@@ -3,7 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
+#include <dirent.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -13,6 +17,7 @@
 #include "jsc_utils.h"
 #include "str.h"
 #include "zip.h"
+#include "file.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
@@ -153,7 +158,7 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
 
 JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
-	int num_files = 0;
+	size_t num_files = 0;
 	char **deps_cljs_files = NULL;
 
 	if (argc == 0) {
@@ -201,7 +206,7 @@ JSValueRef function_cache(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 
 		char *suffix = NULL;
 		int max_suffix_len = 20;
-		int prefix_len = strlen(cache_prefix);
+		size_t prefix_len = strlen(cache_prefix);
 		char *path = malloc((prefix_len + max_suffix_len) * sizeof(char));
 		memset(path, 0, prefix_len + max_suffix_len);
 
@@ -297,7 +302,7 @@ JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjec
 JSValueRef function_set_exit_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	if (argc == 1 && JSValueGetType (ctx, args[0]) == kJSTypeNumber) {
-		exit_value = JSValueToNumber(ctx, args[0], NULL);
+		exit_value = (int)JSValueToNumber(ctx, args[0], NULL);
 	}
 	return JSValueMakeNull(ctx);
 }
@@ -306,7 +311,7 @@ JSValueRef function_raw_read_stdin(JSContextRef ctx, JSObjectRef function, JSObj
 		size_t argc, const JSValueRef args[], JSValueRef* exception) {
 	char buf[1024 + 1];
 
-	int n = fread(buf, 1, config.is_tty ? 1 : 1024, stdin);
+	size_t n = fread(buf, 1, config.is_tty ? 1 : 1024, stdin);
 	if (n > 0) {
 		buf[n] = '\0';
 		return c_string_to_value(ctx, buf);
@@ -382,4 +387,474 @@ JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObje
 	}
 
 	return JSValueMakeUndefined(ctx);
+}
+
+uint64_t descriptor_str_to_int(const char* s) {
+	return (uint64_t)atoll(s);
+}
+
+char * descriptor_int_to_str(uint64_t i) {
+	char* rv = malloc(21);
+	sprintf(rv, "%llu", (unsigned long long)i);
+	return rv;
+}
+
+JSValueRef function_file_reader_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		char *encoding = value_to_c_string(ctx, args[1]);
+
+		uint64_t descriptor = ufile_open_read(path, encoding);
+
+		free(path);
+		free(encoding);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_reader_read(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+
+		JSStringRef result = ufile_read(descriptor_str_to_int(descriptor));
+
+		free(descriptor);
+
+		JSValueRef arguments[2];
+		if (result != NULL) {
+			arguments[0] = JSValueMakeString(ctx, result);
+			JSStringRelease(result);
+		} else {
+			arguments[0] =  JSValueMakeNull(ctx);
+		}
+		arguments[1] = JSValueMakeNull(ctx);
+		return JSObjectMakeArray(ctx, 2, arguments, NULL);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_reader_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		ufile_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_writer_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 3
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeBoolean) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		bool append = JSValueToBoolean(ctx, args[1]);
+		char *encoding = value_to_c_string(ctx, args[2]);
+
+		uint64_t descriptor =  ufile_open_write(path, append, encoding);
+
+		free(path);
+		free(encoding);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_writer_write(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		JSStringRef str_ref = JSValueToStringCopy(ctx, args[1], NULL);
+
+		ufile_write(descriptor_str_to_int(descriptor), str_ref);
+
+		free(descriptor);
+		JSStringRelease(str_ref);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_writer_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		ufile_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+		uint64_t descriptor = file_open_read(path);
+
+		free(path);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+
+		size_t buf_size = 4096;
+		uint8_t* buf = malloc(buf_size * sizeof(uint8_t));
+
+		size_t read = file_read(descriptor_str_to_int(descriptor), buf_size, buf);
+
+		free(descriptor);
+
+		JSValueRef arguments[read];
+		int num_arguments = (int)read;
+		for (int i=0; i<num_arguments; i++) {
+			arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+		}
+
+		return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_input_stream_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		file_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_open(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeBoolean) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		bool append = JSValueToBoolean(ctx, args[1]);
+
+		uint64_t descriptor =  file_open_write(path, append);
+
+		free(path);
+
+		char* descriptor_str = descriptor_int_to_str(descriptor);
+		JSValueRef rv =  c_string_to_value(ctx, descriptor_str);
+		free(descriptor_str);
+
+		return rv;
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 2
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString
+		&& JSValueGetType(ctx, args[1]) == kJSTypeObject) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+
+		unsigned int count = (unsigned int)array_get_count(ctx, (JSObjectRef)args[1]);
+		uint8_t buf[count];
+		for (unsigned int i=0; i<count; i++) {
+			JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef)args[1], i);
+			if (JSValueIsNumber(ctx, v)) {
+				double n = JSValueToNumber(ctx, v, NULL);
+				if (0 <= n && n <=255) {
+					buf[i] = (uint8_t)n;
+				} else {
+					fprintf(stderr, "Output stream value out of range %f", n);
+				}
+			} else {
+				fprintf(stderr, "Output stream value not a number");
+			}
+		}
+
+		file_write(descriptor_str_to_int(descriptor), count, buf);
+
+		free(descriptor);
+	}
+
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *descriptor = value_to_c_string(ctx, args[0]);
+		file_close(descriptor_str_to_int(descriptor));
+		free(descriptor);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+											 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+		remove(path);
+		free(path);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+								size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+        size_t capacity = 32;
+        size_t count = 0;
+        JSValueRef* paths = malloc(capacity*sizeof(paths));
+
+        DIR *d;
+        struct dirent *dir;
+        d = opendir(path);
+
+        size_t path_len = strlen(path);
+        if (path_len && path[path_len - 1] == '/') {
+            path[--path_len] = 0;
+        }
+
+        if (d) {
+            while ((dir = readdir(d)) != NULL) {
+                if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")) {
+
+                    char* buf = malloc((path_len + strlen(dir->d_name) + 2));
+                    sprintf(buf, "%s/%s", path, dir->d_name);
+                    paths[count++] = c_string_to_value(ctx, buf);
+                    free(buf);
+
+                    if (count == capacity) {
+                        capacity *= 2;
+                        paths = realloc(paths, capacity * sizeof(paths));
+                    }
+                }
+            }
+
+            closedir(d);
+        }
+
+        free(path);
+
+        JSValueRef rv = JSObjectMakeArray(ctx, count, paths, NULL);
+        free(paths);
+
+        return rv;
+	}
+	return JSValueMakeNull(ctx);
+}
+
+
+JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+											 size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+		bool is_directory = false;
+
+		struct stat file_stat;
+
+		int retval = stat(path, &file_stat);
+
+		free(path);
+
+		if (retval == 0) {
+			is_directory = S_ISDIR(file_stat.st_mode);
+		}
+
+		return JSValueMakeBoolean(ctx, is_directory);
+
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+									  size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *path = value_to_c_string(ctx, args[0]);
+
+		struct stat file_stat;
+
+		int retval = lstat(path, &file_stat);
+
+		if (retval == 0) {
+			JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
+
+			char *type = "unknown";
+			if (S_ISDIR(file_stat.st_mode)) {
+				type = "directory";
+			} else if (S_ISREG(file_stat.st_mode)) {
+				type = "file";
+			} else if (S_ISLNK(file_stat.st_mode)) {
+				type = "symbolic-link";
+			} else if (S_ISSOCK(file_stat.st_mode)) {
+				type = "socket";
+			} else if (S_ISFIFO(file_stat.st_mode)) {
+				type = "fifo";
+			} else if (S_ISCHR(file_stat.st_mode)) {
+				type = "character-special";
+			} else if (S_ISBLK(file_stat.st_mode)) {
+				type = "block-special";
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("type"),
+								c_string_to_value(ctx, type),
+								kJSPropertyAttributeReadOnly, NULL);
+
+
+			double device_id = (double)file_stat.st_rdev;
+			if (device_id) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("device-id"),
+									JSValueMakeNumber(ctx, device_id),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			double file_number = (double)file_stat.st_ino;
+			if (file_number) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("file-number"),
+									JSValueMakeNumber(ctx, file_number),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("permissions"),
+								JSValueMakeNumber(ctx, (double)(ACCESSPERMS & file_stat.st_mode)),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("reference-count"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_nlink),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("uid"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_uid),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			struct passwd * uid_passwd = getpwuid(file_stat.st_uid);
+
+			if (uid_passwd) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("uname"),
+									c_string_to_value(ctx, uid_passwd->pw_name),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("gid"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_gid),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			struct group * gid_group = getgrgid(file_stat.st_gid);
+
+			if (gid_group) {
+				JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("gname"),
+									c_string_to_value(ctx, gid_group->gr_name),
+									kJSPropertyAttributeReadOnly, NULL);
+			}
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("file-size"),
+								JSValueMakeNumber(ctx, (double)file_stat.st_size),
+								kJSPropertyAttributeReadOnly, NULL);
+
+#ifdef __APPLE__
+#define birthtime(x) x.st_birthtime
+#else
+#define birthtime(x) x.st_ctime
+#endif
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("created"),
+								JSValueMakeNumber(ctx, 1000*birthtime(file_stat)),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("modified"),
+								JSValueMakeNumber(ctx, 1000*file_stat.st_mtime),
+								kJSPropertyAttributeReadOnly, NULL);
+
+			return result;
+		}
+
+		free(path);
+	}
+	return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+								size_t argc, const JSValueRef args[], JSValueRef* exception) {
+	if (argc == 1
+		&& JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+		char *prompt = value_to_c_string(ctx, args[0]);
+
+		char* pass = getpass(prompt);
+
+		JSValueRef rv;
+
+		if (pass) {
+			rv = c_string_to_value(ctx, pass);
+			memset(pass, 0, strlen(pass));
+		} else {
+			rv = JSValueMakeNull(ctx);
+		}
+
+		free(prompt);
+		return rv;
+	}
+	return JSValueMakeNull(ctx);
 }

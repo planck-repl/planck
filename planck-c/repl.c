@@ -11,6 +11,7 @@
 #include "cljs.h"
 #include "globals.h"
 #include "str.h"
+#include "theme.h"
 
 #define EXIT_SUCCESS_INTERNAL 0
 
@@ -26,7 +27,7 @@ char *history_path = NULL;
 char *input = NULL;
 int indent_space_count = 0;
 
-int num_previous_lines = 0;
+size_t num_previous_lines = 0;
 char **previous_lines = NULL;
 
 int socket_repl_session_id = 0;
@@ -51,7 +52,7 @@ char *form_prompt(char *current_ns, bool is_secondary) {
 		}
 	} else {
 		if (!config.dumb_terminal) {
-			int len = strlen(current_ns) - 2;
+			size_t len = strlen(current_ns) - 2;
 			prompt = malloc((len + 6) * sizeof(char));
 			memset(prompt, ' ', len);
 			sprintf(prompt + len, "#_=> ");
@@ -64,7 +65,7 @@ char *form_prompt(char *current_ns, bool is_secondary) {
 char *get_input() {
 	char *line = NULL;
 	size_t len = 0;
-	int n = getline(&line, &len, stdin);
+	ssize_t n = getline(&line, &len, stdin);
 	if (n > 0) {
 		if (line[n-1] == '\n') {
 			line[n-1] = '\0';
@@ -81,7 +82,7 @@ void display_prompt(char *prompt) {
 }
 
 bool is_whitespace(char *s) {
-	int len = strlen(s);
+	size_t len = strlen(s);
 	for (int i = 0; i < len; i++) {
 		if (!isspace(s[i])) {
 			return false;
@@ -208,7 +209,7 @@ void run_cmdline_loop(JSContextRef ctx) {
 				fprintf(stdout, "\n");
 			}
 
-			char *line = linenoise(current_prompt, "\x1b[36m", indent_space_count);
+			char *line = linenoise(current_prompt, prompt_ansi_code_for_theme(config.theme), indent_space_count);
 
 			// Reset printing handler back
 			if (cljs_engine_ready) {
@@ -250,39 +251,53 @@ void completion(const char *buf, linenoiseCompletions *lc) {
 	free(completions);
 }
 
+pthread_mutex_t highlight_restore_sequence_mutex = PTHREAD_MUTEX_INITIALIZER;
+int highlight_restore_sequence = 0;
+
 struct hl_restore {
-	bool should_restore;
+	int id;
 	int num_lines_up;
 	int relative_horiz;
-
 };
-struct hl_restore hl_restore;
 
-void *do_highlight_restore(void *data) {
-	if (data != NULL) {
-		int *timeout = data;
-		struct timespec t;
-		t.tv_sec = 0;
-		t.tv_nsec = *timeout;
-		nanosleep(&t, NULL);
+struct hl_restore hl_restore = { 0, 0, 0 };
+
+void do_highlight_restore(struct hl_restore *hl_restore) {
+
+	int highlight_restore_sequence_value;
+	pthread_mutex_lock(&highlight_restore_sequence_mutex);
+	highlight_restore_sequence_value = highlight_restore_sequence;
+	pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+       
+	if (hl_restore->id == highlight_restore_sequence_value) {
+
+		pthread_mutex_lock(&highlight_restore_sequence_mutex);
+		++highlight_restore_sequence;
+		pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+
+		if (hl_restore->num_lines_up != 0) {
+			fprintf(stdout,"\x1b[%dB", hl_restore->num_lines_up);
+		}
+
+		if (hl_restore->relative_horiz < 0) {
+			fprintf(stdout,"\x1b[%dC", -hl_restore->relative_horiz);
+		} else if (hl_restore->relative_horiz > 0){
+			fprintf(stdout,"\x0b[%dD", hl_restore->relative_horiz);
+		}
+
+		fflush(stdout);
+
 	}
 
-	if (hl_restore.num_lines_up != 0) {
-		fprintf(stdout,"\x1b[%dB", hl_restore.num_lines_up);
-	}
+	free(hl_restore);
+}
 
-	if (hl_restore.relative_horiz < 0) {
-		fprintf(stdout,"\x1b[%dC", -hl_restore.relative_horiz);
-	} else if (hl_restore.relative_horiz > 0){
-		fprintf(stdout,"\x1b[%dD", hl_restore.relative_horiz);
-	}
-
-	fflush(stdout);
-
-	hl_restore.should_restore = false;
-	hl_restore.num_lines_up = 0;
-	hl_restore.relative_horiz = 0;
-
+void *highlight_restore_timer(void* data) {
+	struct timespec t;
+        t.tv_sec = 0;
+	t.tv_nsec = 500 * 1000 * 1000;
+	nanosleep(&t, NULL);
+	do_highlight_restore((struct hl_restore *)data);
 	return NULL;
 }
 
@@ -292,11 +307,7 @@ void highlight(const char *buf, int pos) {
 	if (current == ']' || current == '}' || current == ')') {
 		int num_lines_up = -1;
 		int highlight_pos = 0;
-		char *buf_copy = malloc((pos + 1) * sizeof(char));
-		strncpy(buf_copy, buf, pos);
-		buf_copy[pos + 1] = '\0';
-		cljs_highlight_coords_for_pos(global_ctx, pos, (char*)buf, num_previous_lines, previous_lines, &num_lines_up, &highlight_pos);
-		free(buf_copy);
+		cljs_highlight_coords_for_pos(global_ctx, pos, buf, num_previous_lines, previous_lines, &num_lines_up, &highlight_pos);
 
 		int current_pos = pos + 1;
 
@@ -315,24 +326,29 @@ void highlight(const char *buf, int pos) {
 
 			fflush(stdout);
 
-			// struct hl_restore *hl_restore = malloc(sizeof(struct hl_restore));
-			hl_restore.should_restore = true;
-			hl_restore.num_lines_up = num_lines_up;
-			hl_restore.relative_horiz = relative_horiz;
+			struct hl_restore *hl_restore_local = malloc(sizeof(struct hl_restore));
+			pthread_mutex_lock(&highlight_restore_sequence_mutex);
+			hl_restore_local->id = ++highlight_restore_sequence;
+			pthread_mutex_unlock(&highlight_restore_sequence_mutex);
+			hl_restore_local->num_lines_up = num_lines_up;
+			hl_restore_local->relative_horiz = relative_horiz;
 
-			int timeout = 500 * 1000 * 1000;
+			hl_restore = *hl_restore_local;
+
 			pthread_attr_t attr;
 			pthread_attr_init(&attr);
 			pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 			pthread_t thread;
-			pthread_create(&thread, &attr, do_highlight_restore, (void*)&timeout);
+			pthread_create(&thread, &attr, highlight_restore_timer, (void*)hl_restore_local);
 		}
 	}
 }
 
 void highlight_cancel() {
-	if (hl_restore.should_restore) {
-		do_highlight_restore(NULL);
+	if (hl_restore.id != 0) {
+                struct hl_restore *hl_restore_tmp = malloc(sizeof(struct hl_restore));
+		*hl_restore_tmp = hl_restore;
+		do_highlight_restore(hl_restore_tmp);
 	}
 }
 
@@ -348,7 +364,7 @@ int run_repl(JSContextRef ctx) {
 		char *home = getenv("HOME");
 		if (home != NULL) {
 			char history_name[] = ".planck_history";
-			int len = strlen(home) + strlen(history_name) + 2;
+			size_t len = strlen(home) + strlen(history_name) + 2;
 			history_path = malloc(len * sizeof(char));
 			snprintf(history_path, len, "%s/%s", home, history_name);
 

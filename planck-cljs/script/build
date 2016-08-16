@@ -4,19 +4,22 @@
 set -e
 set -o pipefail
 
+# Initialize lein if it hasn't yet been
+script/lein -v
+
 # Uncomment to build our own copy of ClojureScript compiler
 # Also see change needed in project.clj
-#CLJS_GIT_COMMIT=HEAD
+#CLJS_GIT_COMMIT=709cc57d003590945329ea8745b799e75ac4ba88
 
 if [ -z "$CLJS_GIT_COMMIT" ]; then
-  CLJSC_CP=`lein with-profile build classpath`
+  CLJSC_CP=`script/lein with-profile build classpath`
 else	
   if [ ! -e clojurescript ]; then
      git clone https://github.com/clojure/clojurescript
      pushd clojurescript
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
-     # curl -L http://dev.clojure.org/jira/secure/attachment/15609/CLJS-1612.patch | git apply
+     # curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
@@ -26,7 +29,7 @@ else
      script/uberjar
      popd
   fi
-  CLJSC_CP=`lein with-profile build classpath`:clojurescript/target/cljs.jar
+  CLJSC_CP=`script/lein with-profile build classpath`:clojurescript/target/cljs.jar
 fi
 
 mkdir -p out/cljs/analyzer
