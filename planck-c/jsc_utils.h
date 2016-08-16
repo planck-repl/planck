@@ -3,7 +3,7 @@
 JSStringRef to_string(JSContextRef ctx, JSValueRef val);
 
 #ifdef DEBUG
-#define debug_print_value(prefix, ctx, val)	print_value(prefix ": ", ctx, val)
+#define debug_print_value(prefix, ctx, val)    print_value(prefix ": ", ctx, val)
 #else
 #define debug_print_value(prefix, ctx, val)
 #endif
