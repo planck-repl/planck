@@ -8,6 +8,12 @@
     cljs.spec
     cljs.test
     cljs.analyzer.api
+    fipp.clojure
+    fipp.deque
+    fipp.edn
+    fipp.ednize
+    fipp.engine
+    fipp.visit
     goog.Delay
     goog.Disposable
     goog.Promise

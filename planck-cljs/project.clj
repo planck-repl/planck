@@ -10,7 +10,7 @@
                  [tailrecursion/cljson "1.0.7"]
                  [com.cognitect/transit-clj "0.8.285"]
                  [com.cognitect/transit-cljs "0.8.237"]
-                 [fipp "0.6.5"]
+                 [fipp "0.6.6"]
                  [malabarba/lazy-map "1.1"]
                  [cljsjs/parinfer "1.8.1-0"]]
   :clean-targets ["out" "target"])
