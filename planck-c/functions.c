@@ -88,16 +88,17 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
     // TODO: implement fully
 
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeString) {
-        char path[100];
+        char path[PATH_MAX];
         JSStringRef path_str = JSValueToStringCopy(ctx, args[0], NULL);
-        assert(JSStringGetLength(path_str) < 100);
-        JSStringGetUTF8CString(path_str, path, 100);
+        assert(JSStringGetLength(path_str) < PATH_MAX);
+        JSStringGetUTF8CString(path_str, path, PATH_MAX);
         JSStringRelease(path_str);
 
         // debug_print_value("load", ctx, args[0]);
 
         time_t last_modified = 0;
         char *contents = NULL;
+        char *loaded_path = strdup(path);
 
         bool developing = (config.num_src_paths == 1 &&
                            strcmp(config.src_paths[0].type, "src") == 0 &&
@@ -117,6 +118,10 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                 if (strcmp(type, "src") == 0) {
                     char *full_path = str_concat(location, path);
                     contents = get_contents(full_path, &last_modified);
+                    if (contents != NULL) {
+                        free(loaded_path);
+                        loaded_path = strdup(full_path);
+                    }
                     free(full_path);
                 } else if (strcmp(type, "jar") == 0) {
                     contents = get_contents_zip(location, path, &last_modified);
@@ -145,11 +150,14 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
         if (contents != NULL) {
             JSStringRef contents_str = JSStringCreateWithUTF8CString(contents);
             free(contents);
+            JSStringRef loaded_path_str = JSStringCreateWithUTF8CString(loaded_path);
+            free(loaded_path);
 
-            JSValueRef res[2];
+            JSValueRef res[3];
             res[0] = JSValueMakeString(ctx, contents_str);
             res[1] = JSValueMakeNumber(ctx, last_modified);
-            return JSObjectMakeArray(ctx, 2, res, NULL);
+            res[2] = JSValueMakeString(ctx, loaded_path_str);
+            return JSObjectMakeArray(ctx, 3, res, NULL);
         }
     }
 

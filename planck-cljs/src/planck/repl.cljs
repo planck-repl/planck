@@ -812,16 +812,17 @@
 
 (defn- load-and-callback!
   [name path macros lang cache-prefix cb]
-  (let [[raw-load [source modified]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
-        [raw-load [source modified]] (if source
-                                       [raw-load [source modified]]
-                                       [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path)])]
+  (let [[raw-load [source modified loaded-path]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
+        [raw-load [source modified loaded-path]] (if source
+                                                   [raw-load [source modified loaded-path]]
+                                                   [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path) path])]
     (when source
       (when name
         (swap! name-path assoc name path))
       (cb (merge
             {:lang   lang
-             :source source}
+             :source source
+             :file   loaded-path}
             (when-not (= :js lang)
               (cached-callback-data name path macros cache-prefix source modified raw-load))))
       :loaded)))
@@ -1151,11 +1152,12 @@
         (first (js/PLANCK_LOAD (str without-extension ".clj")))
         (first (js/PLANCK_LOAD (str without-extension ".cljc")))
         (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
-    (let [file-source (first (js/PLANCK_LOAD filepath))]
-      (or file-source
-          (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
-        (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
-        (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" "")))))))
+    (or
+      (first (js/PLANCK_LOAD filepath))
+      (first (js/PLANCK_READ_FILE filepath))
+      (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
+      (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
+      (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" ""))))))
 
 (defn- fetch-source
   [var]

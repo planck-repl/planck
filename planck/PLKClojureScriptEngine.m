@@ -380,6 +380,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  
                  NSString* source = nil;
                  NSDate* sourceFileModified = nil;
+                 NSString* loadedPath = path;
                  
                  BOOL developing = (srcPaths.count == 1 &&
                                     [srcPaths[0][0] isEqualToString:@"src"] &&
@@ -410,6 +411,7 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                                                                 encoding:NSUTF8StringEncoding error:nil];
                              if (source) {
                                  sourceFileModified = [self getModificationDateForFile:fullPath];
+                                 loadedPath = fullPath;
                              }
                          } else if ([type isEqualToString:@"jar"]) {
                              NSArray* sourceAndModified = [self getSourceFromArchiveLocation:location path:path];
@@ -441,11 +443,12 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
                  }
                  
                  if (source) {
-                     JSValueRef arguments[2];
+                     JSValueRef arguments[3];
                      arguments[0] = JSValueMakeStringFromNSString(ctx, source);
                      arguments[1] = JSValueMakeNumber(ctx, [sourceFileModified timeIntervalSince1970]);
+                     arguments[2] = JSValueMakeStringFromNSString(ctx, loadedPath);
                      
-                     return JSObjectMakeArray(ctx, 2, arguments, NULL);
+                     return JSObjectMakeArray(ctx, 3, arguments, NULL);
                  }
 
              }

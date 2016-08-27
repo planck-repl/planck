@@ -64,6 +64,7 @@ nil
 195
 Test require REPL special throws in file
 before throw
+ERROR in file /Users/mfikes/Projects/planck/int-test/src/test_require/throw_it.cljs
 bye-bye
 nil
 0
