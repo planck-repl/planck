@@ -118,6 +118,8 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
         [aTask waitUntilExit];
     }
     @catch (NSException *exception) {
+        [outPipe.fileHandleForReading closeFile];
+        [errPipe.fileHandleForReading closeFile];
         return @{@"exit": @(-1),
                  @"err": exception.description};
     }
@@ -142,6 +144,9 @@ NSDictionary* cljs_shell(NSArray *args, id arg_in, NSString *encoding_in, NSStri
         errString = [[NSString alloc] initWithData:errData encoding:NSASCIIStringEncoding];
     }
     [errLock unlock];
+    
+    [outPipe.fileHandleForReading closeFile];
+    [errPipe.fileHandleForReading closeFile];
     
     outString = outString ? outString : @"";
     errString = errString ? errString : @"";
