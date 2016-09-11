@@ -5,8 +5,8 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 
 ```
 $ planck
-Planck 1.16
-ClojureScript 1.9.216
+Planck 1.17
+ClojureScript 1.9.229
     Docs: (doc function-name-here)
           (find-doc "part-of-name-here")
   Source: (source function-name-here)
@@ -157,7 +157,7 @@ The `require`, `require-macros`, and  `import` REPL specials make it possible to
 cljs.user=> (require '[planck.core :as planck])
 nil
 cljs.user=> planck/*planck-version*
-"1.16"
+"1.17"
 cljs.user=> (import '[goog.events EventType])
 nil
 cljs.user=> EventType.CLICK

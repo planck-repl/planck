@@ -35,8 +35,6 @@ $ brew remove planck
 $ brew install --HEAD planck
 ```
 
-> Note, master requires Maven to be explicitly set up in the formula for now. To do this `brew edit planck` and add a line below the one for `leiningen` specifying `depends_on "maven" => :build`
-
 ### Manual Download and Install
 
 You can download Planck. It ships as a single-file binary, so it is as easy as putting it in your path then making it executable:
