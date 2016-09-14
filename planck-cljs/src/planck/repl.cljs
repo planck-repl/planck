@@ -383,9 +383,19 @@
       "via ns:\n  "
       (pr-str ns-form))))
 
+(defn- compiler-state-memo
+  []
+  {:st     @st
+   :loaded @cljs/*loaded*})
+
+(defn- restore-compiler-state
+  [memo]
+  (reset! st (:st memo))
+  (reset! cljs/*loaded* (:loaded memo)))
+
 (defn- process-require
   [kind cb specs]
-  (let [current-st @st]
+  (let [memo (compiler-state-memo)]
     (try
       (let [is-self-require? (and (= :kind :require) (self-require? specs))
             [target-ns restore-ns]
@@ -403,11 +413,11 @@
               (reset! current-ns restore-ns))
             (when e
               (handle-error e false)
-              (reset! st current-st))
+              (restore-compiler-state memo))
             (cb))))
       (catch :default e
         (handle-error e true)
-        (reset! st current-st)))))
+        (restore-compiler-state memo)))))
 
 (defn- resolve-var
   "Given an analysis environment resolve a var. Analogous to
