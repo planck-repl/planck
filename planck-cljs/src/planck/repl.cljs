@@ -397,7 +397,7 @@
   [kind cb specs]
   (let [memo (compiler-state-memo)]
     (try
-      (let [is-self-require? (and (= :kind :require) (self-require? specs))
+      (let [is-self-require? (and (= kind :require) (self-require? specs))
             [target-ns restore-ns]
             (if-not is-self-require?
               [@current-ns nil]
