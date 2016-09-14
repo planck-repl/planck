@@ -59,6 +59,9 @@ nil
 Test require REPL special
 nil
 true
+nil
+nil
+true
 Test require REPL special exit in file
 nil
 195

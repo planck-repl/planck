@@ -129,6 +129,9 @@ echo "Test require REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (require 'test-require.core)
 test-require.core/success
+(in-ns 'test-require.core)
+(require 'test-require.core :reload)
+test-require.core/success
 REPL_INPUT
 
 echo "Test require REPL special exit in file"
