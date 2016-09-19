@@ -4,6 +4,8 @@ project(planck)
 add_definitions(-DDEBUG)
 
 set(SOURCE_FILES
+    archive.c
+    archive.h
     bundle.c
     bundle.h
     bundle_inflate.h
@@ -32,9 +34,7 @@ set(SOURCE_FILES
     str.c
     str.h
     theme.c
-    theme.h
-    zip.c
-    zip.h)
+    theme.h)
 
 add_executable(planck ${SOURCE_FILES})
 
