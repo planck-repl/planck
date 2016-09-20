@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "zip.h"
+#include "archive.h"
 
 #ifndef ZIP_RDONLY
 typedef struct zip zip_t;

@@ -16,7 +16,7 @@
 #include "io.h"
 #include "jsc_utils.h"
 #include "str.h"
-#include "zip.h"
+#include "archive.h"
 #include "file.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000

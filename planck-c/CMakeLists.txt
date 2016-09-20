@@ -4,6 +4,8 @@ project(planck)
 add_definitions(-DDEBUG)
 
 set(SOURCE_FILES
+    archive.c
+    archive.h
     bundle.c
     bundle.h
     bundle_inflate.h
@@ -32,9 +34,7 @@ set(SOURCE_FILES
     str.c
     str.h
     theme.c
-    theme.h
-    zip.c
-    zip.h)
+    theme.h)
 
 add_executable(planck ${SOURCE_FILES})
 
@@ -43,9 +43,16 @@ find_package(PkgConfig REQUIRED)
 find_library(CURL curl)
 target_link_libraries(planck ${CURL})
 
-pkg_check_modules(LIBZIP REQUIRED libzip)
-include_directories(${LIBZIP_INCLUDE_DIRS})
-target_link_libraries(planck ${LIBZIP_LDFLAGS})
+option(USE_BUNDLED_LIBZIP "use an in-tree version of libzip" OFF)
+if(USE_BUNDLED_LIBZIP)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+    add_subdirectory(libzip-1.1.3/)
+    target_link_libraries(planck zip)
+else(USE_BUNDLED_LIBZIP)
+    pkg_check_modules(LIBZIP REQUIRED libzip)
+    include_directories(${LIBZIP_INCLUDE_DIRS})
+    target_link_libraries(planck ${LIBZIP_LDFLAGS})
+endif(USE_BUNDLED_LIBZIP)
 
 if(APPLE)
     find_library(JAVASCRIPTCORE JavaScriptCore)
