@@ -45,6 +45,10 @@ target_link_libraries(planck ${CURL})
 
 option(USE_BUNDLED_LIBZIP "use an in-tree version of libzip" OFF)
 if(USE_BUNDLED_LIBZIP)
+    if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/libzip-1.1.3")
+        message(FATAL_ERROR "The libzip-1.1.3 dependency is missing."
+            "See https://github.com/mfikes/planck/pull/361 for instructions.")
+    endif()
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
     add_subdirectory(libzip-1.1.3/)
     target_link_libraries(planck zip)
