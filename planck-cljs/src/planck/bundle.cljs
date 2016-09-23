@@ -96,6 +96,7 @@
     goog.json.Reviver
     goog.json.Serializer
     goog.json.hybrid
+    goog.labs.format.csv
     goog.locale
     goog.locale.TimeZoneFingerprint
     goog.locale.defaultLocaleNameConstants
