@@ -25,7 +25,7 @@ Instead, you can instruct Planck to cache:
 planck -K foo.cljs
 ```
 
-The first time you run Planck this way, it will save the results of compilation into `.planck_cache`. Then subsequent executions will use the cached results instead.
+The first time you run Planck this way, it will save the results of compilation into `.planck_cache`. Then subsequent executions with `-K` will use the cached results instead.
 
 In addition to caching compiled JavaScript, the associated analysis metadata and source mapping information is cached. This makes it possible for Planck to know the symbols in a namespace, their docstrings, _etc._, without having to consult the original source. And, if an exception occurs, the source mapping info is used in forming stack traces. For additional speed, this cached info is written using Transit.
 
