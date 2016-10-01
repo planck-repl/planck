@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 rm -f manifest.m
 git update-index --no-assume-unchanged ../planck/PLKBundledOut.m

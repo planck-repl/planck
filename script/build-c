@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #----------------------------------------------------
 # Exit if the last command failed, indicating 

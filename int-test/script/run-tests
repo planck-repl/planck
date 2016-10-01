@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source int-test/script/setup-env
 int-test/script/gen-actual > $ACTUAL_PATH/PLANCK-OUT.txt 2> $ACTUAL_PATH/PLANCK-ERR.txt
