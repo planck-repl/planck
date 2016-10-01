@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 script/lein clean
 rm -rf resources
 rm -rf tools.reader

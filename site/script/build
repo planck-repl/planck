@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 MARKDOWN_CLJ_VER="0.9.85"
 

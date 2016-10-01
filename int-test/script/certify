@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source int-test/script/setup-env
 cp $ACTUAL_PATH/PLANCK-OUT.txt $EXPECTED_PATH/PLANCK-OUT.txt
