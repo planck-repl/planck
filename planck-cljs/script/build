@@ -9,7 +9,7 @@ script/lein -v
 
 # Uncomment to build our own copy of ClojureScript compiler
 # Also see change needed in project.clj
-#CLJS_GIT_COMMIT=709cc57d003590945329ea8745b799e75ac4ba88
+CLJS_GIT_COMMIT=5cc8f04242247edfb85a115a0acc46e9cef224f6
 
 if [ -z "$CLJS_GIT_COMMIT" ]; then
   CLJSC_CP=`script/lein with-profile build classpath`
@@ -20,6 +20,7 @@ else
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
      # curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
+     curl http://planck-repl.org/releases/1.18/0001-Experiment-turning-off-fn-var.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"

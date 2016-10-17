@@ -11,7 +11,6 @@
             [cljs.source-map :as sm]
             [cljs.env :as env]
             [cljs.js :as cljs]
-            [cljs.repl :as repl]
             [cljs.spec :as s]
             [cljs.stacktrace :as st]
             [cognitect.transit :as transit]
@@ -491,7 +490,6 @@
     cljs.source-map
     cljs.source-map.base64
     cljs.source-map.base64-vlq
-    cljs.repl
     cljs.tools.reader.impl.commons
     cljs.tools.reader.impl.utils
     cljs.stacktrace])
@@ -861,7 +859,6 @@
       (and (= name 'cljs.env.macros) macros)
       (and (= name 'cljs.analyzer.macros) macros)
       (and (= name 'cljs.compiler.macros) macros)
-      (and (= name 'cljs.repl) macros)
       (and (= name 'cljs.js) macros)
       (and (= name 'cljs.pprint) macros)
       (and (= name 'cljs.tools.reader.reader-types) macros)
@@ -1129,13 +1126,9 @@
 (defn- get-macro-var
   [env sym macros-ns]
   {:pre [(symbol? macros-ns)]}
-  (let [macros-ns-str (str macros-ns)
-        base-ns-str   (subs macros-ns-str 0 (- (count macros-ns-str) 7))
-        base-ns       (symbol base-ns-str)]
-    (if-let [macro-var (with-compiler-env st
-                         (resolve-var env (symbol macros-ns-str (name sym))))]
-      (update (assoc macro-var :ns base-ns)
-        :name #(symbol base-ns-str (name %))))))
+  (when-let [macro-var (with-compiler-env st
+                         (resolve-var env (symbol macros-ns (name sym))))]
+    (assoc macro-var :ns macros-ns)))
 
 (defn- all-macros-ns
   []
@@ -1148,9 +1141,12 @@
     (let [var (or (with-compiler-env st (resolve-var env sym))
                   (some #(get-macro-var env sym %) (all-macros-ns)))]
       (when var
-        (if (= (namespace (:name var)) (str (:ns var)))
-          (update var :name #(symbol (name %)))
-          var)))))
+        (-> (cond-> var
+              (not (:ns var))
+              (assoc :ns (symbol (namespace (:name var))))
+              (= (namespace (:name var)) (str (:ns var)))
+              (update :name #(symbol (name %))))
+          (update :ns (comp symbol drop-macros-suffix str)))))))
 
 (defn- get-file-source
   [filepath]
