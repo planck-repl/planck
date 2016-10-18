@@ -877,7 +877,7 @@
   foreign-files-loaded."
   [files-to-load]
   (let [result (remove @foreign-files-loaded files-to-load)]
-    (swap! foreign-files-loaded conj result)
+    (swap! foreign-files-loaded into result)
     result))
 
 (defn- file-content
