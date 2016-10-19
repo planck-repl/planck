@@ -26,7 +26,7 @@ void usage(char *program_name) {
     printf("    -e string, --eval=string Evaluate expressions in string; print non-nil\n");
     printf("                             values\n");
     printf("    -c cp, --classpath=cp    Use colon-delimited cp for source directories and\n");
-    printf("                             JARs\n");
+    printf("                             JARs. PLANCK_CLASSPATH env var may be used instead.\n");
     printf("    -K, --auto-cache         Create and use .planck_cache dir for cache\n");
     printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
     printf("    -q, --quiet              Quiet mode\n");
@@ -100,6 +100,24 @@ char *ensure_trailing_slash(char *s) {
         return strdup(s);
     } else {
         return str_concat(s, "/");
+    }
+}
+
+void init_classpath(char* classpath) {
+    char *source = strtok(classpath, ":");
+    while (source != NULL) {
+        char *type = "src";
+        if (str_has_suffix(source, ".jar") == 0) {
+            type = "jar";
+        }
+
+        config.num_src_paths += 1;
+        config.src_paths = realloc(config.src_paths, config.num_src_paths * sizeof(struct src_path));
+        config.src_paths[config.num_src_paths - 1].type = type;
+        config.src_paths[config.num_src_paths - 1].path =
+                strcmp(type, "jar") == 0 ? strdup(source) : ensure_trailing_slash(source);
+
+        source = strtok(NULL, ":");
     }
 }
 
@@ -211,21 +229,7 @@ int main(int argc, char **argv) {
                 break;
             case 'c': {
                 char *classpath = strdup(optarg);
-                char *source = strtok(classpath, ":");
-                while (source != NULL) {
-                    char *type = "src";
-                    if (str_has_suffix(source, ".jar") == 0) {
-                        type = "jar";
-                    }
-
-                    config.num_src_paths += 1;
-                    config.src_paths = realloc(config.src_paths, config.num_src_paths * sizeof(struct src_path));
-                    config.src_paths[config.num_src_paths - 1].type = type;
-                    config.src_paths[config.num_src_paths - 1].path =
-                            strcmp(type, "jar") == 0 ? strdup(source) : ensure_trailing_slash(source);
-
-                    source = strtok(NULL, ":");
-                }
+                init_classpath(classpath);
 
                 break;
             }
@@ -237,6 +241,13 @@ int main(int argc, char **argv) {
                 exit(1);
             default:
                 printf("unhandled argument: %c\n", opt);
+        }
+    }
+
+    if (config.num_src_paths == 0) {
+        char *classpath = getenv("PLANCK_CLASSPATH");
+        if (classpath) {
+            init_classpath(classpath);
         }
     }
 

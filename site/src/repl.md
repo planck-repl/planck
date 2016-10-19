@@ -150,7 +150,7 @@ foo.core=> ▊
 
 #### require, require-macros, import
 
-The `require`, `require-macros`, and  `import` REPL specials make it possible to load namespaces and Google Closure code into Planck. These work on the namespaces and Google Closure code that ships with Planck, like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `-​-​classpath` comand-line option.
+The `require`, `require-macros`, and  `import` REPL specials make it possible to load namespaces and Google Closure code into Planck. These work on the namespaces and Google Closure code that ships with Planck, like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `-​-​classpath` comand-line option or the `PLANCK_CLASSPATH` environment variable.
 
 
 ```clojure-repl

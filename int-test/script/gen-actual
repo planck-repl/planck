@@ -12,6 +12,7 @@
 ######################################################
 
 COLORFGBG="0;15"
+unset PLANCK_CLASSPATH
 
 export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
 
@@ -290,6 +291,12 @@ $PLANCK -c $SRC <<REPL_INPUT
 test-load-file.core/success
 REPL_INPUT
 
+echo "Test load-file from classpath env var"
+PLANCK_CLASSPATH=$SRC $PLANCK <<REPL_INPUT
+(load-file "test_load_file/core.cljs")
+test-load-file.core/success
+REPL_INPUT
+
 echo "Test doc support for load-file REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (doc load-file)
@@ -539,6 +546,16 @@ $PLANCK -c $SRC:${SRC}2 <<REPL_INPUT
 test-src-paths.core/src-path
 REPL_INPUT
 $PLANCK -c ${SRC}2:$SRC <<REPL_INPUT
+(require 'test-src-paths.core)
+test-src-paths.core/src-path
+REPL_INPUT
+
+echo "Test classpath env var"
+PLANCK_CLASSPATH=$SRC:${SRC}2 $PLANCK <<REPL_INPUT
+(require 'test-src-paths.core)
+test-src-paths.core/src-path
+REPL_INPUT
+PLANCK_CLASSPATH=${SRC}2:$SRC $PLANCK <<REPL_INPUT
 (require 'test-src-paths.core)
 test-src-paths.core/src-path
 REPL_INPUT

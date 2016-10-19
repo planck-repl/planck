@@ -33,7 +33,7 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
     -e string, --eval=string Evaluate expressions in string; print non-nil
                              values
     -c cp, --classpath=cp    Use colon-delimited cp for source directories and
-                             JARs
+                             JARs. PLANCK_CLASSPATH env var may be used instead.
     -K, --auto-cache         Create and use .planck_cache dir for cache
     -k path, --cache=path    If dir exists at path, use it for cache
     -q, --quiet              Quiet mode
