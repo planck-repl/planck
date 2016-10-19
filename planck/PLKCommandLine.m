@@ -10,6 +10,19 @@
 
 @implementation PLKCommandLine
 
++(void)initClasspath:(NSString*)classpath srcPaths:(NSMutableArray*)srcPaths
+{
+    for (NSString* element in [classpath componentsSeparatedByString: @":"]) {
+        if ([element hasSuffix:@".jar"] || [element hasSuffix:@"*"]) {
+            [srcPaths addObject:@[@"jar", element]];
+        } else if ([element hasSuffix:@"*"]) {
+            
+        } else {
+            [srcPaths addObject:@[@"src", element]];
+        }
+    }
+}
+
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
@@ -152,15 +165,7 @@
             case 'c':
             {
                 NSString* classpath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
-                for (NSString* element in [classpath componentsSeparatedByString: @":"]) {
-                    if ([element hasSuffix:@".jar"] || [element hasSuffix:@"*"]) {
-                        [srcPaths addObject:@[@"jar", element]];
-                    } else if ([element hasSuffix:@"*"]) {
-
-                    } else {
-                        [srcPaths addObject:@[@"src", element]];
-                    }
-                }
+                [self initClasspath:classpath srcPaths:srcPaths];
                 break;
             }
             case 'v':
@@ -249,6 +254,13 @@
         }
     }
     
+    if (srcPaths.count == 0) {
+        NSString* classpath = [[[NSProcessInfo processInfo]environment]objectForKey:@"PLANCK_CLASSPATH"];
+        if (classpath) {
+            [self initClasspath:classpath srcPaths:srcPaths];
+        }
+    }
+    
     if (dumbTerminal) {
         theme = @"dumb";
     } else {
@@ -295,7 +307,7 @@
             printf("    -e string, --eval=string Evaluate expressions in string; print non-nil\n");
             printf("                             values\n");
             printf("    -c cp, --classpath=cp    Use colon-delimited cp for source directories and\n");
-            printf("                             JARs\n");
+            printf("                             JARs. PLANCK_CLASSPATH env var may be used instead.\n");
             printf("    -K, --auto-cache         Create and use .planck_cache dir for cache\n");
             printf("    -k path, --cache=path    If dir exists at path, use it for cache\n");
             printf("    -q, --quiet              Quiet mode\n");

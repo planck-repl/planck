@@ -1,7 +1,7 @@
 ## Dependencies
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/dependencies.jpg">
-Planck can depend on other libraries. To do so, the library must be available on an accessible filesystem, either as a source tree or bundled in a JAR, and included in Planck's classpath. You specify the classpath for Planck by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument.
+Planck can depend on other libraries. To do so, the library must be available on an accessible filesystem, either as a source tree or bundled in a JAR, and included in Planck's classpath. You specify the classpath for Planck by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by setting the `PLANCK_CLASSPATH` environment variable.
 
 For example,
 
@@ -35,9 +35,9 @@ In addition Planck ships with these libraries:
 * [Fipp](https://github.com/brandonbloom/fipp) 0.6.6
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.239
 
-Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `-c` or `-​-​classpath`.
+Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `-c`, `-​-​classpath`, or `PLANCK_CLASSPATH`.
 
-A consequence of this (as well as the fact that nearly all of the code that ships with Planck is AOT-compiled), means that Planck works with a fixed version of ClojureScript. (It is not possible to update the ClojureScript version by providing a path to a newer version via `-c` or `-​-​classpath`.)
+A consequence of this (as well as the fact that nearly all of the code that ships with Planck is AOT-compiled), means that Planck works with a fixed version of ClojureScript. (It is not possible to update the ClojureScript version by providing a path to a newer version via `-c`, `-​-​classpath`, or `PLANCK_CLASSPATH`.)
 
 ### Using Leiningen or Boot for JAR Dependency Management
 

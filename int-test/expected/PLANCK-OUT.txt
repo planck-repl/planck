@@ -270,6 +270,9 @@ nil
 Test load-file from classpath
 nil
 true
+Test load-file from classpath env var
+nil
+true
 Test doc support for load-file REPL special
 -------------------------
 load-file
@@ -436,6 +439,11 @@ Test binding of *command-line-args* in file run from command line
 (here are some args)
 0
 Test classpath
+nil
+:src
+nil
+:src2
+Test classpath env var
 nil
 :src
 nil
