@@ -21,6 +21,4 @@ WARNING: planck.io/spit is deprecated. at line 1
           ⬆
 WARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 
 Evaluating Expression
-cljs.user.a = (3)
-Evaluating Expression
-cljs.user.b = ((2) + (3))
+((2) + (3))

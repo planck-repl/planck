@@ -456,9 +456,8 @@ Test reader
 #inst "2015-08-18T01:53:14.614-00:00"
 Set literal contains duplicate key: 1
 Map literal contains duplicate key: 1
-Test verbose w/o var code
-#'cljs.user/a
-#'cljs.user/b
+Test verbose
+5
 Test restore state when require fails
 Could not parse ns form cljs.user
 Invalid :refer, var clojure.set/diff does not exist

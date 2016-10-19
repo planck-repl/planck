@@ -1538,24 +1538,6 @@
   (try
     (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns]
-      ;; For expressions, do an extra no-op eval-str for :verbose printing side effects w/o :def-emits-var
-      (when (and expression?
-                 (:verbose @app-env))
-        (binding [theme (assoc theme :err-font (:verbose-font theme))]
-          (cljs/eval-str
-            (atom @st)
-            source-text
-            expression-name
-            (merge
-              {:ns            initial-ns
-               :source-map    false
-               :verbose       true
-               :static-fns    (:static-fns @app-env)
-               :context       :expr
-               :def-emits-var false
-               :eval          identity})
-            identity)))
-      ;; Now eval-str for true side effects
       (binding [ana/*cljs-warning-handlers* (if expression?
                                               [warning-handler]
                                               [ana/default-warning-handler])]
@@ -1567,8 +1549,7 @@
            (or source-path "File"))
          (merge
            {:ns         initial-ns
-            :verbose    (and (not expression?)
-                             (:verbose @app-env))
+            :verbose    (:verbose @app-env)
             :static-fns (:static-fns @app-env)}
            (if-not expression? {:source-map true})
            (if expression?
