@@ -23,6 +23,11 @@
     }
 }
 
++(void)errCachePath
+{
+    fprintf(stderr, "Error: At most one of -k/--cache or -K/--auto-cache may be specified.\n");
+}
+
 +(int)processArgsCount:(int)argc vector:(char * const *)argv
 {
     int exitValue = EXIT_SUCCESS;
@@ -222,11 +227,19 @@
             }
             case 'k':
             {
+                if (cachePath) {
+                    [self errCachePath];
+                    return EXIT_FAILURE;
+                }
                 cachePath = [NSString stringWithCString:optarg encoding:NSMacOSRomanStringEncoding];
                 break;
             }
             case 'K':
             {
+                if (cachePath) {
+                    [self errCachePath];
+                    return EXIT_FAILURE;
+                }
                 cachePath = @".planck_cache";
                 BOOL isDir;
                 NSFileManager *fileManager= [NSFileManager defaultManager];

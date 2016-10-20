@@ -121,6 +121,10 @@ void init_classpath(char* classpath) {
     }
 }
 
+void err_cache_path() {
+  fprintf(stderr, "Error: At most one of -k/--cache or -K/--auto-cache may be specified.\n");
+}
+
 int main(int argc, char **argv) {
     config.verbose = false;
     config.quiet = false;
@@ -188,9 +192,17 @@ int main(int argc, char **argv) {
                 config.elide_asserts = true;
                 break;
             case 'k':
+                if (config.cache_path) {
+                    err_cache_path();
+                    return EXIT_FAILURE;
+                }
                 config.cache_path = strdup(optarg);
                 break;
             case 'K':
+                if (config.cache_path) {
+                    err_cache_path();
+                    return EXIT_FAILURE;
+                }
                 config.cache_path = ".planck_cache";
                 {
                     char *path_copy = strdup(config.cache_path);
