@@ -158,7 +158,7 @@
 
 (defn- load-core-analysis-cache
   [eager ns-sym file-prefix]
-  (let [keys        [:use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
+  (let [keys        [:rename-macros :renames :use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
         load-single (fn [key]
                       (transit-json->cljs (first (js/PLANCK_LOAD (str file-prefix (munge key) ".json")))))
         load-all    (fn []
@@ -171,7 +171,9 @@
       (if eager
         (load-all)
         (lazy-map
-          {:use-macros              (load :use-macros)
+          {:rename-macros           (load :rename-macros)
+           :renames                 (load :renames)
+           :use-macros              (load :use-macros)
            :excludes                (load :excludes)
            :name                    (load :name)
            :imports                 (load :imports)
