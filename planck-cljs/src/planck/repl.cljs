@@ -158,18 +158,12 @@
 
 (defn- load-core-analysis-cache
   [eager ns-sym file-prefix]
-  (let [keys        [:rename-macros :renames :use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
-        load-single (fn [key]
-                      (transit-json->cljs (first (js/PLANCK_LOAD (str file-prefix (munge key) ".json")))))
-        load-all    (fn []
-                      (zipmap keys (map load-single keys)))
-        load        (fn [key]
-                      (let [cache (load-all)]
-                        (cljs/load-analysis-cache! st ns-sym cache)
-                        (key cache)))]
+  (let [keys [:rename-macros :renames :use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
+        load (fn [key]
+               (transit-json->cljs (first (js/PLANCK_LOAD (str file-prefix (munge key) ".json")))))]
     (cljs/load-analysis-cache! st ns-sym
       (if eager
-        (load-all)
+        (zipmap keys (map load keys))
         (lazy-map
           {:rename-macros           (load :rename-macros)
            :renames                 (load :renames)
