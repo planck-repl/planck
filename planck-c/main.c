@@ -256,6 +256,12 @@ int main(int argc, char **argv) {
         }
     }
 
+    if (config.cache_path) {
+        if (access(config.cache_path, W_OK) != 0) {
+            fprintf(stderr, "Warning: Unable to write to cache directory.\n\n");
+        }
+    }
+
     if (config.num_src_paths == 0) {
         char *classpath = getenv("PLANCK_CLASSPATH");
         if (classpath) {
