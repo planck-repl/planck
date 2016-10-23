@@ -267,6 +267,12 @@
         }
     }
     
+    if (cachePath) {
+        if (access([cachePath cStringUsingEncoding:NSUTF8StringEncoding], W_OK) != 0) {
+            fprintf(stderr, "Warning: Unable to write to cache directory.\n\n");
+        }
+    }
+    
     if (srcPaths.count == 0) {
         NSString* classpath = [[[NSProcessInfo processInfo]environment]objectForKey:@"PLANCK_CLASSPATH"];
         if (classpath) {
