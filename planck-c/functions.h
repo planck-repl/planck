@@ -107,3 +107,6 @@ function_fstat(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, s
 
 JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                   const JSValueRef args[], JSValueRef *exception);
+
+JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                size_t argc, const JSValueRef args[], JSValueRef *exception);
