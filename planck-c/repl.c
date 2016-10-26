@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "str.h"
 #include "theme.h"
+#include "timers.h"
 
 #define EXIT_SUCCESS_INTERNAL 0
 
@@ -262,7 +263,9 @@ struct hl_restore {
 
 struct hl_restore hl_restore = {0, 0, 0};
 
-void do_highlight_restore(struct hl_restore *hl_restore) {
+void do_highlight_restore(void* data) {
+
+    struct hl_restore *hl_restore = data;
 
     int highlight_restore_sequence_value;
     pthread_mutex_lock(&highlight_restore_sequence_mutex);
@@ -290,15 +293,6 @@ void do_highlight_restore(struct hl_restore *hl_restore) {
     }
 
     free(hl_restore);
-}
-
-void *highlight_restore_timer(void *data) {
-    struct timespec t;
-    t.tv_sec = 0;
-    t.tv_nsec = 500 * 1000 * 1000;
-    nanosleep(&t, NULL);
-    do_highlight_restore((struct hl_restore *) data);
-    return NULL;
 }
 
 void highlight(const char *buf, int pos) {
@@ -336,11 +330,7 @@ void highlight(const char *buf, int pos) {
 
             hl_restore = *hl_restore_local;
 
-            pthread_attr_t attr;
-            pthread_attr_init(&attr);
-            pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-            pthread_t thread;
-            pthread_create(&thread, &attr, highlight_restore_timer, (void *) hl_restore_local);
+            start_timer(500, do_highlight_restore, (void *) hl_restore_local);
         }
     }
 }
