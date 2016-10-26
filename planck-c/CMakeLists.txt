@@ -34,7 +34,9 @@ set(SOURCE_FILES
     str.c
     str.h
     theme.c
-    theme.h)
+    theme.h
+    timers.c
+    timers.h)
 
 add_executable(planck ${SOURCE_FILES})
 
