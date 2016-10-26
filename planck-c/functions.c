@@ -18,6 +18,9 @@
 #include "str.h"
 #include "archive.h"
 #include "file.h"
+#include "timers.h"
+#include "cljs.h"
+#include "repl.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
@@ -862,6 +865,55 @@ JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObje
         }
 
         free(prompt);
+        return rv;
+    }
+    return JSValueMakeNull(ctx);
+}
+
+struct timeout_data_t {
+    unsigned long long id;
+};
+
+char* timeout_id_to_str(unsigned long long id) {
+    char *rv = malloc(21);
+    sprintf(rv, "%llu", id);
+    return rv;
+};
+
+JSValueRef timeout_data_to_js_value(JSContextRef ctx, struct timeout_data_t* timeout_data) {
+    char* id_str = timeout_id_to_str(timeout_data->id);
+    JSValueRef rv = c_string_to_value(ctx, id_str);
+    free(id_str);
+    return rv;
+}
+
+void do_run_timeout(void* data) {
+
+    struct timeout_data_t *timeout_data = data;
+
+    JSValueRef args[1];
+    args[0] = timeout_data_to_js_value(global_ctx, timeout_data);
+    free(timeout_data);
+
+    JSObjectRef run_timeout = get_function(global_ctx, "global", "PLANCK_RUN_TIMEOUT");
+    JSObjectCallAsFunction(global_ctx, run_timeout, NULL, 1, args, NULL);
+}
+
+static unsigned long long timeout_id = 0;
+
+JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
+
+        int millis = (int)JSValueToNumber(ctx, args[0], NULL);
+        
+        struct timeout_data_t *timeout_data = malloc(sizeof(struct timeout_data_t));
+        timeout_data->id = ++timeout_id;
+        JSValueRef rv = timeout_data_to_js_value(ctx, timeout_data);
+
+        start_timer(millis, do_run_timeout, (void *) timeout_data);
+
         return rv;
     }
     return JSValueMakeNull(ctx);
