@@ -17,6 +17,9 @@ void *timer_thread(void *data) {
     struct timespec t;
     t.tv_sec = timer_data->millis / 1000;
     t.tv_nsec = 1000 * 1000 * (timer_data->millis % 1000);
+    if (t.tv_sec == 0 && t.tv_nsec == 0) {
+        t.tv_nsec = 1; /* Evidently needed on Ubuntu 14.04 */
+    }
     nanosleep(&t, NULL);
     timer_data->timer_callback(timer_data->data);
 
