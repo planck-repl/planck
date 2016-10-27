@@ -141,12 +141,6 @@ $PLANCK -c $SRC <<REPL_INPUT
 REPL_INPUT
 echo $?
 
-echo "Test require REPL special throws in file"
-$PLANCK -c $SRC <<REPL_INPUT
-(require 'test-require.throw-it)
-REPL_INPUT
-echo $?
-
 echo "Test require unknown ns"
 $PLANCK -c $SRC <<REPL_INPUT
 (require 'unknown_ns.core)
@@ -324,10 +318,10 @@ echo $?
 echo "Shell with-sh-dir"
 $PLANCK <<REPL_INPUT
 (require '[planck.shell :refer-macros [with-sh-dir]])
-(with-sh-dir "/tmp"
+(with-sh-dir "/"
   (:out (planck.shell/sh "pwd")))
 (require 'planck.io)
-(with-sh-dir (planck.io/file "/tmp")
+(with-sh-dir (planck.io/file "/")
   (:out (planck.shell/sh "pwd")))
 REPL_INPUT
 
@@ -473,7 +467,7 @@ touch /tmp/PLANCK_FILE_SEQ/A/C/G
 touch /tmp/PLANCK_FILE_SEQ/A/D
 $PLANCK <<REPL_INPUT
 (require '[planck.core] '[planck.io])
-(run! println (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ")))
+(run! println (sort (map :path (planck.core/file-seq (planck.io/file "/tmp/PLANCK_FILE_SEQ")))))
 REPL_INPUT
 rm -rf /tmp/PLANCK_FILE_SEQ
 

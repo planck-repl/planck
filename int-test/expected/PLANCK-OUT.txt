@@ -65,12 +65,6 @@ true
 Test require REPL special exit in file
 nil
 195
-Test require REPL special throws in file
-before throw
-ERROR in file /Users/mfikes/Projects/planck/int-test/src/test_require/throw_it.cljs
-bye-bye
-nil
-0
 Test require unknown ns
 No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
 nil
@@ -290,9 +284,9 @@ nil
 132
 Shell with-sh-dir
 nil
-"/private/tmp\n"
+"/\n"
 nil
-"/private/tmp\n"
+"/\n"
 Shell stderr
 nil
 #{[:err "this is from stderr\n"] [:exit 0] [:out ""]}
@@ -389,14 +383,14 @@ nil
 true
 Test file-seq
 nil
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B/E}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/B/F}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/C/G}
-#planck.io.File{:path /tmp/PLANCK_FILE_SEQ/A/D}
+/tmp/PLANCK_FILE_SEQ
+/tmp/PLANCK_FILE_SEQ/A
+/tmp/PLANCK_FILE_SEQ/A/B
+/tmp/PLANCK_FILE_SEQ/A/B/E
+/tmp/PLANCK_FILE_SEQ/A/B/F
+/tmp/PLANCK_FILE_SEQ/A/C
+/tmp/PLANCK_FILE_SEQ/A/C/G
+/tmp/PLANCK_FILE_SEQ/A/D
 nil
 Test Google Closure index
 nil
