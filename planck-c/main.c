@@ -168,7 +168,8 @@ int main(int argc, char **argv) {
             {0, 0, 0,                                  0}
     };
     int opt, option_index;
-    while ((opt = getopt_long(argc, argv, "h?lvrsak:je:t:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+    bool did_encounter_main_opt = false;
+    while (!did_encounter_main_opt && (opt = getopt_long(argc, argv, "h?lvrsak:je:t:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 usage(argv[0]);
@@ -183,6 +184,7 @@ int main(int argc, char **argv) {
                 config.quiet = true;
                 break;
             case 'r':
+                did_encounter_main_opt = true;
                 config.repl = true;
                 break;
             case 's':
@@ -231,6 +233,7 @@ int main(int argc, char **argv) {
                 config.scripts[config.num_scripts - 1].source = strdup(optarg);
                 break;
             case 'm':
+                did_encounter_main_opt = true;
                 config.main_ns_name = strdup(optarg);
                 break;
             case 't':
