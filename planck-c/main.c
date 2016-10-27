@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <unistd.h>
 
 #include "bundle.h"
@@ -104,7 +105,26 @@ char *ensure_trailing_slash(char *s) {
     }
 }
 
+char *fully_qualify(char* cwd, char *path) {
+    if (cwd && path && str_has_prefix(path, "/") != 0) {
+        return str_concat(cwd, path);
+    } else {
+        return strdup(path);
+    }
+}
+
+char* get_current_working_dir() {
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        return ensure_trailing_slash(cwd);
+    }
+    return NULL;
+}
+
 void init_classpath(char* classpath) {
+
+    char* cwd = get_current_working_dir();
+
     char *source = strtok(classpath, ":");
     while (source != NULL) {
         char *type = "src";
@@ -115,11 +135,18 @@ void init_classpath(char* classpath) {
         config.num_src_paths += 1;
         config.src_paths = realloc(config.src_paths, config.num_src_paths * sizeof(struct src_path));
         config.src_paths[config.num_src_paths - 1].type = type;
-        config.src_paths[config.num_src_paths - 1].path =
-                strcmp(type, "jar") == 0 ? strdup(source) : ensure_trailing_slash(source);
+        if (strcmp(type, "jar") == 0) {
+            config.src_paths[config.num_src_paths - 1].path = fully_qualify(cwd, source);
+        } else {
+            char* with_trailing_slash = ensure_trailing_slash(source);
+            config.src_paths[config.num_src_paths - 1].path = fully_qualify(cwd, with_trailing_slash);
+            free(with_trailing_slash);
+        }
 
         source = strtok(NULL, ":");
     }
+
+    free(cwd);
 }
 
 void err_cache_path() {
