@@ -2,6 +2,8 @@
 
 #define PLANCK_VERSION "2.0"
 
+#define EXIT_SUCCESS_INTERNAL -257
+
 // Configuration
 
 struct src_path {
