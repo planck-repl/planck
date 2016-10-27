@@ -314,9 +314,11 @@ int main(int argc, char **argv) {
     // Process init arguments
 
     for (int i = 0; i < config.num_scripts; i++) {
-        // TODO: exit if not successfull
         struct script script = config.scripts[i];
         evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme, true);
+        if (exit_value != EXIT_SUCCESS) {
+            return exit_value;
+        }
     }
 
     // Process main arguments
