@@ -14,6 +14,7 @@
 #include "repl.h"
 #include "str.h"
 #include "theme.h"
+#include "timers.h"
 
 void usage(char *program_name) {
     printf("Planck %s\n", PLANCK_VERSION);
@@ -341,6 +342,14 @@ int main(int argc, char **argv) {
         }
 
         run_repl(ctx);
+    }
+
+    if (exit_value == EXIT_SUCCESS) {
+        block_until_timers_complete();
+    }
+
+    if (exit_value == EXIT_SUCCESS_INTERNAL) {
+        exit_value = EXIT_SUCCESS;
     }
 
     return exit_value;

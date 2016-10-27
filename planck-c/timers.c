@@ -4,6 +4,32 @@
 #include <stdlib.h>
 #include "timers.h"
 
+int timers_outstanding = 0;
+pthread_mutex_t timers_complete_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t timers_complete_cond = PTHREAD_COND_INITIALIZER;
+
+void block_until_timers_complete() {
+    pthread_mutex_lock(&timers_complete_lock);
+    while (timers_outstanding) {
+        pthread_cond_wait(&timers_complete_cond, &timers_complete_lock);
+    }
+    pthread_mutex_unlock(&timers_complete_lock);
+}
+
+void signal_timer_started() {
+    pthread_mutex_lock(&timers_complete_lock);
+    timers_outstanding++;
+    pthread_cond_signal(&timers_complete_cond);
+    pthread_mutex_unlock(&timers_complete_lock);
+}
+
+void signal_timer_complete() {
+    pthread_mutex_lock(&timers_complete_lock);
+    timers_outstanding--;
+    pthread_cond_signal(&timers_complete_cond);
+    pthread_mutex_unlock(&timers_complete_lock);
+}
+
 struct timer_data_t {
     long millis;
     timer_callback_t timer_callback;
@@ -25,10 +51,14 @@ void *timer_thread(void *data) {
 
     free(data);
 
+    signal_timer_complete();
+
     return NULL;
 }
 
 void start_timer(long millis, timer_callback_t timer_callback, void *data) {
+
+    signal_timer_started();
 
     struct timer_data_t *timer_data = malloc(sizeof(struct timer_data_t));
     timer_data->millis = millis;

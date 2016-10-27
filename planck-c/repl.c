@@ -14,8 +14,6 @@
 #include "theme.h"
 #include "timers.h"
 
-#define EXIT_SUCCESS_INTERNAL 0
-
 pthread_mutex_t eval_lock = PTHREAD_MUTEX_INITIALIZER;
 
 JSContextRef global_ctx;
