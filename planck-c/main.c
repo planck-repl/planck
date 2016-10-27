@@ -352,6 +352,8 @@ int main(int argc, char **argv) {
         run_main_in_ns(ctx, config.main_ns_name, config.num_rest_args, config.rest_args);
     } else if (!config.repl && config.num_rest_args > 0) {
         char *path = config.rest_args[0];
+        config.rest_args++;
+        config.num_rest_args--;
 
         struct script script;
         if (strcmp(path, "-") == 0) {
