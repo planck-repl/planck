@@ -17,6 +17,26 @@
 #include "str.h"
 #include "cljs.h"
 
+static volatile int keep_running = 1;
+
+void int_handler(int dummy) {
+    keep_running = 0;
+    signal(SIGINT, NULL);
+}
+
+void set_int_handler() {
+    signal(SIGINT, int_handler);
+}
+
+void clear_int_handler() {
+    signal(SIGINT, NULL);
+    keep_running = 1;
+}
+
+bool should_keep_running() {
+    return keep_running != 0;
+}
+
 bool cljs_engine_ready = false;
 pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t engine_init_cond = PTHREAD_COND_INITIALIZER;

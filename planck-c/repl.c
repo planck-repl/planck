@@ -137,8 +137,14 @@ bool process_line(JSContextRef ctx, char *input_line) {
                 pthread_mutex_lock(&eval_lock);
 
                 return_termsize = !config.dumb_terminal;
+
+                set_int_handler();
+
                 // TODO: set exit value
                 evaluate_source(ctx, "text", input, true, true, current_ns, config.theme, true);
+
+                clear_int_handler();
+
                 return_termsize = false;
 
                 pthread_mutex_unlock(&eval_lock);

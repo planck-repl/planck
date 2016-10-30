@@ -1,5 +1,11 @@
 #include <JavaScriptCore/JavaScript.h>
 
+void set_int_handler();
+
+void clear_int_handler();
+
+bool should_keep_running();
+
 JSValueRef
 evaluate_source(JSContextRef ctx, char *type, char *source_value, bool expression, bool print_nil, char *set_ns,
                 char *theme, bool block_until_ready);
