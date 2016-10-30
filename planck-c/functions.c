@@ -284,6 +284,14 @@ JSValueRef function_get_term_size(JSContextRef ctx, JSObjectRef function, JSObje
 
 JSValueRef function_print_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                              size_t argc, const JSValueRef args[], JSValueRef *exception) {
+
+    if (!should_keep_running()) {
+        fprintf(stdout, "\x1b[m\n");
+        fflush(stdout);
+        *exception = JSValueMakeNull(ctx);
+        return NULL;
+    }
+
     if (argc == 1 && JSValueIsString(ctx, args[0])) {
         char *str = value_to_c_string(ctx, args[0]);
 
@@ -298,6 +306,13 @@ JSValueRef function_print_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef
 
 JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {
+
+    if (!should_keep_running()) {
+        fprintf(stderr, "\x1b[m\n");
+        *exception = JSValueMakeNull(ctx);
+        return NULL;
+    }
+
     if (argc == 1 && JSValueIsString(ctx, args[0])) {
         char *str = value_to_c_string(ctx, args[0]);
 
