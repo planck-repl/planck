@@ -1643,8 +1643,11 @@ JSObjectRef toObjectRef(JSContextRef ctx, NSDictionary *dict)
     int num_arguments = 3;
     result = JSObjectCallAsFunction(self.context, [self getFunction:@"get-highlight-coords"], JSContextGetGlobalObject(self.context), num_arguments, arguments, NULL);
     
-    return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
-             @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
+    if (result) {
+        return @[@((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 0), NULL)),
+                 @((int)JSValueToNumber(self.context, JSArrayGetValueAtIndex(self.context, result, 1), NULL))];
+    }
+    return nil;
 }
 
 

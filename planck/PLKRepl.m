@@ -53,8 +53,12 @@ void highlight(const char* buf, int pos) {
                                                                      previousLines:s_previousLines];
         
         
-        int numLinesUp = ((NSNumber*)highlightCoords[0]).intValue;
-        int highlightPos = ((NSNumber*)highlightCoords[1]).intValue;
+        int numLinesUp = -1;
+        int highlightPos = 0;
+        if (highlightCoords) {
+            numLinesUp = ((NSNumber*)highlightCoords[0]).intValue;
+            highlightPos = ((NSNumber*)highlightCoords[1]).intValue;
+        }
         
         int currentPos = pos + 1;
         

@@ -540,6 +540,8 @@ void cljs_highlight_coords_for_pos(JSContextRef ctx, int pos, const char *buf, s
                                                JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
 
     JSObjectRef array = JSValueToObject(ctx, result, NULL);
-    *num_lines_up = (int) JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 0, NULL), NULL);
-    *highlight_pos = (int) JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 1, NULL), NULL);
+    if (array) {
+        *num_lines_up = (int) JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 0, NULL), NULL);
+        *highlight_pos = (int) JSValueToNumber(ctx, JSObjectGetPropertyAtIndex(ctx, array, 1, NULL), NULL);
+    }
 }
