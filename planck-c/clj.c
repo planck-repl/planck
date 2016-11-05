@@ -1,4 +1,5 @@
 #include "clj.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -476,6 +477,8 @@ static void print_string(clj_Printer *p, const wchar_t *s) {
     p->putwchar(*i);
   };
 }
+
+#pragma GCC diagnostic ignored "-Wall"
 
 void clj_print(clj_Printer *p, const clj_Node *node) {
   switch (node->type) {
