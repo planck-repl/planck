@@ -33,8 +33,8 @@ struct repl {
 
 typedef struct repl repl_t;
 
-repl_t* make_repl() {
-    repl_t* repl = malloc(sizeof(repl_t));
+repl_t *make_repl() {
+    repl_t *repl = malloc(sizeof(repl_t));
     repl->current_ns = strdup("cljs.user");
     repl->current_prompt = NULL;
     repl->history_path = NULL;
@@ -46,7 +46,7 @@ repl_t* make_repl() {
     return repl;
 }
 
-void empty_previous_lines(repl_t* repl) {
+void empty_previous_lines(repl_t *repl) {
     for (int i = 0; i < repl->num_previous_lines; i++) {
         free(repl->previous_lines[i]);
     }
@@ -106,7 +106,7 @@ bool is_whitespace(char *s) {
     return true;
 }
 
-bool process_line(repl_t* repl, JSContextRef ctx, char *input_line) {
+bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
 
     // Accumulate input lines
 
@@ -160,7 +160,7 @@ bool process_line(repl_t* repl, JSContextRef ctx, char *input_line) {
 
                 // TODO: set exit value
 
-                char* theme = repl->session_id == 0 ? config.theme : "dumb";
+                char *theme = repl->session_id == 0 ? config.theme : "dumb";
 
                 evaluate_source(ctx, "text", repl->input, true, true, repl->current_ns, theme, true,
                                 repl->session_id);
@@ -214,7 +214,7 @@ bool process_line(repl_t* repl, JSContextRef ctx, char *input_line) {
     return false;
 }
 
-void run_cmdline_loop(repl_t* repl, JSContextRef ctx) {
+void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
     while (true) {
         char *input_line = NULL;
 
@@ -238,7 +238,8 @@ void run_cmdline_loop(repl_t* repl, JSContextRef ctx) {
                 fprintf(stdout, "\n");
             }
 
-            char *line = linenoise(repl->current_prompt, prompt_ansi_code_for_theme(config.theme), repl->indent_space_count);
+            char *line = linenoise(repl->current_prompt, prompt_ansi_code_for_theme(config.theme),
+                                   repl->indent_space_count);
 
             // Reset printing handler back
             if (cljs_engine_ready) {
@@ -291,7 +292,7 @@ struct hl_restore {
 
 struct hl_restore hl_restore = {0, 0, 0};
 
-void do_highlight_restore(void* data) {
+void do_highlight_restore(void *data) {
 
     struct hl_restore *hl_restore = data;
 
@@ -324,7 +325,7 @@ void do_highlight_restore(void* data) {
 }
 
 // Used when using linenoise
-repl_t* s_repl;
+repl_t *s_repl;
 
 void highlight(const char *buf, int pos) {
     char current = buf[pos];
@@ -332,7 +333,8 @@ void highlight(const char *buf, int pos) {
     if (current == ']' || current == '}' || current == ')') {
         int num_lines_up = -1;
         int highlight_pos = 0;
-        cljs_highlight_coords_for_pos(global_ctx, pos, buf, s_repl->num_previous_lines, s_repl->previous_lines, &num_lines_up,
+        cljs_highlight_coords_for_pos(global_ctx, pos, buf, s_repl->num_previous_lines, s_repl->previous_lines,
+                                      &num_lines_up,
                                       &highlight_pos);
 
         int current_pos = pos + 1;
@@ -385,7 +387,7 @@ void socket_sender(const char *text) {
 static int session_id_counter = 0;
 
 void *connection_handler(void *socket_desc) {
-    repl_t* repl = make_repl();
+    repl_t *repl = make_repl();
     repl->current_prompt = form_prompt(repl->current_ns, false);
 
     repl->session_id = ++session_id_counter;
@@ -462,7 +464,7 @@ void *accept_connections(void *data) {
 }
 
 int run_repl(JSContextRef ctx) {
-    repl_t* repl = make_repl();
+    repl_t *repl = make_repl();
     s_repl = repl;
 
     global_ctx = ctx;

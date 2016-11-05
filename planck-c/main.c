@@ -105,7 +105,7 @@ char *ensure_trailing_slash(char *s) {
     }
 }
 
-char *fully_qualify(char* cwd, char *path) {
+char *fully_qualify(char *cwd, char *path) {
     if (cwd && path && str_has_prefix(path, "/") != 0) {
         return str_concat(cwd, path);
     } else {
@@ -113,7 +113,7 @@ char *fully_qualify(char* cwd, char *path) {
     }
 }
 
-char* get_current_working_dir() {
+char *get_current_working_dir() {
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
         return ensure_trailing_slash(cwd);
@@ -121,9 +121,9 @@ char* get_current_working_dir() {
     return NULL;
 }
 
-void init_classpath(char* classpath) {
+void init_classpath(char *classpath) {
 
-    char* cwd = get_current_working_dir();
+    char *cwd = get_current_working_dir();
 
     char *source = strtok(classpath, ":");
     while (source != NULL) {
@@ -138,7 +138,7 @@ void init_classpath(char* classpath) {
         if (strcmp(type, "jar") == 0) {
             config.src_paths[config.num_src_paths - 1].path = fully_qualify(cwd, source);
         } else {
-            char* with_trailing_slash = ensure_trailing_slash(source);
+            char *with_trailing_slash = ensure_trailing_slash(source);
             config.src_paths[config.num_src_paths - 1].path = fully_qualify(cwd, with_trailing_slash);
             free(with_trailing_slash);
         }
@@ -150,7 +150,7 @@ void init_classpath(char* classpath) {
 }
 
 void err_cache_path() {
-  fprintf(stderr, "Error: At most one of -k/--cache or -K/--auto-cache may be specified.\n");
+    fprintf(stderr, "Error: At most one of -k/--cache or -K/--auto-cache may be specified.\n");
 }
 
 int main(int argc, char **argv) {
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
 
     config.main_ns_name = NULL;
 
-    config.socket_repl_port= 0;
+    config.socket_repl_port = 0;
     config.socket_repl_host = NULL;
 
     struct option long_options[] = {
@@ -201,7 +201,8 @@ int main(int argc, char **argv) {
     };
     int opt, option_index;
     bool did_encounter_main_opt = false;
-    while (!did_encounter_main_opt && (opt = getopt_long(argc, argv, "h?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+    while (!did_encounter_main_opt &&
+           (opt = getopt_long(argc, argv, "h?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 usage(argv[0]);

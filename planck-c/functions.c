@@ -889,20 +889,20 @@ struct timeout_data_t {
     unsigned long long id;
 };
 
-char* timeout_id_to_str(unsigned long long id) {
+char *timeout_id_to_str(unsigned long long id) {
     char *rv = malloc(21);
     sprintf(rv, "%llu", id);
     return rv;
 };
 
-JSValueRef timeout_data_to_js_value(JSContextRef ctx, struct timeout_data_t* timeout_data) {
-    char* id_str = timeout_id_to_str(timeout_data->id);
+JSValueRef timeout_data_to_js_value(JSContextRef ctx, struct timeout_data_t *timeout_data) {
+    char *id_str = timeout_id_to_str(timeout_data->id);
     JSValueRef rv = c_string_to_value(ctx, id_str);
     free(id_str);
     return rv;
 }
 
-void do_run_timeout(void* data) {
+void do_run_timeout(void *data) {
 
     struct timeout_data_t *timeout_data = data;
 
@@ -921,8 +921,8 @@ JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObject
     if (argc == 1
         && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
 
-        int millis = (int)JSValueToNumber(ctx, args[0], NULL);
-        
+        int millis = (int) JSValueToNumber(ctx, args[0], NULL);
+
         struct timeout_data_t *timeout_data = malloc(sizeof(struct timeout_data_t));
         timeout_data->id = ++timeout_id;
         JSValueRef rv = timeout_data_to_js_value(ctx, timeout_data);

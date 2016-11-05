@@ -409,7 +409,9 @@ void *cljs_do_engine_init(void *data) {
     }
 
     register_global_function(ctx, "PLANCK_SET_TIMEOUT", function_set_timeout);
-    evaluate_script(ctx, "var PLANCK_CALLBACK_STORE = {};\nvar setTimeout = function( fn, ms ) {\nPLANCK_CALLBACK_STORE[PLANCK_SET_TIMEOUT(ms)] = fn;\n}\nvar PLANCK_RUN_TIMEOUT = function( id ) {\nif( PLANCK_CALLBACK_STORE[id] )\nPLANCK_CALLBACK_STORE[id]();\nPLANCK_CALLBACK_STORE[id] = null;\n}\n", "<init>");
+    evaluate_script(ctx,
+                    "var PLANCK_CALLBACK_STORE = {};\nvar setTimeout = function( fn, ms ) {\nPLANCK_CALLBACK_STORE[PLANCK_SET_TIMEOUT(ms)] = fn;\n}\nvar PLANCK_RUN_TIMEOUT = function( id ) {\nif( PLANCK_CALLBACK_STORE[id] )\nPLANCK_CALLBACK_STORE[id]();\nPLANCK_CALLBACK_STORE[id] = null;\n}\n",
+                    "<init>");
 
     cljs_set_print_sender(ctx, &discarding_sender);
 

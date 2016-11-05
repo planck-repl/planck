@@ -1,4 +1,4 @@
-typedef void (*timer_callback_t)(void* data);
+typedef void (*timer_callback_t)(void *data);
 
 void start_timer(long millis, timer_callback_t timer_callback, void *data);
 

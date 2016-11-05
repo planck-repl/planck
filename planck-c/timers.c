@@ -33,7 +33,7 @@ void signal_timer_complete() {
 struct timer_data_t {
     long millis;
     timer_callback_t timer_callback;
-    void* data;
+    void *data;
 };
 
 void *timer_thread(void *data) {

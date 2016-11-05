@@ -40,7 +40,7 @@ struct config {
     size_t num_scripts;
     struct script *scripts;
 
-    char* socket_repl_host;
+    char *socket_repl_host;
     int socket_repl_port;
 };
 
