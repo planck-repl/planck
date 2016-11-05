@@ -9,6 +9,8 @@ set(SOURCE_FILES
     bundle.c
     bundle.h
     bundle_inflate.h
+    clj.c
+    clj.h
     cljs.c
     cljs.h
     file.c

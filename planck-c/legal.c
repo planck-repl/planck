@@ -14,6 +14,14 @@ void legal() {
     printf("which is hereby acknowledged.\n");
     printf("\n");
 
+    printf("libclj\n");
+    printf("-----\n");
+    printf("\n");
+    printf("Copyright 2012 Brandon Bloom\n");
+    printf("MIT License\n");
+    printf("\n");
+    printf("\n");
+
     printf("Fipp\n");
     printf("-----\n");
     printf("\n");
