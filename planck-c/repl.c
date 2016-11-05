@@ -12,6 +12,7 @@
 
 #include "cljs.h"
 #include "globals.h"
+#include "keymap.h"
 #include "str.h"
 #include "theme.h"
 #include "timers.h"
@@ -484,7 +485,10 @@ int run_repl(JSContextRef ctx) {
 
             linenoiseHistoryLoad(repl->history_path);
 
-            // TODO: load keymap
+            exit_value = load_keymap(home);
+            if (exit_value != EXIT_SUCCESS) {
+                return exit_value;
+            }
         }
 
         linenoiseSetMultiLine(1);

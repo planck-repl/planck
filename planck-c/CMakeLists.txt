@@ -24,6 +24,8 @@ set(SOURCE_FILES
     io.h
     jsc_utils.c
     jsc_utils.h
+    keymap.c
+    keymap.h
     legal.c
     legal.h
     linenoise.c

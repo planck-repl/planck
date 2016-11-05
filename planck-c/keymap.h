@@ -1,0 +1,1 @@
+int load_keymap(char* home);
