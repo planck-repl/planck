@@ -39,6 +39,9 @@ struct config {
     struct src_path *src_paths;
     size_t num_scripts;
     struct script *scripts;
+
+    char* socket_repl_host;
+    int socket_repl_port;
 };
 
 extern struct config config;

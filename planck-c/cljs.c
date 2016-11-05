@@ -147,7 +147,7 @@ JSObjectRef get_function(JSContextRef ctx, char *namespace, char *name) {
 
 JSValueRef
 evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme,
-                bool block_until_ready) {
+                bool block_until_ready, int session_id) {
     if (block_until_ready) {
         block_until_engine_ready();
     }
@@ -174,7 +174,7 @@ evaluate_source(JSContextRef ctx, char *type, char *source, bool expression, boo
     args[3] = set_ns_val;
     JSStringRef theme_str = JSStringCreateWithUTF8CString(theme);
     args[4] = JSValueMakeString(ctx, theme_str);
-    args[5] = JSValueMakeNumber(ctx, 0);
+    args[5] = JSValueMakeNumber(ctx, session_id);
 
     JSObjectRef execute_fn = get_function(ctx, "planck.repl", "execute");
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
@@ -433,7 +433,7 @@ void *cljs_do_engine_init(void *data) {
 
     if (config.repl) {
         evaluate_source(ctx, "text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])",
-                        true, false, "cljs.user", "dumb", false);
+                        true, false, "cljs.user", "dumb", false, 0);
     }
 
     cljs_set_print_sender(ctx, NULL);
