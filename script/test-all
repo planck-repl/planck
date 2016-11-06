@@ -37,3 +37,5 @@
     (println "Core tests have failed.")
     (exit 1)))
 )
+
+(println "All tests have passed.")
