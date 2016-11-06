@@ -94,8 +94,8 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 You may override the set of control characters by creating a `.planck_keymap` file in your home directory that contains a configuration map that looks like:
 
 ```clojure
-{:go-to-start-of-line  :ctrl-q
- :delete-previous-word :ctrl-y}
+{:go-to-beginning-of-line :ctrl-q
+ :delete-previous-word    :ctrl-y}
 ```
 
 The keys in this map correspond to actions, and the values correspond to the control keys that cause those actions (`:ctrl-a` through `:ctrl-z`).
