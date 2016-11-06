@@ -1,19 +1,18 @@
-#!/usr/bin/env planck
-(ns planck.clean
-  (:require [planck.shell :refer [sh *sh-dir*]]))
+#!/usr/bin/env bash
 
-; ClojureScript
-(binding [*sh-dir* "planck-cljs"]
-  (sh "bash" "script/clean")
-  (sh "bash" "script/clean-bundle")
-  (sh "bash" "script/clean-bundle-c"))
+pushd planck-cljs
+script/clean
+script/clean-bundle
+script/clean-bundle-c
+popd
 
-; Xcode
-(sh "rm" "-rf" "build")
+# Xcode
+rm -rf build
 
-; CMake
-(sh "rm" "-rf" "planck-c/build")
+# CMake
+rm -rf planck-c/build
 
-; Site
-(binding [*sh-dir* "site"]
-  (sh "/usr/local/bin/planck" "script/clean"))
+# Site
+pushd site
+script/clean
+popd

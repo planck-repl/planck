@@ -1,5 +1,3 @@
-#!/usr/bin/env planck
-(ns planck.clean
-  (:require [planck.shell :refer [sh]]))
+#!/usr/bin/env bash
 
-(sh "rm" "-rf" "target")
+rm -rf target
