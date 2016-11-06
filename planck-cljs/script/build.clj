@@ -11,8 +11,6 @@
     (transit/write writer cache)
     (spit (io/file out-path) (.toString out))))
 
-(println "Building")
-
 (cljs.analyzer/with-warning-handlers
   [(fn [warning-type env extra]
      (when (warning-type cljs.analyzer/*cljs-warnings*)
@@ -52,5 +50,4 @@
   (doseq [key (keys cache)]
     (write-cache (key cache) (str "out/cljs/core$macros.cljc.cache." (munge key) ".json"))))
 
-(println "Done building")
 (System/exit 0)

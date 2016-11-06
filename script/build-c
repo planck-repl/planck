@@ -15,7 +15,7 @@ checkCmdSuccess() {
 
 # ClojureScript
 cd planck-cljs
-echo "### Building ClojureScript"
+echo "### Building planck-cljs"
 script/build
 checkCmdSuccess
 cd ..
@@ -30,7 +30,8 @@ rm -f planck-cljs/out/cljs/spec*macros*
 rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
 rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 
-echo "### Bundling 1st Stage ClojureScript"
+echo "### Building planck-c"
+echo "### Bundling ClojureScript artifacts for 1st stage"
 cd planck-cljs
 script/bundle-c
 checkCmdSuccess
@@ -44,7 +45,7 @@ then
    cp planck/linenoise/linenoise.c planck-c
 fi
 
-echo "### Building 1st Stage Binary"
+echo "### Building 1st stage Planck binary"
 cd planck-c
 mkdir -p build
 cd build
@@ -57,7 +58,7 @@ make
 cd ../..
 checkCmdSuccess
 
-echo "### Compiling Macro Namespaces"
+echo "### AOT compiling macro namespaces"
 mkdir -p planck-cljs/out/macros-tmp
 planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
 
@@ -88,13 +89,13 @@ mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js.ma
 
 rm -rf planck-cljs/out/macros-tmp
 
-echo "### Bundling ClojureScript"
+echo "### Bundling ClojureScript artifacts for 2nd stage"
 cd planck-cljs
 script/bundle-c
 checkCmdSuccess
 cd ..
 
-echo "### Building 2nd Stage Binary"
+echo "### Building 2nd stage Planck binary"
 cd planck-c/build
 make
 cd ../..
