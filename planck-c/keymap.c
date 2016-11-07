@@ -62,6 +62,7 @@ static wint_t reader_getwchar(const clj_Reader *r) {
 }
 
 static bool in_map = false;
+static char* keymap_path = NULL;
 
 extern void emit(const clj_Reader *r, const clj_Node *n) {
     if (n->type == CLJ_MAP) {
@@ -73,12 +74,12 @@ extern void emit(const clj_Reader *r, const clj_Node *n) {
         if (last_id == -2) {
             last_id = id_for_key_map_action(buffer);
             if (last_id == -1) {
-                fprintf(stderr, "Unknown key in .planck_keymap: %s\n", buffer);
+                fprintf(stderr, "%s: Unrecognized keymap key: %s\n", keymap_path, buffer);
             }
         } else {
             char key_code = key_code_for(buffer);
             if (key_code == -1) {
-                fprintf(stderr, "Unknown value in .planck_keymap: %s\n", buffer);
+                fprintf(stderr, "%s: Unrecognized keymap value: %s\n", keymap_path, buffer);
             }
             if (last_id != -1 && key_code != -1) {
                 linenoiseSetKeymapEntry(last_id, key_code);
@@ -92,7 +93,7 @@ int load_keymap(char *home) {
 
     char keymap_name[] = ".planck_keymap";
     size_t len = strlen(home) + strlen(keymap_name) + 2;
-    char *keymap_path = malloc(len * sizeof(char));
+    keymap_path = malloc(len * sizeof(char));
     snprintf(keymap_path, len, "%s/%s", home, keymap_name);
 
     reader_file = fopen(keymap_path, "r");
@@ -110,9 +111,11 @@ int load_keymap(char *home) {
                 case CLJ_MORE:
                     break;
                 case CLJ_EOF:
+                    free(keymap_path);
                     fclose(reader_file);
                     return EXIT_SUCCESS;
                 default:
+                    free(keymap_path);
                     fclose(reader_file);
                     clj_read_error(message, &reader, result);
                     fprintf(stderr, "%s\n", message);
