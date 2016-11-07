@@ -53,14 +53,16 @@ if [ ! -e Makefile ]
 then
    export CC=clang
    cmake ..
+   checkCmdSuccess
 fi
 make
-cd ../..
 checkCmdSuccess
+cd ../..
 
 echo "### AOT compiling macro namespaces"
 mkdir -p planck-cljs/out/macros-tmp
 planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
+checkCmdSuccess
 
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
 mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
@@ -98,7 +100,7 @@ cd ..
 echo "### Building 2nd stage Planck binary"
 cd planck-c/build
 make
-cd ../..
 checkCmdSuccess
+cd ../..
 
 echo "Binary located at $PWD/planck-c/build/planck"
