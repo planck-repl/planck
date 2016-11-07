@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
+#include <wctype.h>
 
 // Core Utilities
 
@@ -222,6 +222,8 @@ static clj_Result read_typed_string(clj_Type type, const wchar_t *prefix,
     }
   }
 }
+
+#pragma GCC diagnostic ignored "-Wpointer-sign"
 
 static clj_Result read_string(clj_Reader *r, wint_t initch) {
   return read_typed_string(CLJ_STRING, L"\"", r);
