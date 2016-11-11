@@ -13,7 +13,8 @@ void legal() {
     printf("Portions of Planck may utilize the following copyrighted material, the use of\n");
     printf("which is hereby acknowledged.\n");
     printf("\n");
-
+    printf("\n");
+    
     printf("libclj\n");
     printf("-----\n");
     printf("\n");
