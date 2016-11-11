@@ -1,23 +1,18 @@
 # Planck
 
-A stand-alone ClojureScript REPL for OS X based on JavaScriptCore.
+A stand-alone ClojureScript REPL for macOS based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
 
-# Installing / Updating
+> If you are running Linux, Windows, or macOS, also be sure to check out [Lumo](https://github.com/anmonteiro/lumo), a stand-alone ClojureScript REPL based on Node.js and V8 that is capable of using NPM libraries.
+
+# Installing
 
 ```
 $ brew install planck
 ```
 
 or [download it](http://planck-repl.org/download.html).
-
-If you already have Planck installed via Homebrew and you'd like to update to the latest version:
-
-```
-$ brew update
-$ brew upgrade planck
-```
 
 # Using
 
@@ -42,7 +37,7 @@ Additional details on developing Planck are [available](https://github.com/mfike
 
 Planck 2.0 alpha Ubuntu binaries are available [for download](http://planck-repl.org/download-alpha.html).
 
-Instructions on building the Planck 2.0 alpha on Linux and OS X are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
+Instructions on building the Planck 2.0 alpha on Linux and macOS are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
 
 # License
 
