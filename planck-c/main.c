@@ -18,7 +18,7 @@
 #include "timers.h"
 
 void usage(char *program_name) {
-    printf("Planck %s\n", PLANCK_VERSION);
+    printf("\n");
     printf("Usage:  %s [init-opt*] [main-opt] [arg*]\n", program_name);
     printf("\n");
     printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
@@ -149,8 +149,14 @@ void init_classpath(char *classpath) {
     free(cwd);
 }
 
-void err_cache_path() {
-    fprintf(stderr, "Error: At most one of -k/--cache or -K/--auto-cache may be specified.\n");
+void print_usage_error(char* error_message, char *program_name)
+{
+    printf("%s: %s", program_name, error_message);
+    usage(program_name);
+}
+
+void err_cache_path(char *program_name) {
+    print_usage_error("At most one of -k/--cache or -K/--auto-cache may be specified.", program_name);
 }
 
 int main(int argc, char **argv) {
@@ -205,6 +211,7 @@ int main(int argc, char **argv) {
            (opt = getopt_long(argc, argv, "h?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
+                printf("Planck %s\n", PLANCK_VERSION);
                 usage(argv[0]);
                 exit(0);
             case 'l':
@@ -228,14 +235,14 @@ int main(int argc, char **argv) {
                 break;
             case 'k':
                 if (config.cache_path) {
-                    err_cache_path();
+                    err_cache_path(argv[0]);
                     return EXIT_FAILURE;
                 }
                 config.cache_path = strdup(optarg);
                 break;
             case 'K':
                 if (config.cache_path) {
-                    err_cache_path();
+                    err_cache_path(argv[0]);
                     return EXIT_FAILURE;
                 }
                 config.cache_path = ".planck_cache";
@@ -344,8 +351,8 @@ int main(int argc, char **argv) {
     }
 
     if (config.main_ns_name != NULL && config.repl) {
-        printf("Only one main-opt can be specified.\n");
-        exit(1);
+        print_usage_error("Only one main-opt can be specified.", argv[0]);
+        return EXIT_FAILURE;
     }
 
     config.is_tty = isatty(STDIN_FILENO) == 1;

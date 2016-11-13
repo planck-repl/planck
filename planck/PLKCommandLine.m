@@ -149,6 +149,7 @@
             {
                 didEncounterMainOpt = YES;
                 help = YES;
+                printf("Planck %s\n", PLANCK_VERSION);
                 break;
             }
             case 'l':
@@ -316,7 +317,7 @@
         printf("Only one main-opt can be specified.");
     } else {
         if (help) {
-            printf("Planck %s\n", PLANCK_VERSION);
+            printf("\n");
             printf("Usage:  planck [init-opt*] [main-opt] [arg*]\n");
             printf("\n");
             printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
