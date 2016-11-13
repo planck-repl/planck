@@ -234,7 +234,9 @@ JSValueRef function_cache(JSContextRef ctx, JSObjectRef function, JSObjectRef th
         suffix = ".js.map.json";
         strcpy(path, cache_prefix);
         strcat(path, suffix);
-        write_contents(path, sourcemap);
+        if (sourcemap) {
+            write_contents(path, sourcemap);
+        }
 
         free(cache_prefix);
         free(source);
