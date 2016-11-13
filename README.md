@@ -33,11 +33,11 @@ You can run tests by doing:
 
 Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
 
-# Planck 2.0 Alpha
+# Planck 2.0.0 Beta
 
-Planck 2.0 alpha Ubuntu binaries are available [for download](http://planck-repl.org/download-alpha.html).
+Planck 2.0.0 beta Ubuntu and macOS binaries are available [for download](http://planck-repl.org/download-beta.html).
 
-Instructions on building the Planck 2.0 alpha on Linux and macOS are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
+Instructions on building the Planck 2.0.0 beta on Linux and macOS are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
 
 # License
 
