@@ -246,13 +246,8 @@ int main(int argc, char **argv) {
                     return EXIT_FAILURE;
                 }
                 config.cache_path = ".planck_cache";
-                {
-                    char *path_copy = strdup(config.cache_path);
-                    char *dir = dirname(path_copy);
-                    if (mkdir_p(dir) < 0) {
-                        fprintf(stderr, "Could not create %s: %s\n", config.cache_path, strerror(errno));
-                    }
-                    free(path_copy);
+                if (mkdir_p(config.cache_path) < 0) {
+                    fprintf(stderr, "Could not create %s: %s\n", config.cache_path, strerror(errno));
                 }
                 break;
             case 'j':
