@@ -24,6 +24,7 @@
 (check-output
   (str
     "Planck " planck.core/*planck-version* "
+
 Usage:  planck [init-opt*] [main-opt] [arg*]
 
   With no options or args, runs an interactive Read-Eval-Print Loop
