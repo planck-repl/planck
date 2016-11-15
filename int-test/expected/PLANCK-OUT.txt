@@ -63,17 +63,14 @@ nil
 nil
 true
 Test require REPL special exit in file
-nil
 195
 Test require unknown ns
 No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
-nil
 Test require :reload with const
 nil
 nil
 nil
 :initial
-nil
 nil
 :reloaded
 Test require :reload in changing spec
@@ -104,7 +101,6 @@ nil
 :reloaded
 Test require-macros unknown ns
 No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
-nil
 Test require-macros REPL special
 nil
 5
@@ -456,11 +452,9 @@ Test restore state when require fails
 Could not parse ns form cljs.user
 Invalid :refer, var clojure.set/diff does not exist
 nil
-nil
 Test reader and analysis diagnostics
-Could not eval (ns cljs.user (:require [foo.bar :quu]))
+            ⬆
 Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [foo.bar :quu] at line 1 
-nil
 Unmatched delimiter )
 Test eval
 nil

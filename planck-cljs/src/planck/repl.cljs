@@ -857,6 +857,7 @@
       (and (= name 'cljs.compiler.macros) macros)
       (and (= name 'cljs.js) macros)
       (and (= name 'cljs.pprint) macros)
+      (and (= name 'cljs.reader) macros)
       (and (= name 'cljs.tools.reader.reader-types) macros)
       (and (= name 'tailrecursion.cljson) macros)
       (and (= name 'lazy-map.core) macros)))
@@ -1407,9 +1408,6 @@
   (let [argument (second expression-form)]
     (case (first expression-form)
       in-ns (process-in-ns argument)
-      require (process-require :require identity (rest expression-form))
-      require-macros (process-require :require-macros identity (rest expression-form))
-      import (process-require :import identity (rest expression-form))
       load-file (process-load-file argument (assoc opts :expression? false)))
     (when print-nil-expression?
       (println (str (:results-font theme) "nil" (:reset-font theme))))))
