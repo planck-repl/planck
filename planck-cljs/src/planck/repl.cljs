@@ -197,7 +197,7 @@
 
 (defn- setup-asserts [elide-asserts]
   (set! *assert* (not elide-asserts))
-  (swap! default-session-state assoc :*assert* elide-asserts))
+  (swap! default-session-state assoc :*assert* *assert*))
 
 (defn- ^:export init
   [repl verbose cache-path static-fns elide-asserts]
