@@ -449,6 +449,7 @@
 (def ^:private keyword-completions
   [:require :require-macros :import
    :refer :refer-macros :include-macros
+   :refer-clojure :exclude
    :keys :strs :syms
    :as :or
    :pre :post
