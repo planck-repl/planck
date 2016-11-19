@@ -1519,11 +1519,20 @@
           (println (wrap-warning-font (form-indicator column @current-ns))))
         (print (wrap-warning-font warning-string))))))
 
+(defn- call-form?
+  [expression-form allowed-operators]
+  (contains? allowed-operators (and (list? expression-form)
+                                    (first expression-form))))
+
 (defn- macroexpand-form?
   "Determines if the expression is a macroexpansion expression."
   [expression-form]
-  (contains? '#{macroexpand macroexpand-1} (and (seq? expression-form)
-                                                (first expression-form))))
+  (call-form? expression-form '#{macroexpand macroexpand-1}))
+
+(defn- load-form?
+  "Determines if the expression is a form that loads code."
+  [expression-form]
+  (call-form? expression-form '#{require require-macros}))
 
 (defn- process-execute-source
   [source-text expression-form
@@ -1544,12 +1553,14 @@
            {:ns         initial-ns
             :verbose    (:verbose @app-env)
             :static-fns (:static-fns @app-env)}
-           (if-not expression? {:source-map true})
-           (if expression?
+           (when (or (not expression?)
+                     (load-form? expression-form))
+             (merge {:source-map true}
+               (when (:cache-path @app-env)
+                 {:cache-source (cache-source-fn source-text)})))
+           (when expression?
              {:context       :expr
-              :def-emits-var true}
-             (when (:cache-path @app-env)
-               {:cache-source (cache-source-fn source-text)})))
+              :def-emits-var true}))
          (fn [{:keys [ns value error] :as ret}]
            (if expression?
              (when-not error
