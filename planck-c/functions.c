@@ -912,11 +912,11 @@ void do_run_timeout(void *data) {
     struct timeout_data_t *timeout_data = data;
 
     JSValueRef args[1];
-    args[0] = timeout_data_to_js_value(global_ctx, timeout_data);
+    args[0] = timeout_data_to_js_value(ctx, timeout_data);
     free(timeout_data);
 
-    JSObjectRef run_timeout = get_function(global_ctx, "global", "PLANCK_RUN_TIMEOUT");
-    JSObjectCallAsFunction(global_ctx, run_timeout, NULL, 1, args, NULL);
+    JSObjectRef run_timeout = cljs_get_function("global", "PLANCK_RUN_TIMEOUT");
+    JSObjectCallAsFunction(ctx, run_timeout, NULL, 1, args, NULL);
 }
 
 static unsigned long long timeout_id = 0;

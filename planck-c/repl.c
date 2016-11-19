@@ -19,8 +19,6 @@
 
 pthread_mutex_t eval_lock = PTHREAD_MUTEX_INITIALIZER;
 
-JSContextRef global_ctx;
-
 struct repl {
     char *current_ns;
     char *current_prompt;
@@ -107,7 +105,7 @@ bool is_whitespace(char *s) {
     return true;
 }
 
-bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
+bool process_line(repl_t *repl, char *input_line) {
 
     // Accumulate input lines
 
@@ -147,7 +145,7 @@ bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
     char *balance_text = NULL;
 
     while (!done) {
-        if ((balance_text = cljs_is_readable(ctx, repl->input)) != NULL) {
+        if ((balance_text = cljs_is_readable(repl->input)) != NULL) {
             repl->input[strlen(repl->input) - strlen(balance_text)] = '\0';
 
             if (!is_whitespace(repl->input)) { // Guard against empty string being read
@@ -163,7 +161,7 @@ bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
 
                 char *theme = repl->session_id == 0 ? config.theme : "dumb";
 
-                evaluate_source(ctx, "text", repl->input, true, true, repl->current_ns, theme, true,
+                evaluate_source("text", repl->input, true, true, repl->current_ns, theme, true,
                                 repl->session_id);
 
                 if (repl->session_id == 0) {
@@ -192,7 +190,7 @@ bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
             free(repl->current_ns);
             free(repl->current_prompt);
 
-            repl->current_ns = get_current_ns(ctx);
+            repl->current_ns = cljs_get_current_ns();
             repl->current_prompt = form_prompt(repl->current_ns, false);
 
             if (is_whitespace(balance_text)) {
@@ -203,7 +201,7 @@ bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
         } else {
             // Prepare for reading non-1st of input with secondary prompt
             if (repl->history_path != NULL) {
-                repl->indent_space_count = cljs_indent_space_count(ctx, repl->input);
+                repl->indent_space_count = cljs_indent_space_count(repl->input);
             }
 
             free(repl->current_prompt);
@@ -215,7 +213,7 @@ bool process_line(repl_t *repl, JSContextRef ctx, char *input_line) {
     return false;
 }
 
-void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
+void run_cmdline_loop(repl_t *repl) {
     while (true) {
         char *input_line = NULL;
 
@@ -229,13 +227,13 @@ void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
         } else {
             // Handle prints while processing linenoise input
             if (cljs_engine_ready) {
-                cljs_set_print_sender(ctx, &linenoisePrintNow);
+                cljs_set_print_sender(&linenoisePrintNow);
             }
 
             // If *print-newline* is off, we need to emit a newline now, otherwise
             // the linenoise prompt and line editing will overwrite any printed
             // output on the current line.
-            if (cljs_engine_ready && !cljs_print_newline(ctx)) {
+            if (cljs_engine_ready && !cljs_print_newline()) {
                 fprintf(stdout, "\n");
             }
 
@@ -244,7 +242,7 @@ void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
 
             // Reset printing handler back
             if (cljs_engine_ready) {
-                cljs_set_print_sender(ctx, NULL);
+                cljs_set_print_sender(NULL);
             }
 
             repl->indent_space_count = 0;
@@ -265,7 +263,7 @@ void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
             input_line = line;
         }
 
-        bool break_out = process_line(repl, ctx, input_line);
+        bool break_out = process_line(repl, input_line);
         if (break_out) {
             break;
         }
@@ -274,7 +272,7 @@ void run_cmdline_loop(repl_t *repl, JSContextRef ctx) {
 
 void completion(const char *buf, linenoiseCompletions *lc) {
     int num_completions = 0;
-    char **completions = get_completions(global_ctx, buf, &num_completions);
+    char **completions = cljs_get_completions(buf, &num_completions);
     for (int i = 0; i < num_completions; i++) {
         linenoiseAddCompletion(lc, completions[i]);
         free(completions[i]);
@@ -334,7 +332,7 @@ void highlight(const char *buf, int pos) {
     if (current == ']' || current == '}' || current == ')') {
         int num_lines_up = -1;
         int highlight_pos = 0;
-        cljs_highlight_coords_for_pos(global_ctx, pos, buf, s_repl->num_previous_lines, s_repl->previous_lines,
+        cljs_highlight_coords_for_pos(pos, buf, s_repl->num_previous_lines, s_repl->previous_lines,
                                       &num_lines_up,
                                       &highlight_pos);
 
@@ -401,12 +399,12 @@ void *connection_handler(void *socket_desc) {
 
     while ((read_size = recv(sock, client_message, 4095, 0)) > 0) {
         sock_to_write_to = sock;
-        cljs_set_print_sender(global_ctx, &socket_sender);
+        cljs_set_print_sender(&socket_sender);
 
         client_message[read_size] = '\0';
-        process_line(repl, global_ctx, strdup(client_message));
+        process_line(repl, strdup(client_message));
 
-        cljs_set_print_sender(global_ctx, NULL);
+        cljs_set_print_sender(NULL);
         sock_to_write_to = 0;
 
         write(sock, repl->current_prompt, strlen(repl->current_prompt));
@@ -464,11 +462,9 @@ void *accept_connections(void *data) {
     return NULL;
 }
 
-int run_repl(JSContextRef ctx) {
+int run_repl() {
     repl_t *repl = make_repl();
     s_repl = repl;
-
-    global_ctx = ctx;
 
     repl->current_ns = strdup("cljs.user");
     repl->current_prompt = form_prompt(repl->current_ns, false);
@@ -502,7 +498,7 @@ int run_repl(JSContextRef ctx) {
         pthread_create(&thread, NULL, accept_connections, NULL);
     }
 
-    run_cmdline_loop(repl, ctx);
+    run_cmdline_loop(repl);
 
     return exit_value;
 }

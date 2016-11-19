@@ -95,7 +95,6 @@ void banner() {
 struct config config;
 int exit_value = 0;
 bool return_termsize = false;
-JSContextRef global_ctx = NULL;
 
 char *ensure_trailing_slash(char *s) {
     if (str_has_suffix(s, "/") == 0) {
@@ -352,15 +351,13 @@ int main(int argc, char **argv) {
 
     config.is_tty = isatty(STDIN_FILENO) == 1;
 
-    JSGlobalContextRef ctx = JSGlobalContextCreate(NULL);
-    global_ctx = ctx;
-    cljs_engine_init(ctx);
+    cljs_engine_init();
 
     // Process init arguments
 
     for (int i = 0; i < config.num_scripts; i++) {
         struct script script = config.scripts[i];
-        evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
+        evaluate_source(script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
         if (exit_value != EXIT_SUCCESS) {
             return exit_value;
         }
@@ -369,7 +366,7 @@ int main(int argc, char **argv) {
     // Process main arguments
 
     if (config.main_ns_name != NULL) {
-        run_main_in_ns(ctx, config.main_ns_name, config.num_rest_args, config.rest_args);
+        cljs_run_main_in_ns(config.main_ns_name, config.num_rest_args, config.rest_args);
     } else if (!config.repl && config.num_rest_args > 0) {
         char *path = config.rest_args[0];
         config.rest_args++;
@@ -387,13 +384,13 @@ int main(int argc, char **argv) {
             script.expression = false;
         }
 
-        evaluate_source(ctx, script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
+        evaluate_source(script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
     } else if (config.repl) {
         if (!config.quiet) {
             banner();
         }
 
-        run_repl(ctx);
+        run_repl();
     }
 
     if (exit_value == EXIT_SUCCESS) {
