@@ -72,7 +72,9 @@ nil
 nil
 :initial
 nil
-:reloaded
+Could not eval foo.bar in file /tmp/PLANCK_SRC/foo/bar.cljs
+Can't redefine a constant at line 2 /tmp/PLANCK_SRC/foo/bar.cljs
+:initial
 Test require :reload in changing spec
 nil
 nil
