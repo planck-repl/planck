@@ -315,7 +315,7 @@ void do_highlight_restore(void *data) {
         if (hl_restore->relative_horiz < 0) {
             fprintf(stdout, "\x1b[%dC", -hl_restore->relative_horiz);
         } else if (hl_restore->relative_horiz > 0) {
-            fprintf(stdout, "\x0b[%dD", hl_restore->relative_horiz);
+            fprintf(stdout, "\x1b[%dD", hl_restore->relative_horiz);
         }
 
         fflush(stdout);
