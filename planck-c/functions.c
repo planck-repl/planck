@@ -331,6 +331,9 @@ JSValueRef function_set_exit_value(JSContextRef ctx, JSObjectRef function, JSObj
                                    size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
         exit_value = (int) JSValueToNumber(ctx, args[0], NULL);
+        if (exit_value == 0) {
+            exit_value = EXIT_SUCCESS_INTERNAL;
+        }
     }
     return JSValueMakeNull(ctx);
 }
