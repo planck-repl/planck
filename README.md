@@ -24,12 +24,12 @@ For more details, see the [Planck User Guide](http://planck-repl.org/guide.html)
 
 # Building 
 
-1. `script/build`
+1. `script/build-objc`
 2. Resulting binary is in `build/Release/planck`
 
 You can run tests by doing:
 
-1. `script/test`
+1. `script/test-objc`
 
 Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
 
