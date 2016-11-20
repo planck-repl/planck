@@ -46,18 +46,6 @@ As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily 
 
 > If you copy a previously-entered form from the Planck REPL, and paste it back into Planck, any pasted secondary prompts (`#_=>`), as well as the primary namespace prompt, will be detected and elided. (This makes for a cleaner experience when copying and pasting portions of previously-entered large multi-line forms.)
 
-### Result Formatting
-
-When you evaluate a form at the REPL, the result is pretty printed using [Fipp](https://github.com/brandonbloom/fipp). This causes output to be wrapped and aligned in a manner that makes it easier to see the structure of the data.
-
-> The wrapping honors the width of your terminal, so if you'd like to see a form wrapped differently, resize your terminal and evaluate `*1` to have it re-printed.
-
-If you'd like to turn off pretty printing, just set `*pprint-results*` to `false`:
-
-```
-(set! planck.repl/*pprint-results* false)
-```
-
 ###  Line Editing
 
 #### Arrow Keys
@@ -101,6 +89,21 @@ You may override the set of control characters by creating a `.planck_keymap` fi
 The keys in this map correspond to actions, and the values correspond to the control keys that cause those actions (`:ctrl-a` through `:ctrl-z`).
 
 The set of actions that you can override comprises: `:go-to-beginning-of-line`, `:go-to-end-of-line`, `:go-back-one-space`, `:go-forward-one-space`, `:delete-to-end-of-line`, `:delete-previous-word`, `:delete-backwards`, `:clear-screen`, `:previous-line`, `:next-line`, `:transpose-characters`, and `:undo-typing-on-line`.
+
+### Result Display
+
+When you evaluate a form at the REPL, the result is pretty printed using [Fipp](https://github.com/brandonbloom/fipp). This causes output to be wrapped and aligned in a manner that makes it easier to see the structure of the data.
+
+> The wrapping honors the width of your terminal, so if you'd like to see a form wrapped differently, resize your terminal and evaluate `*1` to have it re-printed.
+
+If you'd like to turn off pretty printing, just set `*pprint-results*` to `false`:
+
+```
+(set! planck.repl/*pprint-results* false)
+```
+
+If you evaluate a form that prints lots of output—for example, `(range)`—you can type Ctrl-C to interrupt output printing and return to a fresh prompt.
+
 
 ###  Color Themes
 
