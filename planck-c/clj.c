@@ -387,6 +387,8 @@ static form_reader get_dispatch_reader(wint_t c) {
   }
 }
 
+#pragma GCC diagnostic ignored "-Wreturn-type"
+
 static clj_Result read_dispatch(clj_Reader *r, wint_t initch) {
   form_reader dispatch_reader;
   wint_t c = pop_char(r);
