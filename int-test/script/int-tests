@@ -1,0 +1,143 @@
+#!build/Release/planck -k int-test/cache
+(ns planck.int-tests
+  (:require [planck.core :refer [exit]]
+            [planck.shell :refer [sh *sh-dir*]]))
+
+;; Perhaps this file can evolve to be more like
+;; cljs.test, and perhaps it can involve multiple
+;; namespaces, etc.
+;;
+;; For now, all you ned to do to cause the tests
+;; to fail is call `(exit 1)`.
+
+(def planck-exe "planck-c/build/planck")
+
+(defn check-output
+  [expected shell-output]
+  (when-not (= expected (:out shell-output))
+    (println "Expected:")
+    (prn expected)
+    (println "Actual:")
+    (prn (:out shell-output))
+    (exit 1)))
+
+(check-output
+  (str
+    "Planck " planck.core/*planck-version* "
+
+Usage:  planck [init-opt*] [main-opt] [arg*]
+
+  With no options or args, runs an interactive Read-Eval-Print Loop
+
+  init options:
+    -i path, --init=path     Load a file or resource
+    -e string, --eval=string Evaluate expressions in string; print non-nil
+                             values
+    -c cp, --classpath=cp    Use colon-delimited cp for source directories and
+                             JARs. PLANCK_CLASSPATH env var may be used instead.
+    -K, --auto-cache         Create and use .planck_cache dir for cache
+    -k path, --cache=path    If dir exists at path, use it for cache
+    -q, --quiet              Quiet mode
+    -v, --verbose            Emit verbose diagnostic output
+    -d, --dumb-terminal      Disable line editing / VT100 terminal control
+    -t theme, --theme=theme  Set the color theme
+    -n x, --socket-repl=x    Enable socket REPL where x is port or IP:port
+    -s, --static-fns         Generate static dispatch function calls
+    -a, --elide-asserts      Set *assert* to false to remove asserts
+
+  main options:
+    -m ns-name, --main=ns-name Call the -main function from a namespace with
+                               args
+    -r, --repl                 Run a repl
+    path                       Run a script from a file or resource
+    -                          Run a script from standard input
+    -h, -?, --help             Print this help message and exit
+    -l, --legal                Show legal info (licenses and copyrights)
+
+  operation:
+
+    - Enters the cljs.user namespace
+    - Binds planck.core/*command-line-args* to a seq of strings containing
+      command line args that appear after any main option
+    - Runs all init options in order
+    - Calls a -main function or runs a repl or script if requested
+
+  The init options may be repeated and mixed freely, but must appear before
+  any main option.
+
+  Paths may be absolute or relative in the filesystem.
+
+  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n\n")
+  (sh planck-exe "-h"))
+
+(defn ensure-output [expected quoted-commands]
+  (check-output
+    (prn-str expected)
+    (apply sh planck-exe (cons "-d" (interleave
+                                      (repeat "-e")
+                                      (map pr-str quoted-commands))))))
+
+;; Ensure clojure.string loads
+(ensure-output "foo quux baz"
+  ['(require '[clojure.string :as s])
+   '(s/replace "foo bar baz" #"bar" "quux")])
+
+;; Ensure clojure.set loads
+(ensure-output #{:b :d}
+  ['(require '[clojure.set :as set])
+   '(set/intersection #{:a :b :c :d} #{:b :d :e})])
+
+;; Ensure clojure.walk loads
+(ensure-output '(5 3 1)
+  ['(require '[clojure.walk :refer [walk]])
+   '(walk first reverse [ [1 2] [3 4] [5 6] ])])
+
+;; Ensure cljs.pprint loads
+(ensure-output "123,456,789"
+  ['(require '[cljs.pprint :refer [cl-format]])
+   '(cl-format nil "~:d" 123456789)])
+
+;; Ensure we don't get a degenerate env
+(when (= "true\n" (:out (sh planck-exe "-e" "(require '[planck.shell :refer [sh]])" "-e" "(empty? (:out (sh \"env\")))")))
+  (println "empty env")
+  (exit 1))
+
+;; Ensure env workd
+(ensure-output (into (sorted-map) {:err "", :exit 0, :out "ABC=123\n"})
+  ['(require '[planck.shell :refer [sh]])
+   '(into (sorted-map) (sh "env" :env {"ABC" "123"}))])
+
+;; Test import REPL special
+(ensure-output "http"
+  ['(import '[goog Uri])
+   '(.-scheme_ (Uri. "http://foo.bar"))])
+
+;; Ensure require merges using alias
+(ensure-output "0123456789"
+  ['(require '[clojure.string :as str :refer [join]])
+   '(require 'clojure.set)
+   '(str/join (range 10))])
+
+;; Ensure require merges using refer
+(ensure-output "0123456789"
+  ['(require '[clojure.string :as str :refer [join]])
+   '(require 'clojure.set)
+   '(join (range 10))])
+
+;; Ensure slurp throws an error for failed read
+(sh "rm" "-f" "/tmp/no-such-animal")
+(ensure-output "SONIC BOOOOOOOOM!"
+  ['(require '[planck.core :refer [slurp]])
+   '(try (slurp "/tmp/no-such-animal") (catch js/Error e "SONIC BOOOOOOOOM!"))])
+
+;; Ensure spit throws an error for failed write
+(sh "touch" "/tmp/readonly")
+(sh "chmod" "444" "/tmp/readonly")
+(ensure-output "SONIC BOOOOOOOOM!"
+  ['(require '[planck.core :refer [spit]])
+   '(try (spit "/tmp/readonly" "foo") (catch js/Error e "SONIC BOOOOOOOOM!"))])
+(sh "rm" "-f" "/tmp/readonly")
+
+;; Check that 0 evaluates to true
+(ensure-output :truthy
+  ['(if 0 :truthy :falsey)])

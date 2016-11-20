@@ -11,7 +11,7 @@
 
 (println "Running integration tests...")
 
-(let [test-results (sh "int-test/script/run-tests-c")]
+(let [test-results (sh "int-test/script/run-tests")]
   (if (succeeded? test-results)
     (println "Integration tests have passed.")
     (do
