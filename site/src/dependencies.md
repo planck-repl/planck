@@ -1,9 +1,11 @@
 ## Dependencies
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/dependencies.jpg">
-Planck can depend on other libraries. To do so, the library must be available on an accessible filesystem, either as a source tree or bundled in a JAR, and included in Planck's classpath. 
+Source executed via Planck can depend on other bootstrapped-compatible libraries. To do so, the library must be available either as source on an accessible filesystem, or bundled in a JAR, and included in Planck's classapth.
 
-You specify the classpath for Planck by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by setting the `PLANCK_CLASSPATH` environment variable. The default classpath, if none is specified, is taken as the current working directory.
+> Planck can consume conventional JARs meant for use with ClojureScript obtained from [Clojars](https://clojars.org) or elsewhere.
+
+Planck's classpath is specified by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by the `PLANCK_CLASSPATH` environment variable. The default classpath, if none is specified, is taken as the current working directory.
 
 For example,
 
@@ -11,17 +13,17 @@ For example,
 planck -c src:/path/to/foo.jar:some-lib/src
 ```
 
-will cause Planck to search in the `src` directory first, and then in `foo.jar` next, and finally `some-lib/src` for files when processing `require`, `require-macros`, and `import` direcives (either in the REPL, or as part of `ns` forms.)
+will cause Planck to search in the `src` directory first, then in `foo.jar` next, and finally `some-lib/src` for files when processing `require`, `require-macros`, `import`, and `ns` forms.
 
-> Paths to JARs cached locally via Maven (usually under `/Users/<username>/.m2/repository`) will work fine. See the section below on Leiningen for tips on dependency management.
+> Paths to JARs cached locally via Leiningen, Boot, or Maven (usually under `/Users/<username>/.m2/repository`) can be used. See the section below on Leiningen and Boot for tips on dependency management.
 
-Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries may work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
+Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries will work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
 
-> One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML _using Planck itself_ using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
+> One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML using Planck using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
 
 ### Shipping Deps
 
-Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes most of the Google Closure library as well as namespaces like:
+Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes most of the Google Closure library as well as these namespaces:
 
 * `cljs.test`
 * `clojure.core.reducers`
@@ -32,7 +34,7 @@ Planck ships with many of the deps that are available to conventional ClojureScr
 * `clojure.walk`
 * `clojure.zip`
 
-In addition Planck ships with these libraries:
+In addition, Planck ships with these libraries:
 
 * [Fipp](https://github.com/brandonbloom/fipp) 0.6.6
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.239
@@ -96,7 +98,7 @@ Planck will honor a `deps.cljs` file embedded in a JAR file. A `deps.cljs` file 
 
 One easy way to make use of foreign libs packaged in this manner is via the excellent [CLJSJS](http://cljsjs.github.io) project. While many of the libraries packaged by CLJSJS cannot work with Planck because they either require a browser environment or Node, some utility libraries work just fine.
 
-Here's an example. Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to place the CLJSJS `[cljsjs/long "3.0.3-1"]` dependency vector in a `project.clj` file as described in the previous section on using Leiningen for JAR deps.
+Here's an example: Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to place the CLJSJS `[cljsjs/long "3.0.3-1"]` dependency vector in a `project.clj` file as described in the previous section on using Leiningen for JAR deps.
 
 If you pass the Leiningen-generated classpath containing this JAR to Planck, after start up you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
 
