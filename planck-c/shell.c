@@ -85,7 +85,12 @@ struct SystemResult {
     char *stderr;
 };
 
-static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *result) {
+/*
+ * Note: Optmization disabled for this function because otherwise something derails
+ * (likely a clang bug) where the calls to free fail unless we explicitly print
+ * out the result structure in its entirety.
+ */
+static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *result) __attribute__ ((optnone)) {
     JSValueRef arguments[3];
     arguments[0] = JSValueMakeNumber(ctx, result->status);
     arguments[1] = c_string_to_value(ctx, result->stdout);

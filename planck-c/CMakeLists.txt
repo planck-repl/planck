@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(planck)
 
-add_definitions(-DDEBUG)
+set(CMAKE_BUILD_TYPE Release)
 
 set(SOURCE_FILES
     archive.c
