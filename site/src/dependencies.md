@@ -1,7 +1,9 @@
 ## Dependencies
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/dependencies.jpg">
-Planck can depend on other libraries. To do so, the library must be available on an accessible filesystem, either as a source tree or bundled in a JAR, and included in Planck's classpath. You specify the classpath for Planck by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by setting the `PLANCK_CLASSPATH` environment variable.
+Planck can depend on other libraries. To do so, the library must be available on an accessible filesystem, either as a source tree or bundled in a JAR, and included in Planck's classpath. 
+
+You specify the classpath for Planck by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by setting the `PLANCK_CLASSPATH` environment variable. The default classpath, if none is specified, is taken as the current working directory.
 
 For example,
 
