@@ -326,9 +326,6 @@ void discarding_sender(const char *msg) {
 void *cljs_do_engine_init(void *data) {
     ctx = JSGlobalContextCreate(NULL);
 
-    JSStringRef nameRef = JSStringCreateWithUTF8CString("planck");
-    JSGlobalContextSetName(ctx, nameRef);
-
     evaluate_script(ctx, "var global = this;", "<init>");
 
     register_global_function(ctx, "AMBLY_IMPORT_SCRIPT", function_import_script);
