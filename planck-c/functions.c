@@ -8,6 +8,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <dirent.h>
+#include <limits.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
