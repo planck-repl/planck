@@ -151,24 +151,6 @@ nil
 foo.core=> ▊
 ```
 
-#### require, require-macros, import
-
-The `require`, `require-macros`, and  `import` REPL specials make it possible to load namespaces and Google Closure code into Planck. These work on the namespaces and Google Closure code that ships with Planck, like `planck.core`, and also on namespaces defined in source directories or JARs specified by the `-c` or `-​-​classpath` comand-line option or the `PLANCK_CLASSPATH` environment variable.
-
-
-```clojure-repl
-cljs.user=> (require '[planck.core :as planck])
-nil
-cljs.user=> planck/*planck-version*
-"1.17"
-cljs.user=> (import '[goog.events EventType])
-nil
-cljs.user=> EventType.CLICK
-"click"
-```
-
-> These REPL specials are implemented in terms of the `ns` special form, just as is done in regular ClojureScript REPLs.
-
 #### load-file
 The `load-file` REPL special can be used to load ClojureScript source from any file on the filesystem. It causes the REPL to sequentially read and evaluate the set of forms contained in the file.
 
