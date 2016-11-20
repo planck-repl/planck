@@ -103,4 +103,4 @@ make
 checkCmdSuccess
 cd ../..
 
-echo "Binary located at $PWD/planck-c/build/planck"
+echo "Binary located at $(pwd)/planck-c/build/planck"
