@@ -312,108 +312,6 @@
                       (print-error e false)
                       (reset! current-ns ns-name))))))))))))
 
-(defn- canonicalize-specs
-  [specs]
-  (letfn [(canonicalize [quoted-spec-or-kw]
-            (if (keyword? quoted-spec-or-kw)
-              quoted-spec-or-kw
-              (as-> (second quoted-spec-or-kw) spec
-                (if (vector? spec) spec [spec]))))]
-    (map canonicalize specs)))
-
-(defn- purge-analysis-cache!
-  [state ns]
-  (swap! state (fn [m]
-                 (assoc m ::ana/namespaces (dissoc (::ana/namespaces m) ns)))))
-
-(defn- purge!
-  [names]
-  (doseq [name names]
-    (purge-analysis-cache! st name))
-  (apply swap! cljs.js/*loaded* disj names))
-
-(defn- process-reloads!
-  [specs]
-  (if-let [k (some #{:reload :reload-all} specs)]
-    (let [specs (->> specs (remove #{k}))]
-      (if (= k :reload-all)
-        (purge! @cljs.js/*loaded*)
-        (purge! (map first specs)))
-      specs)
-    specs))
-
-(defn- self-require?
-  [specs]
-  (some
-    (fn [quoted-spec-or-kw]
-      (and (not (keyword? quoted-spec-or-kw))
-           (let [spec (second quoted-spec-or-kw)
-                 ns   (if (sequential? spec)
-                        (first spec)
-                        spec)]
-             (= ns @current-ns))))
-    specs))
-
-(defn- make-ns-form
-  [kind specs target-ns]
-  (if (= kind :import)
-    (with-meta `(~'ns ~target-ns
-                  (~kind
-                    ~@(map (fn [quoted-spec-or-kw]
-                             (if (keyword? quoted-spec-or-kw)
-                               quoted-spec-or-kw
-                               (second quoted-spec-or-kw)))
-                        specs)))
-      {:merge true :line 1 :column 1})
-    (with-meta `(~'ns ~target-ns
-                  (~kind
-                    ~@(-> specs canonicalize-specs process-reloads!)))
-      {:merge true :line 1 :column 1})))
-
-(defn- log-ns-form
-  [kind ns-form]
-  (when (:verbose @app-env)
-    (println-verbose "Implementing"
-      (name kind)
-      "via ns:\n  "
-      (pr-str ns-form))))
-
-(defn- compiler-state-memo
-  []
-  {:st     @st
-   :loaded @cljs/*loaded*})
-
-(defn- restore-compiler-state
-  [memo]
-  (reset! st (:st memo))
-  (reset! cljs/*loaded* (:loaded memo)))
-
-(defn- process-require
-  [kind cb specs]
-  (let [memo (compiler-state-memo)]
-    (try
-      (let [is-self-require? (and (= kind :require) (self-require? specs))
-            [target-ns restore-ns]
-            (if-not is-self-require?
-              [@current-ns nil]
-              ['cljs.user @current-ns])]
-        (cljs/eval
-          st
-          (let [ns-form (make-ns-form kind specs target-ns)]
-            (log-ns-form kind ns-form)
-            ns-form)
-          (make-base-eval-opts)
-          (fn [{e :error}]
-            (when is-self-require?
-              (reset! current-ns restore-ns))
-            (when e
-              (handle-error e false)
-              (restore-compiler-state memo))
-            (cb))))
-      (catch :default e
-        (handle-error e true)
-        (restore-compiler-state memo)))))
-
 (defn- resolve-var
   "Given an analysis environment resolve a var. Analogous to
    clojure.core/resolve"
@@ -952,24 +850,25 @@
 
 (defn- ^:export run-main
   [main-ns & args]
-  (let [main-args (js->clj args)]
+  (let [main-args (js->clj args)
+        opts (make-base-eval-opts)]
     (binding [cljs/*load-fn* load
               cljs/*eval-fn* caching-js-eval]
-      (process-require
-        :require
-        (fn [_]
-          (cljs/eval-str st
-            (str "(var -main)")
-            nil
-            (merge (make-base-eval-opts)
-              {:ns         (symbol main-ns)
-               :source-map true})
-            (fn [{:keys [ns value error] :as ret}]
-              (try
-                (apply value args)
-                (catch :default e
-                  (handle-error e true))))))
-        `[(quote ~(symbol main-ns))]))
+      (cljs/eval st
+        `(~'require (quote ~(symbol main-ns)))
+        opts
+        (fn [{:keys [ns value error] :as ret}]
+          (if error
+            (handle-error error true)
+            (cljs/eval-str st
+              (str "(var -main)")
+              nil
+              (merge opts {:ns (symbol main-ns)})
+              (fn [{:keys [ns value error] :as ret}]
+                (try
+                  (apply value main-args)
+                  (catch :default e
+                    (handle-error e true)))))))))
     nil))
 
 (defn- load-core-source-maps!
