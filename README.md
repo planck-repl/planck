@@ -4,8 +4,6 @@ A stand-alone ClojureScript REPL for macOS based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
 
-> If you are running Linux, Windows, or macOS, also be sure to check out [Lumo](https://github.com/anmonteiro/lumo), a stand-alone ClojureScript REPL based on Node.js and V8 that is capable of using NPM libraries.
-
 # Installing
 
 ```
@@ -24,20 +22,34 @@ For more details, see the [Planck User Guide](http://planck-repl.org/guide.html)
 
 # Building 
 
-1. `script/build-objc`
-2. Resulting binary is in `build/Release/planck`
+[![Build Status](https://travis-ci.org/mfikes/planck.svg?branch=master)](https://travis-ci.org/mfikes/planck)
 
-You can run tests by doing:
+## Prerequisites 
 
-1. `script/test-objc`
+Java, `clang`, `cmake`.
 
-Additional details on developing Planck are [available](https://github.com/mfikes/planck/wiki/Development).
+## Dependencies
 
-# Planck 2.0.0 Beta
+  - macOS: `brew install pkg-config libzip icu4c`
+  - Ubuntu 14.04: `sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
+  - Ubuntu 16.04: `sudo apt-get install javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
+  - Arch: `pacman -S webkitgtk libzip zlib`
+  - Debian GNU Linux 8: `sudo apt-get install pkg-config javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
 
-Planck 2.0.0 beta Ubuntu and macOS binaries are available [for download](http://planck-repl.org/download-beta.html).
+## Compiling
 
-Instructions on building the Planck 2.0.0 beta on Linux and macOS are in the [planck-c](https://github.com/mfikes/planck/tree/master/planck-c) tree.
+```
+$ script/build
+```
+
+The resulting binary will be `planck-c/build/planck`.
+
+## Tests
+
+```
+$ script/test-all
+```
+
 
 # License
 
