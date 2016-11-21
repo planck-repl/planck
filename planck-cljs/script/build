@@ -26,7 +26,6 @@ else
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
          echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
      fi
-     script/bootstrap
      script/uberjar
      popd
   fi
