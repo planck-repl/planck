@@ -33,19 +33,6 @@ $ ./foo.cljs
 Hello World!
 ```
 
-### Command Line Arguments
-
-If you'd like to gain access to the command line arguments passed to your script, they are available in `planck.core/*command-line-args*` (mimicking the behavior of `clojure.core/*command-line-args*` when writing scripts with Clojure).
-
-With `bar.cljs`:
-
-```
-(ns bar.core
-  (:require [planck.core :refer [*command-line-args*]]))
-
-(println (str "Hello " (first *command-line-args*) "!"))
-```
-
 ```
 $ planck bar.cljs there
 Hello there!
@@ -70,6 +57,56 @@ then this works:
 ```
 $ planck -m foo.core ClojureScript
 Hello ClojureScript!
+```
+
+### Command Line Arguments
+
+If you'd like to gain access to the command line arguments passed to your script, they are available in `planck.core/*command-line-args*` (mimicking the behavior of `clojure.core/*command-line-args*` when writing scripts with Clojure).
+
+With `bar.cljs`:
+
+```
+(ns bar.core
+  (:require [planck.core :refer [*command-line-args*]]))
+
+(println (str "Hello " (first *command-line-args*) "!"))
+```
+
+#### Argument Processing
+
+You can use the [`clojure.tools.cli`](https://github.com/clojure/tools.cli) library to parse command line options. Here is the intro example being used with Planck:
+
+```
+$ planck -c tools.cli-0.3.5.jar -m my.program -vvvp8080 foo --help --invalid-opt
+{:errors ["Unknown option: \"--invalid-opt\""],
+ :arguments ["foo"],
+ :summary "  -p, --port PORT  80  Port number\n  -v                   Verbosity level\n  -h, --help",
+ :options {:port 8080, :verbosity 3, :help true}}
+```
+
+where `my/program.cljs` contains:
+
+```clojure
+(ns my.program
+  (:require [clojure.tools.cli :refer [parse-opts]]
+            [fipp.edn :refer [pprint]]))
+
+(def cli-options
+  ;; An option with a required argument
+  [["-p" "--port PORT" "Port number"
+    :default 80
+    :parse-fn #(js/parseInt %)
+    :validate [#(< 0 % 0x10000) "Must be a number between 0 and 65536"]]
+   ;; A non-idempotent option
+   ["-v" nil "Verbosity level"
+    :id :verbosity
+    :default 0
+    :assoc-fn (fn [m k _] (update-in m [k] inc))]
+   ;; A boolean option defaulting to nil
+   ["-h" "--help"]])
+
+(defn -main [& args]
+  (pprint (parse-opts args cli-options)))
 ```
 
 ### Shell Interaction
