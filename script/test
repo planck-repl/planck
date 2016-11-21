@@ -1,11 +1,37 @@
-#!planck-c/build/planck --classpath=planck-cljs/test
-(ns planck.unit-test
-  (:require [cljs.test]
-            [planck.test-runner]
+#!planck-c/build/planck
+(ns planck.test
+  (:require [planck.shell :refer [sh]]
             [planck.core :refer [exit]]))
 
-(defmethod cljs.test/report [:cljs.test/default :end-run-tests] [m]
-  (when-not (cljs.test/successful? m)
+(defn succeeded? [result]
+  (zero? (:exit result)))
+
+(defn file-exists? [filename]
+  (succeeded? (sh "ls" filename)))
+
+(println "Running unit tests...")
+
+(let [results (sh "script/test-unit")]
+  (when-not (succeeded? results)
+    (println (:out results))
     (exit 1)))
 
-(planck.test-runner/run-all-tests)
+(println "Running integration tests...")
+
+(let [results (sh "script/test-int")]
+  (when-not (succeeded? results)
+    (println (:out results))
+    (exit 1)))
+
+(comment
+
+(println "Running core tests...")
+
+(let [results (sh "script/test-core")]
+  (when-not (succeeded? results)
+    (println (:out results))
+    (println "Core tests have failed.")
+    (exit 1)))
+)
+
+(println "All tests have passed.")

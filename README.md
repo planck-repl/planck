@@ -47,7 +47,7 @@ The resulting binary will be `planck-c/build/planck`.
 ## Tests
 
 ```
-$ script/test-all
+$ script/test
 ```
 
 
