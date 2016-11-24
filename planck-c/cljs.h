@@ -2,6 +2,10 @@
 
 extern JSGlobalContextRef ctx;
 
+void cljs_acquire_eval_lock();
+
+void cljs_release_eval_lock();
+
 void set_int_handler();
 
 void clear_int_handler();

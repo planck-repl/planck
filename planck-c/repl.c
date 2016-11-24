@@ -17,8 +17,6 @@
 #include "theme.h"
 #include "timers.h"
 
-pthread_mutex_t eval_lock = PTHREAD_MUTEX_INITIALIZER;
-
 struct repl {
     char *current_ns;
     char *current_prompt;
@@ -149,7 +147,6 @@ bool process_line(repl_t *repl, char *input_line) {
             repl->input[strlen(repl->input) - strlen(balance_text)] = '\0';
 
             if (!is_whitespace(repl->input)) { // Guard against empty string being read
-                pthread_mutex_lock(&eval_lock);
 
                 return_termsize = !config.dumb_terminal;
 
@@ -169,8 +166,6 @@ bool process_line(repl_t *repl, char *input_line) {
                 }
 
                 return_termsize = false;
-
-                pthread_mutex_unlock(&eval_lock);
 
                 if (exit_value != 0) {
                     free(repl->input);

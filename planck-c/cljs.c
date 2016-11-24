@@ -19,6 +19,16 @@
 
 JSGlobalContextRef ctx = NULL;
 
+pthread_mutex_t eval_lock = PTHREAD_MUTEX_INITIALIZER;
+
+void cljs_acquire_eval_lock() {
+    pthread_mutex_lock(&eval_lock);
+}
+
+void cljs_release_eval_lock() {
+    pthread_mutex_unlock(&eval_lock);
+}
+
 static volatile int keep_running = 1;
 
 void int_handler(int dummy) {
@@ -181,7 +191,10 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     JSObjectRef execute_fn = cljs_get_function("planck.repl", "execute");
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
     JSValueRef ex = NULL;
+
+    cljs_acquire_eval_lock();
     JSValueRef val = JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, &ex);
+    cljs_release_eval_lock();
 
     // debug_print_value("planck.repl/execute", ctx, ex);
 

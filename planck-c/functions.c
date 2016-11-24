@@ -917,7 +917,9 @@ void do_run_timeout(void *data) {
     free(timeout_data);
 
     JSObjectRef run_timeout = cljs_get_function("global", "PLANCK_RUN_TIMEOUT");
+    cljs_acquire_eval_lock();
     JSObjectCallAsFunction(ctx, run_timeout, NULL, 1, args, NULL);
+    cljs_release_eval_lock();
 }
 
 static unsigned long long timeout_id = 0;
