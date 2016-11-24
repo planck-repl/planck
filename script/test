@@ -11,6 +11,11 @@
 
 (println "Running unit tests...")
 
+(let [results (sh "script/get-tcheck")]
+  (when-not (succeeded? results)
+    (println (:out results))
+    (exit 1)))
+
 (let [results (sh "script/test-unit")]
   (when-not (succeeded? results)
     (println (:out results))

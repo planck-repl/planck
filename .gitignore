@@ -1,6 +1,7 @@
 xcuserdata
 .DS_Store
 build/
+lib/
 .planck_history
 planck-cljs/sandbox-m2
 int-test/cache/*.js

@@ -12,5 +12,6 @@
                  [com.cognitect/transit-cljs "0.8.239"]
                  [fipp "0.6.6"]
                  [malabarba/lazy-map "1.1"]
-                 [cljsjs/parinfer "1.8.1-0"]]
+                 [cljsjs/parinfer "1.8.1-0"]
+                 [org.clojure/test.check "0.9.0"]]
   :clean-targets ["out" "target"])

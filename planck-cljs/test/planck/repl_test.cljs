@@ -1,6 +1,9 @@
 (ns planck.repl-test
   (:require-macros [planck.repl])
   (:require [clojure.test :refer [deftest testing is]]
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop :include-macros true]
+            [clojure.test.check.clojure-test :refer-macros [defspec]]
             [planck.repl :as repl]))
 
 (deftest get-highlight-coords
@@ -31,3 +34,9 @@
             (ex-info "" {:tag    :cljs/analysis-error
                          :column 3}))
           "foo.core"))))
+
+(defspec first-element-is-min-after-sorting ;; the name of the test
+  100 ;; the number of iterations for test.check to test
+  (prop/for-all [v (gen/not-empty (gen/vector gen/int))]
+    (= (apply min v)
+      (first (sort v)))))
