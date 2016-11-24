@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Run this from the planck/planck-cljs directory
+
 # Make sure we fail and exit on the command that actually failed.
 set -e
 set -o pipefail
@@ -7,9 +9,20 @@ set -o pipefail
 cp src/planck/{repl,core,shell}.clj out/planck
 cp src/planck/from/io/aviso/ansi.clj out/planck/from/io/aviso
 
-echo '#import <Foundation/Foundation.h>' > PLKBundledOut.m
-echo '#import "zlib.h"' >> PLKBundledOut.m
-echo "" > manifest.m
+cat <<EOF > bundle.c
+#include <stdlib.h>
+#include <string.h>
+
+#include <zlib.h>
+EOF
+
+cat <<EOF > bundle_dict.c
+unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *gz_len) {
+	if (path == NULL) {
+		return NULL;
+	}
+EOF
+
 cd out
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json'`
 do 
@@ -18,108 +31,77 @@ cp $file $file.bak
 gzip -9 $file
 mv $file.bak $file
 filegz=$file.gz
-xxd -i $filegz >> ../PLKBundledOut.m
+xxd -i $filegz >> ../bundle.c
 rm $filegz
 data_ref=${filegz//\//_}
 data_ref=${data_ref//\./_}
 data_ref=${data_ref//\$/_}
-echo "@\"${file}\": @[[NSValue valueWithPointer:${data_ref}], [NSNumber numberWithInt:${data_ref}_len]]," >> ../manifest.m
+file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
+echo "unsigned int ${data_ref}_len_uncompressed = ${file_size};" >> ../bundle.c
+cat <<EOF >> ../bundle_dict.c
+	else if (strcmp("${file}", path) == 0) {
+		*gz_len = ${data_ref}_len;
+		*len = ${data_ref}_len_uncompressed;
+		return ${data_ref};
+	}
+EOF
 done
 cd ..
-cat <<EOF >> PLKBundledOut.m
-#import "PLKBundledOut.h"
+cat <<EOF >> bundle_dict.c
 
-@interface PLKBundledOut()
-
-@property (strong) NSDictionary* manifest;
-
-@end
-
-@implementation PLKBundledOut 
-
--(id)init {
-    if ( self = [super init] ) {
-        self.manifest = @{
+	return NULL;
+}
 EOF
+cat bundle_dict.c >> bundle.c
+cat <<EOF >> bundle.c
+#include "bundle_inflate.h"
 
-cat manifest.m >> PLKBundledOut.m
+char *bundle_get_contents(char *path) {
+	unsigned int gz_len = 0;
+	unsigned int len = 0;
+	unsigned char *gz_data = bundle_path_to_addr(path, &len, &gz_len);
 
-cat <<EOF >> PLKBundledOut.m
-    };
-  }
-  return self;
+	if (gz_data == NULL) {
+		return NULL;
+	}
+
+	char *contents = malloc((len + 1) * sizeof(char));
+	memset(contents, 0, len + 1);
+	int res = 0;
+	if ((res = bundle_inflate(contents, gz_data, gz_len, len)) < 0) {
+		free(contents);
+		return NULL;
+	}
+
+	return contents;
 }
 
--(NSString*)getSourceForPath:(NSString*)path {
+#ifdef BUNDLE_TEST
+#include <stdio.h>
 
-    NSValue* value = (NSValue*)(self.manifest[path][0]);
-    if (!value) {
-      return nil;
-    }
+int main(int argc, char **argv) {
+	if (argc != 2) {
+		printf("%s <path>\n", argv[0]);
+		exit(1);
+	}
 
-    unsigned char* p =[value pointerValue];
-    int len = [(NSNumber*)self.manifest[path][1] intValue];
-    
-    NSData* data = [NSData dataWithBytes:p
-                                  length:len];
+	char *contents = bundle_get_contents(argv[1]);
+	if (contents == NULL) {
+		printf("not in bundle\n");
+		exit(1);
+	}
 
-    data = [self inflate:data];
-    
-    NSString* rv =
-    [[NSString alloc] initWithData:data
-                          encoding:NSUTF8StringEncoding];
-    
-    return rv;
+	printf("%s", contents);
+	free(contents);
+
+	return 0;
 }
-
--(NSData*)inflate:(NSData*)data {
-    if ([data length] == 0) return data;
-    
-    uLong full_length = [data length];
-    uLong half_length = [data length] / 2;
-    
-    NSMutableData *decompressed = [NSMutableData dataWithLength: full_length + half_length];
-    BOOL done = NO;
-    int status;
-    
-    z_stream strm;
-    strm.next_in = (Bytef *)[data bytes];
-    strm.avail_in = (uInt)[data length];
-    strm.total_out = 0;
-    strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
-    
-    if (inflateInit2(&strm, (15+32)) != Z_OK) return nil;
-    while (!done)
-    {
-        // Make sure we have enough room and reset the lengths.
-        if (strm.total_out >= [decompressed length])
-            [decompressed increaseLengthBy: half_length];
-        strm.next_out = [decompressed mutableBytes] + strm.total_out;
-        strm.avail_out = (uInt)((uLong)[decompressed length] - strm.total_out);
-        
-        // Inflate another chunk.
-        status = inflate (&strm, Z_SYNC_FLUSH);
-        if (status == Z_STREAM_END) done = YES;
-        else if (status != Z_OK) break;
-    }
-    if (inflateEnd (&strm) != Z_OK) return nil;
-    
-    // Set real length.
-    if (done)
-    {
-        [decompressed setLength: strm.total_out];
-        return decompressed;
-    }
-    else return nil;
-}
-
-@end
+#endif
 EOF
-rm manifest.m
-mv PLKBundledOut.m ../planck
+rm bundle_dict.c
+mv bundle.c ../planck-c
 # We don't want git to suggest we commit this generated
 # output, so we suppress it here.
 if [ -d ../.git ]; then
-  git update-index --assume-unchanged ../planck/PLKBundledOut.m
+  git update-index --assume-unchanged ../planck-c/bundle.c
 fi;

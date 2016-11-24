@@ -33,17 +33,9 @@ rm -f planck-cljs/out/planck/from/io/aviso/*macros*
 echo "### Building planck-c"
 echo "### Bundling ClojureScript artifacts for 1st stage"
 cd planck-cljs
-script/bundle-c
+script/bundle
 checkCmdSuccess
 cd ..
-
-if [ ! -e planck-c/linenoise.h ] || [ planck/linenoise/linenoise.h -nt planck-c/linenoise.h ] || 
-   [ ! -e planck-c/linenoise.c ] || [ planck/linenoise/linenoise.c -nt planck-c/linenoise.c ]
-then
-   echo "### Copying over linenoise source"
-   cp planck/linenoise/linenoise.h planck-c
-   cp planck/linenoise/linenoise.c planck-c
-fi
 
 echo "### Building 1st stage Planck binary"
 cd planck-c
@@ -93,7 +85,7 @@ rm -rf planck-cljs/out/macros-tmp
 
 echo "### Bundling ClojureScript artifacts for 2nd stage"
 cd planck-cljs
-script/bundle-c
+script/bundle
 checkCmdSuccess
 cd ..
 

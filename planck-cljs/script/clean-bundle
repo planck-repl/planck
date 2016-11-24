@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-rm -f manifest.m
-git update-index --no-assume-unchanged ../planck/PLKBundledOut.m
-git checkout -- ../planck/PLKBundledOut.m
+rm -f bundle_dict.c
+git update-index --no-assume-unchanged ../planck-c/bundle.c
+git checkout -- ../planck-c/bundle.c

@@ -3,11 +3,7 @@
 pushd planck-cljs
 script/clean
 script/clean-bundle
-script/clean-bundle-c
 popd
-
-# Xcode
-rm -rf build
 
 # CMake
 rm -rf planck-c/build

@@ -5,8 +5,6 @@
 /*.o
 /*.tar.gz
 
-/linenoise.c
-/linenoise.h
 /jsc-funcs
 
 /.planck_cache
