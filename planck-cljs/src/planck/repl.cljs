@@ -1401,7 +1401,7 @@
 (s/def ::spec? boolean?)
 (s/def ::keyword-ns symbol?)
 (s/def ::term-width-adj integer?)
-(s/fdef print-result
+#_(s/fdef print-result
   :args (s/cat :value ::s/any :opts (s/keys :opt [::as-code? ::term-width-adj ::spec ::keyword-ns])))
 
 (defn- wrap-warning-font
