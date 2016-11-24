@@ -1452,14 +1452,14 @@
            {:ns         initial-ns
             :verbose    (:verbose @app-env)
             :static-fns (:static-fns @app-env)}
-           (when (or (not expression?)
-                     (load-form? expression-form))
+           (if expression?
+             (merge {:context :expr
+                     :def-emits-var true}
+               (when (load-form? expression-form)
+                 {:source-map true}))
              (merge {:source-map true}
                (when (:cache-path @app-env)
-                 {:cache-source (cache-source-fn source-text)})))
-           (when expression?
-             {:context       :expr
-              :def-emits-var true}))
+                 {:cache-source (cache-source-fn source-text)}))))
          (fn [{:keys [ns value error] :as ret}]
            (if expression?
              (when-not error
