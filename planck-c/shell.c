@@ -111,6 +111,7 @@ struct ThreadParams {
     struct SystemResult res;
     int errpipe;
     int outpipe;
+    int inpipe;
     pid_t pid;
     int cb_idx;
 };
@@ -127,6 +128,10 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         }
         params->res.stderr = read_child_pipe(params->errpipe);
         params->res.stdout = read_child_pipe(params->outpipe);
+
+        close(params->errpipe);
+        close(params->outpipe);
+        close(params->inpipe);
     }
     if (params->cb_idx == -1) return &params->res;
     else {
@@ -201,6 +206,7 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             params->res = result;
             params->errpipe = err[0];
             params->outpipe = in[0];
+            params->inpipe = out[1];
             params->pid = pid;
             params->cb_idx = cb_idx;
             if (cb_idx == -1) res = wait_for_child(params);
@@ -209,10 +215,6 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
                 pthread_create(&thrd, NULL, thread_proc, params);
             }
         }
-
-        close(out[1]);
-        close(err[0]);
-        close(in[0]);
 
         for (int i = 0; cmd[i] != NULL; i++)
             free(cmd[i]);
