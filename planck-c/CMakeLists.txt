@@ -46,8 +46,21 @@ add_executable(planck ${SOURCE_FILES})
 
 find_package(PkgConfig REQUIRED)
 
-find_library(CURL curl)
-target_link_libraries(planck ${CURL})
+find_program(CURL_CONFIG curl-config)
+if(CURL_CONFIG)
+  execute_process(COMMAND ${CURL_CONFIG} --cflags
+                  OUTPUT_VARIABLE CURL_CFLAGS
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${CURL_CONFIG} --libs
+                  OUTPUT_VARIABLE CURL_LIBS
+                  OUTPUT_STRIP_TRAILING_WHITESPACE)
+  include_directories(${CURL_CFLAGS})
+  target_link_libraries(planck ${CURL_LIBS})
+else(CURL_CONFIG)
+  find_library(CURL curl)
+  target_link_libraries(planck ${CURL})
+endif(CURL_CONFIG)
+
 
 option(USE_BUNDLED_LIBZIP "use an in-tree version of libzip" OFF)
 if(USE_BUNDLED_LIBZIP)
