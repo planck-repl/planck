@@ -26,15 +26,7 @@ For more details, see the [Planck User Guide](http://planck-repl.org/guide.html)
 
 ## Prerequisites 
 
-Java, `clang`, `cmake`.
-
-## Dependencies
-
-  - macOS: `brew install pkg-config libzip icu4c`
-  - Ubuntu 14.04: `sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
-  - Ubuntu 16.04: `sudo apt-get install javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
-  - Arch: `pacman -S webkitgtk libzip zlib`
-  - Debian GNU Linux 8: `sudo apt-get install pkg-config javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev`
+See [Building Wiki](https://github.com/mfikes/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
 
 ## Compiling
 
