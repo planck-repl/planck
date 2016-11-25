@@ -90,6 +90,9 @@ struct SystemResult {
  * (likely a clang bug) where the calls to free fail unless we explicitly print
  * out the result structure in its entirety.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgcc-compat"
+#pragma GCC diagnostic ignored "-Wattributes"
 static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *result) __attribute__ ((optnone)) {
     JSValueRef arguments[3];
     arguments[0] = JSValueMakeNumber(ctx, result->status);
@@ -106,6 +109,7 @@ static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *r
 
     return JSObjectMakeArray(ctx, 3, arguments, NULL);
 }
+#pragma GCC diagnostic pop
 
 struct ThreadParams {
     struct SystemResult res;
