@@ -54,7 +54,7 @@ if(CURL_CONFIG)
   execute_process(COMMAND ${CURL_CONFIG} --libs
                   OUTPUT_VARIABLE CURL_LIBS
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-  include_directories(${CURL_CFLAGS})
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CURL_CFLAGS}")
   target_link_libraries(planck ${CURL_LIBS})
 else(CURL_CONFIG)
   find_library(CURL curl)
