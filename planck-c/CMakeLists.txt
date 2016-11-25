@@ -61,6 +61,9 @@ else(CURL_CONFIG)
   target_link_libraries(planck ${CURL})
 endif(CURL_CONFIG)
 
+pkg_check_modules(ZLIB REQUIRED zlib)
+include_directories(${ZLIB_INCLUDE_DIRS})
+target_link_libraries(planck ${ZLIB_LDFLAGS})
 
 option(USE_BUNDLED_LIBZIP "use an in-tree version of libzip" OFF)
 if(USE_BUNDLED_LIBZIP)
