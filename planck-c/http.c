@@ -148,17 +148,16 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
                 size_t len_val = strlen(val);
                 char *header = malloc((len_key + len_val + 2 + 1) * sizeof(char));
                 sprintf(header, "%s: %s", key, val);
-                curl_slist_append(headers, header);
+                headers = curl_slist_append(headers, header);
                 free(header);
 
                 free(key);
                 free(val);
             }
 
-            curl_easy_setopt(handle, CURLOPT_HEADER, headers);
+            curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers);
         }
 
-        // curl_easy_setopt(handle, CURLOPT_HEADER, 1L);
         curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout);
 
         struct read_string_state input_state;
