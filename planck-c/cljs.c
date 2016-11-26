@@ -406,6 +406,11 @@ void *cljs_do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_READ_PASSWORD", function_read_password);
 
+    register_global_function(ctx, "PLANCK_HIGH_RES_TIMER", function_high_res_timer);
+
+    // Monkey patch cljs.core/system-time to use Planck's high-res timer
+    evaluate_script(ctx, "cljs.core.system_time = PLANCK_HIGH_RES_TIMER", "<init>");
+
     {
         JSValueRef arguments[config.num_rest_args];
         for (int i = 0; i < config.num_rest_args; i++) {

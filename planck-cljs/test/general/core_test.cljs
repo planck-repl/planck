@@ -7,3 +7,9 @@
 (deftest do-template-test
   (is (= '(do (+ 4 2) (+ 5 3))
         (macroexpand '(do-template [x y] (+ y x) 2 4 3 5)))))
+
+(deftest system-timer-monkey-patch-test
+  ; Ensure we haven't broken system-time
+  (let [t0 (system-time)
+        t1 (system-time)]
+    (is (<= t0 t1))))
