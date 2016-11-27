@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-planck-c/build/planck -n 51638 -c planck-cljs/src:planck-cljs/test
+planck-c/build/planck -n 51638 -c lib/test.check-0.9.0-TCHECK-105.jar:planck-cljs/src:planck-cljs/test
