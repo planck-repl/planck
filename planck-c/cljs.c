@@ -480,12 +480,21 @@ void cljs_engine_init() {
 
 void (*cljs_sender)(const char *msg) = NULL;
 
+void cljs_print_message(const char* msg) {
+    void (*current_sender)(const char *msg) = cljs_sender;
+    if (current_sender) {
+        current_sender(msg);
+    } else {
+        fprintf(stderr, "%s\n", msg);
+    }
+}
+
 JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                     size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueIsString(ctx, args[0])) {
         char *str = value_to_c_string(ctx, args[0]);
 
-        cljs_sender(str);
+        cljs_print_message(str);
 
         free(str);
     }

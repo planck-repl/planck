@@ -221,9 +221,8 @@ void run_cmdline_loop(repl_t *repl) {
             }
         } else {
             // Handle prints while processing linenoise input
-            if (cljs_engine_ready) {
-                cljs_set_print_sender(&linenoisePrintNow);
-            }
+            cljs_set_print_sender(&linenoisePrintNow);
+
 
             // If *print-newline* is off, we need to emit a newline now, otherwise
             // the linenoise prompt and line editing will overwrite any printed
@@ -236,9 +235,7 @@ void run_cmdline_loop(repl_t *repl) {
                                    repl->indent_space_count);
 
             // Reset printing handler back
-            if (cljs_engine_ready) {
-                cljs_set_print_sender(NULL);
-            }
+            cljs_set_print_sender(NULL);
 
             repl->indent_space_count = 0;
             if (line == NULL) {
@@ -433,7 +430,9 @@ void *accept_connections(void *data) {
     listen(socket_desc, 3);
 
     if (!config.quiet) {
-        fprintf(stdout, "Planck socket REPL listening at %s:%d.\n", config.socket_repl_host, config.socket_repl_port);
+        char msg[1024];
+        sprintf(msg, "Planck socket REPL listening at %s:%d.", config.socket_repl_host, config.socket_repl_port);
+        cljs_print_message(msg);
     }
 
     c = sizeof(struct sockaddr_in);
@@ -486,6 +485,10 @@ int run_repl() {
         linenoiseSetCompletionCallback(completion);
         linenoiseSetHighlightCallback(highlight);
         linenoiseSetHighlightCancelCallback(highlight_cancel);
+    }
+
+    if (!config.dumb_terminal) {
+        cljs_set_print_sender(&linenoisePrintNow);
     }
 
     if (config.socket_repl_port) {
