@@ -62,10 +62,11 @@ static void preopen(int old, int new) {
 }
 
 static char *read_child_pipe(int pipe) {
-    const int BLOCK_SIZE = 1024;
-    int block_count = 1;
+    const size_t BLOCK_SIZE = 1024;
+    size_t block_count = 1;
     char *res = malloc(BLOCK_SIZE * block_count);
-    int count = 0, total = 0, num_to_read = BLOCK_SIZE - 1;
+    ssize_t count = 0, total = 0;
+    size_t num_to_read = BLOCK_SIZE - 1;
     while ((count = read(pipe, res + total, num_to_read)) > 0) {
         total += count;
         if (count < num_to_read) num_to_read -= count;
