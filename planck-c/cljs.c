@@ -472,13 +472,23 @@ void cljs_engine_init() {
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     int ret = pthread_create(&engine_init_thread, &attr, cljs_do_engine_init, NULL);
     if (ret != 0) {
-        perror("pthread_create");
+        cljs_perror("pthread_create");
         exit(1);
     }
     pthread_attr_destroy(&attr);
 }
 
 void (*cljs_sender)(const char *msg) = NULL;
+
+void cljs_perror(const char* msg) {
+    if (cljs_sender == &discarding_sender) {
+        perror(msg);
+    } else {
+        char buffer[1024];
+        snprintf(buffer, 1024, "%s: %s", msg, strerror(errno));
+        cljs_print_message(buffer);
+    }
+}
 
 void cljs_print_message(const char* msg) {
     void (*current_sender)(const char *msg) = cljs_sender;

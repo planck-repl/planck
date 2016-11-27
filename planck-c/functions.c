@@ -144,7 +144,7 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     if (stat(location, &file_stat) == 0) {
                         contents = get_contents_zip(location, path, &last_modified);
                     } else {
-                        perror(location);
+                        cljs_perror(location);
                         config.src_paths[i].blacklisted = true;
                     }
                 }
@@ -209,7 +209,7 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                         deps_cljs_files[num_files - 1] = source;
                     }
                 } else {
-                    perror(location);
+                    cljs_perror(location);
                     config.src_paths[i].blacklisted = true;
                 }
             }

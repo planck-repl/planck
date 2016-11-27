@@ -414,7 +414,7 @@ void *accept_connections(void *data) {
 
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_desc == -1) {
-        perror("Could not create listen socket");
+        cljs_perror("Could not create listen socket");
         return NULL;
     }
 
@@ -423,7 +423,7 @@ void *accept_connections(void *data) {
     server.sin_port = htons(config.socket_repl_port);
 
     if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
-        perror("Socket bind failed");
+        cljs_perror("Socket bind failed");
         return NULL;
     }
 
@@ -431,7 +431,7 @@ void *accept_connections(void *data) {
 
     if (!config.quiet) {
         char msg[1024];
-        sprintf(msg, "Planck socket REPL listening at %s:%d.", config.socket_repl_host, config.socket_repl_port);
+        snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.", config.socket_repl_host, config.socket_repl_port);
         cljs_print_message(msg);
     }
 
@@ -443,13 +443,13 @@ void *accept_connections(void *data) {
         *new_sock = new_socket;
 
         if (pthread_create(&handler_thread, NULL, connection_handler, (void *) new_sock) < 0) {
-            perror("could not create thread");
+            cljs_perror("could not create thread");
             return NULL;
         }
     }
 
     if (new_socket < 0) {
-        perror("accept failed");
+        cljs_perror("accept failed");
         return NULL;
     }
 
