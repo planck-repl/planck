@@ -1156,7 +1156,7 @@
   ;; after newlines with two.
   (when-not (nil? s)
     (if (re-find #"[^\n]*\n\n?      ?\S.*" s)
-      (string/replace-all s #"\n      ?" "\n  ")
+      (string/replace s #"\n      ?" "\n  ")
       s)))
 
 (defn- str-butlast
@@ -1308,8 +1308,8 @@
   [lib]
   (str \/
     (-> (name lib)
-      (string/replace-all #"-" \_)
-      (string/replace-all #"\." \/))))
+      (string/replace \- \_)
+      (string/replace \. \/))))
 
 (defn- root-directory
   "Returns the root resource path for a lib"

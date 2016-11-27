@@ -40,3 +40,9 @@
   (prop/for-all [v (gen/not-empty (gen/vector gen/int))]
     (= (apply min v)
       (first (sort v)))))
+
+(deftest undo-reader-conditional-whitespace-docstring-test
+  (is (= "a\n  b" (planck.repl/undo-reader-conditional-whitespace-docstring "a\n     b"))))
+
+(deftest root-resource-test
+  (is (= "/foo_bar_baz/boo/core" (planck.repl/root-resource 'foo-bar-baz.boo.core))))
