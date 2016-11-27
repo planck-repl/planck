@@ -77,6 +77,9 @@ char *get_input() {
     char *line = NULL;
     size_t len = 0;
     ssize_t n = getline(&line, &len, stdin);
+    if (n == -1) { // Ctrl-D
+        return NULL;
+    }
     if (n > 0) {
         if (line[n - 1] == '\n') {
             line[n - 1] = '\0';
