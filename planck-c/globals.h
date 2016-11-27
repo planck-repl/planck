@@ -9,6 +9,7 @@
 struct src_path {
     char *type;
     char *path;
+    bool blacklisted;
 };
 
 struct script {

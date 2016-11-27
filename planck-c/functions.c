@@ -124,6 +124,10 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
         // load from classpath
         if (contents == NULL) {
             for (int i = 0; i < config.num_src_paths; i++) {
+                if (config.src_paths[i].blacklisted) {
+                    continue;
+                }
+
                 char *type = config.src_paths[i].type;
                 char *location = config.src_paths[i].path;
 
@@ -136,7 +140,13 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     }
                     free(full_path);
                 } else if (strcmp(type, "jar") == 0) {
-                    contents = get_contents_zip(location, path, &last_modified);
+                    struct stat file_stat;
+                    if (stat(location, &file_stat) == 0) {
+                        contents = get_contents_zip(location, path, &last_modified);
+                    } else {
+                        perror(location);
+                        config.src_paths[i].blacklisted = true;
+                    }
                 }
 
                 if (contents != NULL) {
@@ -183,15 +193,24 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
 
     if (argc == 0) {
         for (int i = 0; i < config.num_src_paths; i++) {
+            if (config.src_paths[i].blacklisted) {
+                continue;
+            }
             char *type = config.src_paths[i].type;
             char *location = config.src_paths[i].path;
 
             if (strcmp(type, "jar") == 0) {
-                char *source = get_contents_zip(location, "deps.cljs", NULL);
-                if (source != NULL) {
-                    num_files += 1;
-                    deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
-                    deps_cljs_files[num_files - 1] = source;
+                struct stat file_stat;
+                if (stat(location, &file_stat) == 0) {
+                    char *source = get_contents_zip(location, "deps.cljs", NULL);
+                    if (source != NULL) {
+                        num_files += 1;
+                        deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
+                        deps_cljs_files[num_files - 1] = source;
+                    }
+                } else {
+                    perror(location);
+                    config.src_paths[i].blacklisted = true;
                 }
             }
         }

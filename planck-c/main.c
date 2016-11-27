@@ -134,6 +134,7 @@ void init_classpath(char *classpath) {
         config.num_src_paths += 1;
         config.src_paths = realloc(config.src_paths, config.num_src_paths * sizeof(struct src_path));
         config.src_paths[config.num_src_paths - 1].type = type;
+        config.src_paths[config.num_src_paths - 1].blacklisted = false;
         if (strcmp(type, "jar") == 0) {
             config.src_paths[config.num_src_paths - 1].path = fully_qualify(cwd, source);
         } else {

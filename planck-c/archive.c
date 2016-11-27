@@ -19,7 +19,7 @@ void print_zip_err(char *prefix, zip_t *zip);
 char *get_contents_zip(char *path, char *name, time_t *last_modified) {
     zip_t *archive = zip_open(path, ZIP_RDONLY, NULL);
     if (archive == NULL) {
-        print_zip_err("zip_open", archive);
+        printf("Could not open %s\n", path);
         return NULL;
     }
 
