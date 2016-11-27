@@ -1,1 +1,1 @@
-int load_keymap(char* home);
+int load_keymap(char *home);

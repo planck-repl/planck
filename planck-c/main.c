@@ -148,8 +148,7 @@ void init_classpath(char *classpath) {
     free(cwd);
 }
 
-void print_usage_error(char* error_message, char *program_name)
-{
+void print_usage_error(char *error_message, char *program_name) {
     printf("%s: %s", program_name, error_message);
     usage(program_name);
 }

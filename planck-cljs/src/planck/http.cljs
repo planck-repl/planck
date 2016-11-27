@@ -1,10 +1,10 @@
 (ns planck.http
-    (:refer-clojure :exclude [get])
-    (:require
-     [planck.core]
-     [planck.io]
-     [clojure.string :as string]
-     [cljs.spec :as s]))
+  (:refer-clojure :exclude [get])
+  (:require
+    [planck.core]
+    [planck.io]
+    [clojure.string :as string]
+    [cljs.spec :as s]))
 
 
 (def content-types {:json            "application/json"
@@ -50,9 +50,9 @@
   (fn [request]
     (if-let [headers (maybe-add-header request :content-type "Content-Type")]
       (-> request
-          (dissoc :content-type)
-          (assoc :headers headers)
-          client)
+        (dissoc :content-type)
+        (assoc :headers headers)
+        client)
       (client request))))
 
 (defn wrap-accepts
@@ -61,9 +61,9 @@
   (fn [request]
     (if-let [headers (maybe-add-header request :accept "Accept")]
       (-> request
-          (dissoc :accept)
-          (assoc :headers headers)
-          client)
+        (dissoc :accept)
+        (assoc :headers headers)
+        client)
       (client request))))
 
 (defn wrap-debug
@@ -82,8 +82,8 @@
     (if-let [body (:body request)]
       (let [headers (merge {"Content-length" (count body)} (:headers request))]
         (-> request
-            (assoc :headers headers)
-            client))
+          (assoc :headers headers)
+          client))
       (client request))))
 
 (defn wrap-form-params
@@ -92,10 +92,10 @@
   (fn [request]
     (if-let [form-params (:form-params request)]
       (-> request
-          (dissoc :form-params)
-          (assoc :content-type :form-urlencoded)
-          (assoc :body (generate-query-string form-params))
-          client)
+        (dissoc :form-params)
+        (assoc :content-type :form-urlencoded)
+        (assoc :body (generate-query-string form-params))
+        client)
       (client request))))
 
 (defn wrap-add-headers
@@ -113,16 +113,16 @@
 (defn generate-form-data [params]
   (conj (mapv (fn [[k v]]
                 (if (coll? v)
-                  (str content-disposition  k "\"; filename=\"" (second v) "\"\n"
-                       "Content-Type: application/octet-stream\n\n"
-                       (first v))
-                  (str content-disposition k "\"\n\n" v ))) params) "--\n"))
+                  (str content-disposition k "\"; filename=\"" (second v) "\"\n"
+                    "Content-Type: application/octet-stream\n\n"
+                    (first v))
+                  (str content-disposition k "\"\n\n" v))) params) "--\n"))
 
 (defn generate-multipart-body [boundary body-parts]
   (->> body-parts
-       (map str (repeat boundary))
-       (interpose "\n")
-       (apply str)))
+    (map str (repeat boundary))
+    (interpose "\n")
+    (apply str)))
 
 (defn boundary [c]
   (apply str (cons c (take 10 (repeatedly #(int (rand 10)))))))
@@ -133,9 +133,9 @@
       (let [b (boundary boundary-constant)
             body (generate-multipart-body b (generate-form-data multipart-params))]
         (client (-> request
-                    (dissoc :multipart-params)
-                    (assoc :content-type (str "multipart/form-data; boundary=" b))
-                    (assoc :body body))))
+                  (dissoc :multipart-params)
+                  (assoc :content-type (str "multipart/form-data; boundary=" b))
+                  (assoc :body body))))
       (client request))))
 
 (defn wrap-throw-on-error [client]
@@ -147,14 +147,14 @@
 
 (defn wrap-add-method [client method]
   (fn [request]
-    (client (assoc request :method (string/upper-case (name method)))))) 
+    (client (assoc request :method (string/upper-case (name method))))))
 
 (defn wrap-to-from-js [client]
   (fn [request]
     (-> request
-        clj->js
-        client
-        (js->clj :keywordize-keys true))))
+      clj->js
+      client
+      (js->clj :keywordize-keys true))))
 
 (defn- do-request [client]
   (fn [opts]
@@ -162,18 +162,18 @@
 
 (defn request [client method url opts]
   ((-> client
-       do-request
-       wrap-to-from-js
-       wrap-throw-on-error
-       wrap-debug
-       wrap-accepts
-       wrap-content-type
-       wrap-add-content-length
-       wrap-form-params
-       wrap-multipart-params
-       (wrap-add-timeout default-timeout)
-       wrap-add-headers
-       (wrap-add-method method)) (assoc opts :url url)))
+     do-request
+     wrap-to-from-js
+     wrap-throw-on-error
+     wrap-debug
+     wrap-accepts
+     wrap-content-type
+     wrap-add-content-length
+     wrap-form-params
+     wrap-multipart-params
+     (wrap-add-timeout default-timeout)
+     wrap-add-headers
+     (wrap-add-method method)) (assoc opts :url url)))
 
 (defn get
   "Performs a GET request. It takes an URL and an optional map of options.
@@ -226,18 +226,18 @@
                          (reset! content nil)
                          return))]
         (planck.core/->BufferedReader
-         read
-         (fn [])
-         (atom nil)))))
+          read
+          (fn [])
+          (atom nil)))))
   (make-writer [url opts]
     (planck.core/->Writer
-     (fn [content]
-       (let [name (or (:param-name opts) "file")
-             filename (or (:filename opts) "file.pnk")]
-         (post url {:multipart-params [[name [content filename]]]}))
-       nil)
-     (fn [])
-     (fn []))))
+      (fn [content]
+        (let [name (or (:param-name opts) "file")
+              filename (or (:filename opts) "file.pnk")]
+          (post url {:multipart-params [[name [content filename]]]}))
+        nil)
+      (fn [])
+      (fn []))))
 
 (extend-protocol planck.io/Coercions
   js/goog.Uri

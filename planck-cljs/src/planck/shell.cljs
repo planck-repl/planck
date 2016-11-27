@@ -37,7 +37,7 @@
           dir (and dir (:path (as-file (second dir))))
           async? (not= cb nil-func)
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc
-                                                           (clj->js (seq env)) dir (if async? (assoc-cb cb))))
+                                         (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
       (if (or (== 126 exit)
               (== 127 exit)
@@ -110,11 +110,11 @@
                                                (every? string? (vals m))))))
 
 (s/def ::sh-opt
-  (s/alt :in      (s/cat :key #{:in}      :val string?)
-         :in-enc  (s/cat :key #{:in-enc}  :val string?)
-         :out-enc (s/cat :key #{:out-enc} :val string?)
-         :dir     (s/cat :key #{:dir}     :val :planck.io/coercible-file?)
-         :env     (s/cat :key #{:env}     :val ::string-string-map?)))
+  (s/alt :in (s/cat :key #{:in} :val string?)
+    :in-enc (s/cat :key #{:in-enc} :val string?)
+    :out-enc (s/cat :key #{:out-enc} :val string?)
+    :dir (s/cat :key #{:dir} :val :planck.io/coercible-file?)
+    :env (s/cat :key #{:env} :val ::string-string-map?)))
 
 (s/def ::sh-args (s/cat :cmd (s/+ string?) :opts (s/* ::sh-opt)))
 (s/def ::sh-async-args (s/cat :cmd (s/+ string?) :opts (s/* ::sh-opt) :cb fn?))

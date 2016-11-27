@@ -9,20 +9,20 @@
   (toString [_] path))
 
 (defn build-uri
-    "Builds a URI"
-    [scheme server-name server-port uri query-string]
-    (doto (Uri.)
-      (.setScheme (name (or scheme "http")))
-      (.setDomain server-name)
-      (.setPort server-port)
-      (.setPath uri)
-      (.setQuery query-string true)))
+  "Builds a URI"
+  [scheme server-name server-port uri query-string]
+  (doto (Uri.)
+    (.setScheme (name (or scheme "http")))
+    (.setDomain server-name)
+    (.setPort server-port)
+    (.setPath uri)
+    (.setQuery query-string true)))
 
 (s/fdef build-uri
-  :args (s/cat :scheme  (s/nilable (s/or :string string? :named #(implements? INamed %)))
-          :server-name  (s/nilable string?)
-          :server-port  (s/nilable (s/or :integer integer? :string string?))
-          :uri          (s/nilable string?)
+  :args (s/cat :scheme (s/nilable (s/or :string string? :named #(implements? INamed %)))
+          :server-name (s/nilable string?)
+          :server-port (s/nilable (s/or :integer integer? :string string?))
+          :uri (s/nilable string?)
           :query-string (s/nilable string?))
   :ret #(instance? Uri %))
 
@@ -197,13 +197,13 @@
   "Returns a map containing the attributes of the item at a given path."
   [path]
   (some-> path
-          as-file
-          :path
-          js/PLANCK_FSTAT
-          (js->clj :keywordize-keys true)
-          (update-in [:type] keyword)
-          (update-in [:created] #(js/Date. %))
-          (update-in [:modified] #(js/Date. %))))
+    as-file
+    :path
+    js/PLANCK_FSTAT
+    (js->clj :keywordize-keys true)
+    (update-in [:type] keyword)
+    (update-in [:created] #(js/Date. %))
+    (update-in [:modified] #(js/Date. %))))
 
 (s/fdef file-attributes
   :args (s/cat :path ::coercible-file?)

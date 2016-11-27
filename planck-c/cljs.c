@@ -466,7 +466,7 @@ void *cljs_do_engine_init(void *data) {
 }
 
 void cljs_engine_init() {
-    
+
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);

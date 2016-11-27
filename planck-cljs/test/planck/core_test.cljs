@@ -6,21 +6,21 @@
 
 (deftest exit-throws
   #_(testing "exit throws EXIT exception"
-    (is (thrown-with-msg? js/Error #"PLANCK_EXIT" (planck.core/exit 112))))
+      (is (thrown-with-msg? js/Error #"PLANCK_EXIT" (planck.core/exit 112))))
   #_(testing "exit sets global exit code"
-    (is (= 112 (js/PLANCK_GET_EXIT_VALUE)))))
+      (is (= 112 (js/PLANCK_GET_EXIT_VALUE)))))
 
 #_(deftest setTimeout-can-be-used
-  "This test is intentionally a bit naieve since async macros wouldn't work at time of writing"
-  (testing "setTimeout actually gets called and does something"
-    (let [now #(.getTime (js/Date.))
-          t (now)
-          test-state (atom :foo)]
-      (js/setTimeout (fn []
-                       (reset! test-state :bar))
-        100)
-      (while (< (now) (+ t 500)))
-      (is (= :bar @test-state)))))
+    "This test is intentionally a bit naieve since async macros wouldn't work at time of writing"
+    (testing "setTimeout actually gets called and does something"
+      (let [now #(.getTime (js/Date.))
+            t (now)
+            test-state (atom :foo)]
+        (js/setTimeout (fn []
+                         (reset! test-state :bar))
+          100)
+        (while (< (now) (+ t 500)))
+        (is (= :bar @test-state)))))
 
 (defrecord Foo [x]
   planck.core/IClosable

@@ -1,7 +1,7 @@
 (ns planck.io-test
   (:require [clojure.test :refer [deftest testing is]]
-   [planck.io]
-   [planck.core]))
+            [planck.io]
+            [planck.core]))
 
 (deftest file-attributes-test
   (testing "file-attributes"

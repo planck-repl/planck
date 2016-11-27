@@ -14,7 +14,7 @@ void legal() {
     printf("which is hereby acknowledged.\n");
     printf("\n");
     printf("\n");
-    
+
     printf("libclj\n");
     printf("-----\n");
     printf("\n");

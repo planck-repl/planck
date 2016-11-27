@@ -9,11 +9,11 @@
 
 (s/def ::bindings
   (s/and vector?
-         #(even? (count %))
-         (s/* ::binding)))
+    #(even? (count %))
+    (s/* ::binding)))
 
 #_(s/fdef planck.core$macros/with-open
-  :args (s/cat :bindings ::bindings :body (s/* any?)))
+    :args (s/cat :bindings ::bindings :body (s/* any?)))
 
 (def *planck-version* js/PLANCK_VERSION)
 
@@ -228,7 +228,7 @@
   "Opens a reader on f and reads all its contents, returning a string.
   See planck.io/reader for a complete list of supported arguments."
   [f & opts]
-  (let [r  (apply *reader-fn* f opts)
+  (let [r (apply *reader-fn* f opts)
         sb (StringBuffer.)]
     (try
       (loop [s (-read r)]

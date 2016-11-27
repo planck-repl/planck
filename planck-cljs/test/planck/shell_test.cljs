@@ -6,12 +6,12 @@
 
 (deftest shell
   (is (= #{[:err ""] [:exit 0] [:out "hello\n"]}
-          (into (sorted-set) (planck.shell/sh "echo" "hello")))))
+        (into (sorted-set) (planck.shell/sh "echo" "hello")))))
 
 (deftest shell-throws
   (is (thrown-with-msg? js/Error
-                        #"launch path not accessible"
-                        (planck.shell/sh "bogus"))))
+        #"launch path not accessible"
+        (planck.shell/sh "bogus"))))
 
 (deftest capture-exit-value
   (is (= 0 (:exit (planck.shell/sh "sh" "-c" "exit 0"))))

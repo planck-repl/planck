@@ -24,23 +24,23 @@
             [planck.pprint.data]))
 
 #_(s/fdef planck.repl$macros/dir
-  :args (s/cat :sym symbol?))
+    :args (s/cat :sym symbol?))
 
 #_(s/fdef planck.repl$macros/doc
-  :args (s/cat :sym symbol?))
+    :args (s/cat :sym symbol?))
 
 #_(s/fdef planck.repl$macros/find-doc
-  :args (s/cat :re-string-or-pattern (s/or :string string? :regexp regexp?)))
+    :args (s/cat :re-string-or-pattern (s/or :string string? :regexp regexp?)))
 
 #_(s/fdef planck.repl$macros/source
-  :args (s/cat :sym symbol?))
+    :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
        :doc     "*pprint-results* controls whether Planck REPL results are
   pretty printed. If it is bound to logical false, results
   are printed in a plain fashion. Otherwise, results are
   pretty printed."}
-  *pprint-results* true)
+*pprint-results* true)
 
 (def ^:private expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
@@ -58,7 +58,7 @@
   returns the number of spaces to indent a newly entered
   line. Returns 0 if unsuccessful."
   [text]
-  (let [pos      (count text)
+  (let [pos (count text)
         balanced (js->clj (js/parinfer.indentMode text
                             (clj->js (calc-x-line text pos 0)))
                    :keywordize-keys true)]
@@ -124,7 +124,7 @@
 (defn- ns-syms
   "Returns a sequence of the symbols in a namespace."
   ([ns]
-    (ns-syms ns (constantly true)))
+   (ns-syms ns (constantly true)))
   ([ns pred]
    {:pre [(symbol? ns)]}
    (->> (get-namespace ns)
@@ -493,7 +493,7 @@
   (some identity
     (for [n (range (dec total-pos) -1 -1)]
       (let [candidate-form (subs total-source n (inc total-pos))
-            first-char     (subs candidate-form 0 1)]
+            first-char (subs candidate-form 0 1)]
         (if (#{"(" "[" "{" "#"} first-char)
           (if (is-completely-readable? candidate-form)
             (if (= "#" first-char)
@@ -520,14 +520,14 @@
   buffer line, line 1 is the previous line, and so on, and pos is the
   position in that line."
   [pos buffer previous-lines]
-  (let [previous-lines  (js->clj previous-lines)
+  (let [previous-lines (js->clj previous-lines)
         previous-source (string/join "\n" previous-lines)
-        total-source    (if (empty? previous-lines)
-                          buffer
-                          (str previous-source "\n" buffer))
-        total-pos       (+ (if (empty? previous-lines)
-                             0
-                             (inc (count previous-source))) pos)]
+        total-source (if (empty? previous-lines)
+                       buffer
+                       (str previous-source "\n" buffer))
+        total-pos (+ (if (empty? previous-lines)
+                       0
+                       (inc (count previous-source))) pos)]
     (->> (form-start total-source total-pos)
       (reduce-highlight-coords previous-lines)
       clj->js)))
@@ -540,7 +540,7 @@
   [source]
   (let [file-namespace (or (extract-namespace source)
                            'cljs.user)
-        relpath        (cljs/ns->relpath file-namespace)]
+        relpath (cljs/ns->relpath file-namespace)]
     [file-namespace relpath]))
 
 (def ^:private extract-cache-metadata-mem (memoize extract-cache-metadata))
@@ -700,7 +700,7 @@
         [cache-json _] (or (raw-load (str path ".cache.json"))
                            (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))
         [sourcemap-json _] (or (raw-load (str path ".js.map.json"))
-                           (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json")))]
+                               (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json")))]
     (when (cached-js-valid? js-source js-modified source-modified)
       (log-cache-activity :read path cache-json sourcemap-json)
       (when (and sourcemap-json name)
@@ -746,20 +746,20 @@
 (def ^:private closure-index-mem (memoize closure-index))
 
 (defn- skip-load?
-    [{:keys [name macros]}]
-    (or
-      (= name 'cljsjs.parinfer)
-      (= name 'cljs.core)
-      (and (= name 'clojure.core.rrb-vector.macros) macros)
-      (and (= name 'cljs.env.macros) macros)
-      (and (= name 'cljs.analyzer.macros) macros)
-      (and (= name 'cljs.compiler.macros) macros)
-      (and (= name 'cljs.js) macros)
-      (and (= name 'cljs.pprint) macros)
-      (and (= name 'cljs.reader) macros)
-      (and (= name 'cljs.tools.reader.reader-types) macros)
-      (and (= name 'tailrecursion.cljson) macros)
-      (and (= name 'lazy-map.core) macros)))
+  [{:keys [name macros]}]
+  (or
+    (= name 'cljsjs.parinfer)
+    (= name 'cljs.core)
+    (and (= name 'clojure.core.rrb-vector.macros) macros)
+    (and (= name 'cljs.env.macros) macros)
+    (and (= name 'cljs.analyzer.macros) macros)
+    (and (= name 'cljs.compiler.macros) macros)
+    (and (= name 'cljs.js) macros)
+    (and (= name 'cljs.pprint) macros)
+    (and (= name 'cljs.reader) macros)
+    (and (= name 'cljs.tools.reader.reader-types) macros)
+    (and (= name 'tailrecursion.cljson) macros)
+    (and (= name 'lazy-map.core) macros)))
 
 (defn- do-load-file
   [file cb]
@@ -785,9 +785,9 @@
 (defn- do-load-foreign
   [name cb]
   (let [files-to-load (js-deps/files-to-load name)
-        _             (when (:verbose @app-env)
-                        (println "Loading foreign libs files:" files-to-load))
-        sources       (map file-content (not-yet-loaded files-to-load))]
+        _ (when (:verbose @app-env)
+            (println "Loading foreign libs files:" files-to-load))
+        sources (map file-content (not-yet-loaded files-to-load))]
     (cb {:lang   :js
          :source (string/join "\n" sources)})))
 
@@ -840,7 +840,7 @@
 
 (defn- handle-error
   [e include-stacktrace?]
-  (let [cause                     (or (.-cause e) e)
+  (let [cause (or (.-cause e) e)
         is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
     (when-not is-planck-exit-exception?
       (print-error e include-stacktrace?))
@@ -892,7 +892,7 @@
          (= :cljs/analysis-error (:tag (ex-data error)))
          (or (= "ERROR" (ex-message error))
              (= could-not-eval-expr (ex-message error)))
-      (ex-cause error))
+         (ex-cause error))
     ex-cause))
 
 (defn- is-reader-or-analysis?
@@ -906,7 +906,7 @@
   to their unmunged forms."
   [ns]
   {:pre [(symbol? ns)]}
-  (let [ns-str        (str ns)
+  (let [ns-str (str ns)
         munged-ns-str (string/replace ns-str #"\." "$")]
     (into {} (for [sym (ns-syms ns)]
                [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
@@ -948,9 +948,9 @@
     (str (or (lookup-sym demunge-maps munged-sym)
              (demunge-protocol-fn demunge-maps munged-sym)
              (demunge-local demunge-maps munged-sym)
-             (if (gensym? munged-sym)
-               munged-sym
-               (demunge munged-sym))))))
+           (if (gensym? munged-sym)
+             munged-sym
+             (demunge munged-sym))))))
 
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
@@ -990,19 +990,19 @@
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
    (print-error-column-indicator error)
-   (let [error               (skip-cljsjs-eval-error error)
-         roa?                (is-reader-or-analysis? error)
+   (let [error (skip-cljsjs-eval-error error)
+         roa? (is-reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
-                               (and include-stacktrace?
-                                 (not roa?)))
+                                 (and include-stacktrace?
+                                      (not roa?)))
          include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)
-         message             (if (instance? ExceptionInfo error)
-                               (ex-message error)
-                               (.-message error))]
+         message (if (instance? ExceptionInfo error)
+                   (ex-message error)
+                   (.-message error))]
      (when (or (not ((fnil string/starts-with? "") printed-message message))
-             include-stacktrace?)
+               include-stacktrace?)
        (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
      (when include-stacktrace?
        (load-core-source-maps!)
@@ -1265,7 +1265,7 @@
 
 (defn- find-doc*
   [re-string-or-pattern]
-  (let [re       (re-pattern re-string-or-pattern)
+  (let [re (re-pattern re-string-or-pattern)
         sym-docs (sort-by first
                    (mapcat (fn [ns]
                              (map (juxt first (comp :doc second))
@@ -1348,15 +1348,15 @@
 (defn- capture-session-state
   "Captures all of the commonly set global vars as a session state map."
   []
-  {:*print-meta*        *print-meta*
-   :*print-length*      *print-length*
-   :*print-level*       *print-level*
-   :*unchecked-if*      *unchecked-if*
-   :*assert*            *assert*
-   :*1                  *1
-   :*2                  *2
-   :*3                  *3
-   :*e                  *e})
+  {:*print-meta*   *print-meta*
+   :*print-length* *print-length*
+   :*print-level*  *print-level*
+   :*unchecked-if* *unchecked-if*
+   :*assert*       *assert*
+   :*1             *1
+   :*2             *2
+   :*3             *3
+   :*e             *e})
 
 (defn- set-session-state
   "Sets the session state given a sesssion state map."
@@ -1419,9 +1419,9 @@
       ((if (::as-code? opts)
          planck.pprint.code/pprint
          planck.pprint.data/pprint)
-        value {:width ((fnil + 0) term-width (::term-width-adj opts))
-               :theme theme
-               :spec? (::spec? opts)
+        value {:width      ((fnil + 0) term-width (::term-width-adj opts))
+               :theme      theme
+               :spec?      (::spec? opts)
                :keyword-ns (::keyword-ns opts)})
       (prn value))
     (prn value)))
@@ -1431,7 +1431,7 @@
 (s/def ::keyword-ns symbol?)
 (s/def ::term-width-adj integer?)
 #_(s/fdef print-result
-  :args (s/cat :value ::s/any :opts (s/keys :opt [::as-code? ::term-width-adj ::spec ::keyword-ns])))
+    :args (s/cat :value ::s/any :opts (s/keys :opt [::as-code? ::term-width-adj ::spec ::keyword-ns])))
 
 (defn- wrap-warning-font
   [s]
@@ -1472,34 +1472,34 @@
                                               [warning-handler]
                                               [ana/default-warning-handler])]
         (cljs/eval-str
-         st
-         source-text
-         (if expression?
-           expression-name
-           (or source-path "File"))
-         (merge
-           {:ns         initial-ns
-            :verbose    (:verbose @app-env)
-            :static-fns (:static-fns @app-env)}
-           (if expression?
-             (merge {:context :expr
-                     :def-emits-var true}
-               (when (load-form? expression-form)
-                 {:source-map true}))
-             (merge {:source-map true}
-               (when (:cache-path @app-env)
-                 {:cache-source (cache-source-fn source-text)}))))
-         (fn [{:keys [ns value error] :as ret}]
-           (if expression?
-             (when-not error
-               (when (or print-nil-expression?
-                         (not (nil? value)))
-                 (print-result value {::as-code? (macroexpand-form? expression-form)}))
-               (process-1-2-3 expression-form value)
-               (reset! current-ns ns)
-               nil))
-           (when error
-             (handle-error error include-stacktrace?))))))
+          st
+          source-text
+          (if expression?
+            expression-name
+            (or source-path "File"))
+          (merge
+            {:ns         initial-ns
+             :verbose    (:verbose @app-env)
+             :static-fns (:static-fns @app-env)}
+            (if expression?
+              (merge {:context       :expr
+                      :def-emits-var true}
+                (when (load-form? expression-form)
+                  {:source-map true}))
+              (merge {:source-map true}
+                (when (:cache-path @app-env)
+                  {:cache-source (cache-source-fn source-text)}))))
+          (fn [{:keys [ns value error] :as ret}]
+            (if expression?
+              (when-not error
+                (when (or print-nil-expression?
+                          (not (nil? value)))
+                  (print-result value {::as-code? (macroexpand-form? expression-form)}))
+                (process-1-2-3 expression-form value)
+                (reset! current-ns ns)
+                nil))
+            (when error
+              (handle-error error include-stacktrace?))))))
     (catch :default e
       (handle-error e include-stacktrace?))
     (finally (capture-session-state-for-session-id session-id))))
@@ -1513,7 +1513,7 @@
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value (assoc opts :source-path source-value))
-      (let [source-text     source-value
+      (let [source-text source-value
             expression-form (and expression? (first (repl-read-string source-text)))]
         (if (repl-special? expression-form)
           (process-repl-special expression-form opts)

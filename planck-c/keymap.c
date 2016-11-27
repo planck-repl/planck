@@ -62,7 +62,7 @@ static wint_t reader_getwchar(const clj_Reader *r) {
 }
 
 static bool in_map = false;
-static char* keymap_path = NULL;
+static char *keymap_path = NULL;
 
 extern void emit(const clj_Reader *r, const clj_Node *n) {
     if (n->type == CLJ_MAP) {

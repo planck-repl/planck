@@ -22,4 +22,4 @@
                                 (finally
                                   (planck.core/-close ~(bindings 0)))))
     :else (throw (ex-info
-                  "with-open only allows symbols in bindings" {}))))
+                   "with-open only allows symbols in bindings" {}))))
