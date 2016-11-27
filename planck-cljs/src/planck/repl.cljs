@@ -1303,12 +1303,41 @@
       (catch :default e
         (handle-error e false)))))
 
+(defn- root-resource
+  "Returns the root directory path for a lib"
+  [lib]
+  (str \/
+    (-> (name lib)
+      (string/replace-all #"-" \_)
+      (string/replace-all #"\." \/))))
+
+(defn- root-directory
+  "Returns the root resource path for a lib"
+  [lib]
+  (let [d (root-resource lib)]
+    (subs d 0 (.lastIndexOf d "/"))))
+
+(defn- load-path->cp-path
+  [path]
+  (let [src (if (= "/" (first path))
+              path
+              (str (root-directory @current-ns) \/ path))
+        src (.substring src 1)]
+    (or (and (first (js/PLANCK_LOAD (str src ".cljs"))) (str src ".cljs"))
+        (str src ".cljc"))))
+
+(defn- process-load
+  [paths opts]
+  (let [cp-paths (map load-path->cp-path paths)]
+    (run! #(process-execute-path % opts) cp-paths)))
+
 (defn- process-repl-special
   [expression-form {:keys [print-nil-expression?] :as opts}]
   (let [argument (second expression-form)]
     (case (first expression-form)
       in-ns (process-in-ns argument)
-      load-file (process-load-file argument (assoc opts :expression? false)))
+      load-file (process-load-file argument (assoc opts :expression? false))
+      load (process-load (rest expression-form) (assoc opts :expression? false)))
     (when print-nil-expression?
       (println (str (:results-font theme) "nil" (:reset-font theme))))))
 

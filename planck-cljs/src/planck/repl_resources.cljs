@@ -109,7 +109,11 @@
 itself (not its value) is returned. The reader macro #'x expands to (var x)."}})
 
 (def repl-special-doc-map
-  '{in-ns          {:arglists ([name])
-                    :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
-    load-file      {:arglists ([name])
-                    :doc      "Sequentially read and evaluate the set of forms contained in the file."}})
+  '{in-ns     {:arglists ([name])
+               :doc      "Sets *cljs-ns* to the namespace named by the symbol, creating it if needed."}
+    load-file {:arglists ([name])
+               :doc      "Sequentially read and evaluate the set of forms contained in the file."}
+    load      {:arglists ([& paths])
+               :doc      "Loads Clojure code from resources in classpath. A path is interpreted as
+  classpath-relative if it begins with a slash or relative to the root
+  directory for the current namespace otherwise."}})

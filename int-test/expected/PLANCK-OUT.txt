@@ -262,6 +262,10 @@ nil
 Test load-file from classpath
 nil
 true
+Test load REPL special
+nil
+nil
+true
 Test load-file from classpath env var
 nil
 true

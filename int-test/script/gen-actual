@@ -285,6 +285,13 @@ $PLANCK -c $SRC <<REPL_INPUT
 test-load-file.core/success
 REPL_INPUT
 
+echo "Test load REPL special"
+$PLANCK -c $SRC <<REPL_INPUT
+(in-ns 'test-load-file.other)
+(load "core")
+test-load-file.core/success
+REPL_INPUT
+
 echo "Test load-file from classpath env var"
 PLANCK_CLASSPATH=$SRC $PLANCK <<REPL_INPUT
 (load-file "test_load_file/core.cljs")
