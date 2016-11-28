@@ -65,7 +65,6 @@ char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
     JSStringRef str_ref = JSValueToStringCopy(ctx, val, NULL);
     size_t len = JSStringGetMaximumUTF8CStringSize(str_ref);
     char *str = malloc(len * sizeof(char));
-    memset(str, 0, len);
     JSStringGetUTF8CString(str_ref, str, len);
     JSStringRelease(str_ref);
 
