@@ -1066,10 +1066,8 @@ static int linenoiseRaw(char *buf, size_t buflen, const char *prompt, int spaces
 void linenoisePrintNow(const char* text) {
 
     if (strcmp(text, "\n") != 0) {
-        fprintf(stdout, "\r\x1b[0K");
-        fprintf(stdout, "%s", text);
-        fprintf(stdout, "\n");
-        
+        fprintf(stdout, "\r\x1b[0K%s\n", text);
+
         if (printNowState) {
             refreshLine(printNowState);
         }
