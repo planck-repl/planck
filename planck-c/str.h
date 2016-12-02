@@ -1,5 +1,5 @@
-int str_has_suffix(char *str, char *suffix);
+int str_has_suffix(const char *str, const char *suffix);
 
-int str_has_prefix(char *str, char *prefix);
+int str_has_prefix(const char *str, const char *prefix);
 
-char *str_concat(char *s1, char *s2);
+char *str_concat(const char *s1, const char *s2);
