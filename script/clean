@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-pushd planck-cljs
+cd planck-cljs
 script/clean
 script/clean-bundle
-popd
+cd ..
 
 # CMake
 rm -rf planck-c/build
 
 # Site
-pushd site
+cd site
 script/clean
-popd
+cd ..
