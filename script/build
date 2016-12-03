@@ -43,7 +43,6 @@ mkdir -p build
 cd build
 if [ ! -e Makefile ]
 then
-   export CC=clang
    cmake ..
    checkCmdSuccess
 fi

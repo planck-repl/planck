@@ -158,9 +158,9 @@ struct linenoiseState {
     int history_index;  /* The history index we are currently editing. */
 };
 
-static const size_t keymapSize = 18;
+#define KEYMAP_SIZE (sizeof keymap / sizeof keymap[0])
 
-static char keymap[keymapSize] = {
+static char keymap[] = {
     1, // KM_GO_TO_START_OF_LINE
     2, // KM_MOVE_LEFT
     3, // KM_CANCEL
@@ -183,7 +183,7 @@ static char keymap[keymapSize] = {
 
 void linenoiseSetKeymapEntry(int action, char key) {
     // First clear any associated action
-    for (size_t i = 0; i<keymapSize; i++) {
+    for (size_t i = 0; i<KEYMAP_SIZE; i++) {
         if (keymap[i] == key) {
             keymap[i] = 0;
             break;
