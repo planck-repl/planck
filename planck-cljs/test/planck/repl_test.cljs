@@ -35,14 +35,16 @@
                          :column 3}))
           "foo.core"))))
 
-(defspec first-element-is-min-after-sorting                 ;; the name of the test
-  100                                                       ;; the number of iterations for test.check to test
-  (prop/for-all [v (gen/not-empty (gen/vector gen/int))]
-    (= (apply min v)
-      (first (sort v)))))
-
 (deftest undo-reader-conditional-whitespace-docstring-test
   (is (= "a\n  b" (planck.repl/undo-reader-conditional-whitespace-docstring "a\n     b"))))
 
 (deftest root-resource-test
   (is (= "/foo_bar_baz/boo/core" (planck.repl/root-resource 'foo-bar-baz.boo.core))))
+
+(defspec add-drop-macros-suffix-test
+  (prop/for-all [ns-sym gen/symbol]
+    (= ns-sym (-> ns-sym
+                repl/add-macros-suffix
+                str
+                repl/drop-macros-suffix
+                symbol))))
