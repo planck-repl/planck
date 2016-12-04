@@ -12,83 +12,89 @@ checkCmdSuccess() {
     fi
 }
 
+NON_BUNDLED_SRC=`find planck-cljs -newer planck-c/bundle.c`
+BUNDLE_SIZE=$(wc -c < planck-c/bundle.c)
+if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 400 ]; then
 
-# ClojureScript
-cd planck-cljs
-echo "### Building planck-cljs"
-script/build
-checkCmdSuccess
-cd ..
+  # ClojureScript
+  cd planck-cljs
+  echo "### Building planck-cljs"
+  script/build
+  checkCmdSuccess
+  cd ..
+  
+  # Remove any leftover macros files so that they will not be bundled
+  # We need them to be compiled by the 1st stage binary
+  rm -f planck-cljs/out/planck/*macros*
+  rm -f planck-cljs/out/planck/pprint/*macros*
+  rm -f planck-cljs/out/clojure/template*macros*
+  rm -f planck-cljs/out/cljs/test*macros*
+  rm -f planck-cljs/out/cljs/spec*macros*
+  rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
+  rm -f planck-cljs/out/planck/from/io/aviso/*macros*
+  
+  echo "### Building planck-c"
+  echo "### Bundling ClojureScript artifacts for 1st stage"
+  cd planck-cljs
+  script/bundle
+  checkCmdSuccess
+  cd ..
+  
+  echo "### Building 1st stage Planck binary"
+  cd planck-c
+  mkdir -p build
+  cd build
+  if [ ! -e Makefile ]
+  then
+     cmake ..
+     checkCmdSuccess
+  fi
+  make
+  checkCmdSuccess
+  cd ../..
+  
+  echo "### AOT compiling macro namespaces"
+  mkdir -p planck-cljs/out/macros-tmp
+  planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
+  checkCmdSuccess
+  
+  mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
+  mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js.map.json planck-cljs/out/planck/repl\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.js planck-cljs/out/planck/core\$macros.js
+  mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.cache.json planck-cljs/out/planck/core\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.js.map.json planck-cljs/out/planck/core\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js planck-cljs/out/planck/shell\$macros.js
+  mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.cache.json planck-cljs/out/planck/shell\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js.map.json planck-cljs/out/planck/shell\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js planck-cljs/out/planck/from/io/aviso/ansi\$macros.js
+  mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.cache.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js.map.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js planck-cljs/out/clojure/template\$macros.js
+  mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.cache.json planck-cljs/out/clojure/template\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js.map.json planck-cljs/out/clojure/template\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js planck-cljs/out/cljs/test\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.cache.json planck-cljs/out/cljs/test\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js.map.json planck-cljs/out/planck/test\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js planck-cljs/out/cljs/spec\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.cache.json planck-cljs/out/cljs/spec\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js.map.json planck-cljs/out/cljs/spec\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js planck-cljs/out/cljs/spec/impl/gen\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.cache.json planck-cljs/out/cljs/spec/impl/gen\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js.map.json planck-cljs/out/cljs/spec/impl/gen\$macros.js.map.json
+  
+  rm -rf planck-cljs/out/macros-tmp
+  
+  echo "### Bundling ClojureScript artifacts for 2nd stage"
+  cd planck-cljs
+  script/bundle
+  checkCmdSuccess
+  cd ..
 
-# Remove any leftover macros files so that they will not be bundled
-# We need them to be compiled by the 1st stage binary
-rm -f planck-cljs/out/planck/*macros*
-rm -f planck-cljs/out/planck/pprint/*macros*
-rm -f planck-cljs/out/clojure/template*macros*
-rm -f planck-cljs/out/cljs/test*macros*
-rm -f planck-cljs/out/cljs/spec*macros*
-rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
-rm -f planck-cljs/out/planck/from/io/aviso/*macros*
-
-echo "### Building planck-c"
-echo "### Bundling ClojureScript artifacts for 1st stage"
-cd planck-cljs
-script/bundle
-checkCmdSuccess
-cd ..
-
-echo "### Building 1st stage Planck binary"
-cd planck-c
-mkdir -p build
-cd build
-if [ ! -e Makefile ]
-then
-   cmake ..
-   checkCmdSuccess
+  echo "### Building 2nd stage Planck binary"
+  
 fi
-make
-checkCmdSuccess
-cd ../..
 
-echo "### AOT compiling macro namespaces"
-mkdir -p planck-cljs/out/macros-tmp
-planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.impl.gen 'cljs.test)"
-checkCmdSuccess
-
-mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
-mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js.map.json planck-cljs/out/planck/repl\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.js planck-cljs/out/planck/core\$macros.js
-mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.cache.json planck-cljs/out/planck/core\$macros.cache.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_core\$macros.js.map.json planck-cljs/out/planck/core\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js planck-cljs/out/planck/shell\$macros.js
-mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.cache.json planck-cljs/out/planck/shell\$macros.cache.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_shell\$macros.js.map.json planck-cljs/out/planck/shell\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js planck-cljs/out/planck/from/io/aviso/ansi\$macros.js
-mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.cache.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.cache.json
-mv planck-cljs/out/macros-tmp/planck_SLASH_from_SLASH_io_SLASH_aviso_SLASH_ansi\$macros.js.map.json planck-cljs/out/planck/from/io/aviso/ansi\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js planck-cljs/out/clojure/template\$macros.js
-mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.cache.json planck-cljs/out/clojure/template\$macros.cache.json
-mv planck-cljs/out/macros-tmp/clojure_SLASH_template\$macros.js.map.json planck-cljs/out/clojure/template\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js planck-cljs/out/cljs/test\$macros.js
-mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.cache.json planck-cljs/out/cljs/test\$macros.cache.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js.map.json planck-cljs/out/planck/test\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js planck-cljs/out/cljs/spec\$macros.js
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.cache.json planck-cljs/out/cljs/spec\$macros.cache.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js.map.json planck-cljs/out/cljs/spec\$macros.js.map.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js planck-cljs/out/cljs/spec/impl/gen\$macros.js
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.cache.json planck-cljs/out/cljs/spec/impl/gen\$macros.cache.json
-mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js.map.json planck-cljs/out/cljs/spec/impl/gen\$macros.js.map.json
-
-rm -rf planck-cljs/out/macros-tmp
-
-echo "### Bundling ClojureScript artifacts for 2nd stage"
-cd planck-cljs
-script/bundle
-checkCmdSuccess
-cd ..
-
-echo "### Building 2nd stage Planck binary"
 cd planck-c/build
 make
 checkCmdSuccess
