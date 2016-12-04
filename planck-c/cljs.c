@@ -491,6 +491,12 @@ void cljs_perror(const char* msg) {
     }
 }
 
+void cljs_print_err_message(const char* msg, int err) {
+    char buffer[1024];
+    snprintf(buffer, 1024, "%s: %d", msg, err);
+    cljs_print_message(buffer);
+}
+
 void cljs_print_message(const char* msg) {
     void (*current_sender)(const char *msg) = cljs_sender;
     if (current_sender) {

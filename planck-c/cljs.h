@@ -34,6 +34,8 @@ void cljs_engine_init();
 
 void cljs_perror(const char* msg);
 
+void cljs_print_err_message(const char* msg, int err);
+
 void cljs_print_message(const char* msg);
 
 void cljs_set_print_sender(void (*sender)(const char *msg));
