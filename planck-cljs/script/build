@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Uncomment to download pre-built copy of ClojureScript compiler.
+# Also see change needed in project.clj
+CLJS_PREBUILT_VER=1.9.330-1
+
+# Uncomment to build our own copy of ClojureScript compiler.
+# Also see change needed in project.clj
+#CLJS_GIT_COMMIT=33a7e5bcac763d40ca684404cf772e9745d264ab
+
 # Make sure we fail and exit on the command that actually failed.
 set -e
 set -o pipefail
@@ -7,13 +15,14 @@ set -o pipefail
 # Initialize lein if it hasn't yet been
 script/lein -v > /dev/null
 
-# Uncomment to build our own copy of ClojureScript compiler
-# Also see change needed in project.clj
-CLJS_GIT_COMMIT=33a7e5bcac763d40ca684404cf772e9745d264ab
-
-if [ -z "$CLJS_GIT_COMMIT" ]; then
-  CLJSC_CP=`script/lein with-profile build classpath`
-else	
+if [ -n "$CLJS_PREBUILT_VER" ]; then
+  CLJS_JAR=../lib/cljs-${CLJS_PREBUILT_VER}.jar
+  if [ ! -f $CLJS_JAR ]; then
+    mkdir -p ../lib
+    curl -sL http://planck-repl.org/releases/cljs/cljs-${CLJS_PREBUILT_VER}.jar > ${CLJS_JAR}
+  fi
+  CLJSC_CP=`script/lein with-profile build classpath`:${CLJS_JAR}
+elif [ -n "$CLJS_GIT_COMMIT" ]; then
   if [ ! -e clojurescript ]; then
      git clone https://github.com/clojure/clojurescript
      pushd clojurescript
@@ -31,6 +40,8 @@ else
      popd
   fi
   CLJSC_CP=`script/lein with-profile build classpath`:clojurescript/target/cljs.jar
+else
+  CLJSC_CP=`script/lein with-profile build classpath`
 fi
 
 mkdir -p out/cljs/analyzer
