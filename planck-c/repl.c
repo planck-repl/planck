@@ -159,7 +159,7 @@ bool process_line(repl_t *repl, char *input_line) {
 
                 // TODO: set exit value
 
-                char *theme = repl->session_id == 0 ? config.theme : "dumb";
+                const char *theme = repl->session_id == 0 ? config.theme : "dumb";
 
                 evaluate_source("text", repl->input, true, true, repl->current_ns, theme, true,
                                 repl->session_id);

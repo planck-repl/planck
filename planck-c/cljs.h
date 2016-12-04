@@ -14,7 +14,7 @@ bool should_keep_running();
 
 JSValueRef
 evaluate_source(char *type, char *source_value, bool expression, bool print_nil, char *set_ns,
-                char *theme, bool block_until_ready, int session_id);
+                const char *theme, bool block_until_ready, int session_id);
 
 char *munge(char *s);
 

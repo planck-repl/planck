@@ -159,7 +159,7 @@ JSObjectRef cljs_get_function(char *namespace, char *name) {
 }
 
 JSValueRef
-evaluate_source(char *type, char *source, bool expression, bool print_nil, char *set_ns, char *theme,
+evaluate_source(char *type, char *source, bool expression, bool print_nil, char *set_ns, const char *theme,
                 bool block_until_ready, int session_id) {
     if (block_until_ready) {
         block_until_engine_ready();

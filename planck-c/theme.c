@@ -27,7 +27,7 @@ static char *prompt_fonts[] =
          "light", "cyan-font",
          "dark", "blue-font"};
 
-char *color_for_font(char *font) {
+const char *color_for_font(const char *font) {
 
     for (int i = 0; i < sizeof(font_colors) / sizeof(font_colors[0]); i += 2) {
         if (strcmp(font, font_colors[i]) == 0) {
@@ -38,7 +38,7 @@ char *color_for_font(char *font) {
     return NULL;
 }
 
-char *prompt_font_for_theme(char *theme) {
+const char *prompt_font_for_theme(const char *theme) {
 
     for (int i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
         if (strcmp(theme, prompt_fonts[i]) == 0) {
@@ -49,7 +49,7 @@ char *prompt_font_for_theme(char *theme) {
     return NULL;
 }
 
-char *default_theme_for_terminal() {
+const char *default_theme_for_terminal() {
 
     // Check COLORFGBG env var
 
@@ -65,24 +65,28 @@ char *default_theme_for_terminal() {
     return "light";
 }
 
-char *prompt_ansi_code_for_theme(char *theme) {
+const char *prompt_ansi_code_for_theme(const char *theme) {
 
-    char *font = prompt_font_for_theme(theme);
+    const char *font = prompt_font_for_theme(theme);
 
     return font ? color_for_font(font) : NULL;
 }
 
-bool check_theme(char *theme) {
+bool check_theme(const char *theme) {
 
     if (strcmp(theme, "dumb") == 0 || prompt_font_for_theme(theme)) {
         return true;
     }
 
-    printf("Unsupported theme: %s\n", theme);
-    printf("Supported themes:\n");
+    int err = fprintf(stderr, "Unsupported theme: %s\n", theme);
+    if (err == -1) return false;
+
+    err = fprintf(stderr, "Supported themes:\n");
+    if (err == -1) return false;
 
     for (int i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
-        printf("  %s\n", prompt_fonts[i]);
+        err = fprintf(stderr, "  %s\n", prompt_fonts[i]);
+        if (err == -1) return false;
     }
 
     return false;

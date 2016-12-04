@@ -26,7 +26,7 @@ struct config {
     bool javascript;
     bool static_fns;
     bool elide_asserts;
-    char *theme;
+    const char *theme;
     bool dumb_terminal;
 
     char *main_ns_name;
