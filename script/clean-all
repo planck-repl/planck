@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+cd planck-cljs
+script/clean-all
+cd ..
+
+# CMake
+rm -rf planck-c/build
+
+# Site
+cd site
+script/clean
+cd ..
