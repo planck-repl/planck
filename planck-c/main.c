@@ -16,6 +16,7 @@
 #include "str.h"
 #include "theme.h"
 #include "timers.h"
+#include "clock.h"
 
 void usage(char *program_name) {
     printf("\n");
@@ -201,14 +202,18 @@ int main(int argc, char **argv) {
             // development options
             {"javascript",    no_argument,       NULL, 'j'},
             {"out",           required_argument, NULL, 'o'},
+            {"launch-time",   no_argument,       NULL, 'X'},
 
             {0, 0, 0,                                  0}
     };
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "h?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "Xh?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
+            case 'X':
+                init_launch_timing();
+                break;
             case 'h':
                 printf("Planck %s\n", PLANCK_VERSION);
                 usage(argv[0]);
@@ -304,11 +309,15 @@ int main(int argc, char **argv) {
         }
     }
 
+    display_launch_timing("parse opts");
+
     if (config.cache_path) {
         if (access(config.cache_path, W_OK) != 0) {
             fprintf(stderr, "Warning: Unable to write to cache directory.\n\n");
         }
     }
+
+    display_launch_timing("check cache path");
 
     if (config.num_src_paths == 0) {
         char *classpath = getenv("PLANCK_CLASSPATH");
@@ -316,6 +325,8 @@ int main(int argc, char **argv) {
             init_classpath(classpath);
         }
     }
+
+    display_launch_timing("init classpath");
 
     if (config.dumb_terminal) {
         config.theme = "dumb";
@@ -344,12 +355,16 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    display_launch_timing("check theme");
+
     if (config.main_ns_name != NULL && config.repl) {
         print_usage_error("Only one main-opt can be specified.", argv[0]);
         return EXIT_FAILURE;
     }
 
     config.is_tty = isatty(STDIN_FILENO) == 1;
+
+    display_launch_timing("check tty");
 
     cljs_engine_init();
 

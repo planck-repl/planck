@@ -17,6 +17,7 @@
 #include "jsc_utils.h"
 #include "str.h"
 #include "cljs.h"
+#include "clock.h"
 
 JSGlobalContextRef ctx = NULL;
 
@@ -340,10 +341,14 @@ void discarding_sender(const char *msg) {
 void *cljs_do_engine_init(void *data) {
     ctx = JSGlobalContextCreate(NULL);
 
+    display_launch_timing("JS context created");
+
     evaluate_script(ctx, "var global = this;", "<init>");
 
     register_global_function(ctx, "AMBLY_IMPORT_SCRIPT", function_import_script);
     bootstrap(config.out_path);
+
+    display_launch_timing("bootstrap");
 
     register_global_function(ctx, "PLANCK_CONSOLE_LOG", function_console_log);
     register_global_function(ctx, "PLANCK_CONSOLE_ERROR", function_console_error);
@@ -352,13 +357,21 @@ void *cljs_do_engine_init(void *data) {
             "console.log = PLANCK_CONSOLE_LOG;"\
             "console.error = PLANCK_CONSOLE_ERROR;", "<init>");
 
+    display_launch_timing("console");
+
     evaluate_script(ctx, "var PLANCK_VERSION = \"" PLANCK_VERSION "\";", "<init>");
+
+    display_launch_timing("version");
 
     // require app namespaces
     evaluate_script(ctx, "goog.require('planck.repl');", "<init>");
 
+    display_launch_timing("require app namespaces");
+
     // without this things won't work
     evaluate_script(ctx, "var window = global;", "<init>");
+
+    display_launch_timing("window global");
 
     register_global_function(ctx, "PLANCK_READ_FILE", function_read_file);
     register_global_function(ctx, "PLANCK_LOAD", function_load);
@@ -409,8 +422,12 @@ void *cljs_do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_HIGH_RES_TIMER", function_high_res_timer);
 
+    display_launch_timing("register fns");
+
     // Monkey patch cljs.core/system-time to use Planck's high-res timer
     evaluate_script(ctx, "cljs.core.system_time = PLANCK_HIGH_RES_TIMER", "<init>");
+
+    display_launch_timing("monkey-patch system-time");
 
     {
         JSValueRef arguments[config.num_rest_args];
@@ -426,10 +443,14 @@ void *cljs_do_engine_init(void *data) {
         JSStringRelease(prop);
     }
 
+    display_launch_timing("setup command line args");
+
     register_global_function(ctx, "PLANCK_SET_TIMEOUT", function_set_timeout);
     evaluate_script(ctx,
                     "var PLANCK_CALLBACK_STORE = {};\nvar setTimeout = function( fn, ms ) {\nPLANCK_CALLBACK_STORE[PLANCK_SET_TIMEOUT(ms)] = fn;\n}\nvar PLANCK_RUN_TIMEOUT = function( id ) {\nif( PLANCK_CALLBACK_STORE[id] )\nPLANCK_CALLBACK_STORE[id]();\nPLANCK_CALLBACK_STORE[id] = null;\n}\n",
                     "<init>");
+
+    display_launch_timing("setTimeout");
 
     cljs_set_print_sender(&discarding_sender);
 
@@ -451,15 +472,20 @@ void *cljs_do_engine_init(void *data) {
         debug_print_value("planck.repl/init", ctx, ex);
     }
 
+    display_launch_timing("planck.repl/init");
+
     if (config.repl) {
         evaluate_source("text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])",
                         true, false, "cljs.user", "dumb", false, 0);
+        display_launch_timing("repl requires");
     }
 
     cljs_set_print_sender(NULL);
 
     evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
     evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
+
+    display_launch_timing("engine ready");
 
     signal_engine_ready();
 
