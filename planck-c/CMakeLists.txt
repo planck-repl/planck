@@ -13,6 +13,8 @@ set(SOURCE_FILES
     clj.h
     cljs.c
     cljs.h
+    clock.c
+    clock.h
     file.c
     file.h
     functions.c

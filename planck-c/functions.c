@@ -9,14 +9,6 @@
 #include <grp.h>
 #include <dirent.h>
 #include <limits.h>
-#include <time.h>
-
-#if __DARWIN_UNIX03
-
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-
-#endif
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -30,6 +22,7 @@
 #include "timers.h"
 #include "cljs.h"
 #include "repl.h"
+#include "clock.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
@@ -972,17 +965,6 @@ JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObject
 JSValueRef function_high_res_timer(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                    size_t argc, const JSValueRef args[], JSValueRef *exception) {
 
-#if __DARWIN_UNIX03
-    static mach_timebase_info_data_t sTimebaseInfo;
-    uint64_t now = mach_absolute_time();
-    if (sTimebaseInfo.denom == 0) {
-        (void) mach_timebase_info(&sTimebaseInfo);
-    }
-    return JSValueMakeNumber(ctx, (1e-6 * now * sTimebaseInfo.numer) / sTimebaseInfo.denom);
-#else
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return JSValueMakeNumber(ctx, 1e3 * ts.tv_sec + 1e-6 * ts.tv_nsec);
-#endif
+    return JSValueMakeNumber(ctx, 1e-6 * system_time());
 
 }
