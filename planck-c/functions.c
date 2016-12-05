@@ -434,6 +434,7 @@ JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObje
 
         if (source != NULL) {
             evaluate_script(ctx, source, path);
+            display_launch_timing(path);
             free(source);
         }
     }
