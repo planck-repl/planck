@@ -1,11 +1,8 @@
-// Utilities for getting entries from ZIP files.
-// 
-// Uses libzip, alternatives are minizip (from zlib) and zziplib.
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "archive.h"
+#include "cljs.h"
 
 #ifndef ZIP_RDONLY
 typedef struct zip zip_t;
@@ -14,12 +11,16 @@ typedef struct zip_file zip_file_t;
 #define ZIP_RDONLY 16
 #endif
 
-void print_zip_err(char *prefix, zip_t *zip);
+void print_zip_err(const char *prefix, zip_t *zip);
 
-char *get_contents_zip(char *path, char *name, time_t *last_modified) {
+char *get_contents_zip(const char *path, const char *name, time_t *last_modified) {
+
     zip_t *archive = zip_open(path, ZIP_RDONLY, NULL);
+
     if (archive == NULL) {
-        printf("Could not open %s\n", path);
+        char buffer[1024];
+        snprintf(buffer, 1024, "Could not open %s\n", path);
+        cljs_print_message(buffer);
         return NULL;
     }
 
@@ -39,6 +40,11 @@ char *get_contents_zip(char *path, char *name, time_t *last_modified) {
     }
 
     char *buf = malloc(stat.size + 1);
+    if (!buf) {
+        cljs_print_message("zip malloc");
+        goto close_f;
+    }
+
     if (zip_fread(f, buf, stat.size) < 0) {
         print_zip_err("zip_fread", archive);
         goto free_buf;
@@ -52,15 +58,20 @@ char *get_contents_zip(char *path, char *name, time_t *last_modified) {
 
     free_buf:
     free(buf);
+
+    close_f:
     zip_fclose(f);
+
     close_archive:
     zip_close(archive);
 
     return NULL;
 }
 
-void print_zip_err(char *prefix, zip_t *zip) {
-    printf("%s: %s\n", prefix, zip_strerror(zip));
+void print_zip_err(const char *prefix, zip_t *zip) {
+    char buffer[1024];
+    snprintf(buffer, 1024, "%s: %s\n", prefix, zip_strerror(zip));
+    cljs_print_message(buffer);
 }
 
 #ifdef ZIP_TEST
