@@ -408,6 +408,34 @@ JSValueRef function_raw_flush_stderr(JSContextRef ctx, JSObjectRef function, JSO
     return JSValueMakeNull(ctx);
 }
 
+unsigned long hash(unsigned char *str) {
+    unsigned long hash = 5381;
+    int c;
+
+    while ((c = *str++))
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
+static unsigned long loaded_goog_hashes[2048];
+static size_t count_loaded_goog_hashes = 0;
+
+bool is_loaded(unsigned long h) {
+    for (size_t i = 0; i < count_loaded_goog_hashes; ++i) {
+        if (loaded_goog_hashes[i] == h) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void add_loaded_hash(unsigned long h) {
+    if (count_loaded_goog_hashes < 2048) {
+        loaded_goog_hashes[count_loaded_goog_hashes++] = h;
+    }
+}
+
 JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeString) {
@@ -418,24 +446,34 @@ JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObje
         JSStringGetUTF8CString(path_str_ref, tmp, 100);
         JSStringRelease(path_str_ref);
 
+        bool can_skip_load = false;
         char *path = tmp;
         if (str_has_prefix(path, "goog/../") == 0) {
             path = path + 8;
-        }
-
-        char *source = NULL;
-        if (config.out_path == NULL) {
-            source = bundle_get_contents(path);
         } else {
-            char *full_path = str_concat(config.out_path, path);
-            source = get_contents(full_path, NULL);
-            free(full_path);
+            unsigned long h = hash((unsigned char *) path);
+            if (is_loaded(h)) {
+                can_skip_load = true;
+            } else {
+                add_loaded_hash(h);
+            }
         }
 
-        if (source != NULL) {
-            evaluate_script(ctx, source, path);
-            display_launch_timing(path);
-            free(source);
+        if (!can_skip_load) {
+            char *source = NULL;
+            if (config.out_path == NULL) {
+                source = bundle_get_contents(path);
+            } else {
+                char *full_path = str_concat(config.out_path, path);
+                source = get_contents(full_path, NULL);
+                free(full_path);
+            }
+
+            if (source != NULL) {
+                evaluate_script(ctx, source, path);
+                display_launch_timing(path);
+                free(source);
+            }
         }
     }
 
