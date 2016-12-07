@@ -1,6 +1,7 @@
 #include "clock.h"
 #include "cljs.h"
 #include <time.h>
+#include <stdio.h>
 
 #if __DARWIN_UNIX03
 
