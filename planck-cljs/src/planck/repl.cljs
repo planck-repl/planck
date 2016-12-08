@@ -1071,28 +1071,27 @@
         (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
           meta :source)))))
 
-(defn- run-async!
-  "Like cljs.core/run!, but for an async procedure, and with the
-  ability to break prior to processing the entire collection.
-
-  Chains successive calls to the supplied procedure for items in
-  the collection. The procedure should accept an item from the
-  collection and a callback of one argument. If the break? predicate,
-  when applied to the procedure callback value, yields a truthy
-  result, terminates early calling the supplied cb with the callback
-  value. Otherwise, when complete, calls cb with nil."
+(defn- run-sync!
+  "Like cljs.js/run-async!, but with the expectation that cb will be called
+  synchronously within proc. When callbacks are done synchronously, run-async!
+  ends up growing the stack as coll is processed, while this implementation
+  employs recur."
   [proc coll break? cb]
-  (if (seq coll)
-    (proc (first coll)
-      (fn [res]
-        (if (break? res)
-          (cb res)
-          (run-async! proc (rest coll) break? cb))))
-    (cb nil)))
+  (loop [coll coll]
+    (if (seq coll)
+      (let [cb-val (atom nil)]
+        (proc (first coll) #(reset! cb-val %))
+        (if (break? @cb-val)
+          (cb @cb-val)
+          (recur (rest coll))))
+      (cb nil))))
+
+; Monkey-patch cljs.js/run-async! to instead be our more stack-efficient run-sync!
+(set! cljs/run-async! run-sync!)
 
 (defn- process-deps
   [names opts cb]
-  (run-async! (fn [name cb]
+  (run-sync! (fn [name cb]
                 (cljs/require name opts cb))
     names
     :error
