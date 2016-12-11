@@ -1,6 +1,10 @@
 (ns planck.http-test
   (:require [clojure.test :refer [deftest testing is]]
+            [cognitect.transit :as transit]
             [planck.http]))
+
+;; A server running an instance of https://github.com/mfikes/http-echo-clj
+(def http-echo-server "http://http-test.planck-repl.org")
 
 (deftest request-test
   (testing "request"
@@ -116,3 +120,22 @@
                                ((planck.http/wrap-throw-on-error identity)))
                              (catch js/Object e
                                (.toString e)))))))
+
+(defn transit->clj
+  [s]
+  (let [reader (transit/reader :json)]
+    (transit/read reader s)))
+
+(defn form-full-url
+  [url-suffix]
+  (str http-echo-server url-suffix))
+
+(defn do-get
+  ([url-suffix] (do-get url-suffix {}))
+  ([url-suffix opts] (->> (planck.http/get (form-full-url url-suffix) opts)
+                :body
+                transit->clj)))
+
+(deftest http-get-uri-test
+  (is (= "/" (:uri (do-get "/"))))
+  (is (= "/foo" (:uri (do-get "/foo")))))
