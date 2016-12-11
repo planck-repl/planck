@@ -201,7 +201,7 @@
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn post
-  "Performs a POST requeest. It takes an URL and an optional map of options
+  "Performs a POST request. It takes an URL and an optional map of options
   These options include the options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
