@@ -7,15 +7,15 @@
     [cljs.spec :as s]))
 
 
-(def content-types {:json            "application/json"
-                    :xml             "application/xml"
-                    :form-urlencoded "application/x-www-form-urlencoded"})
+(def ^:private content-types {:json            "application/json"
+                              :xml             "application/xml"
+                              :form-urlencoded "application/x-www-form-urlencoded"})
 
-(def default-timeout 5)
+(def ^:private default-timeout 5)
 
-(def boundary-constant "---------------planck-rocks-")
+(def ^:private boundary-constant "---------------planck-rocks-")
 
-(def content-disposition "\nContent-Disposition: form-data; name=\"")
+(def ^:private content-disposition "\nContent-Disposition: form-data; name=\"")
 
 (defn- encode-val [k v]
   (str (js/encodeURIComponent (name k)) "=" (js/encodeURIComponent (str v))))
@@ -31,7 +31,7 @@
     (encode-vals k v)
     (encode-val k v)))
 
-(defn generate-query-string [params]
+(defn- generate-query-string [params]
   (->>
     params
     (map encode-param)
@@ -44,7 +44,7 @@
                          val)]
       (merge {header-key header-value} (:headers request)))))
 
-(defn wrap-content-type
+(defn- wrap-content-type
   "Set the appropriate Content Type header."
   [client]
   (fn [request]
@@ -55,7 +55,7 @@
         client)
       (client request))))
 
-(defn wrap-accepts
+(defn- wrap-accepts
   "Set the appropriate Accept header."
   [client]
   (fn [request]
@@ -66,7 +66,7 @@
         client)
       (client request))))
 
-(defn wrap-debug
+(defn- wrap-debug
   "adds the request to the response if :debug is present"
   [client]
   (fn [request]
@@ -75,7 +75,7 @@
         (assoc (client req) :request req))
       (client request))))
 
-(defn wrap-add-content-length
+(defn- wrap-add-content-length
   "Adds content-length if :body is present "
   [client]
   (fn [request]
@@ -86,7 +86,7 @@
           client))
       (client request))))
 
-(defn wrap-form-params
+(defn- wrap-form-params
   "Adds form-params and content-type"
   [client]
   (fn [request]
@@ -98,19 +98,19 @@
         client)
       (client request))))
 
-(defn wrap-add-headers
+(defn- wrap-add-headers
   "Adds headers to the request if they're not present"
   [client]
   (fn [request]
     (client (assoc request :headers (or (:headers request) {})))))
 
-(defn wrap-add-timeout
+(defn- wrap-add-timeout
   "Adds default timeout if :timeout is not present"
   [client timeout]
   (fn [request]
     (client (assoc request :timeout (or (:timeout request) timeout)))))
 
-(defn generate-form-data [params]
+(defn- generate-form-data [params]
   (conj (mapv (fn [[k v]]
                 (if (coll? v)
                   (str content-disposition k "\"; filename=\"" (second v) "\"\n"
@@ -118,16 +118,16 @@
                     (first v))
                   (str content-disposition k "\"\n\n" v))) params) "--\n"))
 
-(defn generate-multipart-body [boundary body-parts]
+(defn- generate-multipart-body [boundary body-parts]
   (->> body-parts
     (map str (repeat boundary))
     (interpose "\n")
     (apply str)))
 
-(defn boundary [c]
+(defn- boundary [c]
   (apply str (cons c (take 10 (repeatedly #(int (rand 10)))))))
 
-(defn wrap-multipart-params [client]
+(defn- wrap-multipart-params [client]
   (fn [{:keys [multipart-params] :as request}]
     (if multipart-params
       (let [b (boundary boundary-constant)
@@ -138,18 +138,18 @@
                   (assoc :body body))))
       (client request))))
 
-(defn wrap-throw-on-error [client]
+(defn- wrap-throw-on-error [client]
   (fn [request]
     (let [response (client request)]
       (if-let [error (:error response)]
         (throw (js/Error. error))
         response))))
 
-(defn wrap-add-method [client method]
+(defn- wrap-add-method [client method]
   (fn [request]
     (client (assoc request :method (string/upper-case (name method))))))
 
-(defn wrap-to-from-js [client]
+(defn- wrap-to-from-js [client]
   (fn [request]
     (-> request
       clj->js
@@ -160,7 +160,7 @@
   (fn [opts]
     (client opts)))
 
-(defn request [client method url opts]
+(defn- request [client method url opts]
   ((-> client
      do-request
      wrap-to-from-js
