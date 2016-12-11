@@ -6,6 +6,7 @@ CLJS_PREBUILT_VER=1.9.330-1
 
 # Uncomment to build our own copy of ClojureScript compiler.
 # Also see change needed in project.clj
+# When changing, do script/clean-all first from top-level.
 #CLJS_GIT_COMMIT=33a7e5bcac763d40ca684404cf772e9745d264ab
 
 # Make sure we fail and exit on the command that actually failed.
@@ -28,8 +29,7 @@ elif [ -n "$CLJS_GIT_COMMIT" ]; then
      pushd clojurescript
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
-     # curl -L https://github.com/mfikes/clojurescript/commit/5dfc2d9488cb235e6c0ddaa9d30d707ff513caac.patch | git apply
-     curl -L http://dev.clojure.org/jira/secure/attachment/16303/CLJS-1861.patch | git apply
+     # curl -L http://dev.clojure.org/jira/secure/attachment/16303/CLJS-1861.patch | git apply
      curl http://planck-repl.org/releases/1.18/0001-Experiment-turning-off-fn-var.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
