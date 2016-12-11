@@ -9,31 +9,6 @@
 
 #include "jsc_utils.h"
 
-struct read_string_state {
-    char *input;
-    int offset;
-    int length;
-};
-
-size_t read_string_callback(char *buffer, size_t size, size_t nitems, void *instream) {
-    struct read_string_state *state = (struct read_string_state *) instream;
-
-    if (state->length > state->offset) {
-        return 0;
-    }
-
-    int n = 0;
-    if (state->offset + size * nitems < state->length) {
-        n = size * nitems;
-    } else {
-        n = state->length - state->offset;
-    }
-    memcpy(buffer, state->input + state->offset, n);
-    state->offset += n;
-
-    return n;
-}
-
 struct header_state {
     JSContextRef ctx;
     JSObjectRef headers;
@@ -160,14 +135,10 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 
         curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout);
 
-        struct read_string_state input_state;
+        char *body = NULL;
         if (!JSValueIsUndefined(ctx, body_ref)) {
-            char *body = value_to_c_string(ctx, body_ref);
-            input_state.input = body;
-            input_state.offset = 0;
-            input_state.length = strlen(body);
-            curl_easy_setopt(handle, CURLOPT_READDATA, &input_state);
-            curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_string_callback);
+            body = value_to_c_string(ctx, body_ref);
+            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body);
         }
 
         JSObjectRef response_headers = JSObjectMake(ctx, NULL, NULL);
@@ -195,6 +166,8 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 
         int status = 0;
         curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &status);
+
+        free(body);
 
         // printf("%d bytes, %x\n", body_state.offset, body_state.data);
         if (body_state.data != NULL) {
