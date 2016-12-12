@@ -24,6 +24,8 @@ unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *
 EOF
 
 cd out
+# Make sure we don't bundle test.check
+rm -rf clojure/test/check*
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json'`
 do 
 file=${file:2}

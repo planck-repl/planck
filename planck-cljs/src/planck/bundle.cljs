@@ -6,6 +6,7 @@
     clojure.data
     cljs.pprint
     cljs.spec
+    cljs.spec.test
     cljs.test
     cljs.analyzer.api
     fipp.clojure
