@@ -713,6 +713,8 @@
         (when cache-json
           {:cache (transit-json->cljs cache-json)})))))
 
+(declare inject-planck-eval)
+
 (defn- load-and-callback!
   [name path macros lang cache-prefix cb]
   (let [[raw-load [source modified loaded-path]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
@@ -728,6 +730,8 @@
              :file   loaded-path}
             (when-not (= :js lang)
               (cached-callback-data name path macros cache-prefix source modified raw-load))))
+      (when (and (= name 'cljs.spec.test) macros)
+        (inject-planck-eval 'cljs.spec.test$macros))
       :loaded)))
 
 (defn- closure-index
@@ -1586,6 +1590,18 @@
 (defn- resolve
   [sym]
   (ns-resolve (.-name *ns*) sym))
+
+(defn- intern
+  ([ns name]
+   (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+     (eval `(def ~name) (ns-name the-ns))))
+  ([ns name val]
+   (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+     (eval `(def ~name ~val) (ns-name the-ns)))))
+
+(defn- inject-planck-eval
+  [target-ns]
+  (intern target-ns 'eval eval))
 
 (defn- ^:export wrap-color-err
   []

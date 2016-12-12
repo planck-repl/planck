@@ -14,3 +14,4 @@ planck-cljs/tools.reader
 planck-cljs/clojurescript
 .idea
 /planck-c/cmake-build-debug
+/.planck_cache

@@ -1,7 +1,6 @@
 (ns planck.test-runner
   (:require [clojure.test :refer [run-tests]]
             [cljs.spec.test :as stest]
-            [planck.setup-eval]
             [planck.core :refer [exit]]
             [planck.core-test]
             [planck.io-test]
