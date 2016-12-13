@@ -2,12 +2,12 @@
 
 # Uncomment to download pre-built copy of ClojureScript compiler.
 # Also see change needed in project.clj
-CLJS_PREBUILT_VER=1.9.330-1
+# CLJS_PREBUILT_VER=1.9.330-1
 
 # Uncomment to build our own copy of ClojureScript compiler.
 # Also see change needed in project.clj
 # When changing, do script/clean-all first from top-level.
-#CLJS_GIT_COMMIT=33a7e5bcac763d40ca684404cf772e9745d264ab
+CLJS_GIT_COMMIT=cb3e8c295ad5ed1961e7db1d0b19674eb7f71a5c
 
 # Make sure we fail and exit on the command that actually failed.
 set -e
