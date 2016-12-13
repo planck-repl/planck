@@ -1,7 +1,11 @@
 (ns planck.http-test
-  (:require [clojure.test :refer [deftest testing is]]
-            [cognitect.transit :as transit]
-            [planck.http :as http]))
+  (:require
+    [clojure.test :refer [deftest testing is]]
+    [cognitect.transit :as transit]
+    [planck.http :as http]
+    [planck.io :as io])
+  (:import
+    (goog Uri)))
 
 ;; A server running an instance of https://github.com/mfikes/http-echo-clj
 (def http-echo-server "http://http-test.planck-repl.org")
@@ -120,6 +124,14 @@
                                ((http/wrap-throw-on-error identity)))
                              (catch js/Object e
                                (.toString e)))))))
+
+(deftest uri-coercions-test
+  (let [http-uri (Uri. "http://example.com")
+        file-uri (Uri. "file:///tmp")]
+    (is (identical? http-uri (io/as-url http-uri)))
+    (is (identical? file-uri (io/as-url file-uri)))
+    (is (thrown? js/Error (io/as-file http-uri)))
+    (is (= (io/->File "/tmp") (io/as-file file-uri)))))
 
 (defn transit->clj
   [s]

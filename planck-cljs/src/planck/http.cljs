@@ -4,7 +4,8 @@
     [planck.core]
     [planck.io]
     [clojure.string :as string]
-    [cljs.spec :as s]))
+    [cljs.spec :as s])
+  (:import (goog Uri)))
 
 
 (def ^:private content-types {:json            "application/json"
@@ -219,7 +220,7 @@
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (extend-protocol planck.io/IOFactory
-  js/goog.Uri
+  Uri
   (make-reader [url opts]
     (let [content (atom (:body (get url opts)))]
       (letfn [(read [] (let [return @content]
@@ -240,7 +241,7 @@
       (fn []))))
 
 (extend-protocol planck.io/Coercions
-  js/goog.Uri
+  Uri
   (as-url [u] u)
   (as-file [u]
     (if (= "file" (.getScheme u))
