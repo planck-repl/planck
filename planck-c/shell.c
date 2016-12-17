@@ -58,26 +58,6 @@ static void preopen(int old, int new) {
     close(old);
 }
 
-static char *read_child_pipe(int pipe) {
-    const size_t BLOCK_SIZE = 1024;
-    size_t block_count = 1;
-    char *res = malloc(BLOCK_SIZE * block_count);
-    ssize_t count = 0, total = 0;
-    size_t num_to_read = BLOCK_SIZE - 1;
-    while ((count = read(pipe, res + total, num_to_read)) > 0) {
-        total += count;
-        if (count < num_to_read) {
-            num_to_read -= count;
-        } else {
-            block_count += 1;
-            res = realloc(res, BLOCK_SIZE * block_count);
-            num_to_read = BLOCK_SIZE;
-        }
-    }
-    res[total] = 0;
-    return res;
-}
-
 struct SystemResult {
     int status;
     char *stdout;
@@ -110,7 +90,98 @@ struct ThreadParams {
     int cb_idx;
 };
 
+int read_child_pipe(int pipe, char** buf_p, size_t* total_p) {
+
+    const size_t BLOCK_SIZE = 4096;
+
+    if (!*buf_p) {
+        *buf_p = malloc(BLOCK_SIZE);
+        *total_p = 0;
+    }
+
+    size_t num_to_read = BLOCK_SIZE - *total_p % BLOCK_SIZE;
+    ssize_t num_read = 0;
+
+    if ((num_read = read(pipe, *buf_p + *total_p, num_to_read)) > 0) {
+        *total_p += num_read;
+        if (num_read == num_to_read) {
+            *buf_p = realloc(*buf_p, *total_p + BLOCK_SIZE);
+        }
+        return 1;
+    } else if (num_read == 0) {
+        (*buf_p)[*total_p] = 0;
+        return 0;
+    } else {
+        // TODO. num_read negative?
+        cljs_print_message("error reading");
+        return -1;
+    }
+}
+
+void read_child_pipes(struct ThreadParams *params) {
+
+    char *out_buf = NULL;
+    char *err_buf = NULL;
+    size_t out_total = 0;
+    size_t err_total = 0;
+
+    bool out_eof = false;
+    bool err_eof = false;
+
+    while (!out_eof || !err_eof) {
+
+        fd_set rfds;
+        FD_ZERO(&rfds);
+
+        int max_fd = 0;
+
+        if (!out_eof) {
+            FD_SET(params->outpipe, &rfds);
+            max_fd = params->outpipe;
+        }
+
+        if (!err_eof) {
+            FD_SET(params->errpipe, &rfds);
+            if (params->errpipe > max_fd) {
+                max_fd = params->errpipe;
+            }
+        }
+
+        int rv = select(max_fd + 1, &rfds, NULL, NULL, NULL);
+
+        if (rv == -1) {
+            if (errno == EINTR) {
+                // We ignore interrupts and loop back around
+            } else {
+                cljs_perror("planck.shell select on child stdout/stderr");
+                params->res.status = -1;
+                goto done;
+            }
+        } else {
+            if (FD_ISSET(params->outpipe, &rfds)) {
+                int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
+                if (res == 0) {
+                    out_eof = true;
+                }
+            }
+            if (FD_ISSET(params->errpipe, &rfds)) {
+                int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
+                if (res == 0) {
+                    err_eof = true;
+                }
+            }
+        }
+    }
+
+    done:
+    params->res.stdout = out_buf ? out_buf : strdup("");
+    params->res.stderr = err_buf ? err_buf : strdup("");
+}
+
 static struct SystemResult *wait_for_child(struct ThreadParams *params) {
+
+    read_child_pipes(params);
+
     if (waitpid(params->pid, &params->res.status, 0) != params->pid) {
         params->res.status = -1;
     } else {
@@ -121,8 +192,6 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         } else {
             params->res.status = -1;
         }
-        params->res.stderr = read_child_pipe(params->errpipe);
-        params->res.stdout = read_child_pipe(params->outpipe);
 
         close(params->errpipe);
         close(params->outpipe);
