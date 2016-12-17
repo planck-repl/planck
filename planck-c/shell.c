@@ -9,18 +9,18 @@
 #include <JavaScriptCore/JavaScript.h>
 #include "cljs.h"
 #include "jsc_utils.h"
-#include "repl.h"
 
 static char **cmd(JSContextRef ctx, const JSObjectRef array) {
     int argc = array_get_count(ctx, array);
     char **result = NULL;
     if (argc > 0) {
         result = malloc(sizeof(char *) * (argc + 1));
-        for (int i = 0; i < argc; i++) {
+        for (unsigned int i = 0; i < argc; i++) {
             JSValueRef val = array_get_value_at_index(ctx, array, i);
             if (JSValueGetType(ctx, val) != kJSTypeString) {
-                for (int j = 0; j < i; j++)
+                for (int j = 0; j < i; j++) {
                     free(result[j]);
+                }
                 free(result);
                 return NULL;
             }
@@ -36,20 +36,17 @@ static char **env(JSContextRef ctx, const JSObjectRef map) {
     char **result = NULL;
     if (argc > 0) {
         result = malloc(sizeof(char *) * (argc + 1));
-        for (int i = 0; i < argc; i++) {
+        for (unsigned int i = 0; i < argc; i++) {
             JSObjectRef keyVal = (JSObjectRef) array_get_value_at_index(ctx, map, i);
             char *key = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 0));
             char *value = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 1));
-            int len = strlen(key) + strlen(value) + 2;
+            size_t len = strlen(key) + strlen(value) + 2;
             char *combined = malloc(len);
             combined[0] = 0;
             snprintf(combined, len, "%s=%s", key, value);
             free(key);
             free(value);
             result[i] = combined;
-#ifdef SHELLDBG
-            printf("env[%d]: %s\n", i, combined);
-#endif
         }
         result[argc] = 0;
     }
@@ -69,8 +66,9 @@ static char *read_child_pipe(int pipe) {
     size_t num_to_read = BLOCK_SIZE - 1;
     while ((count = read(pipe, res + total, num_to_read)) > 0) {
         total += count;
-        if (count < num_to_read) num_to_read -= count;
-        else {
+        if (count < num_to_read) {
+            num_to_read -= count;
+        } else {
             block_count += 1;
             res = realloc(res, BLOCK_SIZE * block_count);
             num_to_read = BLOCK_SIZE;
@@ -89,18 +87,13 @@ struct SystemResult {
 static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *result) {
 
     // Hack to avoid an optimizer bug. Grab the items we want to free now.
-    char* x = result->stdout;
-    char* y = result->stderr;
+    char *x = result->stdout;
+    char *y = result->stderr;
 
     JSValueRef arguments[3];
     arguments[0] = JSValueMakeNumber(ctx, result->status);
     arguments[1] = c_string_to_value(ctx, result->stdout);
     arguments[2] = c_string_to_value(ctx, result->stderr);
-
-#ifdef SHELLDBG
-    printf("stdout: %s\n", result->stdout);
-    printf("stderr: %s\n", result->stderr);
-#endif
 
     free(x);
     free(y);
@@ -118,8 +111,9 @@ struct ThreadParams {
 };
 
 static struct SystemResult *wait_for_child(struct ThreadParams *params) {
-    if (waitpid(params->pid, &params->res.status, 0) != params->pid) params->res.status = -1;
-    else {
+    if (waitpid(params->pid, &params->res.status, 0) != params->pid) {
+        params->res.status = -1;
+    } else {
         if (WIFEXITED(params->res.status)) {
             params->res.status = WEXITSTATUS(params->res.status);
         } else if (WIFSIGNALED(params->res.status)) {
@@ -134,8 +128,9 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         close(params->outpipe);
         close(params->inpipe);
     }
-    if (params->cb_idx == -1) return &params->res;
-    else {
+    if (params->cb_idx == -1) {
+        return &params->res;
+    } else {
         JSValueRef args[1];
         args[0] = result_to_object_ref(ctx, &params->res);
         JSObjectRef translateResult = cljs_get_function("global", "translate_async_result");
@@ -193,8 +188,9 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             exit(1);
         }
     } else {
-        if (pid < 0) res->status = -1;
-        else {
+        if (pid < 0) {
+            res->status = -1;
+        } else {
             close(out[0]);
             close(err[1]);
             close(in[1]);
@@ -210,27 +206,32 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             params->inpipe = out[1];
             params->pid = pid;
             params->cb_idx = cb_idx;
-            if (cb_idx == -1) res = wait_for_child(params);
-            else {
+            if (cb_idx == -1) {
+                res = wait_for_child(params);
+            } else {
                 pthread_t thrd;
                 pthread_create(&thrd, NULL, thread_proc, params);
             }
         }
 
-        for (int i = 0; cmd[i] != NULL; i++)
+        for (int i = 0; cmd[i] != NULL; i++) {
             free(cmd[i]);
+        }
         free(cmd);
         if (env) {
-            for (int i = 0; env[i] != NULL; i++)
+            for (int i = 0; env[i] != NULL; i++) {
                 free(env[i]);
+            }
             free(env);
         }
         free(dir);
 
-        if (cb_idx != -1) return JSValueMakeNull(ctx);
-        else return (JSValueRef) result_to_object_ref(ctx, res);
+        if (cb_idx != -1) {
+            return JSValueMakeNull(ctx);
+        } else {
+            return (JSValueRef) result_to_object_ref(ctx, res);
+        }
     }
-    return JSValueMakeNull(ctx);
 }
 
 JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
@@ -238,12 +239,6 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
     if (argc == 7) {
         char **command = cmd(ctx, (JSObjectRef) args[0]);
         if (command) {
-#ifdef SHELLDBG
-            printf("cmd: [");
-            for (int i = 0; command[i] != NULL; i++)
-              printf("%s\"%s\"", i > 0 ? ", " : "", command[i]);
-            printf("]\n");
-#endif
             char **environment = NULL;
             if (!JSValueIsNull(ctx, args[4])) {
                 environment = env(ctx, (JSObjectRef) args[4]);
@@ -251,13 +246,10 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
             char *dir = NULL;
             if (!JSValueIsNull(ctx, args[5])) {
                 dir = value_to_c_string(ctx, args[5]);
-#ifdef SHELLDBG
-                printf("dir: %s\n", dir);
-#endif
             }
             int callback_idx = -1;
             if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[6])) {
-                callback_idx = JSValueToNumber(ctx, args[6], NULL);
+                callback_idx = (int) JSValueToNumber(ctx, args[6], NULL);
             }
             return system_call(ctx, command, environment, dir, callback_idx);
         }
