@@ -118,6 +118,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include "linenoise.h"
+#include "clock.h"
 
 #define LINENOISE_DEFAULT_HISTORY_MAX_LEN 100
 #define LINENOISE_MAX_LINE 4096
@@ -134,7 +135,7 @@ static int history_max_len = LINENOISE_DEFAULT_HISTORY_MAX_LEN;
 static int history_len = 0;
 static char **history = NULL;
 
-static struct timeval lastCharRead;
+uint64_t lastCharRead;
 static int pasting = 0;
 static const char* currentPromptAnsiCode;
 
@@ -816,11 +817,10 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
 
         nread = read(l.ifd,&c,1);
         if (c != keymap[KM_ENTER] && c != '>') {  // Also check for '>' so we can catch pasting involving prompt
-            gettimeofday(&lastCharRead, NULL);
+            lastCharRead = system_time();
         } else {
-            struct timeval now;
-            gettimeofday(&now, NULL);
-            pasting = (1000000L * (now.tv_sec - lastCharRead.tv_sec) + now.tv_usec - lastCharRead.tv_usec) < 10000;
+            uint64_t now = system_time();
+            pasting = now - lastCharRead < 10000;
         }
         if (nread <= 0) {
             printNowState = NULL;
@@ -1211,8 +1211,8 @@ int linenoiseHistorySave(const char *filename) {
  * on error -1 is returned. */
 int linenoiseHistoryLoad(const char *filename) {
     // Take opportunity to initialize lastKeyPress
-    gettimeofday(&lastCharRead, NULL);
-    
+    lastCharRead = system_time();
+
     FILE *fp = fopen(filename,"r");
     char buf[LINENOISE_MAX_LINE];
 
