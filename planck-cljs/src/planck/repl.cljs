@@ -899,7 +899,7 @@
          (ex-cause error))
     ex-cause))
 
-(defn- is-reader-or-analysis?
+(defn- reader-or-analysis?
   "Indicates if an exception is a reader or analysis exception."
   [e]
   (and (instance? ExceptionInfo e)
@@ -976,7 +976,7 @@
   (when (and (instance? ExceptionInfo error)
              (= could-not-eval-expr (ex-message error)))
     (when-let [cause (ex-cause error)]
-      (when (is-reader-or-analysis? cause)
+      (when (reader-or-analysis? cause)
         (when-let [column (:column (ex-data cause))]
           (form-indicator column current-ns))))))
 
@@ -995,7 +995,7 @@
   ([error include-stacktrace? printed-message]
    (print-error-column-indicator error)
    (let [error (skip-cljsjs-eval-error error)
-         roa? (is-reader-or-analysis? error)
+         roa? (reader-or-analysis? error)
          include-stacktrace? (or (= include-stacktrace? :pst)
                                  (and include-stacktrace?
                                       (not roa?)))
