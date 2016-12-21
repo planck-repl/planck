@@ -967,9 +967,25 @@
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
 
+(defonce ^:private can-show-indicator (atom false))
+
+(defn- reset-show-indicator!
+  []
+  (reset! can-show-indicator (:repl @app-env)))
+
+(defn- disable-error-indicator!
+  []
+  (reset! can-show-indicator false))
+
+(defn- show-indicator?
+  []
+  (let [rv @can-show-indicator]
+    (reset! can-show-indicator false)
+    rv))
+
 (defn- form-indicator
   [column current-ns]
-  (str (apply str (take (+ 2 (count (name current-ns)) column) (repeat " "))) "⬆"))
+  (str (apply str (take (+ 2 (count (name current-ns)) column) (repeat " "))) "^"))
 
 (defn- get-error-column-indicator
   [error current-ns]
@@ -984,7 +1000,7 @@
   [error]
   (let [indicator (get-error-column-indicator error @current-ns)]
     (when (and indicator
-               (:repl @app-env))
+               (show-indicator?))
       (println ((:rdr-ann-err-fn theme) indicator)))))
 
 (defn- print-error
@@ -1446,7 +1462,7 @@
     (binding [*print-fn* *print-err-fn*]
       (when-not (empty? warning-string)
         (when-let [column (:column env)]
-          (when (:repl @app-env)
+          (when (show-indicator?)
             (println (wrap-warning-font (form-indicator column @current-ns)))))
         (print (wrap-warning-font warning-string))))))
 
@@ -1474,6 +1490,8 @@
       (binding [ana/*cljs-warning-handlers* (if expression?
                                               [warning-handler]
                                               [ana/default-warning-handler])]
+        (when (and expression? (load-form? expression-form))
+          (disable-error-indicator!))
         (cljs/eval-str
           st
           source-text
@@ -1561,6 +1579,7 @@
 (defn- ^:export execute
   [source expression? print-nil-expression? set-ns theme-id session-id]
   (clear-fns!)
+  (reset-show-indicator!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
   (binding [theme (get-theme (keyword theme-id))]

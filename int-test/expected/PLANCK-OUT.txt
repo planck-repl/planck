@@ -459,7 +459,6 @@ Could not parse ns form cljs.user
 Invalid :refer, var clojure.set/diff does not exist
 nil
 Test reader and analysis diagnostics
-            ⬆
 Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [foo.bar :quu] at line 1 
 Unmatched delimiter )
 Test eval

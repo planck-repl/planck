@@ -2,23 +2,23 @@ hello stderr
 WARNING: Use of undeclared Var cljs.user/not-symbol
 Argument to in-ns must be a symbol.
 Argument to in-ns must be a symbol.
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-            ⬆
+            ^
 WARNING: planck.io/spit is deprecated. at line 1 
-          ⬆
+          ^
 WARNING: nfirst already refers to: cljs.core/nfirst being replaced by: foo.bar/nfirst at line 1 
 Evaluating Expression
 ((2) + (3))

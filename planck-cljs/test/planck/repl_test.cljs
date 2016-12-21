@@ -28,7 +28,7 @@
   (is (= "*pprint-results*\napropos\ndir\ndoc\nfind-doc\npst\nsource\n" (with-out-str (planck.repl/dir planck.repl)))))
 
 (deftest get-error-indicator-test
-  (is (= "             ⬆"
+  (is (= "             ^"
         (repl/get-error-column-indicator
           (ex-info repl/could-not-eval-expr {}
             (ex-info "" {:tag    :cljs/analysis-error
