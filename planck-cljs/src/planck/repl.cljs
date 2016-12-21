@@ -1446,7 +1446,8 @@
     (binding [*print-fn* *print-err-fn*]
       (when-not (empty? warning-string)
         (when-let [column (:column env)]
-          (println (wrap-warning-font (form-indicator column @current-ns))))
+          (when (:repl @app-env)
+            (println (wrap-warning-font (form-indicator column @current-ns)))))
         (print (wrap-warning-font warning-string))))))
 
 (defn- call-form?
