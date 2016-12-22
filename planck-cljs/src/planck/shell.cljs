@@ -1,8 +1,10 @@
 (ns planck.shell
-  (:require-macros planck.shell)
-  (:require [cljs.spec :as s]
-            [clojure.string]
-            [planck.io :refer [as-file]]))
+  (:require-macros
+    [planck.shell])
+  (:require
+    [cljs.spec :as s]
+    [clojure.string]
+    [planck.io :refer [as-file]]))
 
 (def ^:dynamic *sh-dir* nil)
 (def ^:dynamic *sh-env* nil)

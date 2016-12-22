@@ -1,5 +1,6 @@
 (ns planck.js-deps
-  (:require [cljs.tools.reader :as r]))
+  (:require
+    [cljs.tools.reader :as r]))
 
 (defonce ^:private foreign-libs-index (atom {}))
 

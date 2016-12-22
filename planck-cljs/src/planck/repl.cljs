@@ -1,27 +1,29 @@
 (ns planck.repl
-  (:require-macros [cljs.env.macros :refer [with-compiler-env]]
-                   [planck.repl :refer [with-err-str]])
-  (:require [clojure.string :as string]
-            [goog.string :as gstring]
-            [cljs.analyzer :as ana]
-            [cljs.compiler :as comp]
-            [cljs.tools.reader :as r]
-            [cljs.tools.reader.reader-types :as rt]
-            [cljs.tagged-literals :as tags]
-            [cljs.source-map :as sm]
-            [cljs.env :as env]
-            [cljs.js :as cljs]
-            [cljs.spec :as s]
-            [cljs.stacktrace :as st]
-            [cognitect.transit :as transit]
-            [tailrecursion.cljson :refer [cljson->clj]]
-            [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
-            [planck.themes :refer [get-theme]]
-            [lazy-map.core :refer-macros [lazy-map]]
-            [cljsjs.parinfer]
-            [planck.js-deps :as js-deps]
-            [planck.pprint.code]
-            [planck.pprint.data]))
+  (:require-macros
+    [cljs.env.macros :refer [with-compiler-env]]
+    [planck.repl :refer [with-err-str]])
+  (:require
+    [cljs.analyzer :as ana]
+    [cljs.compiler :as comp]
+    [cljs.env :as env]
+    [cljs.js :as cljs]
+    [cljs.source-map :as sm]
+    [cljs.spec :as s]
+    [cljs.stacktrace :as st]
+    [cljs.tagged-literals :as tags]
+    [cljs.tools.reader :as r]
+    [cljs.tools.reader.reader-types :as rt]
+    [cljsjs.parinfer]
+    [clojure.string :as string]
+    [cognitect.transit :as transit]
+    [goog.string :as gstring]
+    [lazy-map.core :refer-macros [lazy-map]]
+    [planck.js-deps :as js-deps]
+    [planck.pprint.code]
+    [planck.pprint.data]
+    [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
+    [planck.themes :refer [get-theme]]
+    [tailrecursion.cljson :refer [cljson->clj]]))
 
 #_(s/fdef planck.repl$macros/dir
     :args (s/cat :sym symbol?))

@@ -1,8 +1,10 @@
 (ns planck.io
-  (:require [clojure.string :as string]
-            [cljs.spec :as s]
-            [planck.core])
-  (:import goog.Uri))
+  (:require
+    [cljs.spec :as s]
+    [clojure.string :as string]
+    [planck.core])
+  (:import
+    (goog Uri)))
 
 (defrecord File [path]
   Object

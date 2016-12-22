@@ -1,8 +1,11 @@
 (ns planck.core
-  (:require-macros planck.core)
-  (:require [cljs.spec :as s]
-            [planck.repl :as repl])
-  (:import [goog.string StringBuffer]))
+  (:require-macros
+    [planck.core])
+  (:require
+    [cljs.spec :as s]
+    [planck.repl :as repl])
+  (:import
+    (goog.string StringBuffer)))
 
 (s/def ::binding
   (s/cat :name symbol? :value any?))
