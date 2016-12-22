@@ -53,13 +53,17 @@
 (defrecord BufferedReader [raw-read raw-close buffer]
   IReader
   (-read [_]
-    (raw-read))
+    (if-let [b @buffer]
+      (do
+        (reset! buffer nil)
+        b)
+      (raw-read)))
   IBufferedReader
   (-read-line [this]
     (if-let [buffered @buffer]
       (let [n (.indexOf buffered "\n")]
         (if (neg? n)
-          (if-let [next-characters (-read this)]
+          (if-let [next-characters (raw-read)]
             (do
               (swap! buffer (fn [s] (str s next-characters)))
               (recur this))
@@ -69,7 +73,7 @@
                                         nil
                                         residual))
                                     (subs s 0 n)]))))
-      (when (reset! buffer (-read this))
+      (when (reset! buffer (raw-read))
         (recur this))))
   IClosable
   (-close [_]
