@@ -1,6 +1,6 @@
 (ns planck.core
   (:require-macros
-    [planck.core])
+    [planck.core :refer [with-open]])
   (:require
     [cljs.spec :as s]
     [planck.repl :as repl])
@@ -231,17 +231,14 @@
   "Opens a reader on f and reads all its contents, returning a string.
   See planck.io/reader for a complete list of supported arguments."
   [f & opts]
-  (let [r (apply *reader-fn* f opts)
-        sb (StringBuffer.)]
-    (try
+  (with-open [r (apply *reader-fn* f opts)]
+    (let [sb (StringBuffer.)]
       (loop [s (-read r)]
         (if (nil? s)
           (.toString sb)
           (do
             (.append sb s)
-            (recur (-read r)))))
-      (finally
-        (-close r)))))
+            (recur (-read r))))))))
 
 (s/fdef slurp
   :args (s/cat :f :planck.io/coercible-file? :opts (s/* any?))
@@ -251,11 +248,8 @@
   "Opposite of slurp.  Opens f with writer, writes content, then
   closes f. Options passed to planck.io/writer."
   [f content & opts]
-  (let [w (apply *writer-fn* f opts)]
-    (try
-      (-write w (str content))
-      (finally
-        (-close w)))))
+  (with-open [w (apply *writer-fn* f opts)]
+    (-write w (str content))))
 
 (s/fdef spit
   :args (s/cat :f :planck.io/coercible-file? :content any? :opts (s/* any?)))
