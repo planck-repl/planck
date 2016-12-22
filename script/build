@@ -30,6 +30,7 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   rm -f planck-cljs/out/clojure/template*macros*
   rm -f planck-cljs/out/cljs/test*macros*
   rm -f planck-cljs/out/cljs/spec*macros*
+  rm -f planck-cljs/out/cljs/spec/test*macros*
   rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
   rm -f planck-cljs/out/planck/from/io/aviso/*macros*
   
