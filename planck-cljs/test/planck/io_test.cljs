@@ -51,3 +51,9 @@
   (is (thrown? js/Error (planck.io/reader *out*)))
   (is (thrown? js/Error (planck.io/reader planck.core/*err*)))
   (is (thrown? js/Error (planck.io/writer planck.core/*in*))))
+
+(deftest bad-file-descriptors
+  (is (thrown? js/Error (planck.io/reader "nonexistent")))
+  (is (thrown? js/Error (planck.io/writer "/tmp")))
+  (is (thrown? js/Error (planck.io/input-stream "nonexistent")))
+  (is (thrown? js/Error (planck.io/output-stream "/tmp"))))

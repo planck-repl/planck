@@ -73,6 +73,15 @@
 (defonce ^:private open-file-input-stream-descriptors (atom #{}))
 (defonce ^:private open-file-output-stream-descriptors (atom #{}))
 
+(defn- bad-file-descriptor?
+  [file-descriptor]
+  (= "0" file-descriptor))
+
+(defn- check-file-descriptor
+  [file-descriptor file opts]
+  (when (bad-file-descriptor? file-descriptor)
+    (throw (ex-info "Failed to open file." {:file file, :opts opts}))))
+
 (extend-protocol IOFactory
   string
   (make-reader [s opts]
@@ -87,6 +96,7 @@
   File
   (make-reader [file opts]
     (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
+      (check-file-descriptor file-descriptor file opts)
       (swap! open-file-reader-descriptors conj file-descriptor)
       (planck.core/BufferedReader.
         (fn []
@@ -103,6 +113,7 @@
         (atom nil))))
   (make-writer [file opts]
     (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
+      (check-file-descriptor file-descriptor file opts)
       (swap! open-file-writer-descriptors conj file-descriptor)
       (planck.core/Writer.
         (fn [s]
@@ -118,6 +129,7 @@
             (js/PLANCK_FILE_WRITER_CLOSE file-descriptor))))))
   (make-input-stream [file opts]
     (let [file-descriptor (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
+      (check-file-descriptor file-descriptor file opts)
       (swap! open-file-input-stream-descriptors conj file-descriptor)
       (planck.core/InputStream.
         (fn []
@@ -130,6 +142,7 @@
             (js/PLANCK_FILE_INPUT_STREAM_CLOSE file-descriptor))))))
   (make-output-stream [file opts]
     (let [file-descriptor (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
+      (check-file-descriptor file-descriptor file opts)
       (swap! open-file-output-stream-descriptors conj file-descriptor)
       (planck.core/OutputStream.
         (fn [byte-array]
