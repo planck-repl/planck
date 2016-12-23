@@ -110,7 +110,8 @@
           (when (contains? @open-file-reader-descriptors file-descriptor)
             (swap! open-file-reader-descriptors disj file-descriptor)
             (js/PLANCK_FILE_READER_CLOSE file-descriptor)))
-        (atom nil))))
+        (atom nil)
+        (atom 0))))
   (make-writer [file opts]
     (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (check-file-descriptor file-descriptor file opts)

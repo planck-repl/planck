@@ -3,6 +3,7 @@
     [planck.core :refer [with-open]])
   (:require
     [cljs.spec :as s]
+    [clojure.string :as string]
     [planck.repl :as repl])
   (:import
     (goog.string StringBuffer)))
@@ -48,33 +49,38 @@
   (-close [_]
     (raw-close)))
 
-(declare fission!)
-
-(defrecord BufferedReader [raw-read raw-close buffer]
+(defrecord BufferedReader [raw-read raw-close buffer pos]
   IReader
   (-read [_]
-    (if-let [b @buffer]
+    (if-some [buffered @buffer]
       (do
         (reset! buffer nil)
-        b)
+        (subs buffered @pos))
       (raw-read)))
   IBufferedReader
   (-read-line [this]
-    (if-let [buffered @buffer]
-      (let [n (.indexOf buffered "\n")]
-        (if (neg? n)
-          (if-let [next-characters (raw-read)]
-            (do
-              (swap! buffer (fn [s] (str s next-characters)))
-              (recur this))
-            (fission! buffer (fn [s] [nil s])))
-          (fission! buffer (fn [s] [(let [residual (subs s (inc n))]
-                                      (if (= "" residual)
-                                        nil
-                                        residual))
-                                    (subs s 0 n)]))))
-      (when (reset! buffer (raw-read))
-        (recur this))))
+    (if-some [buffered @buffer]
+      (if-some [n (string/index-of buffered "\n" @pos)]
+        (let [rv (subs buffered @pos n)]
+          (reset! pos (inc n))
+          rv)
+        (if-some [new-chars (raw-read)]
+          (do
+            (reset! buffer (str (subs buffered @pos) new-chars))
+            (reset! pos 0)
+            (recur this))
+          (do
+            (reset! buffer nil)
+            (let [rv (subs buffered @pos)]
+              (if (= rv "")
+                nil
+                rv)))))
+      (if-some [new-chars (raw-read)]
+        (do
+          (reset! buffer new-chars)
+          (reset! pos 0)
+          (recur this))
+        nil)))
   IClosable
   (-close [_]
     (raw-close)))
@@ -126,7 +132,8 @@
         (when-not @closed
           (js/PLANCK_RAW_READ_STDIN)))
       #(reset! closed true)
-      (atom nil))))
+      (atom nil)
+      (atom 0))))
 
 (defn- make-closeable-raw-writer
   [raw-write raw-flush]
@@ -153,18 +160,6 @@
     :dynamic true}
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
-
-(defn- fission!
-  "Breaks an atom's value into two parts. The supplied function should
-  return a pair. The first element will be set to be the atom's new
-  value and the second element will be returned."
-  [atom f & args]
-  (loop []
-    (let [old @atom
-          [new-in new-out] (apply f old args)]
-      (if (compare-and-set! atom old new-in)
-        new-out
-        (recur)))))
 
 (defn read-line
   "Reads the next line from the current value of planck.io/*in*"

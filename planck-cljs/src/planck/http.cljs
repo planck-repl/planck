@@ -230,7 +230,8 @@
         (planck.core/->BufferedReader
           read
           (fn [])
-          (atom nil)))))
+          (atom nil)
+          (atom 0)))))
   (make-writer [url opts]
     (planck.core/->Writer
       (fn [content]
