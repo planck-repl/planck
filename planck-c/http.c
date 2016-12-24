@@ -21,7 +21,8 @@ size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void 
 
     int key_end = -1;
     size_t val_end = size * nitems;
-    for (size_t i = 0; i < size * nitems; i++) {
+    size_t i;
+    for (i = 0; i < size * nitems; i++) {
         if (buffer[i] == ':' && key_end == -1) {
             key_end = i;
         }
@@ -108,7 +109,8 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         if (!JSValueIsNull(ctx, headers_obj)) {
             JSPropertyNameArrayRef properties = JSObjectCopyPropertyNames(ctx, headers_obj);
             size_t n = JSPropertyNameArrayGetCount(properties);
-            for (int i = 0; i < n; i++) {
+            int i;
+            for (i = 0; i < n; i++) {
                 JSStringRef key_str = JSPropertyNameArrayGetNameAtIndex(properties, i);
                 JSValueRef val_ref = JSObjectGetProperty(ctx, headers_obj, key_str, NULL);
 

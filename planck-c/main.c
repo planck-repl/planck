@@ -370,7 +370,8 @@ int main(int argc, char **argv) {
 
     // Process init arguments
 
-    for (int i = 0; i < config.num_scripts; i++) {
+    int i;
+    for (i = 0; i < config.num_scripts; i++) {
         struct script script = config.scripts[i];
         evaluate_source(script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
         if (exit_value != EXIT_SUCCESS) {

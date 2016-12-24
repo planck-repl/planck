@@ -29,7 +29,8 @@ char console_log_buf[CONSOLE_LOG_BUF_SIZE];
 
 JSValueRef function_console_log(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    for (int i = 0; i < argc; i++) {
+    int i;
+    for (i = 0; i < argc; i++) {
         if (i > 0) {
             fprintf(stdout, " ");
         }
@@ -45,7 +46,8 @@ JSValueRef function_console_log(JSContextRef ctx, JSObjectRef function, JSObject
 
 JSValueRef function_console_error(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    for (int i = 0; i < argc; i++) {
+    int i;
+    for (i = 0; i < argc; i++) {
         if (i > 0) {
             fprintf(stderr, " ");
         }
@@ -116,7 +118,8 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
 
         // load from classpath
         if (contents == NULL) {
-            for (int i = 0; i < config.num_src_paths; i++) {
+            int i;
+            for (i = 0; i < config.num_src_paths; i++) {
                 if (config.src_paths[i].blacklisted) {
                     continue;
                 }
@@ -185,7 +188,8 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
     char **deps_cljs_files = NULL;
 
     if (argc == 0) {
-        for (int i = 0; i < config.num_src_paths; i++) {
+        int i;
+        for (i = 0; i < config.num_src_paths; i++) {
             if (config.src_paths[i].blacklisted) {
                 continue;
             }
@@ -210,7 +214,8 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
     }
 
     JSValueRef files[num_files];
-    for (int i = 0; i < num_files; i++) {
+    int i;
+    for (i = 0; i < num_files; i++) {
         JSStringRef file = JSStringCreateWithUTF8CString(deps_cljs_files[i]);
         files[i] = JSValueMakeString(ctx, file);
         free(deps_cljs_files[i]);
@@ -422,7 +427,8 @@ static unsigned long loaded_goog_hashes[2048];
 static size_t count_loaded_goog_hashes = 0;
 
 bool is_loaded(unsigned long h) {
-    for (size_t i = 0; i < count_loaded_goog_hashes; ++i) {
+    size_t i;
+    for (i = 0; i < count_loaded_goog_hashes; ++i) {
         if (loaded_goog_hashes[i] == h) {
             return true;
         }
@@ -642,7 +648,8 @@ JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef functio
 
         JSValueRef arguments[read];
         int num_arguments = (int) read;
-        for (int i = 0; i < num_arguments; i++) {
+        int i;
+        for (i = 0; i < num_arguments; i++) {
             arguments[i] = JSValueMakeNumber(ctx, buf[i]);
         }
 
@@ -697,7 +704,8 @@ JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef funct
 
         unsigned int count = (unsigned int) array_get_count(ctx, (JSObjectRef) args[1]);
         uint8_t buf[count];
-        for (unsigned int i = 0; i < count; i++) {
+        unsigned int i;
+        for (i = 0; i < count; i++) {
             JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef) args[1], i);
             if (JSValueIsNumber(ctx, v)) {
                 double n = JSValueToNumber(ctx, v, NULL);

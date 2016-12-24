@@ -29,7 +29,8 @@ static char *prompt_fonts[] =
 
 const char *color_for_font(const char *font) {
 
-    for (int i = 0; i < sizeof(font_colors) / sizeof(font_colors[0]); i += 2) {
+    int i;
+    for (i = 0; i < sizeof(font_colors) / sizeof(font_colors[0]); i += 2) {
         if (strcmp(font, font_colors[i]) == 0) {
             return font_colors[i + 1];
         }
@@ -40,7 +41,8 @@ const char *color_for_font(const char *font) {
 
 const char *prompt_font_for_theme(const char *theme) {
 
-    for (int i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
+    int i;
+    for (i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
         if (strcmp(theme, prompt_fonts[i]) == 0) {
             return prompt_fonts[i + 1];
         }
@@ -84,7 +86,8 @@ bool check_theme(const char *theme) {
     err = fprintf(stderr, "Supported themes:\n");
     if (err == -1) return false;
 
-    for (int i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
+    int i;
+    for (i = 0; i < sizeof(prompt_fonts) / sizeof(prompt_fonts[0]); i += 2) {
         err = fprintf(stderr, "  %s\n", prompt_fonts[i]);
         if (err == -1) return false;
     }

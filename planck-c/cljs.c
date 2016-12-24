@@ -74,7 +74,8 @@ void signal_engine_ready() {
 char *munge(char *s) {
     size_t len = strlen(s);
     size_t new_len = 0;
-    for (int i = 0; i < len; i++) {
+    int i;
+    for (i = 0; i < len; i++) {
         switch (s[i]) {
             case '!':
                 new_len += 6; // _BANG_
@@ -89,7 +90,7 @@ char *munge(char *s) {
 
     char *ms = malloc((new_len + 1) * sizeof(char));
     int j = 0;
-    for (int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         switch (s[i]) {
             case '-':
                 ms[j++] = '_';
@@ -276,7 +277,8 @@ void cljs_run_main_in_ns(char *ns, size_t argc, char **argv) {
     size_t num_arguments = argc + 1;
     JSValueRef arguments[num_arguments];
     arguments[0] = c_string_to_value(ctx, ns);
-    for (int i = 1; i < num_arguments; i++) {
+    int i;
+    for (i = 1; i < num_arguments; i++) {
         arguments[i] = c_string_to_value(ctx, argv[i - 1]);
     }
 
@@ -316,7 +318,8 @@ char **cljs_get_completions(const char *buffer, int *num_completions) {
 
     char **completions = malloc(n * sizeof(char *));
 
-    for (unsigned int i = 0; i < n; i++) {
+    unsigned int i;
+    for (i = 0; i < n; i++) {
         JSValueRef v = JSObjectGetPropertyAtIndex(ctx, array, i, NULL);
         completions[i] = value_to_c_string(ctx, v);
     }
@@ -431,7 +434,8 @@ void *cljs_do_engine_init(void *data) {
 
     {
         JSValueRef arguments[config.num_rest_args];
-        for (int i = 0; i < config.num_rest_args; i++) {
+        int i;
+        for (i = 0; i < config.num_rest_args; i++) {
             arguments[i] = c_string_to_value(ctx, config.rest_args[i]);
         }
         JSValueRef args_ref = JSObjectMakeArray(ctx, config.num_rest_args, arguments, NULL);
@@ -597,7 +601,8 @@ void cljs_highlight_coords_for_pos(int pos, const char *buf, size_t num_previous
     arguments[0] = JSValueMakeNumber(ctx, pos);
     arguments[1] = c_string_to_value(ctx, buf);
     JSValueRef prev_lines[num_previous_lines];
-    for (int i = 0; i < num_previous_lines; i++) {
+    int i;
+    for (i = 0; i < num_previous_lines; i++) {
         prev_lines[i] = c_string_to_value(ctx, previous_lines[i]);
     }
     arguments[2] = JSObjectMakeArray(ctx, num_previous_lines, prev_lines, NULL);

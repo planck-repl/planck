@@ -44,7 +44,8 @@ repl_t *make_repl() {
 }
 
 void empty_previous_lines(repl_t *repl) {
-    for (int i = 0; i < repl->num_previous_lines; i++) {
+    int i;
+    for (i = 0; i < repl->num_previous_lines; i++) {
         free(repl->previous_lines[i]);
     }
     free(repl->previous_lines);
@@ -97,7 +98,8 @@ void display_prompt(char *prompt) {
 
 bool is_whitespace(char *s) {
     size_t len = strlen(s);
-    for (int i = 0; i < len; i++) {
+    int i;
+    for (i = 0; i < len; i++) {
         if (!isspace(s[i])) {
             return false;
         }
@@ -268,7 +270,8 @@ void run_cmdline_loop(repl_t *repl) {
 void completion(const char *buf, linenoiseCompletions *lc) {
     int num_completions = 0;
     char **completions = cljs_get_completions(buf, &num_completions);
-    for (int i = 0; i < num_completions; i++) {
+    int i;
+    for (i = 0; i < num_completions; i++) {
         linenoiseAddCompletion(lc, completions[i]);
         free(completions[i]);
     }

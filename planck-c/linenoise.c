@@ -184,7 +184,8 @@ static char keymap[] = {
 
 void linenoiseSetKeymapEntry(int action, char key) {
     // First clear any associated action
-    for (size_t i = 0; i<KEYMAP_SIZE; i++) {
+    size_t i;
+    for (i = 0; i<KEYMAP_SIZE; i++) {
         if (keymap[i] == key) {
             keymap[i] = 0;
             break;
@@ -801,8 +802,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     linenoiseHistoryAdd("");
 
     if (write(l.ofd,prompt,l.plen) == -1) return -1;
-    
-    for (int i=0; i<spaces; i++) {
+
+    int i;
+    for (i=0; i<spaces; i++) {
         linenoiseEditInsert(&l, ' ');
     }
     refreshLine(&l);
@@ -848,7 +850,8 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 l.buf[l.pos-3] == '_' &&
                 l.buf[l.pos-4] == '#') {
                 delete = 1;
-                for (int i=0; i<l.pos-4; i++) {
+                int i;
+                for (i=0; i<l.pos-4; i++) {
                     if (l.buf[i] != ' ') {
                         delete = 0;
                         break;
@@ -856,7 +859,8 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 }
             } else if (l.pos + 1 == l.plen) { // Check for current primary prompt
                 delete = 1;
-                for (int i=0; i<l.pos; i++) {
+                int i;
+                for (i=0; i<l.pos; i++) {
                     if (l.buf[i] != l.prompt[i]) {
                         delete = 0;
                         break;

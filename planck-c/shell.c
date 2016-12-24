@@ -15,10 +15,12 @@ static char **cmd(JSContextRef ctx, const JSObjectRef array) {
     char **result = NULL;
     if (argc > 0) {
         result = malloc(sizeof(char *) * (argc + 1));
-        for (unsigned int i = 0; i < argc; i++) {
+        unsigned int i;
+        for (i = 0; i < argc; i++) {
             JSValueRef val = array_get_value_at_index(ctx, array, i);
             if (JSValueGetType(ctx, val) != kJSTypeString) {
-                for (int j = 0; j < i; j++) {
+                int j;
+                for (j = 0; j < i; j++) {
                     free(result[j]);
                 }
                 free(result);
@@ -36,7 +38,8 @@ static char **env(JSContextRef ctx, const JSObjectRef map) {
     char **result = NULL;
     if (argc > 0) {
         result = malloc(sizeof(char *) * (argc + 1));
-        for (unsigned int i = 0; i < argc; i++) {
+        unsigned int i;
+        for (i = 0; i < argc; i++) {
             JSObjectRef keyVal = (JSObjectRef) array_get_value_at_index(ctx, map, i);
             char *key = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 0));
             char *value = value_to_c_string(ctx, array_get_value_at_index(ctx, keyVal, 1));
@@ -283,12 +286,14 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             }
         }
 
-        for (int i = 0; cmd[i] != NULL; i++) {
+        int i;
+        for (i = 0; cmd[i] != NULL; i++) {
             free(cmd[i]);
         }
         free(cmd);
         if (env) {
-            for (int i = 0; env[i] != NULL; i++) {
+            int i;
+            for (i = 0; env[i] != NULL; i++) {
                 free(env[i]);
             }
             free(env);

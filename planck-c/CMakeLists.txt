@@ -46,8 +46,6 @@ set(SOURCE_FILES
 
 add_executable(planck ${SOURCE_FILES})
 
-set_property(TARGET planck PROPERTY C_STANDARD 99)
-
 find_package(PkgConfig REQUIRED)
 
 find_program(CURL_CONFIG curl-config)
