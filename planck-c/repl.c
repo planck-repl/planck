@@ -190,8 +190,11 @@ bool process_line(repl_t *repl, char *input_line) {
             free(repl->current_ns);
             free(repl->current_prompt);
 
-            repl->current_ns = cljs_get_current_ns();
-            repl->current_prompt = form_prompt(repl->current_ns, false);
+            char* current_ns = cljs_get_current_ns();
+            if (current_ns) {
+                repl->current_ns = current_ns;
+                repl->current_prompt = form_prompt(repl->current_ns, false);
+            }
 
             if (is_whitespace(balance_text)) {
                 done = true;
@@ -270,12 +273,15 @@ void run_cmdline_loop(repl_t *repl) {
 void completion(const char *buf, linenoiseCompletions *lc) {
     int num_completions = 0;
     char **completions = cljs_get_completions(buf, &num_completions);
-    int i;
-    for (i = 0; i < num_completions; i++) {
-        linenoiseAddCompletion(lc, completions[i]);
-        free(completions[i]);
+
+    if (completions) {
+        int i;
+        for (i = 0; i < num_completions; i++) {
+            linenoiseAddCompletion(lc, completions[i]);
+            free(completions[i]);
+        }
+        free(completions);
     }
-    free(completions);
 }
 
 pthread_mutex_t highlight_restore_sequence_mutex = PTHREAD_MUTEX_INITIALIZER;

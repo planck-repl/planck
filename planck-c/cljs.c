@@ -56,19 +56,34 @@ pthread_mutex_t engine_init_lock = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t engine_init_cond = PTHREAD_COND_INITIALIZER;
 pthread_t engine_init_thread;
 
-void block_until_engine_ready() {
-    pthread_mutex_lock(&engine_init_lock);
+int block_until_engine_ready() {
+    int err = pthread_mutex_lock(&engine_init_lock);
+    if (err) return err;
+
     while (!cljs_engine_ready) {
-        pthread_cond_wait(&engine_init_cond, &engine_init_lock);
+        err = pthread_cond_wait(&engine_init_cond, &engine_init_lock);
+        if (err) {
+            pthread_mutex_unlock(&engine_init_lock);
+            return err;
+        }
     }
-    pthread_mutex_unlock(&engine_init_lock);
+
+    return pthread_mutex_unlock(&engine_init_lock);
 }
 
-void signal_engine_ready() {
-    pthread_mutex_lock(&engine_init_lock);
+int signal_engine_ready() {
+    int err = pthread_mutex_lock(&engine_init_lock);
+    if (err) return err;
+
     cljs_engine_ready = true;
-    pthread_cond_signal(&engine_init_cond);
-    pthread_mutex_unlock(&engine_init_lock);
+
+    err = pthread_cond_signal(&engine_init_cond);
+    if (err) {
+        pthread_mutex_unlock(&engine_init_lock);
+        return err;
+    }
+
+    return pthread_mutex_unlock(&engine_init_lock);
 }
 
 char *munge(char *s) {
@@ -164,7 +179,11 @@ JSValueRef
 evaluate_source(char *type, char *source, bool expression, bool print_nil, char *set_ns, const char *theme,
                 bool block_until_ready, int session_id) {
     if (block_until_ready) {
-        block_until_engine_ready();
+        int err = block_until_engine_ready();
+        if (err) {
+            cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+            return NULL;
+        }
     }
 
     JSValueRef args[6];
@@ -272,7 +291,11 @@ void bootstrap(char *out_path) {
 }
 
 void cljs_run_main_in_ns(char *ns, size_t argc, char **argv) {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) {
+        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        return;
+    }
 
     size_t num_arguments = argc + 1;
     JSValueRef arguments[num_arguments];
@@ -288,7 +311,11 @@ void cljs_run_main_in_ns(char *ns, size_t argc, char **argv) {
 }
 
 char *cljs_get_current_ns() {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) {
+        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        return NULL;
+    }
 
     size_t num_arguments = 0;
     JSValueRef arguments[num_arguments];
@@ -299,7 +326,8 @@ char *cljs_get_current_ns() {
 }
 
 char **cljs_get_completions(const char *buffer, int *num_completions) {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) return NULL;
 
     size_t num_arguments = 1;
     JSValueRef arguments[num_arguments];
@@ -570,7 +598,11 @@ bool cljs_print_newline() {
 }
 
 char *cljs_is_readable(char *expression) {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) {
+        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        return NULL;
+    }
 
     size_t num_arguments = 2;
     JSValueRef arguments[num_arguments];
@@ -582,7 +614,8 @@ char *cljs_is_readable(char *expression) {
 }
 
 int cljs_indent_space_count(char *text) {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) return 0;
 
     size_t num_arguments = 1;
     JSValueRef arguments[num_arguments];
@@ -594,7 +627,8 @@ int cljs_indent_space_count(char *text) {
 
 void cljs_highlight_coords_for_pos(int pos, const char *buf, size_t num_previous_lines,
                                    char **previous_lines, int *num_lines_up, int *highlight_pos) {
-    block_until_engine_ready();
+    int err = block_until_engine_ready();
+    if (err) return;
 
     size_t num_arguments = 3;
     JSValueRef arguments[num_arguments];
