@@ -760,29 +760,30 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
 
         size_t capacity = 32;
         size_t count = 0;
-        JSValueRef *paths = malloc(capacity * sizeof(paths));
 
-        DIR *d;
-        struct dirent *dir;
-        d = opendir(path);
+        JSValueRef *paths = malloc(capacity * sizeof(JSValueRef));
 
-        size_t path_len = strlen(path);
-        if (path_len && path[path_len - 1] == '/') {
-            path[--path_len] = 0;
-        }
+        DIR *d = opendir(path);
 
         if (d) {
+            size_t path_len = strlen(path);
+            if (path_len && path[path_len - 1] == '/') {
+                path[--path_len] = 0;
+            }
+
+            struct dirent *dir;
             while ((dir = readdir(d)) != NULL) {
                 if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")) {
 
-                    char *buf = malloc((path_len + strlen(dir->d_name) + 2));
-                    sprintf(buf, "%s/%s", path, dir->d_name);
+                    size_t buf_len = path_len + strlen(dir->d_name) + 2;
+                    char *buf = malloc(buf_len);
+                    snprintf(buf, buf_len, "%s/%s", path, dir->d_name);
                     paths[count++] = c_string_to_value(ctx, buf);
                     free(buf);
 
                     if (count == capacity) {
                         capacity *= 2;
-                        paths = realloc(paths, capacity * sizeof(paths));
+                        paths = realloc(paths, capacity * sizeof(JSValueRef));
                     }
                 }
             }
@@ -790,9 +791,9 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
             closedir(d);
         }
 
-        free(path);
-
         JSValueRef rv = JSObjectMakeArray(ctx, count, paths, NULL);
+
+        free(path);
         free(paths);
 
         return rv;
