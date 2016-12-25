@@ -53,8 +53,13 @@ void empty_previous_lines(repl_t *repl) {
     repl->previous_lines = NULL;
 }
 
-char *form_prompt(char *current_ns, bool is_secondary) {
+char *form_prompt(repl_t *repl, bool is_secondary) {
+
     char *prompt = NULL;
+
+    char *current_ns = repl->current_ns;
+    bool dumb_terminal = repl->session_id != 0 || config.dumb_terminal;
+
     if (!is_secondary) {
         if (strlen(current_ns) == 1 && !config.dumb_terminal) {
             prompt = malloc(6 * sizeof(char));
@@ -63,7 +68,7 @@ char *form_prompt(char *current_ns, bool is_secondary) {
             prompt = str_concat(current_ns, "=> ");
         }
     } else {
-        if (!config.dumb_terminal) {
+        if (!dumb_terminal) {
             size_t len = strlen(current_ns) - 2;
             prompt = malloc((len + 6) * sizeof(char));
             memset(prompt, ' ', len);
@@ -193,7 +198,7 @@ bool process_line(repl_t *repl, char *input_line) {
             char* current_ns = cljs_get_current_ns();
             if (current_ns) {
                 repl->current_ns = current_ns;
-                repl->current_prompt = form_prompt(repl->current_ns, false);
+                repl->current_prompt = form_prompt(repl, false);
             }
 
             if (is_whitespace(balance_text)) {
@@ -208,7 +213,7 @@ bool process_line(repl_t *repl, char *input_line) {
             }
 
             free(repl->current_prompt);
-            repl->current_prompt = form_prompt(repl->current_ns, true);
+            repl->current_prompt = form_prompt(repl, true);
             done = true;
         }
     }
@@ -251,7 +256,7 @@ void run_cmdline_loop(repl_t *repl) {
                     errno = 0;
                     repl->input = NULL;
                     empty_previous_lines(repl);
-                    repl->current_prompt = form_prompt(repl->current_ns, false);
+                    repl->current_prompt = form_prompt(repl, false);
                     printf("\n");
                     continue;
                 } else { // Ctrl-D
@@ -391,7 +396,7 @@ static int session_id_counter = 0;
 
 void *connection_handler(void *socket_desc) {
     repl_t *repl = make_repl();
-    repl->current_prompt = form_prompt(repl->current_ns, false);
+    repl->current_prompt = form_prompt(repl, false);
 
     repl->session_id = ++session_id_counter;
 
@@ -411,7 +416,9 @@ void *connection_handler(void *socket_desc) {
         cljs_set_print_sender(NULL);
         sock_to_write_to = 0;
 
-        write(sock, repl->current_prompt, strlen(repl->current_prompt));
+        if (repl->current_prompt != NULL) {
+            write(sock, repl->current_prompt, strlen(repl->current_prompt));
+        }
     }
 
     free(socket_desc);
@@ -473,7 +480,7 @@ int run_repl() {
     s_repl = repl;
 
     repl->current_ns = strdup("cljs.user");
-    repl->current_prompt = form_prompt(repl->current_ns, false);
+    repl->current_prompt = form_prompt(repl, false);
 
     // Per-type initialization
 
