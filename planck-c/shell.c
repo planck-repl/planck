@@ -93,7 +93,7 @@ struct ThreadParams {
     int cb_idx;
 };
 
-int read_child_pipe(int pipe, char** buf_p, size_t* total_p) {
+int read_child_pipe(int pipe, char **buf_p, size_t *total_p) {
 
     const size_t BLOCK_SIZE = 4096;
 

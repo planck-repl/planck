@@ -111,7 +111,7 @@ int start_timer(long millis, timer_callback_t timer_callback, void *data) {
         return err;
     }
 
-    err =  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    err = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     if (err) {
         free(timer_data);
         return err;

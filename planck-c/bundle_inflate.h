@@ -25,7 +25,7 @@ int bundle_inflate(char *dest, unsigned char *src, unsigned int src_len, unsigne
 
     while (!done) {
         strm.next_out = (unsigned char *) dest + strm.total_out;
-        strm.avail_out = len - (int)strm.total_out;
+        strm.avail_out = len - (int) strm.total_out;
 
         status = inflate(&strm, Z_SYNC_FLUSH);
         if (status == Z_STREAM_END) {

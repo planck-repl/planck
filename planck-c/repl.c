@@ -195,7 +195,7 @@ bool process_line(repl_t *repl, char *input_line) {
             free(repl->current_ns);
             free(repl->current_prompt);
 
-            char* current_ns = cljs_get_current_ns();
+            char *current_ns = cljs_get_current_ns();
             if (current_ns) {
                 repl->current_ns = current_ns;
                 repl->current_prompt = form_prompt(repl, false);
