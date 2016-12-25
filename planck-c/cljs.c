@@ -171,7 +171,12 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
 JSObjectRef cljs_get_function(char *namespace, char *name) {
     JSValueRef val = get_value(ctx, namespace, name);
-    assert(!JSValueIsUndefined(ctx, val));
+    if (JSValueIsUndefined(ctx, val)) {
+        char buffer[1024];
+        snprintf(buffer, 1024, "Failed to get function %s/%s", namespace, name);
+        cljs_print_message(buffer);
+        assert(false);
+    }
     return JSValueToObject(ctx, val, NULL);
 }
 
