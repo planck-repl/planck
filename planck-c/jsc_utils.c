@@ -73,7 +73,9 @@ char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
 
 JSValueRef c_string_to_value(JSContextRef ctx, const char *s) {
     JSStringRef str = JSStringCreateWithUTF8CString(s);
-    return JSValueMakeString(ctx, str);
+    JSValueRef rv = JSValueMakeString(ctx, str);
+    JSStringRelease(str);
+    return rv;
 }
 
 int array_get_count(JSContextRef ctx, JSObjectRef arr) {
