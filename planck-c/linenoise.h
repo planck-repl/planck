@@ -44,29 +44,44 @@ extern "C" {
 #endif
 
 typedef struct linenoiseCompletions {
-  size_t len;
-  char **cvec;
+    size_t len;
+    char **cvec;
 } linenoiseCompletions;
 
 typedef void(linenoiseCompletionCallback)(const char *, linenoiseCompletions *);
+
 void linenoiseSetCompletionCallback(linenoiseCompletionCallback *);
+
 void linenoiseAddCompletion(linenoiseCompletions *, const char *);
-    
+
 typedef void(linenoiseHighlightCallback)(const char *, int pos);
+
 void linenoiseSetHighlightCallback(linenoiseHighlightCallback *);
+
 typedef void(linenoiseHighlightCancelCallback)();
+
 void linenoiseSetHighlightCancelCallback(linenoiseHighlightCancelCallback *);
 
 int isPasting();
-void linenoisePrintNow(const char* text);
-char *linenoise(const char *prompt, const char* promptAnsiCode, int spaces);
+
+void linenoisePrintNow(const char *text);
+
+char *linenoise(const char *prompt, const char *promptAnsiCode, int spaces);
+
 int linenoiseHistoryAdd(const char *line);
+
 int linenoiseHistorySetMaxLen(int len);
+
 int linenoiseHistorySave(const char *filename);
+
 int linenoiseHistoryLoad(const char *filename);
+
 void linenoiseClearScreen(void);
+
 void linenoiseSetMultiLine(int ml);
+
 void linenoisePrintKeyCodes(void);
+
 void linenoiseSetKeymapEntry(int action, char key);
 
 #define KM_GO_TO_START_OF_LINE 0
