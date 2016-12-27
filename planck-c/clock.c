@@ -1,5 +1,5 @@
 #include "clock.h"
-#include "cljs.h"
+#include "engine.h"
 #include <time.h>
 #include <stdio.h>
 
@@ -42,6 +42,6 @@ void display_launch_timing(const char *label) {
         last_display = now;
         char buffer[1024];
         snprintf(buffer, 1024, "%50s: %10.6f %10.6f", label, 1e-6 * elapsed, 1e-6 * total_elapsed);
-        cljs_print_message(buffer);
+        engine_print_message(buffer);
     }
 }

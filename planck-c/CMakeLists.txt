@@ -12,12 +12,12 @@ set(SOURCE_FILES
     bundle.c
     bundle.h
     bundle_inflate.h
-    cljs.c
-    cljs.h
     clock.c
     clock.h
     edn.c
     edn.h
+    engine.c
+    engine.h
     file.c
     file.h
     functions.c

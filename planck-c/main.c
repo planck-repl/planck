@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #include "bundle.h"
-#include "cljs.h"
+#include "engine.h"
 #include "globals.h"
 #include "io.h"
 #include "legal.h"
@@ -366,7 +366,7 @@ int main(int argc, char **argv) {
 
     display_launch_timing("check tty");
 
-    cljs_engine_init();
+    engine_init();
 
     // Process init arguments
 
@@ -382,7 +382,7 @@ int main(int argc, char **argv) {
     // Process main arguments
 
     if (config.main_ns_name != NULL) {
-        cljs_run_main_in_ns(config.main_ns_name, config.num_rest_args, config.rest_args);
+        run_main_in_ns(config.main_ns_name, config.num_rest_args, config.rest_args);
     } else if (!config.repl && config.num_rest_args > 0) {
         char *path = config.rest_args[0];
         config.rest_args++;

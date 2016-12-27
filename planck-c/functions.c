@@ -20,7 +20,7 @@
 #include "archive.h"
 #include "file.h"
 #include "timers.h"
-#include "cljs.h"
+#include "engine.h"
 #include "repl.h"
 #include "clock.h"
 
@@ -140,7 +140,7 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     if (stat(location, &file_stat) == 0) {
                         contents = get_contents_zip(location, path, &last_modified);
                     } else {
-                        cljs_perror(location);
+                        engine_perror(location);
                         config.src_paths[i].blacklisted = true;
                     }
                 }
@@ -206,7 +206,7 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                         deps_cljs_files[num_files - 1] = source;
                     }
                 } else {
-                    cljs_perror(location);
+                    engine_perror(location);
                     config.src_paths[i].blacklisted = true;
                 }
             }
@@ -984,10 +984,10 @@ void do_run_timeout(void *data) {
     args[0] = timeout_data_to_js_value(ctx, timeout_data);
     free(timeout_data);
 
-    JSObjectRef run_timeout = cljs_get_function("global", "PLANCK_RUN_TIMEOUT");
-    cljs_acquire_eval_lock();
+    JSObjectRef run_timeout = get_function("global", "PLANCK_RUN_TIMEOUT");
+    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, run_timeout, NULL, 1, args, NULL);
-    cljs_release_eval_lock();
+    release_eval_lock();
 }
 
 static unsigned long long timeout_id = 0;

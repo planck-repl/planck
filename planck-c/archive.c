@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "archive.h"
-#include "cljs.h"
+#include "engine.h"
 
 #ifndef ZIP_RDONLY
 typedef struct zip zip_t;
@@ -20,7 +20,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
     if (archive == NULL) {
         char buffer[1024];
         snprintf(buffer, 1024, "Could not open %s\n", path);
-        cljs_print_message(buffer);
+        engine_print_message(buffer);
         return NULL;
     }
 
@@ -41,7 +41,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 
     char *buf = malloc(stat.size + 1);
     if (!buf) {
-        cljs_print_message("zip malloc");
+        engine_print_message("zip malloc");
         goto close_f;
     }
 
@@ -71,7 +71,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 void print_zip_err(const char *prefix, zip_t *zip) {
     char buffer[1024];
     snprintf(buffer, 1024, "%s: %s\n", prefix, zip_strerror(zip));
-    cljs_print_message(buffer);
+    engine_print_message(buffer);
 }
 
 #ifdef ZIP_TEST

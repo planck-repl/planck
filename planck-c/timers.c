@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include "timers.h"
-#include "cljs.h"
+#include "engine.h"
 
 static int timers_outstanding = 0;
 pthread_mutex_t timers_complete_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -74,7 +74,7 @@ void *timer_thread(void *data) {
     int err = nanosleep(&t, NULL);
     if (err) {
         free(data);
-        cljs_perror("timer nanosleep");
+        engine_perror("timer nanosleep");
         return NULL;
     }
 
@@ -84,7 +84,7 @@ void *timer_thread(void *data) {
 
     err = signal_timer_complete();
     if (err) {
-        cljs_print_err_message("timer signal_timer_complete", err);
+        engine_print_err_message("timer signal_timer_complete", err);
     }
 
     return NULL;

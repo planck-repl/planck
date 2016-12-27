@@ -10,7 +10,7 @@
 
 #include "linenoise.h"
 
-#include "cljs.h"
+#include "engine.h"
 #include "globals.h"
 #include "keymap.h"
 #include "str.h"
@@ -153,7 +153,7 @@ bool process_line(repl_t *repl, char *input_line) {
     char *balance_text = NULL;
 
     while (!done) {
-        if ((balance_text = cljs_is_readable(repl->input)) != NULL) {
+        if ((balance_text = is_readable(repl->input)) != NULL) {
             repl->input[strlen(repl->input) - strlen(balance_text)] = '\0';
 
             if (!is_whitespace(repl->input)) { // Guard against empty string being read
@@ -195,7 +195,7 @@ bool process_line(repl_t *repl, char *input_line) {
             free(repl->current_ns);
             free(repl->current_prompt);
 
-            char *current_ns = cljs_get_current_ns();
+            char *current_ns = get_current_ns();
             if (current_ns) {
                 repl->current_ns = current_ns;
                 repl->current_prompt = form_prompt(repl, false);
@@ -209,7 +209,7 @@ bool process_line(repl_t *repl, char *input_line) {
         } else {
             // Prepare for reading non-1st of input with secondary prompt
             if (repl->history_path != NULL) {
-                repl->indent_space_count = cljs_indent_space_count(repl->input);
+                repl->indent_space_count = indent_space_count(repl->input);
             }
 
             free(repl->current_prompt);
@@ -235,15 +235,15 @@ void run_cmdline_loop(repl_t *repl) {
         } else {
             // Handle prints while processing linenoise input
             bool linenoisePrintNowSet = false;
-            if (cljs_engine_ready) {
-                cljs_set_print_sender(&linenoisePrintNow);
+            if (engine_ready) {
+                set_print_sender(&linenoisePrintNow);
                 linenoisePrintNowSet = true;
             }
 
             // If *print-newline* is off, we need to emit a newline now, otherwise
             // the linenoise prompt and line editing will overwrite any printed
             // output on the current line.
-            if (cljs_engine_ready && !cljs_print_newline()) {
+            if (engine_ready && !engine_print_newline()) {
                 fprintf(stdout, "\n");
             }
 
@@ -252,7 +252,7 @@ void run_cmdline_loop(repl_t *repl) {
 
             // Reset printing handler back
             if (linenoisePrintNowSet) {
-                cljs_set_print_sender(NULL);
+                set_print_sender(NULL);
             }
 
             repl->indent_space_count = 0;
@@ -282,7 +282,7 @@ void run_cmdline_loop(repl_t *repl) {
 
 void completion(const char *buf, linenoiseCompletions *lc) {
     int num_completions = 0;
-    char **completions = cljs_get_completions(buf, &num_completions);
+    char **completions = get_completions(buf, &num_completions);
 
     if (completions) {
         int i;
@@ -346,9 +346,9 @@ void highlight(const char *buf, int pos) {
     if (current == ']' || current == '}' || current == ')') {
         int num_lines_up = -1;
         int highlight_pos = 0;
-        cljs_highlight_coords_for_pos(pos, buf, s_repl->num_previous_lines, s_repl->previous_lines,
-                                      &num_lines_up,
-                                      &highlight_pos);
+        highlight_coords_for_pos(pos, buf, s_repl->num_previous_lines, s_repl->previous_lines,
+                                 &num_lines_up,
+                                 &highlight_pos);
 
         int current_pos = pos + 1;
 
@@ -420,12 +420,12 @@ void *connection_handler(void *socket_desc) {
             break;
         }
 
-        cljs_set_print_sender(&socket_sender);
+        set_print_sender(&socket_sender);
 
         client_message[read_size] = '\0';
         process_line(repl, strdup(client_message));
 
-        cljs_set_print_sender(NULL);
+        set_print_sender(NULL);
         sock_to_write_to = 0;
 
         if (repl->current_prompt != NULL) {
@@ -445,7 +445,7 @@ void *accept_connections(void *data) {
 
     socket_desc = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_desc == -1) {
-        cljs_perror("Could not create listen socket");
+        engine_perror("Could not create listen socket");
         return NULL;
     }
 
@@ -454,7 +454,7 @@ void *accept_connections(void *data) {
     server.sin_port = htons(config.socket_repl_port);
 
     if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
-        cljs_perror("Socket bind failed");
+        engine_perror("Socket bind failed");
         return NULL;
     }
 
@@ -463,7 +463,7 @@ void *accept_connections(void *data) {
     if (!config.quiet) {
         char msg[1024];
         snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.", config.socket_repl_host, config.socket_repl_port);
-        cljs_print_message(msg);
+        engine_print_message(msg);
     }
 
     c = sizeof(struct sockaddr_in);
@@ -474,13 +474,13 @@ void *accept_connections(void *data) {
         *new_sock = new_socket;
 
         if (pthread_create(&handler_thread, NULL, connection_handler, (void *) new_sock) < 0) {
-            cljs_perror("could not create thread");
+            engine_perror("could not create thread");
             return NULL;
         }
     }
 
     if (new_socket < 0) {
-        cljs_perror("accept failed");
+        engine_perror("accept failed");
         return NULL;
     }
 

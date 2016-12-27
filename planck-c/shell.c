@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <JavaScriptCore/JavaScript.h>
-#include "cljs.h"
+#include "engine.h"
 #include "jsc_utils.h"
 
 static char **cmd(JSContextRef ctx, const JSObjectRef array) {
@@ -116,7 +116,7 @@ int read_child_pipe(int pipe, char **buf_p, size_t *total_p) {
         return 0;
     } else {
         // TODO. num_read negative?
-        cljs_print_message("error reading");
+        engine_print_message("error reading");
         return -1;
     }
 }
@@ -156,7 +156,7 @@ void read_child_pipes(struct ThreadParams *params) {
             if (errno == EINTR) {
                 // We ignore interrupts and loop back around
             } else {
-                cljs_perror("planck.shell select on child stdout/stderr");
+                engine_perror("planck.shell select on child stdout/stderr");
                 params->res.status = -1;
                 goto done;
             }
@@ -205,12 +205,12 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
     } else {
         JSValueRef args[1];
         args[0] = result_to_object_ref(ctx, &params->res);
-        JSObjectRef translateResult = cljs_get_function("global", "translate_async_result");
+        JSObjectRef translateResult = get_function("global", "translate_async_result");
         JSObjectRef result = (JSObjectRef) JSObjectCallAsFunction(ctx, translateResult, NULL,
                                                                   1, args, NULL);
 
         args[0] = JSValueMakeNumber(ctx, params->cb_idx);
-        JSObjectCallAsFunction(ctx, cljs_get_function("global", "do_async_sh_callback"),
+        JSObjectCallAsFunction(ctx, get_function("global", "do_async_sh_callback"),
                                result, 1, args, NULL);
 
         free(params);
