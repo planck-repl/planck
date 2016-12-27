@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "clj.h"
+#include "edn.h"
 #include "linenoise.h"
 #include "str.h"
 
