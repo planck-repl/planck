@@ -20,6 +20,10 @@ char *munge(char *s);
 
 void bootstrap(char *out_path);
 
+int block_until_engine_ready();
+
+const char *block_until_engine_ready_failed_msg;
+
 JSObjectRef cljs_get_function(char *namespace, char *name);
 
 void cljs_run_main_in_ns(char *ns, size_t argc, char **argv);

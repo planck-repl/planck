@@ -71,6 +71,8 @@ int block_until_engine_ready() {
     return pthread_mutex_unlock(&engine_init_lock);
 }
 
+const char *block_until_engine_ready_failed_msg = "Failed waiting for JavaScript engine to initialize.";
+
 int signal_engine_ready() {
     int err = pthread_mutex_lock(&engine_init_lock);
     if (err) return err;
@@ -186,7 +188,7 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     if (block_until_ready) {
         int err = block_until_engine_ready();
         if (err) {
-            cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+            cljs_print_message(block_until_engine_ready_failed_msg);
             return NULL;
         }
     }
@@ -298,7 +300,7 @@ void bootstrap(char *out_path) {
 void cljs_run_main_in_ns(char *ns, size_t argc, char **argv) {
     int err = block_until_engine_ready();
     if (err) {
-        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        cljs_print_message(block_until_engine_ready_failed_msg);
         return;
     }
 
@@ -318,7 +320,7 @@ void cljs_run_main_in_ns(char *ns, size_t argc, char **argv) {
 char *cljs_get_current_ns() {
     int err = block_until_engine_ready();
     if (err) {
-        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        cljs_print_message(block_until_engine_ready_failed_msg);
         return NULL;
     }
 
@@ -605,7 +607,7 @@ bool cljs_print_newline() {
 char *cljs_is_readable(char *expression) {
     int err = block_until_engine_ready();
     if (err) {
-        cljs_print_message("Failed waiting for JavaScript engine to initialize.");
+        cljs_print_message(block_until_engine_ready_failed_msg);
         return NULL;
     }
 

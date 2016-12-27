@@ -234,8 +234,11 @@ void run_cmdline_loop(repl_t *repl) {
             }
         } else {
             // Handle prints while processing linenoise input
-            cljs_set_print_sender(&linenoisePrintNow);
-
+            bool linenoisePrintNowSet = false;
+            if (cljs_engine_ready) {
+                cljs_set_print_sender(&linenoisePrintNow);
+                linenoisePrintNowSet = true;
+            }
 
             // If *print-newline* is off, we need to emit a newline now, otherwise
             // the linenoise prompt and line editing will overwrite any printed
@@ -248,7 +251,9 @@ void run_cmdline_loop(repl_t *repl) {
                                    repl->indent_space_count);
 
             // Reset printing handler back
-            cljs_set_print_sender(NULL);
+            if (linenoisePrintNowSet) {
+                cljs_set_print_sender(NULL);
+            }
 
             repl->indent_space_count = 0;
             if (line == NULL) {
@@ -408,6 +413,13 @@ void *connection_handler(void *socket_desc) {
 
     while ((read_size = recv(sock, client_message, 4095, 0)) > 0) {
         sock_to_write_to = sock;
+
+        int err = block_until_engine_ready();
+        if (err) {
+            write(sock, block_until_engine_ready_failed_msg, strlen(block_until_engine_ready_failed_msg));
+            break;
+        }
+
         cljs_set_print_sender(&socket_sender);
 
         client_message[read_size] = '\0';
@@ -504,10 +516,6 @@ int run_repl() {
         linenoiseSetCompletionCallback(completion);
         linenoiseSetHighlightCallback(highlight);
         linenoiseSetHighlightCancelCallback(highlight_cancel);
-    }
-
-    if (!config.dumb_terminal) {
-        cljs_set_print_sender(&linenoisePrintNow);
     }
 
     if (config.socket_repl_port) {
