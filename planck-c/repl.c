@@ -534,6 +534,14 @@ int run_repl() {
     }
 
     if (config.socket_repl_port) {
+        block_until_engine_ready();
+
+        if (config.dumb_terminal) {
+            set_print_sender(NULL);
+        } else {
+            set_print_sender(&linenoisePrintNow);
+        }
+
         pthread_t thread;
         pthread_create(&thread, NULL, accept_connections, NULL);
     }

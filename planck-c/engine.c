@@ -585,8 +585,8 @@ JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSOb
 }
 
 void set_print_sender(void (*sender)(const char *msg)) {
+    cljs_sender = sender;
     if (sender) {
-        cljs_sender = sender;
         register_global_function(ctx, "PLANCK_PRINT_FN", function_print_fn_sender);
         register_global_function(ctx, "PLANCK_PRINT_ERR_FN", function_print_fn_sender);
     } else {
