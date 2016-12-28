@@ -9,11 +9,11 @@
                  ; Comment ClojureScript dep if using a non-official 
                  ; ClojureScript release via planck-cljs/script/build.
                  #_[org.clojure/clojurescript "1.9.229"]
-                 [org.clojure/tools.reader "1.0.0-beta3"]
+                 [org.clojure/tools.reader "1.0.0-beta4"]
                  [tailrecursion/cljson "1.0.7"]
-                 [com.cognitect/transit-clj "0.8.290"]
+                 [com.cognitect/transit-clj "0.8.297"]
                  [com.cognitect/transit-cljs "0.8.239"]
-                 [fipp "0.6.6"]
-                 [malabarba/lazy-map "1.1"]
+                 [fipp "0.6.7"]
+                 [malabarba/lazy-map "1.3"]
                  [cljsjs/parinfer "1.8.1-0"]]
   :clean-targets ["out" "target"])
