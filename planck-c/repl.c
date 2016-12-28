@@ -113,6 +113,14 @@ bool is_whitespace(char *s) {
     return true;
 }
 
+bool is_exit_command(char *input, bool is_socket_repl) {
+    return (strcmp(input, ":cljs/quit") == 0 ||
+            strcmp(input, "quit") == 0 ||
+            strcmp(input, "exit") == 0 ||
+            strcmp(input, "\x04") == 0 ||
+            (is_socket_repl && strcmp(input, ":repl/quit") == 0));
+}
+
 bool process_line(repl_t *repl, char *input_line) {
 
     // Accumulate input lines
@@ -130,9 +138,7 @@ bool process_line(repl_t *repl, char *input_line) {
 
     // Check for explicit exit
 
-    if (strcmp(repl->input, ":cljs/quit") == 0 ||
-        strcmp(repl->input, "quit") == 0 ||
-        strcmp(repl->input, "exit") == 0) {
+    if (is_exit_command(repl->input, repl->session_id != 0)) {
         if (repl->session_id == 0) {
             exit_value = EXIT_SUCCESS_INTERNAL;
         }
@@ -412,6 +418,11 @@ void *connection_handler(void *socket_desc) {
     write(sock, repl->current_prompt, strlen(repl->current_prompt));
 
     while ((read_size = recv(sock, client_message, 4095, 0)) > 0) {
+
+        if (str_has_suffix(client_message, "\r\n") == 0) {
+            client_message[strlen(client_message) - 2] = 0;
+        }
+
         sock_to_write_to = sock;
 
         int err = block_until_engine_ready();
@@ -423,7 +434,11 @@ void *connection_handler(void *socket_desc) {
         set_print_sender(&socket_sender);
 
         client_message[read_size] = '\0';
-        process_line(repl, strdup(client_message));
+        bool exit = process_line(repl, strdup(client_message));
+        if (exit) {
+            close(sock);
+            break;
+        }
 
         set_print_sender(NULL);
         sock_to_write_to = 0;
