@@ -175,8 +175,8 @@ JSObjectRef get_function(char *namespace, char *name) {
     JSValueRef val = get_value(ctx, namespace, name);
     if (JSValueIsUndefined(ctx, val)) {
         char buffer[1024];
-        snprintf(buffer, 1024, "Failed to get function %s/%s", namespace, name);
-        engine_print_message(buffer);
+        snprintf(buffer, 1024, "Failed to get function %s/%s\n", namespace, name);
+        engine_print(buffer);
         assert(false);
     }
     return JSValueToObject(ctx, val, NULL);
@@ -188,7 +188,7 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     if (block_until_ready) {
         int err = block_until_engine_ready();
         if (err) {
-            engine_print_message(block_until_engine_ready_failed_msg);
+            engine_println(block_until_engine_ready_failed_msg);
             return NULL;
         }
     }
@@ -300,7 +300,7 @@ void bootstrap(char *out_path) {
 void run_main_in_ns(char *ns, size_t argc, char **argv) {
     int err = block_until_engine_ready();
     if (err) {
-        engine_print_message(block_until_engine_ready_failed_msg);
+        engine_println(block_until_engine_ready_failed_msg);
         return;
     }
 
@@ -320,7 +320,7 @@ void run_main_in_ns(char *ns, size_t argc, char **argv) {
 char *get_current_ns() {
     int err = block_until_engine_ready();
     if (err) {
-        engine_print_message(block_until_engine_ready_failed_msg);
+        engine_println(block_until_engine_ready_failed_msg);
         return NULL;
     }
 
@@ -551,24 +551,30 @@ void engine_perror(const char *msg) {
         perror(msg);
     } else {
         char buffer[1024];
-        snprintf(buffer, 1024, "%s: %s", msg, strerror(errno));
-        engine_print_message(buffer);
+        snprintf(buffer, 1024, "%s: %s\n", msg, strerror(errno));
+        engine_print(buffer);
     }
 }
 
 void engine_print_err_message(const char *msg, int err) {
     char buffer[1024];
-    snprintf(buffer, 1024, "%s: %d", msg, err);
-    engine_print_message(buffer);
+    snprintf(buffer, 1024, "%s: %d\n", msg, err);
+    engine_print(buffer);
 }
 
-void engine_print_message(const char *msg) {
+void engine_print(const char *msg) {
     void (*current_sender)(const char *msg) = cljs_sender;
     if (current_sender) {
         current_sender(msg);
     } else {
-        fprintf(stderr, "%s\n", msg);
+        fprintf(stderr, "%s", msg);
     }
+}
+
+void engine_println(const char *msg) {
+    char buffer[1024];
+    snprintf(buffer, 1024, "%s\n", msg);
+    engine_print(buffer);
 }
 
 JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
@@ -576,7 +582,7 @@ JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSOb
     if (argc == 1 && JSValueIsString(ctx, args[0])) {
         char *str = value_to_c_string(ctx, args[0]);
 
-        engine_print_message(str);
+        engine_print(str);
 
         free(str);
     }
@@ -608,7 +614,7 @@ bool engine_print_newline() {
 char *is_readable(char *expression) {
     int err = block_until_engine_ready();
     if (err) {
-        engine_print_message(block_until_engine_ready_failed_msg);
+        engine_println(block_until_engine_ready_failed_msg);
         return NULL;
     }
 

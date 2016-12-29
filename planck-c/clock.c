@@ -41,7 +41,7 @@ void display_launch_timing(const char *label) {
         uint64_t elapsed = now - last_display;
         last_display = now;
         char buffer[1024];
-        snprintf(buffer, 1024, "%50s: %10.6f %10.6f", label, 1e-6 * elapsed, 1e-6 * total_elapsed);
-        engine_print_message(buffer);
+        snprintf(buffer, 1024, "%50s: %10.6f %10.6f\n", label, 1e-6 * elapsed, 1e-6 * total_elapsed);
+        engine_print(buffer);
     }
 }

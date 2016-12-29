@@ -188,7 +188,7 @@ bool process_line(repl_t *repl, char *input_line) {
                     return true;
                 }
             } else {
-                printf("\n");
+                engine_print("\n");
             }
 
             // Now that we've evaluated the input, reset for next round
@@ -477,8 +477,8 @@ void *accept_connections(void *data) {
 
     if (!config.quiet) {
         char msg[1024];
-        snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.", config.socket_repl_host, config.socket_repl_port);
-        engine_print_message(msg);
+        snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.\n", config.socket_repl_host, config.socket_repl_port);
+        engine_print(msg);
     }
 
     c = sizeof(struct sockaddr_in);

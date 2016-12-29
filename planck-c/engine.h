@@ -39,7 +39,9 @@ void engine_perror(const char *msg);
 
 void engine_print_err_message(const char *msg, int err);
 
-void engine_print_message(const char *msg);
+void engine_print(const char *msg);
+
+void engine_println(const char *msg);
 
 void set_print_sender(void (*sender)(const char *msg));
 

@@ -116,7 +116,7 @@ int read_child_pipe(int pipe, char **buf_p, size_t *total_p) {
         return 0;
     } else {
         // TODO. num_read negative?
-        engine_print_message("error reading");
+        engine_println("error reading");
         return -1;
     }
 }

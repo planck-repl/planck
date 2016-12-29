@@ -20,7 +20,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
     if (archive == NULL) {
         char buffer[1024];
         snprintf(buffer, 1024, "Could not open %s\n", path);
-        engine_print_message(buffer);
+        engine_print(buffer);
         return NULL;
     }
 
@@ -41,7 +41,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 
     char *buf = malloc(stat.size + 1);
     if (!buf) {
-        engine_print_message("zip malloc");
+        engine_println("zip malloc");
         goto close_f;
     }
 
@@ -71,7 +71,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 void print_zip_err(const char *prefix, zip_t *zip) {
     char buffer[1024];
     snprintf(buffer, 1024, "%s: %s\n", prefix, zip_strerror(zip));
-    engine_print_message(buffer);
+    engine_print(buffer);
 }
 
 #ifdef ZIP_TEST
