@@ -43,8 +43,8 @@ size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void 
 
     int val_start = key_end + 2;
     size_t val_len = val_end - val_start;
-    char val[val_len];
-    strncpy(val, buffer + val_start, val_end - val_start);
+    char val[val_len + 1];
+    strncpy(val, buffer + val_start, val_len);
     val[val_len] = '\0';
     JSStringRef val_str = JSStringCreateWithUTF8CString(val);
     JSValueRef val_ref = JSValueMakeString(state->ctx, val_str);
