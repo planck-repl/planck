@@ -12,7 +12,7 @@ checkCmdSuccess() {
     fi
 }
 
-NON_BUNDLED_SRC=`find planck-cljs -newer planck-c/bundle.c`
+NON_BUNDLED_SRC=`find planck-cljs -type f -newer planck-c/bundle.c`
 BUNDLE_SIZE=$(wc -c < planck-c/bundle.c)
 if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 400 ]; then
 
