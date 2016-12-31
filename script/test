@@ -9,23 +9,27 @@
 (defn file-exists? [filename]
   (succeeded? (sh "ls" filename)))
 
+(defn print-results [results]
+  (println (:out results))
+  (println (:err results)))
+
 (println "Running unit tests...")
 
 (let [results (sh "script/get-tcheck")]
   (when-not (succeeded? results)
-    (println (:out results))
+    (print-results results)
     (exit 1)))
 
 (let [results (sh "script/test-unit")]
   (when-not (succeeded? results)
-    (println (:out results))
+    (print-results results)
     (exit 1)))
 
 (println "Running integration tests...")
 
 (let [results (sh "script/test-int")]
   (when-not (succeeded? results)
-    (println (:out results))
+    (print-results results)
     (exit 1)))
 
 (comment
@@ -34,7 +38,7 @@
 
 (let [results (sh "script/test-core")]
   (when-not (succeeded? results)
-    (println (:out results))
+    (print-results results)
     (println "Core tests have failed.")
     (exit 1)))
 )
