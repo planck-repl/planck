@@ -395,11 +395,44 @@ void highlight_cancel() {
     }
 }
 
+int write_to_socket(int fd, const char *text) {
+
+    while (true) {
+
+        fd_set fds;
+        FD_ZERO(&fds);
+
+        FD_SET(fd, &fds);
+
+        int rv = select(fd + 1, NULL, &fds, NULL, NULL);
+
+        if (rv == -1) {
+            if (errno == EINTR) {
+                // We ignore interrupts and loop back around
+            } else {
+                engine_perror("Planck Socket REPL select on outbound socket.");
+                return -1;
+            }
+        } else {
+            size_t len = strlen(text);
+            ssize_t n = write(fd, text, len);
+            if (n == len) {
+                return 0;
+            }
+            if (n == -1) {
+                engine_perror("Planck Socket REPL write to outbound socket.");
+                return -1;
+            }
+            text += n;
+        }
+    }
+}
+
 int sock_to_write_to = 0;
 
 void socket_sender(const char *text) {
     if (sock_to_write_to) {
-        write(sock_to_write_to, text, strlen(text));
+        write_to_socket(sock_to_write_to, text);
     }
 }
 
@@ -415,9 +448,9 @@ void *connection_handler(void *socket_desc) {
     ssize_t read_size;
     char client_message[4096];
 
-    write(sock, repl->current_prompt, strlen(repl->current_prompt));
+    int err = write_to_socket(sock, repl->current_prompt);
 
-    while ((read_size = recv(sock, client_message, 4095, 0)) > 0) {
+    while (!err && (read_size = recv(sock, client_message, 4095, 0)) > 0) {
 
         if (str_has_suffix(client_message, "\r\n") == 0) {
             client_message[strlen(client_message) - 2] = 0;
@@ -425,9 +458,9 @@ void *connection_handler(void *socket_desc) {
 
         sock_to_write_to = sock;
 
-        int err = block_until_engine_ready();
+        err = block_until_engine_ready();
         if (err) {
-            write(sock, block_until_engine_ready_failed_msg, strlen(block_until_engine_ready_failed_msg));
+            write_to_socket(sock, block_until_engine_ready_failed_msg);
             break;
         }
 
@@ -444,7 +477,7 @@ void *connection_handler(void *socket_desc) {
         sock_to_write_to = 0;
 
         if (repl->current_prompt != NULL) {
-            write(sock, repl->current_prompt, strlen(repl->current_prompt));
+            err = write_to_socket(sock, repl->current_prompt);
         }
     }
 
@@ -477,7 +510,8 @@ void *accept_connections(void *data) {
 
     if (!config.quiet) {
         char msg[1024];
-        snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.\n", config.socket_repl_host, config.socket_repl_port);
+        snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.\n", config.socket_repl_host,
+                 config.socket_repl_port);
         engine_print(msg);
     }
 
