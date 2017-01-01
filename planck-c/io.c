@@ -47,7 +47,11 @@ char *get_contents(char *path, time_t *last_modified) {
 
     char *buf = malloc(f_stat.st_size + 1);
     memset(buf, 0, f_stat.st_size);
-    fread(buf, f_stat.st_size, 1, f);
+    size_t n = fread(buf, f_stat.st_size, 1, f);
+    if (n != 1) {
+        free(buf);
+        goto err;
+    }
     buf[f_stat.st_size] = '\0';
     if (ferror(f)) {
         free(buf);
@@ -55,6 +59,7 @@ char *get_contents(char *path, time_t *last_modified) {
     }
 
     if (fclose(f) < 0) {
+        free(buf);
         goto err;
     }
 
