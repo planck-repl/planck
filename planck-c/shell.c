@@ -273,6 +273,7 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             exit(1);
         }
     } else {
+        struct ThreadParams *params = NULL;
         if (pid < 0) {
             res->status = -1;
         } else {
@@ -280,11 +281,7 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             close(err[1]);
             close(in[1]);
 
-            struct ThreadParams tp;
-            struct ThreadParams *params = &tp;
-            if (cb_idx != -1) {
-                params = malloc(sizeof(struct ThreadParams));
-            }
+            params = malloc(sizeof(struct ThreadParams));
             params->res = result;
             params->errpipe = err[0];
             params->outpipe = in[0];
@@ -316,7 +313,9 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
         if (cb_idx != -1) {
             return JSValueMakeNull(ctx);
         } else {
-            return (JSValueRef) result_to_object_ref(ctx, res);
+            JSValueRef rv = (JSValueRef) result_to_object_ref(ctx, res);
+            free(params);
+            return rv;
         }
     }
 }
