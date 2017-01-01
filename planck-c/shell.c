@@ -226,12 +226,25 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
     struct SystemResult result = {0};
     struct SystemResult *res = &result;
 
+    int err_rv;
     int in[2];
-    pipe(in);
+    err_rv = pipe(in);
+    if (err_rv) {
+        engine_perror("planck.shell setting up in pipe");
+        return JSValueMakeNull(ctx);
+    }
     int out[2];
-    pipe(out);
+    err_rv= pipe(out);
+    if (err_rv) {
+        engine_perror("planck.shell setting up out pipe");
+        return JSValueMakeNull(ctx);
+    }
     int err[2];
-    pipe(err);
+    err_rv = pipe(err);
+    if (err_rv) {
+        engine_perror("planck.shell setting up err pipe");
+        return JSValueMakeNull(ctx);
+    }
 
     pid_t pid;
     pid = fork();
