@@ -198,12 +198,12 @@ bool process_line(repl_t *repl, char *input_line) {
             empty_previous_lines(repl);
 
             // Fetch the current namespace and use it to set the prompt
-            free(repl->current_ns);
-            free(repl->current_prompt);
 
             char *current_ns = get_current_ns();
             if (current_ns) {
+                free(repl->current_ns);
                 repl->current_ns = current_ns;
+                free(repl->current_prompt);
                 repl->current_prompt = form_prompt(repl, false);
             }
 
@@ -267,6 +267,7 @@ void run_cmdline_loop(repl_t *repl) {
                     errno = 0;
                     repl->input = NULL;
                     empty_previous_lines(repl);
+                    free(repl->current_prompt);
                     repl->current_prompt = form_prompt(repl, false);
                     printf("\n");
                     continue;
