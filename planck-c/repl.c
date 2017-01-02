@@ -520,7 +520,7 @@ void *accept_connections(void *data) {
     while ((new_socket = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c))) {
 
         pthread_t handler_thread;
-        new_sock = malloc(1);
+        new_sock = malloc(sizeof(int));
         *new_sock = new_socket;
 
         if (pthread_create(&handler_thread, NULL, connection_handler, (void *) new_sock) < 0) {
