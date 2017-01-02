@@ -411,7 +411,7 @@ int write_to_socket(int fd, const char *text) {
             if (errno == EINTR) {
                 // We ignore interrupts and loop back around
             } else {
-                engine_perror("Planck Socket REPL select on outbound socket.");
+                perror("Planck Socket REPL select on outbound socket.");
                 return -1;
             }
         } else {
@@ -421,7 +421,7 @@ int write_to_socket(int fd, const char *text) {
                 return 0;
             }
             if (n == -1) {
-                engine_perror("Planck Socket REPL write to outbound socket.");
+                perror("Planck Socket REPL write to outbound socket.");
                 return -1;
             }
             text += n;
