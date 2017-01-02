@@ -205,13 +205,19 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
     } else {
         JSValueRef args[1];
         args[0] = result_to_object_ref(ctx, &params->res);
-        JSObjectRef translateResult = get_function("global", "translate_async_result");
-        JSObjectRef result = (JSObjectRef) JSObjectCallAsFunction(ctx, translateResult, NULL,
+        static JSObjectRef translate_async_result_fn = NULL;
+        if (!translate_async_result_fn) {
+            translate_async_result_fn = get_function("global", "translate_async_result");
+        }
+        JSObjectRef result = (JSObjectRef) JSObjectCallAsFunction(ctx, translate_async_result_fn, NULL,
                                                                   1, args, NULL);
 
         args[0] = JSValueMakeNumber(ctx, params->cb_idx);
-        JSObjectCallAsFunction(ctx, get_function("global", "do_async_sh_callback"),
-                               result, 1, args, NULL);
+        static JSObjectRef do_async_sh_callback_fn = NULL;
+        if (!do_async_sh_callback_fn) {
+            do_async_sh_callback_fn = get_function("global", "do_async_sh_callback");
+        }
+        JSObjectCallAsFunction(ctx, do_async_sh_callback_fn, result, 1, args, NULL);
 
         free(params);
         return NULL;

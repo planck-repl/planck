@@ -984,9 +984,12 @@ void do_run_timeout(void *data) {
     args[0] = timeout_data_to_js_value(ctx, timeout_data);
     free(timeout_data);
 
-    JSObjectRef run_timeout = get_function("global", "PLANCK_RUN_TIMEOUT");
+    JSObjectRef run_timeout_fn = NULL;
+    if (!run_timeout_fn) {
+        run_timeout_fn = get_function("global", "PLANCK_RUN_TIMEOUT");
+    }
     acquire_eval_lock();
-    JSObjectCallAsFunction(ctx, run_timeout, NULL, 1, args, NULL);
+    JSObjectCallAsFunction(ctx, run_timeout_fn, NULL, 1, args, NULL);
     release_eval_lock();
 }
 

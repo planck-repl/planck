@@ -217,7 +217,10 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     args[4] = JSValueMakeString(ctx, theme_str);
     args[5] = JSValueMakeNumber(ctx, session_id);
 
-    JSObjectRef execute_fn = get_function("planck.repl", "execute");
+    static JSObjectRef execute_fn = NULL;
+    if (!execute_fn) {
+        execute_fn = get_function("planck.repl", "execute");
+    }
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
     JSValueRef ex = NULL;
 
@@ -326,7 +329,10 @@ char *get_current_ns() {
 
     size_t num_arguments = 0;
     JSValueRef arguments[num_arguments];
-    JSObjectRef get_current_ns_fn = get_function("planck.repl", "get-current-ns");
+    static JSObjectRef get_current_ns_fn = NULL;
+    if (!get_current_ns_fn) {
+        get_current_ns_fn = get_function("planck.repl", "get-current-ns");
+    }
     JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments,
                                                arguments, NULL);
     return value_to_c_string(ctx, result);
@@ -339,7 +345,10 @@ char **get_completions(const char *buffer, int *num_completions) {
     size_t num_arguments = 1;
     JSValueRef arguments[num_arguments];
     arguments[0] = c_string_to_value(ctx, (char *) buffer);
-    JSObjectRef completions_fn = get_function("planck.repl", "get-completions");
+    static JSObjectRef completions_fn = NULL;
+    if (!completions_fn) {
+        completions_fn = get_function("planck.repl", "get-completions");
+    }
     JSValueRef result = JSObjectCallAsFunction(ctx, completions_fn, JSContextGetGlobalObject(ctx), num_arguments,
                                                arguments, NULL);
 
@@ -618,12 +627,17 @@ char *is_readable(char *expression) {
         return NULL;
     }
 
+    static JSObjectRef is_readable_fn = NULL;
+    if (!is_readable_fn) {
+        is_readable_fn = get_function("planck.repl", "is-readable?");
+    }
+
     size_t num_arguments = 2;
     JSValueRef arguments[num_arguments];
     arguments[0] = c_string_to_value(ctx, expression);
     arguments[1] = c_string_to_value(ctx, config.theme);
-    JSValueRef result = JSObjectCallAsFunction(ctx, get_function("planck.repl", "is-readable?"),
-                                               JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+    JSValueRef result = JSObjectCallAsFunction(ctx, is_readable_fn, JSContextGetGlobalObject(ctx),
+                                               num_arguments, arguments, NULL);
     return value_to_c_string(ctx, result);
 }
 
@@ -634,8 +648,12 @@ int indent_space_count(char *text) {
     size_t num_arguments = 1;
     JSValueRef arguments[num_arguments];
     arguments[0] = c_string_to_value(ctx, text);
-    JSValueRef result = JSObjectCallAsFunction(ctx, get_function("planck.repl", "indent-space-count"),
-                                               JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+    JSObjectRef indent_space_count_fn = NULL;
+    if (!indent_space_count_fn) {
+        indent_space_count_fn = get_function("planck.repl", "indent-space-count");
+    }
+    JSValueRef result = JSObjectCallAsFunction(ctx, indent_space_count_fn, JSContextGetGlobalObject(ctx),
+                                               num_arguments, arguments, NULL);
     return (int) JSValueToNumber(ctx, result, NULL);
 }
 
@@ -654,8 +672,12 @@ void highlight_coords_for_pos(int pos, const char *buf, size_t num_previous_line
         prev_lines[i] = c_string_to_value(ctx, previous_lines[i]);
     }
     arguments[2] = JSObjectMakeArray(ctx, num_previous_lines, prev_lines, NULL);
-    JSValueRef result = JSObjectCallAsFunction(ctx, get_function("planck.repl", "get-highlight-coords"),
-                                               JSContextGetGlobalObject(ctx), num_arguments, arguments, NULL);
+    static JSObjectRef get_highlight_coords_fn = NULL;
+    if (!get_highlight_coords_fn) {
+        get_highlight_coords_fn = get_function("planck.repl", "get-highlight-coords");
+    }
+    JSValueRef result = JSObjectCallAsFunction(ctx, get_highlight_coords_fn, JSContextGetGlobalObject(ctx),
+                                               num_arguments, arguments, NULL);
 
     JSObjectRef array = JSValueToObject(ctx, result, NULL);
     if (array) {
