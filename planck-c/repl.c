@@ -227,6 +227,8 @@ bool process_line(repl_t *repl, char *input_line) {
     return false;
 }
 
+pthread_mutex_t repl_print_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void run_cmdline_loop(repl_t *repl) {
     while (true) {
         char *input_line = NULL;
@@ -238,11 +240,14 @@ void run_cmdline_loop(repl_t *repl) {
                 printf("\n");
                 break;
             }
+            pthread_mutex_lock(&repl_print_mutex);
         } else {
             // Handle prints while processing linenoise input
             bool linenoisePrintNowSet = false;
             if (engine_ready) {
+                pthread_mutex_lock(&repl_print_mutex);
                 set_print_sender(&linenoisePrintNow);
+                pthread_mutex_unlock(&repl_print_mutex);
                 linenoisePrintNowSet = true;
             }
 
@@ -255,6 +260,8 @@ void run_cmdline_loop(repl_t *repl) {
 
             char *line = linenoise(repl->current_prompt, prompt_ansi_code_for_theme(config.theme),
                                    repl->indent_space_count);
+
+            pthread_mutex_lock(&repl_print_mutex);
 
             // Reset printing handler back
             if (linenoisePrintNowSet) {
@@ -281,6 +288,7 @@ void run_cmdline_loop(repl_t *repl) {
         }
 
         bool break_out = process_line(repl, input_line);
+        pthread_mutex_unlock(&repl_print_mutex);
         if (break_out) {
             break;
         }
@@ -465,17 +473,22 @@ void *connection_handler(void *socket_desc) {
             break;
         }
 
+        pthread_mutex_lock(&repl_print_mutex);
+
         set_print_sender(&socket_sender);
 
         client_message[read_size] = '\0';
         bool exit = process_line(repl, strdup(client_message));
+
+        set_print_sender(NULL);
+        sock_to_write_to = 0;
+
+        pthread_mutex_unlock(&repl_print_mutex);
+
         if (exit) {
             close(sock);
             break;
         }
-
-        set_print_sender(NULL);
-        sock_to_write_to = 0;
 
         if (repl->current_prompt != NULL) {
             err = write_to_socket(sock, repl->current_prompt);
