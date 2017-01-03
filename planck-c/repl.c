@@ -461,8 +461,10 @@ void *connection_handler(void *socket_desc) {
 
     while (!err && (read_size = recv(sock, client_message, 4095, 0)) > 0) {
 
+        client_message[read_size] = '\0';
+
         if (str_has_suffix(client_message, "\r\n") == 0) {
-            client_message[strlen(client_message) - 2] = 0;
+            client_message[strlen(client_message) - 2] = '\0';
         }
 
         sock_to_write_to = sock;
@@ -477,7 +479,6 @@ void *connection_handler(void *socket_desc) {
 
         set_print_sender(&socket_sender);
 
-        client_message[read_size] = '\0';
         bool exit = process_line(repl, strdup(client_message));
 
         set_print_sender(NULL);
