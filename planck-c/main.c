@@ -6,6 +6,7 @@
 #include <string.h>
 #include <limits.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include "bundle.h"
 #include "engine.h"
@@ -17,6 +18,15 @@
 #include "theme.h"
 #include "timers.h"
 #include "clock.h"
+
+void ignore_sigpipe() {
+    struct sigaction sa;
+    sa.sa_handler = SIG_IGN;
+    sa.sa_flags = 0;
+    if (sigaction(SIGPIPE, &sa, 0) == -1) {
+        perror("sigaction");
+    }
+}
 
 void usage(char *program_name) {
     printf("\n");
@@ -160,6 +170,9 @@ void err_cache_path(char *program_name) {
 }
 
 int main(int argc, char **argv) {
+
+    ignore_sigpipe();
+
     config.verbose = false;
     config.quiet = false;
     config.repl = false;

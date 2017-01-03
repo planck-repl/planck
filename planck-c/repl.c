@@ -419,7 +419,6 @@ int write_to_socket(int fd, const char *text) {
             if (errno == EINTR) {
                 // We ignore interrupts and loop back around
             } else {
-                perror("Planck Socket REPL select on outbound socket.");
                 return -1;
             }
         } else {
@@ -429,7 +428,6 @@ int write_to_socket(int fd, const char *text) {
                 return 0;
             }
             if (n == -1) {
-                perror("Planck Socket REPL write to outbound socket.");
                 return -1;
             }
             text += n;
@@ -468,12 +466,6 @@ void *connection_handler(void *socket_desc) {
         }
 
         sock_to_write_to = sock;
-
-        err = block_until_engine_ready();
-        if (err) {
-            write_to_socket(sock, block_until_engine_ready_failed_msg);
-            break;
-        }
 
         pthread_mutex_lock(&repl_print_mutex);
 
