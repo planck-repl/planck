@@ -778,7 +778,9 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
                     size_t buf_len = path_len + strlen(dir->d_name) + 2;
                     char *buf = malloc(buf_len);
                     snprintf(buf, buf_len, "%s/%s", path, dir->d_name);
-                    paths[count++] = c_string_to_value(ctx, buf);
+                    JSValueRef path_ref = c_string_to_value(ctx, buf);
+                    paths[count++] = path_ref;
+                    JSValueProtect(ctx, path_ref);
                     free(buf);
 
                     if (count == capacity) {
@@ -792,6 +794,11 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
         }
 
         JSValueRef rv = JSObjectMakeArray(ctx, count, paths, NULL);
+
+        size_t i = 0;
+        for (i=0; i<count; ++i) {
+            JSValueUnprotect(ctx, paths[i]);
+        }
 
         free(path);
         free(paths);
