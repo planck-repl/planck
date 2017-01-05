@@ -385,7 +385,7 @@ void discarding_sender(const char *msg) {
     /* Intentionally empty. */
 }
 
-void *cljs_do_engine_init(void *data) {
+void *do_engine_init(void *data) {
     ctx = JSGlobalContextCreate(NULL);
 
     display_launch_timing("JS context created");
@@ -545,7 +545,7 @@ void engine_init() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-    int ret = pthread_create(&engine_init_thread, &attr, cljs_do_engine_init, NULL);
+    int ret = pthread_create(&engine_init_thread, &attr, do_engine_init, NULL);
     if (ret != 0) {
         engine_perror("pthread_create");
         exit(1);
