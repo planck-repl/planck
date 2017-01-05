@@ -177,6 +177,8 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
             res[2] = JSValueMakeString(ctx, loaded_path_str);
             return JSObjectMakeArray(ctx, 3, res, NULL);
         }
+
+        free(loaded_path);
     }
 
     return JSValueMakeNull(ctx);
