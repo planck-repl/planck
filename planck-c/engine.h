@@ -35,6 +35,8 @@ extern bool engine_ready;
 
 void engine_init();
 
+void engine_shutdown();
+
 void engine_perror(const char *msg);
 
 void engine_print_err_message(const char *msg, int err);

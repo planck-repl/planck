@@ -553,6 +553,10 @@ void engine_init() {
     pthread_attr_destroy(&attr);
 }
 
+void engine_shutdown() {
+    JSGlobalContextRelease(ctx);
+}
+
 void (*cljs_sender)(const char *msg) = NULL;
 
 void engine_perror(const char *msg) {

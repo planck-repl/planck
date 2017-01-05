@@ -430,5 +430,7 @@ int main(int argc, char **argv) {
         exit_value = EXIT_SUCCESS;
     }
 
+    engine_shutdown();
+
     return exit_value;
 }
