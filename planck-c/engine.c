@@ -196,14 +196,12 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     JSValueRef args[6];
     size_t num_args = 6;
 
-    {
-        JSValueRef source_args[2];
-        JSStringRef type_str = JSStringCreateWithUTF8CString(type);
-        source_args[0] = JSValueMakeString(ctx, type_str);
-        JSStringRef source_str = JSStringCreateWithUTF8CString(source);
-        source_args[1] = JSValueMakeString(ctx, source_str);
-        args[0] = JSObjectMakeArray(ctx, 2, source_args, NULL);
-    }
+    JSValueRef source_args[2];
+    JSStringRef type_str = JSStringCreateWithUTF8CString(type);
+    source_args[0] = JSValueMakeString(ctx, type_str);
+    JSStringRef source_str = JSStringCreateWithUTF8CString(source);
+    source_args[1] = JSValueMakeString(ctx, source_str);
+    args[0] = JSObjectMakeArray(ctx, 2, source_args, NULL);
 
     args[1] = JSValueMakeBoolean(ctx, expression);
     args[2] = JSValueMakeBoolean(ctx, print_nil);
