@@ -652,7 +652,7 @@ int indent_space_count(char *text) {
     size_t num_arguments = 1;
     JSValueRef arguments[num_arguments];
     arguments[0] = c_string_to_value(ctx, text);
-    JSObjectRef indent_space_count_fn = NULL;
+    static JSObjectRef indent_space_count_fn = NULL;
     if (!indent_space_count_fn) {
         indent_space_count_fn = get_function("planck.repl", "indent-space-count");
     }
