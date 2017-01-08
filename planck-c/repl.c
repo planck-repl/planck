@@ -277,9 +277,11 @@ void run_cmdline_loop(repl_t *repl) {
                     free(repl->current_prompt);
                     repl->current_prompt = form_prompt(repl, false);
                     printf("\n");
+                    pthread_mutex_unlock(&repl_print_mutex);
                     continue;
                 } else { // Ctrl-D
                     exit_value = EXIT_SUCCESS_INTERNAL;
+                    pthread_mutex_unlock(&repl_print_mutex);
                     break;
                 }
             }
