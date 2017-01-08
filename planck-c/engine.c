@@ -218,6 +218,7 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
     static JSObjectRef execute_fn = NULL;
     if (!execute_fn) {
         execute_fn = get_function("planck.repl", "execute");
+        JSValueProtect(ctx, execute_fn);
     }
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
     JSValueRef ex = NULL;
@@ -330,6 +331,7 @@ char *get_current_ns() {
     static JSObjectRef get_current_ns_fn = NULL;
     if (!get_current_ns_fn) {
         get_current_ns_fn = get_function("planck.repl", "get-current-ns");
+        JSValueProtect(ctx, get_current_ns_fn);
     }
     JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments,
                                                arguments, NULL);
@@ -346,6 +348,7 @@ char **get_completions(const char *buffer, int *num_completions) {
     static JSObjectRef completions_fn = NULL;
     if (!completions_fn) {
         completions_fn = get_function("planck.repl", "get-completions");
+        JSValueProtect(ctx, completions_fn);
     }
     JSValueRef result = JSObjectCallAsFunction(ctx, completions_fn, JSContextGetGlobalObject(ctx), num_arguments,
                                                arguments, NULL);
@@ -632,6 +635,7 @@ char *is_readable(char *expression) {
     static JSObjectRef is_readable_fn = NULL;
     if (!is_readable_fn) {
         is_readable_fn = get_function("planck.repl", "is-readable?");
+        JSValueProtect(ctx, is_readable_fn);
     }
 
     size_t num_arguments = 2;
@@ -653,6 +657,7 @@ int indent_space_count(char *text) {
     static JSObjectRef indent_space_count_fn = NULL;
     if (!indent_space_count_fn) {
         indent_space_count_fn = get_function("planck.repl", "indent-space-count");
+        JSValueProtect(ctx, indent_space_count_fn);
     }
     JSValueRef result = JSObjectCallAsFunction(ctx, indent_space_count_fn, JSContextGetGlobalObject(ctx),
                                                num_arguments, arguments, NULL);
@@ -677,6 +682,7 @@ void highlight_coords_for_pos(int pos, const char *buf, size_t num_previous_line
     static JSObjectRef get_highlight_coords_fn = NULL;
     if (!get_highlight_coords_fn) {
         get_highlight_coords_fn = get_function("planck.repl", "get-highlight-coords");
+        JSValueProtect(ctx, get_highlight_coords_fn);
     }
     JSValueRef result = JSObjectCallAsFunction(ctx, get_highlight_coords_fn, JSContextGetGlobalObject(ctx),
                                                num_arguments, arguments, NULL);

@@ -208,6 +208,7 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         static JSObjectRef translate_async_result_fn = NULL;
         if (!translate_async_result_fn) {
             translate_async_result_fn = get_function("global", "translate_async_result");
+            JSValueProtect(ctx, translate_async_result_fn);
         }
         JSObjectRef result = (JSObjectRef) JSObjectCallAsFunction(ctx, translate_async_result_fn, NULL,
                                                                   1, args, NULL);
@@ -216,6 +217,7 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         static JSObjectRef do_async_sh_callback_fn = NULL;
         if (!do_async_sh_callback_fn) {
             do_async_sh_callback_fn = get_function("global", "do_async_sh_callback");
+            JSValueProtect(ctx, do_async_sh_callback_fn);
         }
         JSObjectCallAsFunction(ctx, do_async_sh_callback_fn, result, 1, args, NULL);
 
