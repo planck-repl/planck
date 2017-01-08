@@ -775,9 +775,9 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
 
             struct dirent *dir;
             while ((dir = readdir(d)) != NULL) {
-                if (dir->d_namlen > 2 || (strcmp(dir->d_name, ".") && strcmp(dir->d_name, ".."))) {
+                if (strcmp(dir->d_name, ".") && strcmp(dir->d_name, "..")) {
 
-                    size_t buf_len = path_len + dir->d_namlen + 2;
+                    size_t buf_len = path_len + strlen(dir->d_name) + 2;
                     char *buf = malloc(buf_len);
                     snprintf(buf, buf_len, "%s/%s", path, dir->d_name);
                     JSValueRef path_ref = c_string_to_value(ctx, buf);
