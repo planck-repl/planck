@@ -1086,12 +1086,13 @@
 
 (defn- fetch-source
   [var]
-  (when-let [filepath (or (:file var) (:file (:meta var)))]
-    (when-let [file-source (get-file-source filepath)]
-      (let [rdr (rt/source-logging-push-back-reader file-source)]
-        (dotimes [_ (dec (:line var))] (rt/read-line rdr))
-        (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
-          meta :source)))))
+  (or (::repl-entered-source var)
+      (when-let [filepath (or (:file var) (:file (:meta var)))]
+        (when-let [file-source (get-file-source filepath)]
+          (let [rdr (rt/source-logging-push-back-reader file-source)]
+            (dotimes [_ (dec (:line var))] (rt/read-line rdr))
+            (-> (r/read {:read-cond :allow :features #{:cljs}} rdr)
+              meta :source))))))
 
 (defn- run-sync!
   "Like cljs.js/run-async!, but with the expectation that cb will be called
@@ -1483,6 +1484,11 @@
   [expression-form]
   (call-form? expression-form '#{require require-macros}))
 
+(defn- def-form?
+  "Determines if the expression is a def expression."
+  [expression-form]
+  (call-form? expression-form '#{def defn defn- defonce}))
+
 (defn- process-execute-source
   [source-text expression-form
    {:keys [expression? print-nil-expression? include-stacktrace? source-path session-id] :as opts}]
@@ -1519,6 +1525,9 @@
                           (not (nil? value)))
                   (print-result value {::as-code? (macroexpand-form? expression-form)}))
                 (process-1-2-3 expression-form value)
+                (when (def-form? expression-form)
+                  (let [{:keys [ns name]} (meta value)]
+                    (swap! st assoc-in [::ana/namespaces ns :defs name ::repl-entered-source] source-text)))
                 (reset! current-ns ns)
                 nil))
             (when error
