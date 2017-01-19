@@ -1,0 +1,12 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "centos/7"
+  
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo yum -y install git gcc cmake java maven webkitgtk3-devel libzip-devel libcurl-devel vim
+    mkdir bin
+    curl -L https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > bin/lein
+    chmod +x bin/lein
+  SHELL
+
+end
