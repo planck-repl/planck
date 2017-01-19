@@ -15,3 +15,4 @@ planck-cljs/clojurescript
 .idea
 /planck-c/cmake-build-debug
 /.planck_cache
+.vagrant
