@@ -28,6 +28,8 @@ For more details, see the [Planck User Guide](http://planck-repl.org/guide.html)
 
 See [Building Wiki](https://github.com/mfikes/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
 
+Pre-made build environments for various environments are available in [build-envs](https://github.com/mfikes/planck/tree/master/build-envs).
+
 ## Compiling
 
 ```
