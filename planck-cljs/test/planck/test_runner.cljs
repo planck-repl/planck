@@ -12,18 +12,7 @@
             [general.core-test]
             [general.fipp-test]))
 
-(defn run-all-spec-tests
-  []
-  (let [failed (->> (stest/enumerate-namespace
-                      '[#_planck.core
-                        planck.repl])
-                 stest/check
-                 (filter :failure))]
-    (when-not (empty? failed)
-      (fipp.edn/pprint (map #(select-keys % [:sym :failure]) failed))
-      (exit 1))))
-
-(defn run-all-regular-tests []
+(defn run-all-tests []
   (run-tests
     'planck.core-test
     'planck.io-test
@@ -33,7 +22,3 @@
     'planck.http-test
     'general.core-test
     'general.fipp-test))
-
-(defn run-all-tests []
-  (run-all-spec-tests)
-  (run-all-regular-tests))
