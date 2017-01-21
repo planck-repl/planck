@@ -7,7 +7,7 @@
 # Uncomment to build our own copy of ClojureScript compiler.
 # Also see change needed in project.clj
 # When changing, do script/clean-all first from top-level.
-CLJS_GIT_COMMIT=30acd88d02857dc903b4da7c028c522d21b37b25
+CLJS_GIT_COMMIT=1f9fad5ee4450e579f1659f62dcdbcafc20298f4
 
 # Make sure we fail and exit on the command that actually failed.
 set -e
@@ -29,7 +29,7 @@ elif [ -n "$CLJS_GIT_COMMIT" ]; then
      pushd clojurescript
      git reset --hard $CLJS_GIT_COMMIT
      # Apply patches
-     curl -L http://dev.clojure.org/jira/secure/attachment/16348/CLJS-1874.patch | git apply
+     # curl -L http://dev.clojure.org/jira/secure/attachment/16348/CLJS-1874.patch | git apply
      # Deal with the case when building in sandbox mode
      if [ -e ../profiles.clj ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
