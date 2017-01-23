@@ -42,6 +42,8 @@ set(SOURCE_FILES
     shell.h
     str.c
     str.h
+    tasks.c
+    tasks.h
     theme.c
     theme.h
     timers.c

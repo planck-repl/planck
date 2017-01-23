@@ -4,55 +4,7 @@
 #include <stdlib.h>
 #include "timers.h"
 #include "engine.h"
-
-static int timers_outstanding = 0;
-pthread_mutex_t timers_complete_lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t timers_complete_cond = PTHREAD_COND_INITIALIZER;
-
-int block_until_timers_complete() {
-    int err = pthread_mutex_lock(&timers_complete_lock);
-    if (err) return err;
-
-    while (timers_outstanding) {
-        err = pthread_cond_wait(&timers_complete_cond, &timers_complete_lock);
-        if (err) {
-            pthread_mutex_unlock(&timers_complete_lock);
-            return err;
-        }
-    }
-
-    return pthread_mutex_unlock(&timers_complete_lock);
-}
-
-int signal_timer_started() {
-    int err = pthread_mutex_lock(&timers_complete_lock);
-    if (err) return err;
-
-    timers_outstanding++;
-
-    err = pthread_cond_signal(&timers_complete_cond);
-    if (err) {
-        pthread_mutex_unlock(&timers_complete_lock);
-        return err;
-    }
-
-    return pthread_mutex_unlock(&timers_complete_lock);
-}
-
-int signal_timer_complete() {
-    int err = pthread_mutex_lock(&timers_complete_lock);
-    if (err) return err;
-
-    timers_outstanding--;
-
-    err = pthread_cond_signal(&timers_complete_cond);
-    if (err) {
-        pthread_mutex_unlock(&timers_complete_lock);
-        return err;
-    }
-
-    return pthread_mutex_unlock(&timers_complete_lock);
-}
+#include "tasks.h"
 
 struct timer_data_t {
     long millis;
@@ -82,9 +34,9 @@ void *timer_thread(void *data) {
 
     free(data);
 
-    err = signal_timer_complete();
+    err = signal_task_complete();
     if (err) {
-        engine_print_err_message("timer signal_timer_complete", err);
+        engine_print_err_message("timer signal_task_complete", err);
     }
 
     return NULL;
@@ -92,7 +44,7 @@ void *timer_thread(void *data) {
 
 int start_timer(long millis, timer_callback_t timer_callback, void *data) {
 
-    int err = signal_timer_started();
+    int err = signal_task_started();
     if (err) {
         return err;
     }

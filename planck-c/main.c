@@ -16,7 +16,7 @@
 #include "repl.h"
 #include "str.h"
 #include "theme.h"
-#include "timers.h"
+#include "tasks.h"
 #include "clock.h"
 
 void ignore_sigpipe() {
@@ -423,7 +423,7 @@ int main(int argc, char **argv) {
     }
 
     if (exit_value == EXIT_SUCCESS) {
-        block_until_timers_complete();
+        block_until_tasks_complete();
     }
 
     if (exit_value == EXIT_SUCCESS_INTERNAL) {

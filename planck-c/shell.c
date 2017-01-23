@@ -9,6 +9,7 @@
 #include <JavaScriptCore/JavaScript.h>
 #include "engine.h"
 #include "jsc_utils.h"
+#include "tasks.h"
 
 static char **cmd(JSContextRef ctx, const JSObjectRef array) {
     int argc = array_get_count(ctx, array);
@@ -222,6 +223,12 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
         JSObjectCallAsFunction(ctx, do_async_sh_callback_fn, result, 1, args, NULL);
 
         free(params);
+
+        int err = signal_task_complete();
+        if (err) {
+            engine_print_err_message("shell signal_task_complete", err);
+        }
+
         return NULL;
     }
 }
@@ -299,6 +306,11 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             if (cb_idx == -1) {
                 res = wait_for_child(params);
             } else {
+                int err = signal_task_started();
+                if (err) {
+                    engine_print_err_message("shell signal_task_started", err);
+                }
+
                 pthread_t thrd;
                 pthread_create(&thrd, NULL, thread_proc, params);
             }

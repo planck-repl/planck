@@ -623,12 +623,20 @@ $PLANCK << REPL_INPUT
 (count (keys (:cljs.analyzer/namespaces @st)))
 REPL_INPUT
 
-echo "Test timers keep REPL going"
-$PLANCK - << REPL_INPUT
+echo "Test timers keeps script going"
+$PLANCK - << SCRIPT_INPUT
 (println "start")
 (js/setTimeout (fn [] (println "from timer")) 200)
 (println "end")
-REPL_INPUT
+SCRIPT_INPUT
+
+echo "Test sh-async keeps script going"
+$PLANCK - << SCRIPT_INPUT
+(require 'planck.shell)
+(println "start")
+(planck.shell/sh-async "sleep" "1" (fn [r] (println "from sh-async")))
+(println "end")
+SCRIPT_INPUT
 
 echo "Can exit with timer"
 $PLANCK << REPL_INPUT
@@ -637,6 +645,25 @@ $PLANCK << REPL_INPUT
 (println "end")
 :cljs/quit
 REPL_INPUT
+
+echo "Test chained timer and sh-async keeps script going"
+$PLANCK - << SCRIPT_INPUT
+(require 'planck.shell)
+(def c (atom 5))
+(declare wait-more)
+(defn shell-more
+  []
+  (planck.shell/sh-async "sleep" "1" (fn [r] (prn r) (wait-more))))
+(defn wait-more
+  []
+  (js/setTimeout
+    (fn []
+      (prn @c)
+      (when (pos? (swap! c dec))
+        (shell-more)))
+    1000))
+(wait-more)
+SCRIPT_INPUT
 
 echo "Disable asserts"
 $PLANCK -a << REPL_INPUT

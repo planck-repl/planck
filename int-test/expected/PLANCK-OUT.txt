@@ -485,15 +485,29 @@ Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
 47
-Test timers keep REPL going
+Test timers keeps script going
 start
 end
 from timer
+Test sh-async keeps script going
+start
+end
+from sh-async
 Can exit with timer
 start
 nil
 nil
 end
 nil
+Test chained timer and sh-async keeps script going
+5
+{:exit 0, :out "", :err ""}
+4
+{:exit 0, :out "", :err ""}
+3
+{:exit 0, :out "", :err ""}
+2
+{:exit 0, :out "", :err ""}
+1
 Disable asserts
 nil
