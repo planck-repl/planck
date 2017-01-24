@@ -42,7 +42,7 @@
    `(planck.repl/pst* '~e)))
 
 (defmacro ^:private with-err-str
-  "Evaluates exprs in a context in which *print-fn* is bound to .append
+  "Evaluates exprs in a context in which *print-err-fn* is bound to .append
   on a fresh StringBuffer.  Returns the string created by any nested
   printing calls."
   [& body]
