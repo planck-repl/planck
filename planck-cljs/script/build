@@ -7,7 +7,7 @@
 # Uncomment to build our own copy of ClojureScript compiler.
 # Also see change needed in project.clj
 # When changing, do script/clean-all first from top-level.
-CLJS_GIT_COMMIT=HEAD
+# CLJS_GIT_COMMIT=HEAD
 
 # Make sure we fail and exit on the command that actually failed.
 set -e
