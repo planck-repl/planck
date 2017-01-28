@@ -488,11 +488,11 @@ JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObje
     return JSValueMakeUndefined(ctx);
 }
 
-uint64_t descriptor_str_to_int(const char *s) {
-    return (uint64_t) atoll(s);
+descriptor_t descriptor_str_to_int(const char *s) {
+    return (descriptor_t) atoll(s);
 }
 
-char *descriptor_int_to_str(uint64_t i) {
+char *descriptor_int_to_str(descriptor_t i) {
     char *rv = malloc(21);
     sprintf(rv, "%llu", (unsigned long long) i);
     return rv;
@@ -506,7 +506,7 @@ JSValueRef function_file_reader_open(JSContextRef ctx, JSObjectRef function, JSO
         char *path = value_to_c_string(ctx, args[0]);
         char *encoding = value_to_c_string(ctx, args[1]);
 
-        uint64_t descriptor = ufile_open_read(path, encoding);
+        descriptor_t descriptor = ufile_open_read(path, encoding);
 
         free(path);
         free(encoding);

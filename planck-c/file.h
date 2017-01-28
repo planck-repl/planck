@@ -1,21 +1,23 @@
 #include <JavaScriptCore/JavaScript.h>
 
-uint64_t ufile_open_read(const char *path, const char *encoding);
+typedef unsigned long descriptor_t;
 
-uint64_t ufile_open_write(const char *path, bool append, const char *encoding);
+descriptor_t ufile_open_read(const char *path, const char *encoding);
 
-JSStringRef ufile_read(uint64_t descriptor);
+descriptor_t ufile_open_write(const char *path, bool append, const char *encoding);
 
-void ufile_write(uint64_t descriptor, JSStringRef text);
+JSStringRef ufile_read(descriptor_t descriptor);
 
-void ufile_close(uint64_t descriptor);
+void ufile_write(descriptor_t descriptor, JSStringRef text);
 
-uint64_t file_open_read(const char *path);
+void ufile_close(descriptor_t descriptor);
 
-uint64_t file_open_write(const char *path, bool append);
+descriptor_t file_open_read(const char *path);
 
-size_t file_read(uint64_t descriptor, size_t buf_size, uint8_t *buffer);
+descriptor_t file_open_write(const char *path, bool append);
 
-void file_write(uint64_t descriptor, size_t buf_size, uint8_t *buffer);
+size_t file_read(descriptor_t descriptor, size_t buf_size, uint8_t *buffer);
 
-void file_close(uint64_t descriptor);
+void file_write(descriptor_t descriptor, size_t buf_size, uint8_t *buffer);
+
+void file_close(descriptor_t descriptor);

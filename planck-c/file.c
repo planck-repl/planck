@@ -2,28 +2,29 @@
 #include <search.h>
 #include <JavaScriptCore/JavaScript.h>
 #include "unicode/ustdio.h"
+#include "file.h"
 
-uint64_t ufile_to_descriptor(UFILE *ufile) {
-    return (uint64_t) ufile;
+descriptor_t ufile_to_descriptor(UFILE *ufile) {
+    return (descriptor_t) ufile;
 }
 
-UFILE *descriptor_to_ufile(uint64_t descriptor) {
+UFILE *descriptor_to_ufile(descriptor_t descriptor) {
     return (UFILE *) descriptor;
 }
 
-uint64_t ufile_open(const char *path, const char *encoding, const char *mode) {
+descriptor_t ufile_open(const char *path, const char *encoding, const char *mode) {
     return ufile_to_descriptor(u_fopen(path, mode, NULL, encoding));
 }
 
-uint64_t ufile_open_read(const char *path, const char *encoding) {
+descriptor_t ufile_open_read(const char *path, const char *encoding) {
     return ufile_open(path, encoding, "r");
 }
 
-uint64_t ufile_open_write(const char *path, bool append, const char *encoding) {
+descriptor_t ufile_open_write(const char *path, bool append, const char *encoding) {
     return ufile_open(path, encoding, (append ? "a" : "w"));
 }
 
-JSStringRef ufile_read(uint64_t descriptor) {
+JSStringRef ufile_read(descriptor_t descriptor) {
     UFILE *ufile = descriptor_to_ufile(descriptor);
     JSStringRef rv = NULL;
     void *buffer = malloc(sizeof(uint16_t) * 1024);
@@ -35,47 +36,47 @@ JSStringRef ufile_read(uint64_t descriptor) {
     return rv;
 }
 
-void ufile_write(uint64_t descriptor, JSStringRef text) {
+void ufile_write(descriptor_t descriptor, JSStringRef text) {
     UFILE *ufile = descriptor_to_ufile(descriptor);
     u_file_write(JSStringGetCharactersPtr(text), (uint32_t) JSStringGetLength(text), ufile);
 }
 
-void ufile_close(uint64_t descriptor) {
+void ufile_close(descriptor_t descriptor) {
     UFILE *ufile = descriptor_to_ufile(descriptor);
     u_fclose(ufile);
 }
 
-uint64_t file_to_descriptor(FILE *file) {
-    return (uint64_t) file;
+descriptor_t file_to_descriptor(FILE *file) {
+    return (descriptor_t) file;
 }
 
-FILE *descriptor_to_file(uint64_t descriptor) {
+FILE *descriptor_to_file(descriptor_t descriptor) {
     return (FILE *) descriptor;
 }
 
-uint64_t file_open(const char *path, const char *mode) {
+descriptor_t file_open(const char *path, const char *mode) {
     return file_to_descriptor(fopen(path, mode));
 }
 
-uint64_t file_open_read(const char *path) {
+descriptor_t file_open_read(const char *path) {
     return file_open(path, "r");
 }
 
-uint64_t file_open_write(const char *path, bool append) {
+descriptor_t file_open_write(const char *path, bool append) {
     return file_open(path, (append ? "a" : "w"));
 }
 
-size_t file_read(uint64_t descriptor, size_t buf_size, uint8_t *buf) {
+size_t file_read(descriptor_t descriptor, size_t buf_size, uint8_t *buf) {
     FILE *file = descriptor_to_file(descriptor);
     return fread(buf, sizeof(uint8_t), buf_size, file);
 }
 
-void file_write(uint64_t descriptor, size_t buf_size, uint8_t *buf) {
+void file_write(descriptor_t descriptor, size_t buf_size, uint8_t *buf) {
     FILE *file = descriptor_to_file(descriptor);
     fwrite(buf, sizeof(uint8_t), buf_size, file);
 }
 
-void file_close(uint64_t descriptor) {
+void file_close(descriptor_t descriptor) {
     FILE *file = descriptor_to_file(descriptor);
     fclose(file);
 }
