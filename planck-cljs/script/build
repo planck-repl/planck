@@ -16,6 +16,9 @@ set -o pipefail
 # Initialize lein if it hasn't yet been
 script/lein -v > /dev/null
 
+# Turn off tiered compilation (otherwise unavailability warning will break classpath)
+export LEIN_JVM_OPTS=
+
 if [ -n "$CLJS_PREBUILT_VER" ]; then
   CLJS_JAR=../lib/cljs-${CLJS_PREBUILT_VER}.jar
   if [ ! -f $CLJS_JAR ]; then
