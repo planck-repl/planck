@@ -302,10 +302,10 @@ JSValueRef function_get_term_size(JSContextRef ctx, JSObjectRef function, JSObje
                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (return_termsize) {
         struct winsize w;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        int rv = ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
         JSValueRef arguments[2];
-        arguments[0] = JSValueMakeNumber(ctx, w.ws_row);
-        arguments[1] = JSValueMakeNumber(ctx, w.ws_col);
+        arguments[0] = JSValueMakeNumber(ctx, rv == -1 ? 25 : w.ws_row);
+        arguments[1] = JSValueMakeNumber(ctx, rv == -1 ? 80 : w.ws_col);
         return JSObjectMakeArray(ctx, 2, arguments, NULL);
     } else {
         return JSValueMakeNull(ctx);
