@@ -90,7 +90,7 @@ You can define a custom assert for this situation:
        ~result)))
 ```
 
-With this, ``(is (char? nil))` yields:
+With this, `(is (char? nil))` yields:
 
 ```
 FAIL in () (eval@[native code]:NaN:NaN)
