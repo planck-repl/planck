@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 
-# Uncomment to download pre-built copy of ClojureScript compiler.
-# Also see change needed in project.clj
-# CLJS_PREBUILT_VER=1.9.330-1
-
-# Uncomment to build our own copy of ClojureScript compiler.
-# Also see change needed in project.clj
-# When changing, do script/clean-all first from top-level.
-# CLJS_GIT_COMMIT=HEAD
+# Set the CLJS_COMMIT env var to build our own copy 
+# of ClojureScript compiler. This can be HEAD, a commit hash, etc.
+# When setting, first do script/clean-all first from top-level.
+CLJS_COMMIT="${CLJS_COMMIT:-}"
 
 # Make sure we fail and exit on the command that actually failed.
 set -e
@@ -19,18 +15,11 @@ script/lein -v > /dev/null
 # Turn off tiered compilation (otherwise unavailability warning will break classpath)
 export LEIN_JVM_OPTS=
 
-if [ -n "$CLJS_PREBUILT_VER" ]; then
-  CLJS_JAR=../lib/cljs-${CLJS_PREBUILT_VER}.jar
-  if [ ! -f $CLJS_JAR ]; then
-    mkdir -p ../lib
-    curl -sL http://planck-repl.org/releases/cljs/cljs-${CLJS_PREBUILT_VER}.jar > ${CLJS_JAR}
-  fi
-  CLJSC_CP=`script/lein with-profile build classpath`:${CLJS_JAR}
-elif [ -n "$CLJS_GIT_COMMIT" ]; then
+if [ -n "$CLJS_COMMIT" ]; then
   if [ ! -e clojurescript ]; then
      git clone https://github.com/clojure/clojurescript
      pushd clojurescript
-     git reset --hard $CLJS_GIT_COMMIT
+     git reset --hard $CLJS_COMMIT
      # Apply patches
      # curl -L http://dev.clojure.org/jira/secure/attachment/16348/CLJS-1874.patch | git apply
      # Deal with the case when building in sandbox mode
@@ -41,9 +30,9 @@ elif [ -n "$CLJS_GIT_COMMIT" ]; then
      script/uberjar
      popd
   fi
-  CLJSC_CP=`script/lein with-profile build classpath`:clojurescript/target/cljs.jar
+  CLJSC_CP=`script/lein with-profile build-commit classpath`:clojurescript/target/cljs.jar
 else
-  CLJSC_CP=`script/lein with-profile build classpath`
+  CLJSC_CP=`script/lein with-profile build-release classpath`
 fi
 
 mkdir -p out/cljs/analyzer
