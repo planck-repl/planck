@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+script/clean-all
+CLJS_COMMIT=HEAD script/build
+script/test
