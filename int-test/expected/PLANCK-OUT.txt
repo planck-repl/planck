@@ -511,3 +511,14 @@ Test chained timer and sh-async keeps script going
 1
 Disable asserts
 nil
+Print ex-data when pst
+abc
+	cljs.core/ExceptionInfo (cljs/core.cljs:10433:11)
+	cljs.core/ex-info (cljs/core.cljs:10460:1)
+
+abc
+{:a 1}
+	cljs.core/ExceptionInfo (cljs/core.cljs:10433:11)
+	cljs.core/ex-info (cljs/core.cljs:10460:1)
+
+nil

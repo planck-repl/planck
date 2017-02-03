@@ -1005,6 +1005,8 @@
                (show-indicator?))
       (println ((:rdr-ann-err-fn theme) indicator)))))
 
+(declare print-value)
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -1014,6 +1016,7 @@
    (print-error-column-indicator error)
    (let [error (skip-cljsjs-eval-error error)
          roa? (reader-or-analysis? error)
+         print-ex-data? (= include-stacktrace? :pst)
          include-stacktrace? (or (= include-stacktrace? :pst)
                                  (and include-stacktrace?
                                       (not roa?)))
@@ -1026,6 +1029,8 @@
      (when (or (not ((fnil string/starts-with? "") printed-message message))
                include-stacktrace?)
        (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
+     (when-let [data (and print-ex-data? (ex-data error))]
+       (print-value data {::as-code? false}))
      (when include-stacktrace?
        (load-core-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
@@ -1185,11 +1190,11 @@
   [s]
   (subs s 0 (dec (count s))))
 
-(declare print-result)
+(declare print-value)
 
 (defn- format-spec
   [spec left-margin ns]
-  (let [raw-print (with-out-str (print-result (s/describe spec)
+  (let [raw-print (with-out-str (print-value (s/describe spec)
                                   {::keyword-ns     ns
                                    ::spec?          true
                                    ::as-code?       true
@@ -1433,7 +1438,7 @@
         (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
 
-(defn- print-result
+(defn- print-value
   [value opts]
   (if *pprint-results*
     (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
@@ -1451,7 +1456,7 @@
 (s/def ::spec? boolean?)
 (s/def ::keyword-ns symbol?)
 (s/def ::term-width-adj integer?)
-#_(s/fdef print-result
+#_(s/fdef print-value
     :args (s/cat :value ::s/any :opts (s/keys :opt [::as-code? ::term-width-adj ::spec ::keyword-ns])))
 
 (defn- wrap-warning-font
@@ -1523,7 +1528,7 @@
               (when-not error
                 (when (or print-nil-expression?
                           (not (nil? value)))
-                  (print-result value {::as-code? (macroexpand-form? expression-form)}))
+                  (print-value value {::as-code? (macroexpand-form? expression-form)}))
                 (process-1-2-3 expression-form value)
                 (when (def-form? expression-form)
                   (let [{:keys [ns name]} (meta value)]
