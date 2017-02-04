@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-echo "{:build {:local-repo \"sandbox-m2\"}}" > planck-cljs/profiles.clj
+echo "{:build-release {:local-repo \"sandbox-m2\"}}" > planck-cljs/profiles.clj
 script/build
 rm planck-cljs/profiles.clj
-
-# For now, copy the binary to the place where 1.x was built
-# so we don't have to mess with the Homebrew formula
-mkdir -p build/Release
-cp planck-c/build/planck build/Release

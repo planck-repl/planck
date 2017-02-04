@@ -5,10 +5,11 @@
                              [tubular "1.0.0"]]
               :source-paths ["dev"]}
              :build-release 
-             {:dependencies [[org.clojure/clojurescript "1.9.456"]]}
+             {}
              :build-commit
              {}}
   :dependencies [[org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojurescript "1.9.456"]
                  [org.clojure/test.check "0.9.0"]
                  [org.clojure/tools.reader "1.0.0-beta4"]
                  [tailrecursion/cljson "1.0.7"]
