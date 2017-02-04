@@ -182,14 +182,14 @@ JSObjectRef get_function(char *namespace, char *name) {
     return JSValueToObject(ctx, val, NULL);
 }
 
-JSValueRef
-evaluate_source(char *type, char *source, bool expression, bool print_nil, char *set_ns, const char *theme,
+
+void evaluate_source(char *type, char *source, bool expression, bool print_nil, char *set_ns, const char *theme,
                 bool block_until_ready, int session_id) {
     if (block_until_ready) {
         int err = block_until_engine_ready();
         if (err) {
             engine_println(block_until_engine_ready_failed_msg);
-            return NULL;
+            return;
         }
     }
 
@@ -221,15 +221,10 @@ evaluate_source(char *type, char *source, bool expression, bool print_nil, char 
         JSValueProtect(ctx, execute_fn);
     }
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
-    JSValueRef ex = NULL;
 
     acquire_eval_lock();
-    JSValueRef val = JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, &ex);
+    JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, NULL);
     release_eval_lock();
-
-    // debug_print_value("planck.repl/execute", ctx, ex);
-
-    return ex != NULL ? ex : val;
 }
 
 void bootstrap(char *out_path) {

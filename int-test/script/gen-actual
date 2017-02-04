@@ -111,6 +111,12 @@ echo "Test run file with exit"
 $PLANCK $SRC/test_exit/exit_in_file.cljs
 echo $?
 
+echo "Test run malformed expression"
+$PLANCK -e ']'
+
+echo "Test run malformed script"
+$PLANCK $SRC/malformed/core.cljs
+
 echo "Test in-ns"
 $PLANCK <<REPL_INPUT
 (in-ns not-symbol)

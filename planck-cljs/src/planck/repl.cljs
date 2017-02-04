@@ -250,10 +250,7 @@
       (let [message (.-message e)]
         (cond
           (eof-while-reading? message) nil
-          (= "EOF" message) ""
-          :else (binding [theme (get-theme (keyword theme-id))]
-                  (print-error e false)
-                  ""))))))
+          :else "")))))
 
 (defn- ns-form?
   [form]
@@ -1599,10 +1596,13 @@
   (when set-ns
     (reset! current-ns (symbol set-ns)))
   (binding [theme (get-theme (keyword theme-id))]
-    (execute-source source {:expression?           expression?
-                            :print-nil-expression? print-nil-expression?
-                            :include-stacktrace?   true
-                            :session-id            session-id})))
+    (try
+      (execute-source source {:expression? expression?
+                              :print-nil-expression? print-nil-expression?
+                              :include-stacktrace? true
+                              :session-id session-id})
+      (catch :default e
+        (handle-error e true)))))
 
 (defn- eval
   ([form]

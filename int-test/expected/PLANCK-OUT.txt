@@ -44,6 +44,10 @@ nil
 119
 Test run file with exit
 111
+Test run malformed expression
+Unmatched delimiter ]
+Test run malformed script
+Unmatched delimiter ]
 Test in-ns
 nil
 nil
@@ -169,6 +173,7 @@ Macro
 
   Defines a function
 nil
+EOF
 -------------------------
 cljs.core/IWriter
 Protocol
@@ -449,6 +454,7 @@ nil
 "Hello, from JAR"
 Test reader
 #js [1 2]
+EOF
 #inst "2015-08-18T01:53:14.614-00:00"
 Set literal contains duplicate key: 1
 Map literal contains duplicate key: 1

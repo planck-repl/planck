@@ -12,7 +12,7 @@ void clear_int_handler();
 
 bool should_keep_running();
 
-JSValueRef evaluate_source(char *type, char *source_value, bool expression, bool print_nil, char *set_ns,
+void evaluate_source(char *type, char *source_value, bool expression, bool print_nil, char *set_ns,
                            const char *theme, bool block_until_ready, int session_id);
 
 char *munge(char *s);
