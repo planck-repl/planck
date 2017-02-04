@@ -1,16 +1,17 @@
 # Planck
 
-A stand-alone ClojureScript REPL for macOS based on JavaScriptCore.
+A stand-alone ClojureScript REPL for macOS and Linux based on JavaScriptCore.
 
 Home page: [planck-repl.org](http://planck-repl.org)
 
 # Installing
 
+On macOS:
 ```
 $ brew install planck
 ```
 
-or [download it](http://planck-repl.org/download.html).
+For Linux, see Building below.
 
 # Using
 
