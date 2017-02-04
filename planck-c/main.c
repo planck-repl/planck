@@ -54,8 +54,8 @@ void usage(char *program_name) {
     printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
     printf("                               args\n");
     printf("    -r, --repl                 Run a repl\n");
-    // printf("    path                       Run a script from a file or resource\n");
-    // printf("    -                          Run a script from standard input\n");
+    printf("    path                       Run a script from a file or resource\n");
+    printf("    -                          Run a script from standard input\n");
     printf("    -h, -?, --help             Print this help message and exit\n");
     printf("    -l, --legal                Show legal info (licenses and copyrights)\n");
     printf("\n");
@@ -65,8 +65,7 @@ void usage(char *program_name) {
     printf("    - Binds planck.core/*command-line-args* to a seq of strings containing\n");
     printf("      command line args that appear after any main option\n");
     printf("    - Runs all init options in order\n");
-    // printf("    - Calls a -main function or runs a repl or script if requested\n");
-    printf("    - Runs a repl or script if requested\n");
+    printf("    - Calls a -main function or runs a repl or script if requested\n");
     printf("\n");
     printf("  The init options may be repeated and mixed freely, but must appear before\n");
     printf("  any main option.\n");
