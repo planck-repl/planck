@@ -35,6 +35,12 @@ int id_for_key_map_action(char *action) {
         return KM_CLEAR_LINE;
     } else if (strcmp(action, ":delete-previous-word") == 0) {
         return KM_DELETE_PREVIOUS_WORD;
+    } else if (strcmp(action, ":reverse-i-search") == 0) {
+        return KM_REVERSE_I_SEARCH;
+    } else if (strcmp(action, ":cancel-search") == 0) {
+        return KM_CANCEL_SEARCH;
+    } else if (strcmp(action, ":finish-search") == 0) {
+        return KM_FINISH_SEARCH;
     } else {
         return -1;
     }

@@ -48,9 +48,11 @@ As you type closing delimiters (`)`, `]`, and `}`), the cursor will temporarily 
 
 ###  Line Editing
 
-#### Arrow Keys
+#### History
 
 You can use the up and down arrow keys to navigate through previously-entered lines. The line history includes lines entered in previous Planck sessions, with the last 100 lines saved in the `.planck_history` file in your home directory.
+
+You can also type Ctrl-R in order to display a `(reverse-i-search)` prompt: In this mode characters typed perform a live incremental search backwards through history. Pressing Ctrl-R again while in this mode finds additional matches. Once you've found the line you are interested in, you can type Ctrl-J to finish the search and further edit the line. Alternatively, you can hit Ctrl-G to cancel the search. 
 
 #### Tab Completion
 
@@ -76,6 +78,9 @@ Planck employs the line editing library [Linenoise](https://github.com/antirez/l
 * Ctrl-L: Clear screen
 * Ctrl-P: Previous line
 * Ctrl-N: Next line
+* Ctrl-R: Reverse incremental search
+* Ctrl-G: Cancel search
+* Ctrl-J: Finish search
 * Ctrl-T: Transpose characters
 * Ctrl-U: Undo typing on line
 
@@ -88,7 +93,7 @@ You may override the set of control characters by creating a `.planck_keymap` fi
 
 The keys in this map correspond to actions, and the values correspond to the control keys that cause those actions (`:ctrl-a` through `:ctrl-z`).
 
-The set of actions that you can override comprises: `:go-to-beginning-of-line`, `:go-to-end-of-line`, `:go-back-one-space`, `:go-forward-one-space`, `:delete-to-end-of-line`, `:delete-previous-word`, `:delete-backwards`, `:clear-screen`, `:previous-line`, `:next-line`, `:transpose-characters`, and `:undo-typing-on-line`.
+The set of actions that you can override comprises: `:go-to-beginning-of-line`, `:go-to-end-of-line`, `:go-back-one-space`, `:go-forward-one-space`, `:delete-to-end-of-line`, `:delete-previous-word`, `:delete-backwards`, `:clear-screen`, `:previous-line`, `:next-line`, `:reverse-i-search`, `:cancel-search`, `:finish-search`, `:transpose-characters`, and `:undo-typing-on-line`.
 
 ### Result Display
 
