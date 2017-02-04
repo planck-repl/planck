@@ -1,7 +1,7 @@
 ## Setup
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/setup.jpg">
-Planck runs on macOS. 
+Planck runs on macOS and Linux. 
 
 Planck requires no external dependencies. (There is no need for either the Java JVM or Node.js.)
 
@@ -9,19 +9,10 @@ Planck requires no external dependencies. (There is no need for either the Java 
 
 #### Install
 
-The easiest way to install Planck is via [Homebrew](http://brew.sh):
+The easiest way to install Planck on macOS is via [Homebrew](http://brew.sh):
 
 ```sh
 $ brew install planck
-```
-
-#### Update
-
-If you already have Planck installed via Homebrew and you'd like to update to the latest version:
-
-```
-$ brew update
-$ brew upgrade planck
 ```
 
 #### Install Master
@@ -33,15 +24,15 @@ $ brew remove planck
 $ brew install --HEAD planck
 ```
 
-### Manual Download and Install
+#### Building
 
-You can download Planck. It ships as a single-file binary, so it is as easy as putting it in your path then making it executable:
+To build Planck on Linux or macOS, get a copy of the source tree, install the [needed dependencies](https://github.com/mfikes/planck/wiki/Building) and run
 
+```sh
+$ script/build
 ```
-$ chmod +x planck
-```
 
-You can download Planck binaries (including older releases) at [http://planck-repl.org/download.html](download.html).
+This results in a binary being placed in `planck-c/build`.
 
 ### Bug Reporting
 
