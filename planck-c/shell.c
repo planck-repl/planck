@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <JavaScriptCore/JavaScript.h>
 #include <poll.h>
+#include <sysexits.h>
 #include "engine.h"
 #include "jsc_utils.h"
 #include "tasks.h"
@@ -69,21 +70,27 @@ struct SystemResult {
     char *stderr;
 };
 
+static JSObjectRef create_shell_result(JSContextRef ctx, int status, char *out, char *err) {
+    JSValueRef arguments[3];
+    arguments[0] = JSValueMakeNumber(ctx, status);
+    arguments[1] = c_string_to_value(ctx, out);
+    arguments[2] = c_string_to_value(ctx, err);
+
+    return JSObjectMakeArray(ctx, 3, arguments, NULL);
+}
+
 static JSObjectRef result_to_object_ref(JSContextRef ctx, struct SystemResult *result) {
 
     // Hack to avoid an optimizer bug. Grab the items we want to free now.
     char *x = result->stdout;
     char *y = result->stderr;
 
-    JSValueRef arguments[3];
-    arguments[0] = JSValueMakeNumber(ctx, result->status);
-    arguments[1] = c_string_to_value(ctx, result->stdout);
-    arguments[2] = c_string_to_value(ctx, result->stderr);
+    JSObjectRef rv = create_shell_result(ctx, result->status, result->stdout, result->stderr);
 
     free(x);
     free(y);
 
-    return JSObjectMakeArray(ctx, 3, arguments, NULL);
+    return rv;
 }
 
 struct ThreadParams {
@@ -270,24 +277,27 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
     err_rv = pipe(in);
     if (err_rv) {
         engine_perror("planck.shell setting up in pipe");
-        return JSValueMakeNull(ctx);
+        return create_shell_result(ctx, EX_OSERR, "", "");
     }
     int out[2];
-    err_rv= pipe(out);
+    err_rv = pipe(out);
     if (err_rv) {
         engine_perror("planck.shell setting up out pipe");
-        return JSValueMakeNull(ctx);
+        return create_shell_result(ctx, EX_OSERR, "", "");
     }
     int err[2];
     err_rv = pipe(err);
     if (err_rv) {
         engine_perror("planck.shell setting up err pipe");
-        return JSValueMakeNull(ctx);
+        return create_shell_result(ctx, EX_OSERR, "", "");
     }
 
     pid_t pid;
     pid = fork();
-    if (pid == 0) {
+    if (pid == -1) {
+        engine_perror("planck.shell forking subprocess");
+        return create_shell_result(ctx, EX_OSERR, "", "");
+    } else if (pid == 0) {
         if (dir) {
             if (chdir(dir) == -1) {
                 exit(1);
