@@ -184,23 +184,28 @@ void read_child_pipes(struct ThreadParams *params) {
 
 static struct SystemResult *wait_for_child(struct ThreadParams *params) {
 
+    params->res.status = 0;
+
     read_child_pipes(params);
 
-    if (waitpid(params->pid, &params->res.status, 0) != params->pid) {
-        params->res.status = -1;
-    } else {
-        if (WIFEXITED(params->res.status)) {
-            params->res.status = WEXITSTATUS(params->res.status);
-        } else if (WIFSIGNALED(params->res.status)) {
-            params->res.status = 128 + WTERMSIG(params->res.status);
-        } else {
-            params->res.status = -1;
-        }
+    close(params->errpipe);
+    close(params->outpipe);
+    close(params->inpipe);
 
-        close(params->errpipe);
-        close(params->outpipe);
-        close(params->inpipe);
+    if (params->res.status != -1) {
+        if (waitpid(params->pid, &params->res.status, 0) != params->pid) {
+            params->res.status = -1;
+        } else {
+            if (WIFEXITED(params->res.status)) {
+                params->res.status = WEXITSTATUS(params->res.status);
+            } else if (WIFSIGNALED(params->res.status)) {
+                params->res.status = 128 + WTERMSIG(params->res.status);
+            } else {
+                params->res.status = -1;
+            }
+        }
     }
+
     if (params->cb_idx == -1) {
         return &params->res;
     } else {
@@ -238,7 +243,7 @@ static void *thread_proc(void *params) {
 }
 
 static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *dir, int cb_idx) {
-    struct SystemResult result = {0};
+    struct SystemResult result = {0, NULL, NULL};
     struct SystemResult *res = &result;
 
     int err_rv;
