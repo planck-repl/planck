@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <JavaScriptCore/JavaScript.h>
+#include <poll.h>
 #include "engine.h"
 #include "jsc_utils.h"
 #include "tasks.h"
@@ -134,44 +135,62 @@ void read_child_pipes(struct ThreadParams *params) {
 
     while (!out_eof || !err_eof) {
 
-        fd_set rfds;
-        FD_ZERO(&rfds);
+        struct pollfd fds[2];
+        nfds_t fd_count = 0;
 
-        int max_fd = 0;
-
-        if (!out_eof) {
-            FD_SET(params->outpipe, &rfds);
-            max_fd = params->outpipe;
+        if (!out_eof && !err_eof) {
+            fds[0].fd = params->outpipe;
+            fds[0].events = POLLIN | POLLHUP;
+            fds[1].fd = params->errpipe;
+            fds[1].events = POLLIN | POLLHUP;
+            fd_count = 2;
+        } else if (!out_eof) {
+            fds[0].fd = params->outpipe;
+            fds[0].events = POLLIN | POLLHUP;
+            fd_count = 1;
+        } else {
+            fds[0].fd = params->errpipe;
+            fds[0].events = POLLIN | POLLHUP;
+            fd_count = 1;
         }
 
-        if (!err_eof) {
-            FD_SET(params->errpipe, &rfds);
-            if (params->errpipe > max_fd) {
-                max_fd = params->errpipe;
-            }
-        }
-
-        int rv = select(max_fd + 1, &rfds, NULL, NULL, NULL);
+        int rv = poll(fds, fd_count, 10000);
 
         if (rv == -1) {
-            if (errno == EINTR) {
-                // We ignore interrupts and loop back around
-            } else {
-                engine_perror("planck.shell select on child stdout/stderr");
-                params->res.status = -1;
-                goto done;
-            }
+            engine_perror("planck.shell poll on child stdout/stderr");
+            params->res.status = -1;
+            goto done;
+        } else if (rv == 0) {
+            // Timeout
+            continue;
         } else {
-            if (FD_ISSET(params->outpipe, &rfds)) {
-                int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
-                if (res == 0) {
-                    out_eof = true;
+            if (fds[0].revents & (POLLIN | POLLHUP)) {
+                if (fds[0].fd == params->outpipe) {
+                    int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
+                    if (res == 0) {
+                        out_eof = true;
+                    }
+                } else {
+                    int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
+                    if (res == 0) {
+                        err_eof = true;
+                    }
                 }
             }
-            if (FD_ISSET(params->errpipe, &rfds)) {
-                int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
-                if (res == 0) {
-                    err_eof = true;
+
+            if (fd_count == 2) {
+                if (fds[1].revents & (POLLIN | POLLHUP)) {
+                    if (fds[1].fd == params->outpipe) {
+                        int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
+                        if (res == 0) {
+                            out_eof = true;
+                        }
+                    } else {
+                        int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
+                        if (res == 0) {
+                            err_eof = true;
+                        }
+                    }
                 }
             }
         }
