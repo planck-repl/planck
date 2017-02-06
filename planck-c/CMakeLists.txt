@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 project(planck C)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 # Uncomment to enable Clang Address Sanitizer
 #set (CMAKE_C_FLAGS "-fsanitize=address -O1 -fno-omit-frame-pointer")
