@@ -117,6 +117,12 @@ $PLANCK -e ']'
 echo "Test run malformed script"
 $PLANCK $SRC/malformed/core.cljs
 
+echo "Test run expression with analysis error"
+$PLANCK -e '(defn)'
+
+echo "Test run script with analysis error"
+$PLANCK $SRC/analysis/core.cljs
+
 echo "Test in-ns"
 $PLANCK <<REPL_INPUT
 (in-ns not-symbol)

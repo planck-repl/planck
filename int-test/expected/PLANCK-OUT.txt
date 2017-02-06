@@ -47,7 +47,13 @@ Test run file with exit
 Test run malformed expression
 Unmatched delimiter ]
 Test run malformed script
-Unmatched delimiter ]
+Could not eval int-test/src/malformed/core.cljs
+Unmatched delimiter ] at line 1 int-test/src/malformed/core.cljs
+Test run expression with analysis error
+First argument to defn must be a symbol at line 1 
+Test run script with analysis error
+Could not eval int-test/src/analysis/core.cljs
+First argument to defn must be a symbol at line 1 
 Test in-ns
 nil
 nil

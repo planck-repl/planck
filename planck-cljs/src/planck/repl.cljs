@@ -258,9 +258,12 @@
 
 (defn- extract-namespace
   [source]
-  (let [first-form (first (repl-read-string source))]
-    (when (ns-form? first-form)
-      (second first-form))))
+  (try
+    (let [first-form (first (repl-read-string source))]
+      (when (ns-form? first-form)
+        (second first-form)))
+    (catch :default _
+      nil)))
 
 (defn- repl-special?
   [form]
@@ -898,11 +901,19 @@
          (ex-cause error))
     ex-cause))
 
+(defn- reader-error?
+  [e]
+  (= :reader-exception (:type (ex-data e))))
+
+(defn- analysis-error?
+  [e]
+  (= :cljs/analysis-error (:tag (ex-data e))))
+
 (defn- reader-or-analysis?
   "Indicates if an exception is a reader or analysis exception."
   [e]
-  (and (instance? ExceptionInfo e)
-       (some #{[:type :reader-exception] [:tag :cljs/analysis-error]} (ex-data e))))
+  (or (reader-error? e)
+      (analysis-error? e)))
 
 (defn- form-demunge-map
   "Forms a map from munged function symbols (as they appear in stacktraces)
@@ -1004,6 +1015,18 @@
 
 (declare print-value)
 
+(defn- file-path
+  [name]
+  (or (@name-path name)
+      name))
+
+(defn- location-info
+  [error]
+  (let [data (ex-data error)]
+    (when (and (:line data)
+               (:file data))
+      (str " at line " (:line data) " " (file-path (:file data))))))
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -1025,7 +1048,9 @@
                    (.-message error))]
      (when (or (not ((fnil string/starts-with? "") printed-message message))
                include-stacktrace?)
-       (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme) message)))
+       (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme)
+                  (str message (when (reader-error? error)
+                                 (location-info error))))))
      (when-let [data (and print-ex-data? (ex-data error))]
        (print-value data {::as-code? false}))
      (when include-stacktrace?
