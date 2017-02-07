@@ -1,15 +1,17 @@
 (defproject planck "0.1.0"
-  :profiles {:dev
-             {:dependencies [[org.clojure/clojurescript "1.9.456"]
-                             [org.clojure/test.check "0.9.0"]
-                             [tubular "1.0.0"]]
-              :source-paths ["dev"]}
-             :build-release 
-             {}
+  :profiles {:shared
+             {:dependencies [[org.clojure/clojurescript "1.9.456"]]}
+             :dev
+             [:shared
+              {:dependencies [[org.clojure/clojurescript "1.9.456"]
+                              [org.clojure/test.check "0.9.0"]
+                              [tubular "1.0.0"]]
+               :source-paths ["dev"]}]
+             :build-release
+             [:shared]
              :build-commit
              {}}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.456"]
                  [org.clojure/test.check "0.9.0"]
                  [org.clojure/tools.reader "1.0.0-beta4"]
                  [tailrecursion/cljson "1.0.7"]
