@@ -164,6 +164,9 @@ void read_child_pipes(struct ThreadParams *params) {
         int rv = poll(fds, fd_count, 10000);
 
         if (rv == -1) {
+            if (errno == EINTR) {
+                continue;
+            }
             engine_perror("planck.shell poll on child stdout/stderr");
             params->res.status = -1;
             goto done;
