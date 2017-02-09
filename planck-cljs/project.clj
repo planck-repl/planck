@@ -3,8 +3,7 @@
              {:dependencies [[org.clojure/clojurescript "1.9.456"]]}
              :dev
              [:shared
-              {:dependencies [[org.clojure/clojurescript "1.9.456"]
-                              [org.clojure/test.check "0.9.0"]
+              {:dependencies [[org.clojure/test.check "0.9.0"]
                               [tubular "1.0.0"]]
                :source-paths ["dev"]}]
              :build-release
