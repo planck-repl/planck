@@ -59,6 +59,28 @@ $ planck -m foo.core ClojureScript
 Hello ClojureScript!
 ```
 
+### Interacting with standard input and output
+
+When writing scripts, getting input from standard input is quite useful. Clojure
+has two dynamic vars, `core/*in*` and `core/*out*`. Whenever you use `println`,
+you're actually printing to whatever `core/*out*` is bound to. Clojurescript has
+its own `*out*` which lives in `cljs.core`, but it lacks (for obvious reaons)
+`*in*`. Planck, though provides `planck.core/*in*` which lets you interact with
+standard input.
+
+So in order to demonstrate this, here is a script that simply copies each line
+it receives on standard input to standard out:
+
+```
+#!/usr/bin/env planck
+
+(ns example.echo
+  (:require [planck.core :as core]))
+
+(doseq [l (core/line-seq core/*in*)]
+  (println l))
+```
+
 ### Command Line Arguments
 
 If you'd like to gain access to the command line arguments passed to your script, they are available in `planck.core/*command-line-args*` (mimicking the behavior of `clojure.core/*command-line-args*` when writing scripts with Clojure).
