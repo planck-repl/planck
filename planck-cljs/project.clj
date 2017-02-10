@@ -1,6 +1,6 @@
 (defproject planck "0.1.0"
   :profiles {:shared
-             {:dependencies [[org.clojure/clojurescript "1.9.456"]]}
+             {:dependencies [[org.clojure/clojurescript "1.9.473"]]}
              :dev
              [:shared
               {:dependencies [[org.clojure/test.check "0.9.0"]
