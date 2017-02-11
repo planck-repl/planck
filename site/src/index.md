@@ -6,7 +6,7 @@ Planck launches instantly and is useful for scripting.
 
 <img src="img/screenshot.png" style="max-width: 95%;"/>
 
-Get it: `brew install planck` or [download it](download.html).
+Get it: On macOS `brew install planck`, on Ubuntu [install](setup.html) using `apt-get`. 
 
 Read the [Planck User Guide](guide.html).
 
