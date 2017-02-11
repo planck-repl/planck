@@ -11,7 +11,14 @@ On macOS:
 $ brew install planck
 ```
 
-For Linux, see Building below.
+On Ubuntu:
+```
+sudo add-apt-repository ppa:mfikes/planck
+sudo apt-get update
+sudo apt-get install planck
+```
+
+For other Linux distros, see Building below.
 
 # Using
 

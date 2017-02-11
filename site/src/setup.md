@@ -12,16 +12,26 @@ Planck requires no external dependencies. (There is no need for either the Java 
 The easiest way to install Planck on macOS is via [Homebrew](http://brew.sh):
 
 ```sh
-$ brew install planck
+brew install planck
 ```
+
+On Ubuntu you can use `apt-get`:
+
+```sh
+sudo add-apt-repository ppa:mfikes/planck
+sudo apt-get update
+sudo apt-get install planck
+```
+
+For other Linux distros, see Building below.
 
 #### Install Master
 
 If you'd like to use Homebrew to install the latest unreleased version of Planck (directly from master in the GitHub repository), you can do the following:
 
 ```sh
-$ brew remove planck
-$ brew install --HEAD planck
+brew remove planck
+brew install --HEAD planck
 ```
 
 #### Building
@@ -29,7 +39,7 @@ $ brew install --HEAD planck
 To build Planck on Linux or macOS, get a copy of the source tree, install the [needed dependencies](https://github.com/mfikes/planck/wiki/Building) and run
 
 ```sh
-$ script/build
+script/build
 ```
 
 This results in a binary being placed in `planck-c/build`.
