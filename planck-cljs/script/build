@@ -30,7 +30,7 @@ if [ -n "$CLJS_COMMIT" ]; then
      script/uberjar
      popd
   fi
-  CLJSC_CP=`script/lein with-profile build-commit classpath`:clojurescript/target/cljs.jar
+  CLJSC_CP=clojurescript/target/cljs.jar:`script/lein with-profile build-commit classpath`
 else
   CLJSC_CP=`script/lein with-profile build-release classpath`
 fi

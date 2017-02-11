@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-echo "{:dev {:local-repo \"sandbox-m2\"}}" > planck-cljs/profiles.clj
+echo "{:build-release {:local-repo \"sandbox-m2\"}}" > planck-cljs/profiles.clj
 script/build
 rm planck-cljs/profiles.clj
