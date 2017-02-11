@@ -1,0 +1,28 @@
+#!/usr/bin/make -f
+
+DH_VERBOSE = 1
+
+build: build-indep
+
+build-indep: build-arch
+
+build-arch:
+	LEIN_ROOT=1 script/build-sandbox
+
+binary: binary-indep
+
+binary-indep: binary-arch
+
+binary-arch:
+	mkdir -p debian/tmp/usr/bin
+	cp planck-c/build/planck debian/tmp/usr/bin
+	mkdir debian/tmp/DEBIAN
+	dpkg-gencontrol -pplanck
+	dpkg --build debian/tmp ..
+
+clean:
+	mkdir -p ~/.lein/self-installs
+	cp planck-cljs/sandbox-m2/leiningen-2.7.1-standalone.jar ~/.lein/self-installs
+	LEIN_ROOT=1 script/clean
+
+.PHONY: binary binary-arch binary-indep clean
