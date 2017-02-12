@@ -496,7 +496,7 @@ nil
 Ensure we can get into Planck REPL ns and all ns are loaded
 nil
 nil
-47
+48
 Test timers keeps script going
 start
 end

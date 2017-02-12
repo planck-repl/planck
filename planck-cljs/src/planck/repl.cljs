@@ -21,6 +21,7 @@
     [planck.js-deps :as js-deps]
     [planck.pprint.code]
     [planck.pprint.data]
+    [planck.pprint.width-adjust]
     [planck.repl-resources :refer [special-doc-map repl-special-doc-map]]
     [planck.themes :refer [get-theme]]
     [tailrecursion.cljson :refer [cljson->clj]]))
@@ -1464,9 +1465,10 @@
   [value opts]
   (if *pprint-results*
     (if-let [[term-height term-width] (js/PLANCK_GET_TERM_SIZE)]
-      ((if (::as-code? opts)
-         planck.pprint.code/pprint
-         planck.pprint.data/pprint)
+      ((planck.pprint.width-adjust/wrap
+         (if (::as-code? opts)
+           planck.pprint.code/pprint
+           planck.pprint.data/pprint))
         value {:width      ((fnil + 0) term-width (::term-width-adj opts))
                :theme      theme
                :spec?      (::spec? opts)
