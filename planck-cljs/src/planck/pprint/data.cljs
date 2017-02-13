@@ -1,5 +1,6 @@
 (ns planck.pprint.data
-  (:require [fipp.visit :refer [visit visit*]]
+  (:require [clojure.string :as string]
+            [fipp.visit :refer [visit visit*]]
             [fipp.engine :refer (pprint-document)]
             [planck.themes]))
 
@@ -23,7 +24,15 @@
   [kw theme text]
   [:span [:pass (kw theme)] [:text text] [:pass (:reset-font theme)]])
 
-(defrecord PlanckPrinter [symbols print-meta print-length print-level theme keyword-ns]
+(defn demunge-macros-symbol
+  [sym]
+  (let [sym-ns (namespace sym)]
+    (if (and (some? sym-ns)
+             (string/ends-with? sym-ns "$macros"))
+      (symbol (subs sym-ns 0 (- (count sym-ns) 7)) (name sym))
+      sym)))
+
+(defrecord PlanckPrinter [symbols print-meta print-length print-level theme keyword-ns demunge-macros-symbols?]
 
   fipp.visit/IVisitor
 
@@ -44,7 +53,7 @@
     (wrap-theme :results-string-font theme (pr-str x)))
 
   (visit-symbol [this x]
-    [:text (str x)])
+    [:text (str (cond-> x demunge-macros-symbols? demunge-macros-symbol))])
 
   (visit-keyword [this x]
     (wrap-theme :results-keyword-font theme

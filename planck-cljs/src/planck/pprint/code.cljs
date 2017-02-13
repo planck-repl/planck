@@ -192,4 +192,6 @@
 (defn pprint
   ([x] (pprint x {}))
   ([x options]
-   (planck.pprint.data/pprint x (merge {:symbols (default-symbols (:spec? options))} options))))
+   (planck.pprint.data/pprint x (merge {:symbols (default-symbols (:spec? options))
+                                        :demunge-macros-symbols? true}
+                                  options))))
