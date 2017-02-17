@@ -121,7 +121,7 @@ bool is_exit_command(char *input, bool is_socket_repl) {
             (is_socket_repl && strcmp(input, ":repl/quit") == 0));
 }
 
-bool process_line(repl_t *repl, char *input_line) {
+bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
 
     // Accumulate input lines
 
@@ -148,7 +148,21 @@ bool process_line(repl_t *repl, char *input_line) {
     // Add input line to history
 
     if (repl->history_path != NULL && !is_whitespace(repl->input)) {
-        linenoiseHistoryAdd(input_line);
+
+        // Split on newlines because input_line will contain newlines if pasting
+        if (split_on_newlines) {
+            char *tokenize = strdup(input_line);
+            char *saveptr;
+            char *token = strtok_r(tokenize, "\n", &saveptr);
+            while (token != NULL) {
+                linenoiseHistoryAdd(token);
+                token = strtok_r(NULL, "\n", &saveptr);
+            }
+            free(tokenize);
+        } else {
+            linenoiseHistoryAdd(input_line);
+        }
+
         linenoiseHistorySave(repl->history_path);
     }
 
@@ -215,7 +229,9 @@ bool process_line(repl_t *repl, char *input_line) {
         } else {
             // Prepare for reading non-1st of input with secondary prompt
             if (repl->history_path != NULL) {
-                repl->indent_space_count = indent_space_count(repl->input);
+                if (!is_pasting()) {
+                    repl->indent_space_count = indent_space_count(repl->input);
+                }
             }
 
             free(repl->current_prompt);
@@ -258,7 +274,7 @@ void run_cmdline_loop(repl_t *repl) {
                 fprintf(stdout, "\n");
             }
 
-            char *line = linenoise(repl->current_prompt, prompt_ansi_code_for_theme(config.theme),
+            char *line = linenoise(repl->current_prompt, form_prompt(repl, true), prompt_ansi_code_for_theme(config.theme),
                                    repl->indent_space_count);
 
             pthread_mutex_lock(&repl_print_mutex);
@@ -268,7 +284,6 @@ void run_cmdline_loop(repl_t *repl) {
                 set_print_sender(NULL);
             }
 
-            repl->indent_space_count = 0;
             if (line == NULL) {
                 if (errno == EAGAIN) { // Ctrl-C
                     errno = 0;
@@ -289,7 +304,29 @@ void run_cmdline_loop(repl_t *repl) {
             input_line = line;
         }
 
-        bool break_out = process_line(repl, input_line);
+        // If the input is small process each line separately here
+        // so that things like brace highlighting work properly.
+        // But for large input, let process line more efficiently
+        // handle the input.
+        bool break_out;
+        if (strlen(input_line) < 16384) {
+            char *tokenize = strdup(input_line);
+            char *saveptr;
+            char *token = strtok_r(tokenize, "\n", &saveptr);
+            while (token != NULL) {
+                repl->indent_space_count = 0;
+                break_out = process_line(repl, strdup(token), false);
+                if (break_out) {
+                    break;
+                }
+                token = strtok_r(NULL, "\n", &saveptr);
+            }
+            free(tokenize);
+        } else {
+            repl->indent_space_count = 0;
+            break_out = process_line(repl, input_line, true);
+        }
+
         pthread_mutex_unlock(&repl_print_mutex);
         if (break_out) {
             break;
@@ -473,7 +510,7 @@ void *connection_handler(void *socket_desc) {
 
         set_print_sender(&socket_sender);
 
-        bool exit = process_line(repl, strdup(client_message));
+        bool exit = process_line(repl, strdup(client_message), false);
 
         set_print_sender(NULL);
         sock_to_write_to = 0;

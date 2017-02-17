@@ -62,11 +62,9 @@ typedef void(linenoiseHighlightCancelCallback)();
 
 void linenoiseSetHighlightCancelCallback(linenoiseHighlightCancelCallback *);
 
-int isPasting();
-
 void linenoisePrintNow(const char *text);
 
-char *linenoise(const char *prompt, const char *promptAnsiCode, int spaces);
+char *linenoise(const char *prompt, const char *secondary_prompt, const char *promptAnsiCode, int spaces);
 
 int linenoiseHistoryAdd(const char *line);
 
@@ -83,6 +81,8 @@ void linenoiseSetMultiLine(int ml);
 void linenoisePrintKeyCodes(void);
 
 void linenoiseSetKeymapEntry(int action, char key);
+
+int is_pasting();
 
 #define KM_GO_TO_START_OF_LINE 0
 #define KM_MOVE_LEFT 1

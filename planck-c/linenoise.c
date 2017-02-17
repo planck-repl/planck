@@ -117,6 +117,7 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "linenoise.h"
 #include "clock.h"
 
@@ -660,7 +661,7 @@ int linenoiseEditInsert(struct linenoiseState *l, char c) {
             refreshLine(l);
         }
 
-        if (highlightCallback != NULL) {
+        if (!pasting && highlightCallback != NULL) {
             highlightCallback(l->buf, l->pos - 1);
         }
 
@@ -765,14 +766,6 @@ void linenoiseEditDeletePrevWord(struct linenoiseState *l) {
     refreshLine(l);
 }
 
-/**
- * Make a best guess at whether the user is pasting a form based on the
- * time between character reads.
- */
-int isPasting() {
-    return pasting;
-}
-
 static void set_current(struct linenoiseState *current, const char *str) {
     strncpy(current->buf, str, current->buflen);
     current->buf[current->buflen - 1] = 0;
@@ -787,7 +780,7 @@ static void set_current(struct linenoiseState *current, const char *str) {
  * when ctrl+d is typed.
  *
  * The function returns the length of the current buffer. */
-static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, const char *prompt, int spaces) {
+static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, const char *prompt, int spaces, char peek_char) {
     struct linenoiseState l;
 
     /* Populate the linenoise state that we pass to functions implementing
@@ -828,13 +821,21 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         int nread;
         char seq[3];
 
-        nread = read(l.ifd, &c, 1);
+        if (peek_char) {
+            c = peek_char;
+            peek_char = 0;
+            nread = 1;
+        } else {
+            nread = read(l.ifd, &c, 1);
+        }
+
         if (c != keymap[KM_ENTER] && c != '>') {  // Also check for '>' so we can catch pasting involving prompt
             lastCharRead = system_time();
         } else {
             uint64_t now = system_time();
             pasting = now - lastCharRead < 10000;
         }
+
         if (nread <= 0) {
             printNowState = NULL;
             return l.len;
@@ -1152,31 +1153,88 @@ void linenoisePrintKeyCodes(void) {
     disableRawMode(STDIN_FILENO);
 }
 
+static char get_next_char() {
+    char c = 0;
+    int orig = fcntl(STDIN_FILENO, F_GETFL);
+    if (fcntl(STDIN_FILENO, F_SETFL, orig | O_NONBLOCK) == -1) {
+        fprintf(stderr, "Failed to set `O_NONBLOCK` on `STDIN_FILENO`\n");
+    }
+    ssize_t nread = read(STDIN_FILENO, &c, 1);
+    if (nread == -1) {
+        c = 0;
+    }
+    if (fcntl(STDIN_FILENO, F_SETFL, orig) == -1) {
+        fprintf(stderr, "Failed to turn off `O_NONBLOCK` on `STDIN_FILENO`\n");
+    }
+    errno = 0;
+    return c;
+}
+
 /* This function calls the line editing function linenoiseEdit() using
  * the STDIN file descriptor set in raw mode. */
-static int linenoiseRaw(char *buf, size_t buflen, const char *prompt, int spaces) {
-    int count;
+static char* linenoiseRaw(const char *prompt, const char *secondary_prompt, int spaces) {
 
-    if (buflen == 0) {
-        errno = EINVAL;
-        return -1;
-    }
     if (!isatty(STDIN_FILENO)) {
         /* Not a tty: read from file / pipe. */
-        if (fgets(buf, buflen, stdin) == NULL) return -1;
-        count = strlen(buf);
+        char buf[LINENOISE_MAX_LINE];
+        if (fgets(buf, LINENOISE_MAX_LINE, stdin) == NULL) return NULL;
+        size_t count = strlen(buf);
         if (count && buf[count - 1] == '\n') {
             count--;
             buf[count] = '\0';
         }
+        return strdup(buf);
     } else {
         /* Interactive editing. */
-        if (enableRawMode(STDIN_FILENO) == -1) return -1;
-        count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, buflen, prompt, spaces);
+
+        if (enableRawMode(STDIN_FILENO) == -1) {
+            fprintf(stderr, "failed to enable raw mode");
+            return NULL; // TODO handle better?
+        }
+
+        size_t accum_buf_size = 2 * LINENOISE_MAX_LINE;
+        size_t accum_count = 0;
+        char* accum_buf = malloc(accum_buf_size);
+
+
+        char peek_char = 0;
+        int done = 0;
+        const char *current_prompt = prompt;
+        while (!done) {
+            char buf[LINENOISE_MAX_LINE];
+            int count = linenoiseEdit(STDIN_FILENO, STDOUT_FILENO, buf, LINENOISE_MAX_LINE, current_prompt, spaces, peek_char);
+
+            done = 1;
+            if (count == -1) {
+                free(accum_buf);
+                accum_buf = NULL;
+            } else {
+                if (accum_count + count + 2 > accum_buf_size) { // 1 for newline and 1 for null-terminator
+                    accum_buf_size *= 2;
+                    accum_buf = realloc(accum_buf, accum_buf_size);
+                }
+                if (accum_count) {
+                    accum_buf[accum_count++] = '\n';
+                }
+                memcpy(accum_buf + accum_count, buf, count);
+                accum_count += count;
+                accum_buf[accum_count] = '\0';
+
+                peek_char = get_next_char();
+
+                if (peek_char) {
+                    current_prompt = secondary_prompt;
+                    printf("\n");
+                    done = 0;
+                    pasting = 1;
+                }
+            }
+        }
         disableRawMode(STDIN_FILENO);
         printf("\n");
+        //pasting = 0;
+        return accum_buf;
     }
-    return count;
 }
 
 void linenoisePrintNow(const char *text) {
@@ -1190,14 +1248,17 @@ void linenoisePrintNow(const char *text) {
     }
 }
 
+int is_pasting() {
+    return pasting;
+}
+
 /* The high level function that is the main API of the linenoise library.
  * This function checks if the terminal has basic capabilities, just checking
  * for a blacklist of stupid terminals, and later either calls the line
  * editing function or uses dummy fgets() so that you will be able to type
  * something even in the most desperate of the conditions. */
-char *linenoise(const char *prompt, const char *promptAnsiCode, int spaces) {
+char *linenoise(const char *prompt, const char* secondary_prompt, const char *promptAnsiCode, int spaces) {
     char buf[LINENOISE_MAX_LINE];
-    int count;
 
     if (isUnsupportedTerm()) {
         size_t len;
@@ -1213,9 +1274,7 @@ char *linenoise(const char *prompt, const char *promptAnsiCode, int spaces) {
         return strdup(buf);
     } else {
         currentPromptAnsiCode = promptAnsiCode;
-        count = linenoiseRaw(buf, LINENOISE_MAX_LINE, prompt, spaces);
-        if (count == -1) return NULL;
-        return strdup(buf);
+        return linenoiseRaw(prompt, secondary_prompt, spaces);
     }
 }
 

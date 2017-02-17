@@ -151,7 +151,8 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
     // printf("get_value: '%s'\n", namespace);
     char *ns_tmp = strdup(namespace);
-    char *ns_part = strtok(ns_tmp, ".");
+    char *saveptr;
+    char *ns_part = strtok_r(ns_tmp, ".", &saveptr);
     while (ns_part != NULL) {
         char *munged_ns_part = munge(ns_part);
         if (ns_val) {
@@ -161,7 +162,7 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
         }
         free(munged_ns_part); // TODO: Use a fixed buffer for this?  (Which would restrict namespace part length...)
 
-        ns_part = strtok(NULL, ".");
+        ns_part = strtok_r(NULL, ".", &saveptr);
     }
     free(ns_tmp);
 
