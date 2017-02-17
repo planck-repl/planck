@@ -33,6 +33,20 @@ Build-Depends: git, cmake, default-jdk, clang, pkg-config, vim-common, libjavasc
 Depends: libjavascriptcoregtk-4.0-bin, libzip4, libicu55
 ```
 
+If building for yakkety:
+
+```
+Build-Depends: git, cmake, default-jdk, clang, pkg-config, vim-common, libjavascriptcoregtk-4.0-dev, libglib2.0-dev, libzip-dev, libcurl4-gnutls-dev, libicu-dev
+Depends: libjavascriptcoregtk-4.0-bin, libzip4, libicu57
+```
+
+If building for zesty:
+
+```
+Build-Depends: git, cmake, default-jdk, clang, pkg-config, vim-common, libjavascriptcoregtk-4.0-dev, libglib2.0-dev, libzip-dev, libcurl4-gnutls-dev, libicu-dev
+Depends: libjavascriptcoregtk-4.0-bin, libzip4, libicu57
+```
+
 Set the version numbers in `debian/changelog` appropriately (reflecting the distro as well) and add a changelog line entry.
 
 
