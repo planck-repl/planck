@@ -106,11 +106,13 @@
 (defn pprint
   ([x] (pprint x {}))
   ([x options]
-   (let [defaults  {:symbols      {}
-                    :print-length *print-length*
-                    :print-level  *print-level*
-                    :print-meta   *print-meta*
-                    :theme        planck.themes/dumb}
+   (let [defaults {:symbols {}
+                   :print-length *print-length*
+                   :print-level *print-level*
+                   :print-meta *print-meta*
+                   :theme planck.themes/dumb
+                   :pprint-document fipp.engine/pprint-document}
          full-opts (merge defaults options)
-         printer   (map->PlanckPrinter full-opts)]
+         pprint-document (:pprint-document full-opts)
+         printer (map->PlanckPrinter full-opts)]
      (pprint-document (visit printer x) full-opts))))

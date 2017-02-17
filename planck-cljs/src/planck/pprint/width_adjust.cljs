@@ -1,27 +1,42 @@
 (ns planck.pprint.width-adjust
   (:require
     [clojure.string :as string]
+    [fipp.engine :refer [annotate-begins annotate-rights format-nodes serialize]]
     [planck.themes]))
 
 (def plain (planck.themes/get-theme :plain))
 
-(defn make-sample-opts
-  [opts]
-  (merge opts
-    {:theme plain
-     :print-length (quot (:width opts) 2)
-     :print-level (:width opts)}))
+(defn pprint-document [print-fn document options]
+  (->> (serialize document)
+    (eduction
+      annotate-rights
+      (annotate-begins options)
+      (format-nodes options))
+    (run! print-fn)))
+
+(defn counting-print
+  [print-fn max-prints]
+  (let [counter (atom 0)]
+    (fn [x]
+      (print-fn x)
+      (when (== max-prints (swap! counter inc))
+        (throw (ex-info "" {::count-reached true}))))))
+
+(defn count-reached?
+  [e]
+  (::count-reached (ex-data e)))
 
 (defn generate-sample
-  [pprint x opts width]
-  (let [stop-time (+ (system-time) 80)
-        sb (js/goog.string.StringBuffer.)]
-    (binding [*print-newline* true
-              *print-fn* (fn [x]
-                           (when (< stop-time (system-time))
-                             (throw (ex-info "" {})))
-                           (.append sb x))]
-      (pprint x (assoc opts :width width)))
+  [pprint x opts width max-prints]
+  (let [sb (js/goog.string.StringBuffer.)
+        print-to-sb (fn [x]
+                      (.append sb x))]
+    (try
+      (pprint x (assoc opts :width width
+                            :pprint-document (partial pprint-document (counting-print print-to-sb max-prints))))
+      (catch :default e
+        (when-not (count-reached? e)
+          (throw e))))
     (str sb)))
 
 (defn text-width
@@ -47,20 +62,32 @@
             (recur mid upper)
             (recur lower mid)))))))
 
+(defn force-eval
+  [pprint x opts max-prints]
+  (try
+    (pprint x (assoc opts :pprint-document (partial pprint-document (counting-print identity max-prints))))
+    false
+    (catch :default e
+      (if (count-reached? e)
+        true
+        (throw e)))))
+
 (defn adjusted-with
   [pprint x opts]
-  (let [desired-width (:width opts)
-        lower 20
-        upper desired-width
-        sample-opts (make-sample-opts opts)
-        sample-width (fn [trial-width]
-                       (text-width (generate-sample pprint x sample-opts trial-width)))
-        fits? (fn [trial-width]
-                (<= (sample-width trial-width) desired-width))]
-    (try
-      (bisect lower upper fits?)
-      (catch :default _
-        desired-width))))
+  (let [plain-opts (assoc opts :theme plain)
+        max-prints 1024]
+    ;; We first force the evaluation of up to max-prints to ensure any print
+    ;; side effects occur. We give up if max-prints is reached.
+    (if (force-eval pprint x plain-opts max-prints)
+      (:width opts)
+      (let [desired-width (:width opts)
+            lower 20
+            upper desired-width
+            sample-width (fn [trial-width]
+                           (text-width (generate-sample pprint x plain-opts trial-width max-prints)))
+            fits? (fn [trial-width]
+                    (<= (sample-width trial-width) desired-width))]
+        (bisect lower upper fits?)))))
 
 (defn wrap
   [pprint]
