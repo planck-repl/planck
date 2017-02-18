@@ -1,4 +1,5 @@
 (ns planck.pprint.data
+  (:refer-clojure :exclude [lift-ns])
   (:require [clojure.string :as string]
             [fipp.visit :refer [visit visit*]]
             [fipp.engine :refer (pprint-document)]
@@ -32,7 +33,23 @@
       (symbol (subs sym-ns 0 (- (count sym-ns) 7)) (name sym))
       sym)))
 
-(defrecord PlanckPrinter [symbols print-meta print-length print-level theme keyword-ns demunge-macros-symbols?]
+(defn- lift-ns
+  "Returns [lifted-ns lifted-map] or nil if m can't be lifted."
+  [print-namespace-maps m]
+  (when print-namespace-maps
+    (loop [ns nil
+           [[k v :as entry] & entries] (seq m)
+           lm (empty m)]
+      (if entry
+        (when (or (keyword? k) (symbol? k))
+          (if ns
+            (when (= ns (namespace k))
+              (recur ns entries (assoc lm (strip-ns k) v)))
+            (when-let [new-ns (namespace k)]
+              (recur new-ns entries (assoc lm (strip-ns k) v)))))
+        [ns lm]))))
+
+(defrecord PlanckPrinter [symbols print-meta print-length print-level print-namespace-maps theme keyword-ns demunge-macros-symbols?]
 
   fipp.visit/IVisitor
 
@@ -74,9 +91,12 @@
     (pretty-coll this "[" x :line "]" visit))
 
   (visit-map [this x]
-    (pretty-coll this "{" x [:span "," :line] "}"
-      (fn [printer [k v]]
-        [:span (visit printer k) " " (visit printer v)])))
+    (let [[ns lift-map] (lift-ns print-namespace-maps x)
+          prefix (when (some? ns)
+                   (str "#:" ns))]
+      (pretty-coll this (str prefix "{") (or lift-map x) [:span "," :line] "}"
+        (fn [printer [k v]]
+          [:span (visit printer k) " " (visit printer v)]))))
 
   (visit-set [this x]
     (pretty-coll this "#{" x :line "}" visit))
@@ -110,6 +130,7 @@
                    :print-length *print-length*
                    :print-level *print-level*
                    :print-meta *print-meta*
+                   :print-namespace-maps *print-namespace-maps*
                    :theme planck.themes/dumb
                    :pprint-document fipp.engine/pprint-document}
          full-opts (merge defaults options)

@@ -202,6 +202,10 @@
   (set! *assert* (not elide-asserts))
   (swap! default-session-state assoc :*assert* *assert*))
 
+(defn- setup-print-namespace-maps [print-namespace-maps]
+  (set! *print-namespace-maps* print-namespace-maps)
+  (swap! default-session-state assoc :*print-namespace-maps* *print-namespace-maps*))
+
 (defn- ^:export init
   [repl verbose cache-path static-fns elide-asserts]
   (load-core-analysis-caches repl)
@@ -215,7 +219,8 @@
                                     {:static-fns true})))
     (js-deps/index-foreign-libs opts)
     (js-deps/index-upstream-foreign-libs))
-  (setup-asserts elide-asserts))
+  (setup-asserts elide-asserts)
+  (setup-print-namespace-maps repl))
 
 (defn- read-chars
   [reader]
@@ -1397,15 +1402,16 @@
 (defn- capture-session-state
   "Captures all of the commonly set global vars as a session state map."
   []
-  {:*print-meta*   *print-meta*
+  {:*print-meta* *print-meta*
    :*print-length* *print-length*
-   :*print-level*  *print-level*
+   :*print-level* *print-level*
+   :*print-namespace-maps* *print-namespace-maps*
    :*unchecked-if* *unchecked-if*
-   :*assert*       *assert*
-   :*1             *1
-   :*2             *2
-   :*3             *3
-   :*e             *e})
+   :*assert* *assert*
+   :*1 *1
+   :*2 *2
+   :*3 *3
+   :*e *e})
 
 (defn- set-session-state
   "Sets the session state given a sesssion state map."
@@ -1413,6 +1419,7 @@
   (set! *print-meta* (:*print-meta* session-state))
   (set! *print-length* (:*print-length* session-state))
   (set! *print-level* (:*print-level* session-state))
+  (set! *print-namespace-maps* (:*print-namespace-maps* session-state))
   (set! *unchecked-if* (:*unchecked-if* session-state))
   (set! *assert* (:*assert* session-state))
   (set! *1 (:*1 session-state))
