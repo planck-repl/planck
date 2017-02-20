@@ -47,8 +47,7 @@ Test run file with exit
 Test run malformed expression
 Unmatched delimiter ]
 Test run malformed script
-Could not eval int-test/src/malformed/core.cljs
-Unmatched delimiter ] at line 1 int-test/src/malformed/core.cljs
+Unmatched delimiter ]
 Test run expression with analysis error
 First argument to defn must be a symbol at line 1 
 Test run script with analysis error
@@ -179,7 +178,6 @@ Macro
 
   Defines a function
 nil
-EOF
 -------------------------
 cljs.core/IWriter
 Protocol
@@ -460,7 +458,6 @@ nil
 "Hello, from JAR"
 Test reader
 #js [1 2]
-EOF
 #inst "2015-08-18T01:53:14.614-00:00"
 Set literal contains duplicate key: 1
 Map literal contains duplicate key: 1

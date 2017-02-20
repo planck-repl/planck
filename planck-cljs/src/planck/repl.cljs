@@ -240,6 +240,18 @@
     (let [reader (rt/string-push-back-reader source)]
       [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))])))
 
+(def ^:private eof (js-obj))
+
+(defn- eof-guarded-read
+  "Returns first readable form or no-form if EOF"
+  [source-text]
+  (try
+    (first (repl-read-string source-text))
+    (catch :default e
+      (if (= "EOF" (.-message e))
+        eof
+        (throw e)))))
+
 (defn- eof-while-reading?
   [message]
   (or
@@ -1582,10 +1594,12 @@
     (if-not (= "text" source-type)
       (process-execute-path source-value (assoc opts :source-path source-value))
       (let [source-text source-value
-            expression-form (and expression? (first (repl-read-string source-text)))]
-        (if (repl-special? expression-form)
-          (process-repl-special expression-form opts)
-          (process-execute-source source-text expression-form opts))))))
+            first-form (eof-guarded-read source-text)]
+        (when (not= eof first-form)
+          (let [expression-form (and expression? first-form)]
+            (if (repl-special? expression-form)
+              (process-repl-special expression-form opts)
+              (process-execute-source source-text expression-form opts))))))))
 
 
 ;; The following atoms and fns set up a scheme to
