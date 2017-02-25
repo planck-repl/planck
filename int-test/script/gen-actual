@@ -681,9 +681,3 @@ echo "Disable asserts"
 $PLANCK -a << REPL_INPUT
 (assert false)
 REPL_INPUT
-
-echo "Print ex-data when pst"
-$PLANCK << REPL_INPUT
-(throw (ex-info "abc" {:a 1}))
-(pst)
-REPL_INPUT
