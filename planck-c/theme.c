@@ -76,7 +76,7 @@ const char *prompt_ansi_code_for_theme(const char *theme) {
 
 bool check_theme(const char *theme) {
 
-    if (strcmp(theme, "dumb") == 0 || prompt_font_for_theme(theme)) {
+    if (prompt_font_for_theme(theme)) {
         return true;
     }
 

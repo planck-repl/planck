@@ -341,7 +341,7 @@ int main(int argc, char **argv) {
     display_launch_timing("init classpath");
 
     if (config.dumb_terminal) {
-        config.theme = "dumb";
+        config.theme = "plain";
     } else {
         if (!config.theme) {
             config.theme = default_theme_for_terminal();
