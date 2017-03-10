@@ -1,4 +1,5 @@
 (ns planck.core
+  "Core Planck macros."
   (:refer-clojure :exclude [with-open]))
 
 (defmacro with-open

@@ -1,5 +1,6 @@
 (ns planck.from.io.aviso.ansi
-  (:require [clojure.string :as str]))
+  (:require
+   [clojure.string :as str]))
 
 (defn ^:private def-sgr-const
   "Utility for defining a font-modifying constant."

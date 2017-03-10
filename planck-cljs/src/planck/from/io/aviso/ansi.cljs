@@ -3,9 +3,9 @@
   Ported for use with bootstrap ClojureScript in Planck from
   https://github.com/AvisoNovate/pretty/blob/master/src/io/aviso/ansi.clj"
   (:require-macros
-    [planck.from.io.aviso.ansi :refer [generate-color-functions]])
+   [planck.from.io.aviso.ansi :refer [generate-color-functions]])
   (:require
-    [clojure.string :as str]))
+   [clojure.string :as str]))
 
 (def ^:const csi
   "The control sequence initiator: `ESC [`"

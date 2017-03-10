@@ -1,11 +1,11 @@
 (ns planck.http-test
   (:require
-    [clojure.test :refer [deftest testing is]]
-    [cognitect.transit :as transit]
-    [planck.http :as http]
-    [planck.io :as io])
+   [clojure.test :refer [deftest is testing]]
+   [cognitect.transit :as transit]
+   [planck.http :as http]
+   [planck.io :as io])
   (:import
-    (goog Uri)))
+   (goog Uri)))
 
 ;; A server running an instance of https://github.com/mfikes/http-echo-clj
 (def http-echo-server "http://http-test.planck-repl.org")

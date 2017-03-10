@@ -1,16 +1,17 @@
 (ns planck.test-runner
-  (:require [clojure.test :refer [run-tests]]
-            [cljs.spec.test :as stest]
-            [planck.core :refer [exit]]
-            [planck.core-test]
-            [planck.io-test]
-            [planck.shell-test]
-            [planck.repl-test]
-            [planck.js-deps-test]
-            [planck.http-test]
-            [fipp.edn]
-            [general.core-test]
-            [general.fipp-test]))
+  (:require
+   [cljs.spec.test :as stest]
+   [clojure.test :refer [run-tests]]
+   [fipp.edn]
+   [general.core-test]
+   [general.fipp-test]
+   [planck.core :refer [exit]]
+   [planck.core-test]
+   [planck.http-test]
+   [planck.io-test]
+   [planck.js-deps-test]
+   [planck.repl-test]
+   [planck.shell-test]))
 
 (defn run-all-tests []
   (run-tests

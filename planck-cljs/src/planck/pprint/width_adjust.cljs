@@ -1,8 +1,9 @@
 (ns planck.pprint.width-adjust
+  "Adjust pretty-print width for trailing delimiters."
   (:require
-    [clojure.string :as string]
-    [fipp.engine :refer [annotate-begins annotate-rights format-nodes serialize]]
-    [planck.themes]))
+   [clojure.string :as string]
+   [fipp.engine :refer [annotate-begins annotate-rights format-nodes serialize]]
+   [planck.themes]))
 
 (def plain (planck.themes/get-theme :plain))
 

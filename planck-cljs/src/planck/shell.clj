@@ -1,4 +1,5 @@
-(ns planck.shell)
+(ns planck.shell
+  "Planck Shell macros.")
 
 (defmacro with-sh-dir
   "Sets the directory for use with sh, see sh for details."

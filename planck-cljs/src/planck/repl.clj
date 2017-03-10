@@ -1,4 +1,5 @@
-(ns planck.repl)
+(ns planck.repl
+  "Macros for use at the Planck REPL.")
 
 (defmacro apropos
   "Given a regular expression or stringable thing, return a seq of all

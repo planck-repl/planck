@@ -1,6 +1,7 @@
 (ns planck.js-deps-test
-  (:require [clojure.test :refer [deftest is]]
-            [planck.js-deps :as js-deps]))
+  (:require
+   [clojure.test :refer [deftest is]]
+   [planck.js-deps :as js-deps]))
 
 (deftest add-foreign-libs-test
   (let [fl {:foreign-libs

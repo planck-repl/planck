@@ -1,6 +1,7 @@
 (ns planck.js-deps
+  "JavaScript deps management."
   (:require
-    [cljs.tools.reader :as r]))
+   [cljs.tools.reader :as r]))
 
 (defonce ^:private foreign-libs-index (atom {}))
 

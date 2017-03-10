@@ -1,6 +1,7 @@
 (ns planck.themes
+  "Planck color theme management."
   (:require
-    [planck.from.io.aviso.ansi :as ansi]))
+   [planck.from.io.aviso.ansi :as ansi]))
 
 (def ^:private colorize-fn-dumb identity)
 (def ^:private colorize-off-dumb "")

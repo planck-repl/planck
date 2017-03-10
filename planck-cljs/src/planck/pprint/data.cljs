@@ -1,9 +1,11 @@
 (ns planck.pprint.data
+  "Pretty printing for data."
   (:refer-clojure :exclude [lift-ns])
-  (:require [clojure.string :as string]
-            [fipp.visit :refer [visit visit*]]
-            [fipp.engine :refer (pprint-document)]
-            [planck.themes]))
+  (:require
+   [clojure.string :as string]
+   [fipp.engine :refer [pprint-document]]
+   [fipp.visit :refer [visit visit*]]
+   [planck.themes]))
 
 ;; Derived from fipp.edn
 

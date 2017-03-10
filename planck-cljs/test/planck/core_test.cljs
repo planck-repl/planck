@@ -1,8 +1,10 @@
 (ns planck.core-test
-  (:require-macros [planck.core])
-  (:require [clojure.test :refer [deftest testing is]]
-            [planck.core]
-            [foo.core]))
+  (:require-macros
+   [planck.core])
+  (:require
+   [clojure.test :refer [deftest is testing]]
+   [foo.core]
+   [planck.core]))
 
 (deftest exit-throws
   #_(testing "exit throws EXIT exception"

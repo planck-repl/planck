@@ -1,12 +1,13 @@
 (ns planck.core
+  "Core Planck functions for use in scripts."
   (:require-macros
-    [planck.core :refer [with-open]])
+   [planck.core :refer [with-open]])
   (:require
-    [cljs.spec :as s]
-    [clojure.string :as string]
-    [planck.repl :as repl])
+   [cljs.spec :as s]
+   [clojure.string :as string]
+   [planck.repl :as repl])
   (:import
-    (goog.string StringBuffer)))
+   (goog.string StringBuffer)))
 
 (s/def ::binding
   (s/cat :name symbol? :value any?))

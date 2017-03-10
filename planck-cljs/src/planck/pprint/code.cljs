@@ -1,7 +1,9 @@
 (ns planck.pprint.code
-  (:require [clojure.walk :as walk]
-            [fipp.visit :as v :refer [visit]]
-            [planck.pprint.data]))
+  "Pretty printing for code."
+  (:require
+   [clojure.walk :as walk]
+   [fipp.visit :as v :refer [visit]]
+   [planck.pprint.data]))
 
 ;; Derived from fipp.clojure
 

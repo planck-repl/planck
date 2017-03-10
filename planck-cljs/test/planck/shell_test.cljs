@@ -1,8 +1,9 @@
 (ns planck.shell-test
-  (:require [clojure.test :refer [deftest is]]
-            [clojure.string :as string]
-            [planck.io]
-            [planck.shell :include-macros true]))
+  (:require
+   [clojure.string :as string]
+   [clojure.test :refer [deftest is]]
+   [planck.io]
+   [planck.shell :include-macros true]))
 
 (deftest shell
   (is (= #{[:err ""] [:exit 0] [:out "hello\n"]}

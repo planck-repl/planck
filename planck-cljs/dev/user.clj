@@ -1,5 +1,6 @@
 (ns user
-  (:require tubular.core))
+  (:require
+   [tubular.core]))
 
 (defn connect []
   (tubular.core/connect 51638))

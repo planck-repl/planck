@@ -1,4 +1,5 @@
-(ns planck.repl-resources)
+(ns planck.repl-resources
+  "Resources for use in the Planck REPL implementation.")
 
 (def special-doc-map
   '{.     {:forms [(.instanceMethod instance args*)

@@ -1,12 +1,13 @@
 (ns planck.http
+  "Planck HTTP functionality."
   (:refer-clojure :exclude [get])
   (:require
-    [cljs.spec :as s]
-    [clojure.string :as string]
-    [planck.core]
-    [planck.io])
+   [cljs.spec :as s]
+   [clojure.string :as string]
+   [planck.core]
+   [planck.io])
   (:import
-    (goog Uri)))
+   (goog Uri)))
 
 
 (def ^:private content-types {:json            "application/json"

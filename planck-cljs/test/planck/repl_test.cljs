@@ -1,10 +1,12 @@
 (ns planck.repl-test
-  (:require-macros [planck.repl])
-  (:require [clojure.test :refer [deftest testing is]]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop :include-macros true]
-            [clojure.test.check.clojure-test :refer-macros [defspec]]
-            [planck.repl :as repl]))
+  (:require-macros
+   [planck.repl])
+  (:require
+   [clojure.test :refer [deftest is testing]]
+   [clojure.test.check.clojure-test :refer-macros [defspec]]
+   [clojure.test.check.generators :as gen]
+   [clojure.test.check.properties :as prop :include-macros true]
+   [planck.repl :as repl]))
 
 (deftest get-highlight-coords
   (testing "Highlight coordinates"
