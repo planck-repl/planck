@@ -288,6 +288,7 @@ void run_cmdline_loop(repl_t *repl) {
                 if (errno == EAGAIN) { // Ctrl-C
                     errno = 0;
                     repl->input = NULL;
+                    repl->indent_space_count = 0;
                     empty_previous_lines(repl);
                     free(repl->current_prompt);
                     repl->current_prompt = form_prompt(repl, false);
