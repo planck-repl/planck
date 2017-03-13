@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-export EXPECTED_PATH=int-test/expected
-export ACTUAL_PATH=/tmp
-export PLANCK_BINARY=build/Release/planck
-export HOME=int-test
-export SRC=$HOME/src
