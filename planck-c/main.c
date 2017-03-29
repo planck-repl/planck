@@ -58,6 +58,7 @@ void usage(char *program_name) {
     printf("    -                          Run a script from standard input\n");
     printf("    -h, -?, --help             Print this help message and exit\n");
     printf("    -l, --legal                Show legal info (licenses and copyrights)\n");
+    printf("    -V, --version              Show version and exit\n");
     printf("\n");
     printf("  operation:\n");
     printf("\n");
@@ -195,6 +196,7 @@ int main(int argc, char **argv) {
 
     struct option long_options[] = {
             {"help",          no_argument,       NULL, 'h'},
+            {"version",       no_argument,       NULL, 'V'},
             {"legal",         no_argument,       NULL, 'l'},
             {"verbose",       no_argument,       NULL, 'v'},
             {"quiet",         no_argument,       NULL, 'q'},
@@ -221,7 +223,7 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "Xh?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "XhV?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'X':
                 init_launch_timing();
@@ -229,6 +231,9 @@ int main(int argc, char **argv) {
             case 'h':
                 printf("Planck %s\n", PLANCK_VERSION);
                 usage(argv[0]);
+                exit(0);
+            case 'V':
+                printf("Planck %s\n", PLANCK_VERSION);
                 exit(0);
             case 'l':
                 legal();
