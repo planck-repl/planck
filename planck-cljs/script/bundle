@@ -28,6 +28,8 @@ cd out
 rm -rf clojure/test/check*
 # We don't need to bundle the extra cljs/core$macros.cljc file
 rm -f cljs/core\$macros.cljc
+# No need to bundle the bundle namespace
+rm -rf planck/bundle.cljs
 rm -f bundled_sdk_manifest.txt
 for file in `find . -name '*.cljs' -o -name '*.cljc' -o -name '*.clj'`
 do
