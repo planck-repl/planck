@@ -26,7 +26,17 @@ EOF
 cd out
 # Make sure we don't bundle test.check
 rm -rf clojure/test/check*
-for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json'`
+rm -f bundled_sdk_manifest.txt
+for file in `find . -name '*.cljs' -o -name '*.cljc' -o -name '*.clj'`
+do
+file=${file:2}
+echo $file >> bundled_sdk_manifest.txt
+done
+for file in `find goog -name '*.js'`
+do
+echo $file >> bundled_sdk_manifest.txt
+done
+for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json' -o -name bundled_sdk_manifest.txt`
 do 
 file=${file:2}
 cp $file $file.bak

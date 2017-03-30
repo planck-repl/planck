@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/stat.h>
 
 #include "bundle.h"
 #include "engine.h"
@@ -169,6 +170,40 @@ void err_cache_path(char *program_name) {
     print_usage_error("At most one of -k/--cache or -K/--auto-cache may be specified.", program_name);
 }
 
+void split_path_file(char** p, char** f, char *pf) {
+    char *slash = pf, *next;
+    while ((next = strpbrk(slash + 1, "\\/"))) slash = next;
+    if (pf != slash) slash++;
+    *p = strndup(pf, slash - pf);
+    *f = strdup(slash);
+}
+
+void dump_sdk(char* target_path) {
+    if (mkdir(target_path, 0755) < 0) {
+        fprintf(stderr, "Could not create %s: %s\n", target_path, strerror(errno));
+        exit(1);
+    }
+    char* manifest = bundle_get_contents("bundled_sdk_manifest.txt");
+    char *path = strtok(manifest, "\n");
+    while (path != NULL) {
+        char full_path[PATH_MAX];
+        snprintf(full_path, PATH_MAX, "%s/%s", target_path, path);
+
+        char *p = NULL;
+        char *f = NULL;
+        split_path_file(&p, &f, full_path);
+        if (mkdir_parents(p) < 0) {
+            fprintf(stderr, "Could not create %s: %s\n", p, strerror(errno));
+            exit(1);
+        }
+
+        char* contents = bundle_get_contents(path);
+        write_contents(full_path, contents);
+
+        path = strtok(NULL, "\n");
+    }
+}
+
 int main(int argc, char **argv) {
 
     ignore_sigpipe();
@@ -197,6 +232,7 @@ int main(int argc, char **argv) {
     struct option long_options[] = {
             {"help",          no_argument,       NULL, 'h'},
             {"version",       no_argument,       NULL, 'V'},
+            {"dump-sdk",      required_argument, NULL, 'D'},
             {"legal",         no_argument,       NULL, 'l'},
             {"verbose",       no_argument,       NULL, 'v'},
             {"quiet",         no_argument,       NULL, 'q'},
@@ -223,7 +259,7 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "XhV?lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "Xh?VD:lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'X':
                 init_launch_timing();
@@ -234,6 +270,9 @@ int main(int argc, char **argv) {
                 exit(0);
             case 'V':
                 printf("Planck %s\n", PLANCK_VERSION);
+                exit(0);
+            case 'D':
+                dump_sdk(optarg);
                 exit(0);
             case 'l':
                 legal();
