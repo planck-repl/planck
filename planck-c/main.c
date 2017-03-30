@@ -269,7 +269,7 @@ int main(int argc, char **argv) {
                 usage(argv[0]);
                 exit(0);
             case 'V':
-                printf("Planck %s\n", PLANCK_VERSION);
+                printf("%s\n", PLANCK_VERSION);
                 exit(0);
             case 'D':
                 dump_sdk(optarg);
