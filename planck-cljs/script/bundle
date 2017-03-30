@@ -26,6 +26,8 @@ EOF
 cd out
 # Make sure we don't bundle test.check
 rm -rf clojure/test/check*
+# We don't need to bundle the extra cljs/core$macros.cljc file
+rm -f cljs/core\$macros.cljc
 rm -f bundled_sdk_manifest.txt
 for file in `find . -name '*.cljs' -o -name '*.cljc' -o -name '*.clj'`
 do
