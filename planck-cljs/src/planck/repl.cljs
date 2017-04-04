@@ -1231,8 +1231,6 @@
   [s]
   (subs s 0 (dec (count s))))
 
-(declare print-value)
-
 (defn- format-spec
   [spec left-margin ns]
   (let [raw-print (with-out-str (print-value (s/describe spec)
