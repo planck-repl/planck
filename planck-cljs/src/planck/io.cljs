@@ -197,6 +197,15 @@
 
 (def path-separator "/")
 
+(defn ^boolean file?
+  "Returns true if x is a File."
+  [x]
+  (instance? File x))
+
+(s/fdef file?
+  :args (s/cat :x any?)
+  :ret boolean?)
+
 (defn file
   "Returns a File for given path.  Multiple-arg
    versions treat the first argument as parent and subsequent args as
@@ -208,7 +217,7 @@
 
 (s/fdef file
   :args (s/cat :path-or-parent string? :more (s/* string?))
-  :ret #(instance? File %))
+  :ret file?)
 
 (defn file-attributes
   "Returns a map containing the attributes of the item at a given path."
@@ -223,7 +232,7 @@
     (update-in [:modified] #(js/Date. %))))
 
 (s/fdef file-attributes
-  :args (s/cat :path ::coercible-file?)
+  :args (s/cat :path (s/or :string string? :file file?))
   :ret map?)
 
 (defn delete-file
@@ -232,7 +241,7 @@
   (js/PLANCK_DELETE (:path (as-file f))))
 
 (s/fdef delete-file
-  :args (s/cat :f ::coercible-file?))
+  :args (s/cat :f (s/or :string string? :file file?)))
 
 (defn ^boolean directory?
   "Checks if dir is a directory."
@@ -240,7 +249,7 @@
   (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
 (s/fdef directory?
-  :args (s/cat :dir ::coercible-file?)
+  :args (s/cat :dir (s/or :string string? :file file?))
   :ret boolean?)
 
 ;; These have been moved
@@ -251,5 +260,4 @@
 (set! planck.core/*reader-fn* reader)
 (set! planck.core/*writer-fn* writer)
 (set! planck.core/*as-file-fn* as-file)
-
-(s/def ::coercible-file? (s/or :string string? :file #(instance? File %)))
+(set! planck.core/*file?-fn* file?)

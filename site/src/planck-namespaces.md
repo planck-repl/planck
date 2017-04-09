@@ -7,13 +7,18 @@ The code for these namespaces is included directly _in the Planck binary_, so th
 
 These namespaces comprise
 * `planck.core`
+* `planck.repl`
 * `planck.io`
 * `planck.shell`
 * `planck.http`
 
 To explore these namespaces, you can evaluate `(dir planck.core)`, for example, to see the symbols in `planck.core`, and then use the `doc` macro to see the docs for any of the symbols.
 
+Online documentation for the namespaces is available: [Planck SDK](sdk.html).
+
 ### planck.core
+
+([Online docs](planck-core.html))
 
 This namespace includes basic I/O capabilities like `slurp`, `spit` and `read-line`. The I/O facilities are expressed in protocols defined in `planck.core` modeled after those in Clojure, like `IReader`, `IOutputStream`, _etc._, and these capabilities cooperate with facilities defined in `planck.io`.
 
@@ -27,7 +32,15 @@ The `planck.core` defines `eval` and other dynamic functions like `resolve`, `ns
 
 Additionally, `planck.core/exit` is a function that takes an integer `exit-value` argument, so you can cause a Planck script to exit with any desired Unix exit value.
 
+### planck.repl
+
+([Online docs](planck-repl.html))
+
+This namespace includes a few macros that are useful when working at the REPL, such as `doc`, `dir`, `source`, _etc_.
+
 ### planck.io
+
+([Online docs](planck-io.html))
 
 This namespace defines a lot of the `IOFactory` machinery, imitating `clojure.java.io`.
 
@@ -35,11 +48,15 @@ Additionally, filesystem facilities like `file`, `delete-file`, and `file-attrib
 
 ### planck.shell
 
+([Online docs](planck-shell.html))
+
 This namespace imitates `clojure.shell`, and defining the `sh` function and `with-sh-dir` / `with-sh-env` macros that can be used to execute external command-line functions.
 
 With this escape hatch, you can do nearly anything: Move files to remote hosts using `scp`, _etc._
 
 ### planck.http
+
+([Online docs](planck-http.html))
 
 This namespace provides facilities for interacting with HTTP servers. For example:
 

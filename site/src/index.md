@@ -8,6 +8,6 @@ Planck launches instantly and is useful for scripting.
 
 Get it: On macOS `brew install planck`, on Ubuntu [install](setup.html) using `apt-get`. 
 
-Read the [Planck User Guide](guide.html).
+Read the [Planck User Guide](guide.html) or browse the [Planck SDK](sdk.html).
 
 Planck is free and [open source](https://github.com/mfikes/planck).
