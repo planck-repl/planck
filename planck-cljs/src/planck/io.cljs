@@ -195,7 +195,7 @@
   [x & opts]
   (make-output-stream x (when opts (apply hash-map opts))))
 
-(def path-separator "/")
+(def ^:private path-separator "/")
 
 (defn ^boolean file?
   "Returns true if x is a File."
