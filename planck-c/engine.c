@@ -420,6 +420,7 @@ void *do_engine_init(void *data) {
     register_global_function(ctx, "PLANCK_READ_FILE", function_read_file);
     register_global_function(ctx, "PLANCK_LOAD", function_load);
     register_global_function(ctx, "PLANCK_LOAD_DEPS_CLJS_FILES", function_load_deps_cljs_files);
+    register_global_function(ctx, "PLANCK_LOAD_FROM_JAR", function_load_from_jar);
     register_global_function(ctx, "PLANCK_CACHE", function_cache);
 
     register_global_function(ctx, "PLANCK_EVAL", function_eval);

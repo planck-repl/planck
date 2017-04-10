@@ -2,9 +2,13 @@
   (:require-macros
    [planck.core])
   (:require
-   [clojure.test :refer [deftest is testing]]
-   [foo.core]
-   [planck.core]))
+    [clojure.test :refer [deftest is testing]]
+    [clojure.string :as string]
+    [foo.core]
+    [planck.core]
+    [clojure.string :as string])
+  (:import
+    (goog Uri)))
 
 (deftest exit-throws
   #_(testing "exit throws EXIT exception"
@@ -80,3 +84,17 @@
           nil
           {:eval cljs.js/js-eval}
           identity))))
+
+(deftest slurp-url-test
+  (is (string/includes? (planck.core/slurp "http://planck-repl.org") "Planck")))
+
+(deftest slurp-from-jar-test
+  (is (= "(ns test-jar.core)\n\n(def x \"Hello, from JAR\")\n"
+        (planck.core/slurp
+          (Uri. "jar:file:int-test/test-jar.jar!/test_jar/core.cljs"))))
+  (is (thrown? js/Error (planck.core/slurp
+                          (Uri. "jar:file:int-test/test-jar.jar!/bogus_path/core.cljs"))))
+  (is (thrown? js/Error (planck.core/slurp
+                          (Uri. "jar:file:bogus-path/test-jar.jar!/test_jar/core.cljs"))))
+  (is (thrown? js/Error (planck.core/slurp
+                          (Uri. "jar:non-file:int-test/test-jar.jar!/test_jar/core.cljs")))))

@@ -15,6 +15,9 @@ function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, si
 JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                          const JSValueRef args[], JSValueRef *exception);
 
+JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                  size_t argc, const JSValueRef args[], JSValueRef *exception);
+
 JSValueRef
 function_cache(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[],
                JSValueRef *exception);

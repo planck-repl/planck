@@ -3,7 +3,8 @@
   (:require
    [cljs.spec :as s]
    [clojure.string :as string]
-   [planck.core])
+   [planck.core]
+   [planck.http :as http])
   (:import
    (goog Uri)))
 
@@ -29,6 +30,22 @@
           :query-string (s/nilable string?))
   :ret #(instance? Uri %))
 
+(defn- has-scheme?
+  [uri scheme]
+  (= scheme (.getScheme uri)))
+
+(defn- file-uri?
+  [uri]
+  (has-scheme? uri "file"))
+
+(defn- jar-uri?
+  [uri]
+  (has-scheme? uri "jar"))
+
+(defn- bundled-uri?
+  [uri]
+  (has-scheme? uri "bundled"))
+
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
   (as-file [x] "Coerce argument to a File.")
@@ -45,7 +62,14 @@
 
   File
   (as-file [f] f)
-  (as-url [f] (build-uri :file nil nil (:path f) nil)))
+  (as-url [f] (build-uri :file nil nil (:path f) nil))
+
+  Uri
+  (as-url [u] u)
+  (as-file [u]
+    (if (file-uri? u)
+      (as-file (.getPath u))
+      (throw (js/Error. (str "Not a file: " u))))))
 
 (defn- as-url-or-file [f]
   (if (string/starts-with? f "http")
@@ -82,6 +106,56 @@
   [file-descriptor file opts]
   (when (bad-file-descriptor? file-descriptor)
     (throw (ex-info "Failed to open file." {:file file, :opts opts}))))
+
+(defn- make-string-reader
+  [s]
+  (let [content (atom s)]
+    (letfn [(read [] (let [return @content]
+                       (reset! content nil)
+                       return))]
+      (planck.core/->BufferedReader
+        read
+        (fn [])
+        (atom nil)
+        (atom 0)))))
+
+(defn- make-jar-uri-reader
+  [jar-uri opts]
+  (let [file-uri (Uri. (.getPath jar-uri))]
+    (if (file-uri? file-uri)
+      (let [[file-path resource] (string/split (.getPath file-uri) #"!/")
+            [content error-msg] (js/PLANCK_LOAD_FROM_JAR file-path resource)]
+        (if-not (nil? content)
+          (make-string-reader content)
+          (throw (ex-info (str "Failed to extract resource from JAR: " error-msg)
+                   {:uri       jar-uri
+                    :jar-file  file-path
+                    :resource  resource
+                    :error-msg error-msg}))))
+      (throw (ex-info "Not a JAR file URI"
+               {:uri jar-uri
+                :sub-uri file-uri})))))
+
+(defn- make-bundled-uri-reader
+  [bundle-uri opts]
+  (let [path (.getPath bundle-uri)
+        content (first (js/PLANCK_LOAD path))]
+    (make-string-reader content)))
+
+(defn- make-http-uri-reader
+  [uri opts]
+  (make-string-reader (:body (http/get (str uri) {}))))
+
+(defn- make-http-uri-writer
+  [uri opts]
+  (planck.core/->Writer
+    (fn [content]
+      (let [name     (or (:param-name opts) "file")
+            filename (or (:filename opts) "file.pnk")]
+        (http/post (str uri) {:multipart-params [[name [content filename]]]}))
+      nil)
+    (fn [])
+    (fn [])))
 
 (extend-protocol IOFactory
   string
@@ -156,6 +230,20 @@
           (when (contains? @open-file-output-stream-descriptors file-descriptor)
             (swap! open-file-output-stream-descriptors disj file-descriptor)
             (js/PLANCK_FILE_OUTPUT_STREAM_CLOSE file-descriptor))))))
+
+  Uri
+  (make-reader [uri opts]
+    (cond
+      (file-uri? uri) (make-reader (as-file uri) opts)
+      (jar-uri? uri) (make-jar-uri-reader uri opts)
+      (bundled-uri? uri) (make-bundled-uri-reader uri opts)
+      :else (make-http-uri-reader uri opts)))
+  (make-writer [uri opts]
+    (cond
+      (file-uri? uri) (make-writer (as-file uri) opts)
+      (jar-uri? uri) (throw (ex-info "Can't write to jar URI" {:uri uri}))
+      (bundled-uri? uri) (throw (ex-info "Can't write to bundled URI" {:uri uri}))
+      :else (make-http-uri-writer uri opts)))
 
   default
   (make-reader [x _]
@@ -251,6 +339,19 @@
 (s/fdef directory?
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret boolean?)
+
+(defn resource
+  "Returns the URI for a named resource."
+  [n]
+  (when-some [[_ _ loaded-path loaded-type loaded-location] (js/PLANCK_LOAD n)]
+    (case loaded-type
+      "jar" (Uri. (str "jar:file:" loaded-location "!/" loaded-path))
+      "src" (build-uri "file" "" nil loaded-path nil)
+      "bundled" (build-uri "bundled" nil nil loaded-path nil))))
+
+(s/fdef resource
+  :args (s/cat :n string?)
+  :ret (s/nilable #(instance? Uri %)))
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)

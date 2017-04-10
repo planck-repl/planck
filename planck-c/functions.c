@@ -106,6 +106,8 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
         time_t last_modified = 0;
         char *contents = NULL;
         char *loaded_path = strdup(path);
+        char *loaded_type = NULL;
+        char *loaded_location = NULL;
 
         bool developing = (config.num_src_paths == 1 &&
                            strcmp(config.src_paths[0].type, "src") == 0 &&
@@ -113,6 +115,7 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
 
         if (!developing) {
             contents = bundle_get_contents(path);
+            loaded_type = "bundled";
             last_modified = 0;
         }
 
@@ -133,12 +136,22 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     if (contents != NULL) {
                         free(loaded_path);
                         loaded_path = strdup(full_path);
+                        loaded_type = type;
+                        loaded_location = location;
                     }
                     free(full_path);
                 } else if (strcmp(type, "jar") == 0) {
                     struct stat file_stat;
                     if (stat(location, &file_stat) == 0) {
-                        contents = get_contents_zip(location, path, &last_modified);
+                        char *error_msg = NULL;
+                        contents = get_contents_zip(location, path, &last_modified, &error_msg);
+                        if (!contents && error_msg) {
+                            engine_print(error_msg);
+                            engine_print("\n");
+                            free(error_msg);
+                        }
+                        loaded_type = type;
+                        loaded_location = location;
                     } else {
                         engine_perror(location);
                         config.src_paths[i].blacklisted = true;
@@ -170,12 +183,17 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
             free(contents);
             JSStringRef loaded_path_str = JSStringCreateWithUTF8CString(loaded_path);
             free(loaded_path);
+            JSStringRef loaded_type_str = JSStringCreateWithUTF8CString(loaded_type);
+            JSStringRef loaded_location_str = JSStringCreateWithUTF8CString(loaded_location);
 
-            JSValueRef res[3];
+
+            JSValueRef res[5];
             res[0] = JSValueMakeString(ctx, contents_str);
             res[1] = JSValueMakeNumber(ctx, last_modified);
             res[2] = JSValueMakeString(ctx, loaded_path_str);
-            return JSObjectMakeArray(ctx, 3, res, NULL);
+            res[3] = JSValueMakeString(ctx, loaded_type_str);
+            res[4] = JSValueMakeString(ctx, loaded_location_str);
+            return JSObjectMakeArray(ctx, 5, res, NULL);
         }
 
         free(loaded_path);
@@ -201,11 +219,18 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
             if (strcmp(type, "jar") == 0) {
                 struct stat file_stat;
                 if (stat(location, &file_stat) == 0) {
-                    char *source = get_contents_zip(location, "deps.cljs", NULL);
+                    char *error_msg = NULL;
+                    char *source = get_contents_zip(location, "deps.cljs", NULL, &error_msg);
                     if (source != NULL) {
                         num_files += 1;
                         deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
                         deps_cljs_files[num_files - 1] = source;
+                    } else {
+                        if (error_msg) {
+                            engine_print(error_msg);
+                            engine_print("\n");
+                            free(error_msg);
+                        }
                     }
                 } else {
                     engine_perror(location);
@@ -225,6 +250,54 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
     free(deps_cljs_files);
 
     return JSObjectMakeArray(ctx, num_files, files, NULL);
+}
+
+JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {
+
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeString) {
+
+        char jar_path[PATH_MAX];
+        JSStringRef path_str = JSValueToStringCopy(ctx, args[0], NULL);
+        assert(JSStringGetLength(path_str) < PATH_MAX);
+        JSStringGetUTF8CString(path_str, jar_path, PATH_MAX);
+        JSStringRelease(path_str);
+
+        char resource_path[PATH_MAX];
+        JSStringRef resource_path_str = JSValueToStringCopy(ctx, args[1], NULL);
+        assert(JSStringGetLength(resource_path_str) < PATH_MAX);
+        JSStringGetUTF8CString(resource_path_str, resource_path, PATH_MAX);
+        JSStringRelease(resource_path_str);
+
+        char *error_msg = NULL;
+        char *contents = get_contents_zip(jar_path, resource_path, NULL, &error_msg);
+
+        JSStringRef contents_str = NULL;
+        if (contents != NULL) {
+            contents_str = JSStringCreateWithUTF8CString(contents);
+            free(contents);
+        } else {
+            if (!error_msg) {
+                error_msg = strdup("Resource not found in JAR");
+            }
+        }
+
+        JSStringRef error_msg_str = NULL;
+        if (error_msg != NULL) {
+            error_msg_str = JSStringCreateWithUTF8CString(error_msg);
+            free(error_msg);
+        }
+
+        JSValueRef res[2];
+        res[0] = contents ? JSValueMakeString(ctx, contents_str) : JSValueMakeNull(ctx);
+        res[1] = error_msg ? JSValueMakeString(ctx, error_msg_str) : JSValueMakeNull(ctx);
+        return JSObjectMakeArray(ctx, 2, res, NULL);
+
+    }
+
+    return JSValueMakeNull(ctx);
 }
 
 JSValueRef function_cache(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,

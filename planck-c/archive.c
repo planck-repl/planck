@@ -11,16 +11,17 @@ typedef struct zip_file zip_file_t;
 #define ZIP_RDONLY 16
 #endif
 
-void print_zip_err(const char *prefix, zip_t *zip);
+void format_zip_error(const char *prefix, zip_t *zip, char **error_msg);
 
-char *get_contents_zip(const char *path, const char *name, time_t *last_modified) {
+char *get_contents_zip(const char *path, const char *name, time_t *last_modified, char **error_msg) {
 
     zip_t *archive = zip_open(path, ZIP_RDONLY, NULL);
 
-    if (archive == NULL) {
-        char buffer[1024];
-        snprintf(buffer, 1024, "Could not open %s\n", path);
-        engine_print(buffer);
+    if (archive == NULL && error_msg) {
+        *error_msg = malloc(1024);
+        if (*error_msg) {
+            snprintf(*error_msg, 1024, "Could not open %s", path);
+        }
         return NULL;
     }
 
@@ -31,7 +32,9 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 
     zip_file_t *f = zip_fopen(archive, name, 0);
     if (f == NULL) {
-        print_zip_err("zip_fopen", archive);
+        if (error_msg) {
+            format_zip_error("zip_fopen", archive, error_msg);
+        }
         goto close_archive;
     }
 
@@ -41,12 +44,16 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 
     char *buf = malloc(stat.size + 1);
     if (!buf) {
-        engine_println("zip malloc");
+        if (error_msg) {
+            *error_msg = strdup("zip malloc");
+        }
         goto close_f;
     }
 
     if (zip_fread(f, buf, stat.size) < 0) {
-        print_zip_err("zip_fread", archive);
+        if (error_msg) {
+            format_zip_error("zip_fread", archive, error_msg);
+        }
         goto free_buf;
     }
     buf[stat.size] = '\0';
@@ -68,10 +75,11 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
     return NULL;
 }
 
-void print_zip_err(const char *prefix, zip_t *zip) {
-    char buffer[1024];
-    snprintf(buffer, 1024, "%s: %s\n", prefix, zip_strerror(zip));
-    engine_print(buffer);
+void format_zip_error(const char *prefix, zip_t *zip, char **error_msg) {
+    *error_msg = malloc(1024);
+    if (*error_msg) {
+        snprintf(*error_msg, 1024, "%s: %s", prefix, zip_strerror(zip));
+    }
 }
 
 #ifdef ZIP_TEST

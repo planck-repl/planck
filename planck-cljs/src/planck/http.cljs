@@ -3,12 +3,7 @@
   (:refer-clojure :exclude [get])
   (:require
    [cljs.spec :as s]
-   [clojure.string :as string]
-   [planck.core]
-   [planck.io])
-  (:import
-   (goog Uri)))
-
+   [clojure.string :as string]))
 
 (def ^:private content-types {:json            "application/json"
                               :xml             "application/xml"
@@ -220,33 +215,3 @@
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
                                                         ::form-params ::multipart-params])))
   :ret (s/keys :req-un [::body ::headers ::status]))
-
-(extend-protocol planck.io/IOFactory
-  Uri
-  (make-reader [url opts]
-    (let [content (atom (:body (get url opts)))]
-      (letfn [(read [] (let [return @content]
-                         (reset! content nil)
-                         return))]
-        (planck.core/->BufferedReader
-          read
-          (fn [])
-          (atom nil)
-          (atom 0)))))
-  (make-writer [url opts]
-    (planck.core/->Writer
-      (fn [content]
-        (let [name (or (:param-name opts) "file")
-              filename (or (:filename opts) "file.pnk")]
-          (post url {:multipart-params [[name [content filename]]]}))
-        nil)
-      (fn [])
-      (fn []))))
-
-(extend-protocol planck.io/Coercions
-  Uri
-  (as-url [u] u)
-  (as-file [u]
-    (if (= "file" (.getScheme u))
-      (planck.io/as-file (.getPath u))
-      (throw (js/Error. (str "Not a file: " u))))))
