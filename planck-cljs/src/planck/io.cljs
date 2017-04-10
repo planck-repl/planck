@@ -12,7 +12,7 @@
   Object
   (toString [_] path))
 
-(defn build-uri
+(defn- build-uri
   "Builds a URI"
   [scheme server-name server-port uri query-string]
   (doto (Uri.)
