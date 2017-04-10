@@ -1674,6 +1674,17 @@
   [sym]
   (ns-resolve (.-name *ns*) sym))
 
+(defn get-arglists
+  "Return the argument lists for the given symbol as string."
+  [s]
+  (when-let [var (some->> s repl-read-string first (resolve-var @env/*compiler*))]
+    (let [arglists (if-not (:macro var)
+                     (:arglists var)
+                     (-> var :meta :arglists second))]
+      (if (= 'quote (first arglists))
+                          (second arglists)
+                          arglists))))
+
 (defn- intern
   ([ns name]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
