@@ -224,7 +224,7 @@
 (extend-protocol planck.io/IOFactory
   Uri
   (make-reader [url opts]
-    (let [content (atom (:body (get url opts)))]
+    (let [content (atom (:body (get (.toString url) opts)))]
       (letfn [(read [] (let [return @content]
                          (reset! content nil)
                          return))]
@@ -238,7 +238,7 @@
       (fn [content]
         (let [name (or (:param-name opts) "file")
               filename (or (:filename opts) "file.pnk")]
-          (post url {:multipart-params [[name [content filename]]]}))
+          (post (.toString url) {:multipart-params [[name [content filename]]]}))
         nil)
       (fn [])
       (fn []))))
