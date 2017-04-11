@@ -1675,15 +1675,23 @@
   (ns-resolve (.-name *ns*) sym))
 
 (defn get-arglists
-  "Return the argument lists for the given symbol as string."
+  "Return the argument lists for the given symbol as string, or nil if not
+  found."
   [s]
-  (when-let [var (some->> s repl-read-string first (resolve-var @env/*compiler*))]
-    (let [arglists (if-not (:macro var)
-                     (:arglists var)
-                     (-> var :meta :arglists second))]
-      (if (= 'quote (first arglists))
-                          (second arglists)
-                          arglists))))
+  (try
+    (when-let [var (some->> s repl-read-string first (resolve-var @env/*compiler*))]
+      (let [arglists (if-not (or (:macro var))
+                       (:arglists var)
+                       (-> var :meta :arglists second))]
+        (if (= 'quote (first arglists))
+          (second arglists)
+          arglists)))
+    (catch :default _
+      nil)))
+
+(s/fdef get-arglists
+  :args (s/cat :s string?)
+  :ret (s/nilable (s/coll-of vector? :kind list?)))
 
 (defn- intern
   ([ns name]

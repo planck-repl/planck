@@ -27,7 +27,7 @@
   (is (= '(cljs.core/ffirst cljs.core/nfirst) (planck.repl/apropos #"[a-z]+first"))))
 
 (deftest test-dir-planck-repl
-  (is (= "*pprint-results*\napropos\ndir\ndoc\nfind-doc\npst\nsource\n" (with-out-str (planck.repl/dir planck.repl)))))
+  (is (= "*pprint-results*\napropos\ndir\ndoc\nfind-doc\nget-arglists\npst\nsource\n" (with-out-str (planck.repl/dir planck.repl)))))
 
 (deftest get-error-indicator-test
   (is (= "             ^"
@@ -50,3 +50,7 @@
                 str
                 repl/drop-macros-suffix
                 symbol))))
+
+(deftest get-arglists-test
+  (is (= '([x] [x y] [x y & more]) (planck.repl/get-arglists "max")))
+  (is (nil? (planck.repl/get-arglists "bogus-undefined"))))

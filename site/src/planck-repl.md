@@ -7,6 +7,7 @@ _Vars_
 [dir](#dir)<br/>
 [doc](#doc)<br/>
 [find-doc](#find-doc)<br/>
+[get-arglists](#get-arglists)<br/>
 [pst](#pst)<br/>
 [source](#source)<br/>
 
@@ -49,7 +50,17 @@ _Macro_
 
 Prints documentation for any var whose documentation or name
 contains a match for `re-string-or-pattern`
-  
+
+### <a name="get-arglists"></a>get-arglists
+`([s])`
+
+Return the argument lists for the given symbol as string, or `nil` if not
+found.
+
+Spec<br/>
+_args_: `(s/cat :s string?)`<br/>
+_ret_: `(s/nilable (s/coll-of vector? :kind list?))`<br/>
+ 
 ### <a name="pst"></a>pst
 `([] [e])`
 
@@ -69,4 +80,3 @@ This requires that the symbol resolve to a Var defined in a
 namespace for which the source is available.
 
 Example: `(source filter)`
-  
