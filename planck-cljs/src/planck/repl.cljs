@@ -1713,3 +1713,13 @@
         (orig-print-err-fn (:err-font theme))
         (orig-print-err-fn msg)
         (orig-print-err-fn (:reset-font theme))))))
+
+(defn- register-speced-vars
+  "Facilitates temporary workaround for CLJS-1989."
+  [& speced-vars]
+  (let [_speced_vars (eval 'cljs.spec$macros/_speced_vars)]
+    (doseq [speced-var speced-vars]
+      (swap! _speced_vars conj speced-var))))
+
+(register-speced-vars
+  `get-arglists)

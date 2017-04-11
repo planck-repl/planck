@@ -140,7 +140,7 @@ Spec<br/>
 Returns a map containing the attributes of the item at a given `path`.
 
 Spec
- _args_: `(cat :path (or :string string? :file file?))`<br/>
+ _args_: `(cat :path (nillable? (or :string string? :file file?)))`<br/>
  _ret_: `map?`
  
 ### <a name="input-stream"></a>input-stream

@@ -4,7 +4,8 @@
    [cljs.spec :as s]
    [clojure.string :as string]
    [planck.core]
-   [planck.http :as http])
+   [planck.http :as http]
+   [planck.repl :as repl])
   (:import
    (goog Uri)))
 
@@ -320,7 +321,7 @@
     (update-in [:modified] #(js/Date. %))))
 
 (s/fdef file-attributes
-  :args (s/cat :path (s/or :string string? :file file?))
+  :args (s/cat :path (s/nilable (s/or :string string? :file file?)))
   :ret map?)
 
 (defn delete-file
@@ -350,7 +351,7 @@
       "bundled" (build-uri "bundled" nil nil loaded-path nil))))
 
 (s/fdef resource
-  :args (s/cat :n string?)
+  :args (s/cat :n (s/nilable string?))
   :ret (s/nilable #(instance? Uri %)))
 
 ;; These have been moved
@@ -362,3 +363,12 @@
 (set! planck.core/*writer-fn* writer)
 (set! planck.core/*as-file-fn* as-file)
 (set! planck.core/*file?-fn* file?)
+
+(repl/register-speced-vars
+  `build-uri
+  `file?
+  `file
+  `file-attributes
+  `delete-file
+  `directory?
+  `resource)

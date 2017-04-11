@@ -3,7 +3,8 @@
   (:refer-clojure :exclude [get])
   (:require
    [cljs.spec :as s]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [planck.repl :as repl]))
 
 (def ^:private content-types {:json            "application/json"
                               :xml             "application/xml"
@@ -215,3 +216,7 @@
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
                                                         ::form-params ::multipart-params])))
   :ret (s/keys :req-un [::body ::headers ::status]))
+
+(repl/register-speced-vars
+  `get
+  `post)

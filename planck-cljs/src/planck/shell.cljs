@@ -5,7 +5,8 @@
   (:require
    [cljs.spec :as s]
    [clojure.string]
-   [planck.io :refer [as-file]]))
+   [planck.io :refer [as-file]]
+   [planck.repl :as repl]))
 
 (def ^:dynamic *sh-dir* nil)
 (def ^:dynamic *sh-env* nil)
@@ -133,3 +134,7 @@
 (s/fdef sh-async
   :args ::sh-async-args
   :ret nil?)
+
+(repl/register-speced-vars
+  `sh
+  `sh-async)

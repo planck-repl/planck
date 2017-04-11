@@ -1,6 +1,6 @@
 (ns planck.test-runner
   (:require
-   [cljs.spec.test :as stest]
+   [clojure.spec.test :as st]
    [clojure.test :refer [run-tests]]
    [fipp.edn]
    [general.core-test]
@@ -12,6 +12,8 @@
    [planck.js-deps-test]
    [planck.repl-test]
    [planck.shell-test]))
+
+(st/instrument)
 
 (defn run-all-tests []
   (run-tests

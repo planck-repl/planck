@@ -343,3 +343,17 @@
 
 ;; Ensure planck.io is loaded so that its facilities are available
 (js/goog.require "planck.io")
+
+(repl/register-speced-vars
+  `exit
+  `read-line
+  `line-seq
+  `read-password
+  `file-seq
+  `slurp
+  `spit
+  `eval
+  `ns-resolve
+  `resolve
+  `intern
+  `init-empty-state)
