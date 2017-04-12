@@ -160,12 +160,24 @@
   (let [wtr (transit/writer :json)]
     (transit/write wtr x)))
 
+(defn- read-transit
+  [json-file]
+  (transit-json->cljs (first (js/PLANCK_LOAD json-file))))
+
+(defn- load-analysis-cache
+  [ns-sym cache]
+  (cljs/load-analysis-cache! st ns-sym cache))
+
+(defn- read-and-load-analysis-cache
+  [ns-sym cache-json-file]
+  (load-analysis-cache ns-sym (read-transit cache-json-file)))
+
 (defn- load-core-analysis-cache
   [eager ns-sym file-prefix]
   (let [keys [:rename-macros :renames :use-macros :excludes :name :imports :requires :uses :defs :require-macros :cljs.analyzer/constants :doc]
         load (fn [key]
-               (transit-json->cljs (first (js/PLANCK_LOAD (str file-prefix (munge key) ".json")))))]
-    (cljs/load-analysis-cache! st ns-sym
+               (read-transit (str file-prefix (munge key) ".json")))]
+    (load-analysis-cache ns-sym
       (if eager
         (zipmap keys (map load keys))
         (lazy-map
@@ -186,6 +198,15 @@
   [eager]
   (load-core-analysis-cache eager 'cljs.core "cljs/core.cljs.cache.aot.")
   (load-core-analysis-cache eager 'cljs.core$macros "cljs/core$macros.cljc.cache."))
+
+(defn- side-load-ns
+  [ns-sym]
+  (when (nil? (get-in @st [::ana/namespaces ns-sym]))
+    (let [ns-sym-str          (name ns-sym)
+          analysis-cache-file (str (string/replace ns-sym-str "." "/") ".cljs.cache.json")]
+      (read-and-load-analysis-cache ns-sym analysis-cache-file)
+      (js/goog.require ns-sym-str)
+      (swap! cljs.js/*loaded* conj ns-sym))))
 
 (defonce ^:private app-env (atom nil))
 

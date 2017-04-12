@@ -341,8 +341,10 @@
   :args (s/cat :state map?)
   :ret map?)
 
-;; Ensure planck.io is loaded so that its facilities are available
-(js/goog.require "planck.io")
+;; Ensure planck.io and planck.http are loaded so that their
+;; facilities are available
+(repl/side-load-ns 'planck.http)
+(repl/side-load-ns 'planck.io)
 
 (repl/register-speced-vars
   `exit
