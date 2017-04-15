@@ -927,7 +927,7 @@
                                               'cljs.core$macros
                                               (sm/decode
                                                 (cljson->clj
-                                                  (first (js/PLANCK_LOAD "core$macros.js.map"))))})))
+                                                  (first (js/PLANCK_LOAD "cljs/core$macros.js.map"))))})))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
 
