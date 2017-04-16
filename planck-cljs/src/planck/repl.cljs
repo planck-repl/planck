@@ -747,8 +747,8 @@
                                (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json")))]
     (when (cached-js-valid? js-source js-modified source-modified)
       (log-cache-activity :read path cache-json sourcemap-json)
-      (when (and sourcemap-json name)
-        (swap! st assoc-in [:source-maps name] (transit-json->cljs sourcemap-json)))
+      (when (and sourcemap-json aname)
+        (swap! st assoc-in [:source-maps aname] (transit-json->cljs sourcemap-json)))
       (merge {:lang   :js
               :source ""}
         (when-not (skip-load-js? name)
