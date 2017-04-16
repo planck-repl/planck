@@ -24,8 +24,7 @@
    [planck.pprint.data]
    [planck.pprint.width-adjust]
    [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
-   [planck.themes :refer [get-theme]]
-   [tailrecursion.cljson :refer [cljson->clj]]))
+   [planck.themes :refer [get-theme]]))
 
 #_(s/fdef planck.repl$macros/dir
     :args (s/cat :sym symbol?))
@@ -921,17 +920,73 @@
                     (handle-error e true)))))))))
     nil))
 
-(defn- load-core-source-maps!
+(defn- load-bundled-source-maps!
   []
   (when-not (get (:source-maps @planck.repl/st) 'cljs.core)
-    (swap! st update-in [:source-maps] merge {'cljs.core
-                                              (sm/decode
-                                                (cljson->clj
-                                                  (first (js/PLANCK_LOAD "cljs/core.js.map"))))
-                                              'cljs.core$macros
-                                              (sm/decode
-                                                (cljson->clj
-                                                  (first (js/PLANCK_LOAD "cljs/core$macros.js.map"))))})))
+    (let [source-map-path (fn [ns-sym]
+                            (str (cljs.js/ns->relpath ns-sym) ".js.map"))
+          load-source-maps (fn [ns-sym]
+                             (cljs/load-source-map! st ns-sym (->> ns-sym
+                                                                   source-map-path
+                                                                   js/PLANCK_LOAD
+                                                                   first)))]
+      ;; Source maps for bundled macros namespaces other than cljs.core are loaded
+      ;; via their cached ".js.map.json" file.
+      (doseq [ns-sym '[cljs.core
+                       cljs.core$macros
+                       cljs.analyzer.api
+                       cljs.compiler
+                       cljs.env
+                       cljs.js
+                       cljs.pprint
+                       cljs.reader
+                       cljs.source-map
+                       cljs.source-map.base64
+                       cljs.source-map.base64-vlq
+                       cljs.spec
+                       cljs.spec.impl.gen
+                       cljs.spec.test
+                       cljs.stacktrace
+                       cljs.tagged-literals
+                       cljs.test
+                       cljs.tools.reader
+                       cljs.tools.reader.impl.commons
+                       cljs.tools.reader.impl.utils
+                       cljs.tools.reader.reader-types
+                       clojure.core.reducers
+                       clojure.core.rrb-vector
+                       clojure.core.rrb-vector.interop
+                       clojure.core.rrb-vector.nodes
+                       clojure.core.rrb-vector.protocols
+                       clojure.core.rbb-vector.rbbt
+                       clojure.core.rbb-vector.transients
+                       clojure.core.rrb-vector.trees
+                       clojure.data
+                       clojure.set
+                       clojure.string
+                       clojure.walk
+                       clojure.zip
+                       cognitect.transit
+                       fipp.clojure
+                       fipp.deque
+                       fipp.edn
+                       fipp.ednize
+                       fipp.visit
+                       lazy-map.core
+                       planck.core
+                       planck.from.io.aviso.ansi
+                       planck.http
+                       planck.io
+                       planck.js-deps
+                       planck.pprint.code
+                       planck.pprint.data
+                       planck.pprint.width-adjust
+                       planck.repl
+                       planck.repl-resources
+                       planck.shell
+                       planck.themes
+                       tailrecursion.cljson]]
+        (load-source-maps ns-sym)))))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
 
@@ -1098,7 +1153,7 @@
      (when-let [data (and print-ex-data? (ex-data error))]
        (print-value data {::as-code? false}))
      (when include-stacktrace?
-       (load-core-source-maps!)
+       (load-bundled-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
                                     {}
                                     (.-stack error)
