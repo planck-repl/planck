@@ -410,7 +410,6 @@
     planck.repl
     planck.repl-resources
     planck.themes
-    tailrecursion.cljson
     clojure.core.rrb-vector
     clojure.core.rrb-vector.interop
     clojure.core.rrb-vector.nodes
@@ -984,8 +983,7 @@
                        planck.repl
                        planck.repl-resources
                        planck.shell
-                       planck.themes
-                       tailrecursion.cljson]]
+                       planck.themes]]
         (load-source-maps ns-sym)))))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
