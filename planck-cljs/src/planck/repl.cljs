@@ -734,6 +734,8 @@
   [name path macros cache-prefix source source-modified raw-load]
   (let [path (cond-> path
                macros (add-suffix "$macros"))
+        aname (cond-> name
+                macros ana/macro-ns-name)
         cache-prefix (if (= :calculate-cache-prefix cache-prefix)
                        (cache-prefix-for-path (second (extract-cache-metadata-mem source)) macros)
                        cache-prefix)
@@ -753,7 +755,9 @@
           {:source     (cond-> js-source (not (bundled? js-modified source-modified)) strip-first-line)
            :source-url (file-url (add-suffix path ".js"))})
         (when cache-json
-          {:cache (transit-json->cljs cache-json)})))))
+          (let [cache (transit-json->cljs cache-json)]
+            (cljs/load-analysis-cache! st aname cache)
+            {:cache cache}))))))
 
 (declare inject-planck-eval)
 
