@@ -1,0 +1,25 @@
+# Google Closure Library
+
+The following [Google Closure library](https://developers.google.com/closure/library/) facilities are bundled with Planck:
+
+* [goog.Delay](https://google.github.io/closure-library/api/goog.Delay.html)
+* [goog.Disposable](https://google.github.io/closure-library/api/goog.Disposable.html)
+* [goog.Promise](https://google.github.io/closure-library/api/goog.Promise.html)
+* [goog.Throttle](https://google.github.io/closure-library/api/goog.Throttle.html)
+* [goog.Timer](https://google.github.io/closure-library/api/goog.Timer.html)
+* [goog.Uri](https://google.github.io/closure-library/api/goog.Uri.html)
+* [goog.color](https://google.github.io/closure-library/api/goog.color.html)
+* [goog.crypt](https://google.github.io/closure-library/api/goog.crypt.html)
+* [goog.date](https://google.github.io/closure-library/api/goog.date.html)
+* [goog.debug.Console](https://google.github.io/closure-library/api/goog.debug.Console.html)
+* [goog.format](https://google.github.io/closure-library/api/goog.format.html)
+* [goog.i18n](https://google.github.io/closure-library/api/goog.i18n.html)
+* [goog.iter](https://google.github.io/closure-library/api/goog.iter.html)
+* [goog.json](https://google.github.io/closure-library/api/goog.json.html)
+* [goog.labs.format.csv](https://google.github.io/closure-library/api/goog.labs.format.csv.html)
+* [goog.locale](https://google.github.io/closure-library/api/goog.locale.html)
+* [goog.math](https://google.github.io/closure-library/api/goog.math.html)
+* [goog.spell.SpellCheck](https://google.github.io/closure-library/api/goog.spell.SpellCheck.html)
+* [goog.string](https://google.github.io/closure-library/api/goog.string.html)
+* [goog.structs](https://google.github.io/closure-library/api/goog.structs.html)
+* [goog.text.LoremIpsum](https://google.github.io/closure-library/api/goog.text.LoremIpsum.html)

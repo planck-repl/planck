@@ -35,6 +35,7 @@
 (process-md "planck-io.md")
 (process-md "planck-shell.md")
 (process-md "planck-http.md")
+(process-md "gcl.md")
 
 (process-md "index.md")
 (process-md "guide.md")
