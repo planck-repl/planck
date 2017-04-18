@@ -5,8 +5,8 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 
 ```
 $ planck
-Planck 2.2.0
-ClojureScript 1.9.494
+Planck 2.3.0
+ClojureScript 1.9.521
     Docs: (doc function-name-here)
           (find-doc "part-of-name-here")
   Source: (source function-name-here)
