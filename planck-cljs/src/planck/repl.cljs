@@ -434,6 +434,7 @@
     planck.io
     planck.http
     planck.shell
+    clojure.core
     clojure.test
     clojure.spec
     clojure.pprint])
@@ -450,10 +451,13 @@
 (defn- expand-typed-ns
   "Expand the typed namespace symbol to a known namespace, consulting
   current namespace aliases if necessary."
-  [typed-ns]
-  (or (get-in st [:cljs.analyzer/namespaces typed-ns :name])
-      (typed-ns (current-alias-map))
-      typed-ns))
+  [alias]
+  (let [alias (if (symbol-identical? alias 'clojure.core)
+                'cljs.core
+                alias)]
+    (or (get-in st [:cljs.analyzer/namespaces alias :name])
+        (alias (current-alias-map))
+        alias)))
 
 (defn- completion-candidates
   [top-form? typed-ns]
@@ -503,15 +507,13 @@
   (if-let [kw-name (local-keyword buffer)]
     (local-keyword-completions buffer kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-          typed-ns (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]+$" buffer))]
+          typed-ns (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]*$" buffer))]
       (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
             buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
-        (clj->js (if (= "" buffer-match-suffix)
-                   []
-                   (map #(str buffer-prefix %)
-                     (sort
-                       (filter (partial is-completion? buffer-match-suffix)
-                         (completion-candidates top-form? typed-ns))))))))))
+        (clj->js (map #(str buffer-prefix %)
+                      (sort
+                        (filter (partial is-completion? buffer-match-suffix)
+                                (completion-candidates top-form? typed-ns)))))))))
 
 (defn- is-completely-readable?
   [source]
