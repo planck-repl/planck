@@ -1408,20 +1408,24 @@
                                     :arglists (seq sigs)}]))
                      (into {})))))))))
 
+(defn- namespace-doc [nspace]
+  (select-keys (get-in @st [::ana/namespaces nspace]) [:name :doc]))
+
 (defn- find-doc*
   [re-string-or-pattern]
   (let [re (re-pattern re-string-or-pattern)
-        sym-docs (sort-by first
-                   (mapcat (fn [ns]
-                             (map (juxt first (comp :doc second))
-                               (get-in @st [::ana/namespaces ns :defs])))
-                     (all-ns)))]
-    (doseq [[sym doc] sym-docs
-            :when (and doc
-                       (name sym)
-                       (or (re-find re doc)
-                           (re-find re (name sym))))]
-      (doc* sym))))
+        ms (concat (mapcat #(sort-by :name
+                              (map (fn [[k v]]
+                                     (assoc (:meta v) :name (symbol % k)))
+                                (get-in @st [::ana/namespaces % :defs])))
+                     (all-ns))
+             (map namespace-doc (all-ns))
+             (map special-doc (keys special-doc-map)))]
+    (doseq [m ms
+            :when (and (:doc m)
+                       (or (re-find re (:doc m))
+                           (re-find re (str (:name m)))))]
+      (doc* (:name m)))))
 
 (defn- source*
   [sym]
