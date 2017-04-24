@@ -1618,7 +1618,7 @@
 (defn- def-form?
   "Determines if the expression is a def expression which returns a Var."
   [expression-form]
-  (call-form? expression-form '#{def defn defn- defonce defmulti}))
+  (call-form? expression-form '#{def defn defn- defonce defmulti defmacro}))
 
 (defn- process-execute-source
   [source-text expression-form
