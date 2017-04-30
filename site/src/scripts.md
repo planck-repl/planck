@@ -63,7 +63,7 @@ Hello ClojureScript!
 
 When writing scripts, getting input from standard input is quite useful. Clojure
 has two dynamic vars, `core/*in*` and `core/*out*`. Whenever you use `println`,
-you're actually printing to whatever `core/*out*` is bound to. Clojurescript has
+you're actually printing to whatever `core/*out*` is bound to. ClojureScript has
 its own `*out*` which lives in `cljs.core`, but it lacks (for obvious reaons)
 `*in*`. Planck, though provides `planck.core/*in*` which lets you interact with
 standard input.
