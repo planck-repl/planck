@@ -29,9 +29,9 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   rm -f planck-cljs/out/planck/pprint/*macros*
   rm -f planck-cljs/out/clojure/template*macros*
   rm -f planck-cljs/out/cljs/test*macros*
-  rm -f planck-cljs/out/cljs/spec*macros*
-  rm -f planck-cljs/out/cljs/spec/test*macros*
-  rm -f planck-cljs/out/cljs/spec/impl/gen*macros*
+  rm -f planck-cljs/out/cljs/spec/alpha*macros*
+  rm -f planck-cljs/out/cljs/spec/test/alpha*macros*
+  rm -f planck-cljs/out/cljs/spec/gen/alpha*macros*
   rm -f planck-cljs/out/planck/from/io/aviso/*macros*
   
   echo "### Building planck-c"
@@ -56,7 +56,7 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   
   echo "### AOT compiling macro namespaces"
   mkdir -p planck-cljs/out/macros-tmp
-  planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec 'cljs.spec.test 'cljs.spec.impl.gen 'cljs.test)"
+  planck-c/build/planck -sk planck-cljs/out/macros-tmp -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec.alpha 'cljs.spec.test.alpha 'cljs.spec.gen.alpha 'cljs.test)"
   checkCmdSuccess
   
   mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
@@ -77,15 +77,15 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js planck-cljs/out/cljs/test\$macros.js
   mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.cache.json planck-cljs/out/cljs/test\$macros.cache.json
   mv planck-cljs/out/macros-tmp/cljs_SLASH_test\$macros.js.map.json planck-cljs/out/planck/test\$macros.js.map.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js planck-cljs/out/cljs/spec\$macros.js
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.cache.json planck-cljs/out/cljs/spec\$macros.cache.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec\$macros.js.map.json planck-cljs/out/cljs/spec\$macros.js.map.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test\$macros.js planck-cljs/out/cljs/spec/test\$macros.js
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test\$macros.cache.json planck-cljs/out/cljs/spec/test\$macros.cache.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test\$macros.js.map.json planck-cljs/out/cljs/spec/test\$macros.js.map.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js planck-cljs/out/cljs/spec/impl/gen\$macros.js
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.cache.json planck-cljs/out/cljs/spec/impl/gen\$macros.cache.json
-  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_impl_SLASH_gen\$macros.js.map.json planck-cljs/out/cljs/spec/impl/gen\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_alpha\$macros.js planck-cljs/out/cljs/spec/alpha\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_alpha\$macros.cache.json planck-cljs/out/cljs/spec/alpha\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_alpha\$macros.js.map.json planck-cljs/out/cljs/spec/alpha\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test_SLASH_alpha\$macros.js planck-cljs/out/cljs/spec/test/alpha\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test_SLASH_alpha\$macros.cache.json planck-cljs/out/cljs/spec/test/alpha\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_test_SLASH_alpha\$macros.js.map.json planck-cljs/out/cljs/spec/test/alpha\$macros.js.map.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_gen_SLASH_alpha\$macros.js planck-cljs/out/cljs/spec/gen/alpha\$macros.js
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_gen_SLASH_alpha\$macros.cache.json planck-cljs/out/cljs/spec/gen/alpha\$macros.cache.json
+  mv planck-cljs/out/macros-tmp/cljs_SLASH_spec_SLASH_gen_SLASH_alpha\$macros.js.map.json planck-cljs/out/cljs/spec/gen/alpha\$macros.js.map.json
   
   rm -rf planck-cljs/out/macros-tmp
   

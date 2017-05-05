@@ -36,5 +36,4 @@ else
 fi
 
 mkdir -p out/cljs/analyzer
-mkdir -p out/cljs/spec/impl
 java -cp $CLJSC_CP clojure.main script/build.clj

@@ -121,7 +121,7 @@ nil
 #'foo.bar/nfirst
 #'foo.bar/macro-crazy
 nil
-true
+#'foo.bar/somemacro
 nil
 macro-crazy
 somemacro

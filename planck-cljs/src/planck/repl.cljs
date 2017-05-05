@@ -9,7 +9,7 @@
    [cljs.env :as env]
    [cljs.js :as cljs]
    [cljs.source-map :as sm]
-   [cljs.spec :as s]
+   [cljs.spec.alpha :as s]
    [cljs.stacktrace :as st]
    [cljs.tagged-literals :as tags]
    [cljs.tools.reader :as r]
@@ -436,7 +436,9 @@
     planck.shell
     clojure.core
     clojure.test
-    clojure.spec
+    clojure.spec.alpha
+    clojure.spec.test.alpha
+    clojure.spec.gen.alpha
     clojure.pprint])
 
 (defn- namespace-completions
@@ -776,8 +778,8 @@
              :file   loaded-path}
             (when-not (= :js lang)
               (cached-callback-data name path macros cache-prefix source modified raw-load))))
-      (when (and (= name 'cljs.spec.test) macros)
-        (inject-planck-eval 'cljs.spec.test$macros))
+      (when (and (= name 'cljs.spec.test.alpha) macros)
+        (inject-planck-eval 'cljs.spec.test.alpha$macros))
       :loaded)))
 
 (defn- closure-index
@@ -944,9 +946,9 @@
                        cljs.source-map
                        cljs.source-map.base64
                        cljs.source-map.base64-vlq
-                       cljs.spec
-                       cljs.spec.impl.gen
-                       cljs.spec.test
+                       cljs.spec.alpha
+                       cljs.spec.gen.alpha
+                       cljs.spec.test.alpha
                        cljs.stacktrace
                        cljs.tagged-literals
                        cljs.test
@@ -1801,7 +1803,7 @@
 (defn- register-speced-vars
   "Facilitates temporary workaround for CLJS-1989."
   [& speced-vars]
-  (let [_speced_vars (eval 'cljs.spec$macros/_speced_vars)]
+  (let [_speced_vars (eval 'cljs.spec.alpha$macros/_speced_vars)]
     (doseq [speced-var speced-vars]
       (swap! _speced_vars conj speced-var))))
 

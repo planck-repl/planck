@@ -1,6 +1,6 @@
 (ns planck.test-runner
   (:require
-   [clojure.spec.test :as st]
+   [clojure.spec.test.alpha :as st]
    [clojure.test :refer [run-tests]]
    [fipp.edn]
    [general.core-test]

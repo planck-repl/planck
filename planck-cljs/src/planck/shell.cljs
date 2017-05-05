@@ -3,7 +3,7 @@
   (:require-macros
    [planck.shell])
   (:require
-   [cljs.spec :as s]
+   [cljs.spec.alpha :as s]
    [clojure.string]
    [planck.io :refer [as-file]]
    [planck.repl :as repl]))

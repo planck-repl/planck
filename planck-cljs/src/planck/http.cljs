@@ -2,7 +2,7 @@
   "Planck HTTP functionality."
   (:refer-clojure :exclude [get])
   (:require
-   [cljs.spec :as s]
+   [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [planck.repl :as repl]))
 

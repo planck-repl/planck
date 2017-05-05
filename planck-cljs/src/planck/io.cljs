@@ -1,7 +1,7 @@
 (ns planck.io
   "Planck I/O functionality."
   (:require
-   [cljs.spec :as s]
+   [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [planck.core]
    [planck.http :as http]

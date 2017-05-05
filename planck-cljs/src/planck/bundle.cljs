@@ -4,8 +4,8 @@
   (:require
    [cljs.analyzer.api]
    [cljs.pprint]
-   [cljs.spec]
-   [cljs.spec.test]
+   [cljs.spec.alpha]
+   [cljs.spec.test.alpha]
    [cljs.test]
    [clojure.core.reducers]
    [clojure.data]
