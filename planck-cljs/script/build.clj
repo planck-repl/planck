@@ -25,7 +25,7 @@
      :static-fns         true
      :optimize-constants false
      :dump-core          false
-     :parallel-build     true}))
+     :parallel-build     false}))
 
 (defn copy-source
   [filename]
