@@ -7,11 +7,11 @@
 
 #include <curl/curl.h>
 
+#include "engine.h"
 #include "jsc_utils.h"
 
 struct header_state {
-    JSContextRef ctx;
-    JSObjectRef headers;
+    JSObjectRef *headers;
 };
 
 size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
@@ -47,9 +47,9 @@ size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void 
     strncpy(val, buffer + val_start, val_len);
     val[val_len] = '\0';
     JSStringRef val_str = JSStringCreateWithUTF8CString(val);
-    JSValueRef val_ref = JSValueMakeString(state->ctx, val_str);
+    JSValueRef val_ref = JSValueMakeString(ctx, val_str);
 
-    JSObjectSetProperty(state->ctx, state->headers, key_str, val_ref, kJSPropertyAttributeReadOnly, NULL);
+    JSObjectSetProperty(ctx, *state->headers, key_str, val_ref, kJSPropertyAttributeReadOnly, NULL);
 
     return size * nitems;
 }
@@ -145,8 +145,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 
         JSObjectRef response_headers = JSObjectMake(ctx, NULL, NULL);
         struct header_state header_state;
-        header_state.ctx = ctx;
-        header_state.headers = response_headers;
+        header_state.headers = &response_headers;
         curl_easy_setopt(handle, CURLOPT_HEADERDATA, &header_state);
         curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, header_to_object_callback);
 
