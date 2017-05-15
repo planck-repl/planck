@@ -43,7 +43,7 @@
   in load order."
   [index dep]
   {:pre [(symbol? dep)]}
-  (let [spec (dep index)
+  (let [spec     (dep index)
         requires (map symbol (:requires spec))]
     (distinct (concat (mapcat #(topo-sorted-deps index %) requires) [dep]))))
 

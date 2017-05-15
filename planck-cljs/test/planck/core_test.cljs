@@ -2,13 +2,13 @@
   (:require-macros
    [planck.core])
   (:require
-    [clojure.test :refer [deftest is testing]]
-    [clojure.string :as string]
-    [foo.core]
-    [planck.core]
-    [clojure.string :as string])
+   [clojure.test :refer [deftest is testing]]
+   [clojure.string :as string]
+   [foo.core]
+   [planck.core]
+   [clojure.string :as string])
   (:import
-    (goog Uri)))
+   (goog Uri)))
 
 (deftest exit-throws
   #_(testing "exit throws EXIT exception"
@@ -19,8 +19,8 @@
 #_(deftest setTimeout-can-be-used
     "This test is intentionally a bit naieve since async macros wouldn't work at time of writing"
     (testing "setTimeout actually gets called and does something"
-      (let [now #(.getTime (js/Date.))
-            t (now)
+      (let [now        #(.getTime (js/Date.))
+            t          (now)
             test-state (atom :foo)]
         (js/setTimeout (fn []
                          (reset! test-state :bar))

@@ -29,7 +29,7 @@
 
 (defn generate-sample
   [pprint x opts width max-prints]
-  (let [sb (js/goog.string.StringBuffer.)
+  (let [sb          (js/goog.string.StringBuffer.)
         print-to-sb (fn [x]
                       (.append sb x))]
     (try
@@ -82,12 +82,12 @@
     (if (force-eval pprint x plain-opts max-prints)
       (:width opts)
       (let [desired-width (:width opts)
-            lower 20
-            upper desired-width
-            sample-width (fn [trial-width]
-                           (text-width (generate-sample pprint x plain-opts trial-width max-prints)))
-            fits? (fn [trial-width]
-                    (<= (sample-width trial-width) desired-width))]
+            lower         20
+            upper         desired-width
+            sample-width  (fn [trial-width]
+                            (text-width (generate-sample pprint x plain-opts trial-width max-prints)))
+            fits?         (fn [trial-width]
+                            (<= (sample-width trial-width) desired-width))]
         (bisect lower upper fits?)))))
 
 (defn wrap

@@ -37,14 +37,14 @@
 
 (defmacro generate-color-functions []
   (let [generate-functions-for-index-color (fn [index color-name]
-            [(def-sgr-fn color-name color-name (+ 30 index))
-             (def-sgr-fn (str color-name "-bg") (str color-name " background") (+ 40 index))
-             (def-sgr-fn (str "bold-" color-name) (str "bold " color-name) 1 (+ 30 index))
-             (def-sgr-fn (str "bold-" color-name "-bg") (str "bold " color-name " background") 1 (+ 40 index))
-             (def-sgr-const (str color-name "-font") color-name (+ 30 index))
-             (def-sgr-const (str color-name "-bg-font") (str color-name " background") (+ 40 index))
-             (def-sgr-const (str "bold-" color-name "-font") (str "bold " color-name) 1 (+ 30 index))
-             (def-sgr-const (str "bold-" color-name "-bg-font") (str "bold " color-name " background") 1 (+ 40 index))])]
+                                             [(def-sgr-fn color-name color-name (+ 30 index))
+                                              (def-sgr-fn (str color-name "-bg") (str color-name " background") (+ 40 index))
+                                              (def-sgr-fn (str "bold-" color-name) (str "bold " color-name) 1 (+ 30 index))
+                                              (def-sgr-fn (str "bold-" color-name "-bg") (str "bold " color-name " background") 1 (+ 40 index))
+                                              (def-sgr-const (str color-name "-font") color-name (+ 30 index))
+                                              (def-sgr-const (str color-name "-bg-font") (str color-name " background") (+ 40 index))
+                                              (def-sgr-const (str "bold-" color-name "-font") (str "bold " color-name) 1 (+ 30 index))
+                                              (def-sgr-const (str "bold-" color-name "-bg-font") (str "bold " color-name " background") 1 (+ 40 index))])]
     `(do
        ~@(generate-functions-for-index-color 0 "black")
        ~@(generate-functions-for-index-color 1 "red")

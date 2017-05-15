@@ -19,20 +19,20 @@
     (is (= "url" (:url (#'http/request identity :get "url" {}))))
     (is (= 30 (:timeout (#'http/request identity :get "url" {:timeout 30}))))
     (is (= "foo=bar" (:body (#'http/request identity :get "url"
-                              {:form-params {:foo "bar"}}))))
+                             {:form-params {:foo "bar"}}))))
     (is (= (count "foo=bar") (-> (#'http/request identity :get "url"
-                                   {:form-params {:foo "bar"}})
+                                  {:form-params {:foo "bar"}})
                                (get-in [:headers :Content-length]))))
-    (let [params [["foo" "bar"]]
+    (let [params        [["foo" "bar"]]
           expected-body (#'http/generate-multipart-body
-                          (#'http/boundary http/boundary-constant)
-                          (#'http/generate-form-data params))]
+                         (#'http/boundary http/boundary-constant)
+                         (#'http/generate-form-data params))]
       (is (= (count expected-body) (-> (#'http/request identity :get "url"
-                                         {:multipart-params params})
+                                        {:multipart-params params})
                                      :body
                                      count)))
       (is (= (count expected-body) (-> (#'http/request identity :get "url"
-                                         {:multipart-params params})
+                                        {:multipart-params params})
                                      (get-in [:headers :Content-length])))))))
 
 (deftest generate-query-string-test
@@ -160,7 +160,7 @@
   (is (= "/foo" (:uri (do-request :post "/foo")))))
 
 (deftest http-request-debug
-  (let [url (form-full-url "/")
+  (let [url              (form-full-url "/")
         expected-request (fn [method]
                            {:url     url
                             :method  method

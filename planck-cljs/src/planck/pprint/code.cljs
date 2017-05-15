@@ -71,8 +71,8 @@
 
 (defn pretty-defn [p [head fn-name & more]]
   (let [[docstring more] (maybe-a string? more)
-        [attr-map more]  (maybe-a map?    more)
-        [params body]    (maybe-a vector? more)
+        [attr-map more] (maybe-a map? more)
+        [params body] (maybe-a vector? more)
         params-on-first-line?  (and params (nil? docstring) (nil? attr-map))
         params-after-attr-map? (and params (not params-on-first-line?))]
     (list-group
@@ -80,18 +80,18 @@
         (when params-on-first-line? [" " (visit p params)]))
       :line
       (block (concat (when docstring [(visit p docstring)])
-               (when attr-map  [(visit p attr-map)])
+               (when attr-map [(visit p attr-map)])
                (when params-after-attr-map? [(visit p params)])
                (if body (map #(visit p %) body)
                         (map #(pretty-method p %) more)))))))
 
 (defn pretty-fn [p [head & more]]
   (let [[fn-name more] (maybe-a symbol? more)
-        [params body]  (maybe-a vector? more)]
+        [params body] (maybe-a vector? more)]
     (list-group
       (concat [(visit p head)]
         (when fn-name [" " (visit p fn-name)])
-        (when params  [" " (visit p params)]))
+        (when params [" " (visit p params)]))
       :line
       (block (if body (map #(visit p %) body)
                       (map #(pretty-method p %) more))))))
@@ -103,7 +103,7 @@
                            {(first inits) '%}
                            (zipmap inits (map #(symbol (str \% (inc %))) (range))))
                     (when (seq rests) {(second rests) '%&}))
-          body* (walk/prewalk-replace params* body)]
+          body*   (walk/prewalk-replace params* body)]
       [:group "#(" [:align 2 (interpose :line (map #(visit p %) body*))] ")"])
     (pretty-fn p form)))
 
@@ -117,11 +117,11 @@
 
 (defn pretty-ns [p [head ns-sym & more]]
   (let [[docstring more] (maybe-a string? more)
-        [attr-map specs] (maybe-a map?    more)]
+        [attr-map specs] (maybe-a map? more)]
     (list-group
       (visit p head) " " (visit p ns-sym) :line
       (block (concat (when docstring [(visit p docstring)])
-               (when attr-map  [(visit p attr-map)])
+               (when attr-map [(visit p attr-map)])
                (map #(pretty-libspec p %) specs))))))
 
 
@@ -194,6 +194,6 @@
 (defn pprint
   ([x] (pprint x {}))
   ([x options]
-   (planck.pprint.data/pprint x (merge {:symbols (default-symbols (:spec? options))
+   (planck.pprint.data/pprint x (merge {:symbols                 (default-symbols (:spec? options))
                                         :demunge-macros-symbols? true}
                                   options))))

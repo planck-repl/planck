@@ -134,12 +134,12 @@
                     :resource  resource
                     :error-msg error-msg}))))
       (throw (ex-info "Not a JAR file URI"
-               {:uri jar-uri
+               {:uri     jar-uri
                 :sub-uri file-uri})))))
 
 (defn- make-bundled-uri-reader
   [bundle-uri opts]
-  (let [path (.getPath bundle-uri)
+  (let [path    (.getPath bundle-uri)
         content (first (js/PLANCK_LOAD path))]
     (make-string-reader content)))
 

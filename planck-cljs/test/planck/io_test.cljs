@@ -1,11 +1,11 @@
 (ns planck.io-test
   (:require
-    [clojure.test :refer [deftest is testing]]
-    [clojure.string :as string]
-    [planck.core]
-    [planck.io])
+   [clojure.test :refer [deftest is testing]]
+   [clojure.string :as string]
+   [planck.core]
+   [planck.io])
   (:import
-    (goog Uri)))
+   (goog Uri)))
 
 (deftest file-attributes-test
   (testing "file-attributes"

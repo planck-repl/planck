@@ -129,7 +129,7 @@
 (defn- wrap-multipart-params [client]
   (fn [{:keys [multipart-params] :as request}]
     (if multipart-params
-      (let [b (boundary boundary-constant)
+      (let [b    (boundary boundary-constant)
             body (generate-multipart-body b (generate-form-data multipart-params))]
         (client (-> request
                   (dissoc :multipart-params)

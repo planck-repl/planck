@@ -61,7 +61,7 @@
   returns the number of spaces to indent a newly entered
   line. Returns 0 if unsuccessful."
   [text]
-  (let [pos (count text)
+  (let [pos      (count text)
         balanced (js->clj (js/parinfer.indentMode text
                             (clj->js (calc-x-line text pos 0)))
                    :keywordize-keys true)]
@@ -80,7 +80,7 @@
 (defn- println-verbose
   [& args]
   (binding [*print-fn* *print-err-fn*
-            theme (assoc theme :err-font (:verbose-font theme))]
+            theme      (assoc theme :err-font (:verbose-font theme))]
     (apply println args)))
 
 (declare print-error)
@@ -252,12 +252,12 @@
 (defn- repl-read-string
   "Returns a vector of the first read form, and any balance text."
   [source]
-  (binding [ana/*cljs-ns* @current-ns
-            *ns* (create-ns @current-ns)
-            env/*compiler* st
+  (binding [ana/*cljs-ns*    @current-ns
+            *ns*             (create-ns @current-ns)
+            env/*compiler*   st
             r/*data-readers* tags/*cljs-data-readers*
             r/resolve-symbol ana/resolve-symbol
-            r/*alias-map* (current-alias-map)]
+            r/*alias-map*    (current-alias-map)]
     (let [reader (rt/string-push-back-reader source)]
       [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))])))
 
@@ -276,8 +276,8 @@
 (defn- eof-while-reading?
   [message]
   (or
-    (= "EOF while reading" message)
-    (= "EOF while reading string" message)))
+   (= "EOF while reading" message)
+   (= "EOF while reading string" message)))
 
 (defn- ^:export is-readable?
   "Returns a string representing any text after the first readible form,
@@ -379,7 +379,7 @@
         (remove #(:anonymous (val %))))
       (apply merge
         ((juxt :defs :macros)
-          (get-namespace ns-sym))))))
+         (get-namespace ns-sym))))))
 
 (defn- is-completion?
   [buffer-match-suffix candidate]
@@ -509,23 +509,23 @@
   (if-let [kw-name (local-keyword buffer)]
     (local-keyword-completions buffer kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-          typed-ns (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]*$" buffer))]
+          typed-ns  (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]*$" buffer))]
       (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
-            buffer-prefix (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
+            buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
         (clj->js (map #(str buffer-prefix %)
-                      (sort
-                        (filter (partial is-completion? buffer-match-suffix)
-                                (completion-candidates top-form? typed-ns)))))))))
+                   (sort
+                     (filter (partial is-completion? buffer-match-suffix)
+                       (completion-candidates top-form? typed-ns)))))))))
 
 (defn- is-completely-readable?
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
-    (binding [ana/*cljs-ns* @current-ns
-              *ns* (create-ns @current-ns)
-              env/*compiler* st
+    (binding [ana/*cljs-ns*    @current-ns
+              *ns*             (create-ns @current-ns)
+              env/*compiler*   st
               r/*data-readers* tags/*cljs-data-readers*
               r/resolve-symbol ana/resolve-symbol
-              r/*alias-map* (current-alias-map)]
+              r/*alias-map*    (current-alias-map)]
       (try
         (r/read {:eof (js-obj) :read-cond :allow :features #{:cljs}} rdr)
         (nil? (rt/peek-char rdr))
@@ -537,7 +537,7 @@
   (some identity
     (for [n (range (dec total-pos) -1 -1)]
       (let [candidate-form (subs total-source n (inc total-pos))
-            first-char (subs candidate-form 0 1)]
+            first-char     (subs candidate-form 0 1)]
         (if (#{"(" "[" "{" "#"} first-char)
           (if (is-completely-readable? candidate-form)
             (if (= "#" first-char)
@@ -564,14 +564,14 @@
   buffer line, line 1 is the previous line, and so on, and pos is the
   position in that line."
   [pos buffer previous-lines]
-  (let [previous-lines (js->clj previous-lines)
+  (let [previous-lines  (js->clj previous-lines)
         previous-source (string/join "\n" previous-lines)
-        total-source (if (empty? previous-lines)
-                       buffer
-                       (str previous-source "\n" buffer))
-        total-pos (+ (if (empty? previous-lines)
-                       0
-                       (inc (count previous-source))) pos)]
+        total-source    (if (empty? previous-lines)
+                          buffer
+                          (str previous-source "\n" buffer))
+        total-pos       (+ (if (empty? previous-lines)
+                             0
+                             (inc (count previous-source))) pos)]
     (->> (form-start total-source total-pos)
       (reduce-highlight-coords previous-lines)
       clj->js)))
@@ -584,7 +584,7 @@
   [source]
   (let [file-namespace (or (extract-namespace source)
                            'cljs.user)
-        relpath (cljs/ns->relpath file-namespace)]
+        relpath        (cljs/ns->relpath file-namespace)]
     [file-namespace relpath]))
 
 (def ^:private extract-cache-metadata-mem (memoize extract-cache-metadata))
@@ -657,7 +657,7 @@
 (defn- write-cache
   [path name source cache]
   (when (and path source cache (:cache-path @app-env))
-    (let [cache-json (cljs->transit-json cache)
+    (let [cache-json     (cljs->transit-json cache)
           sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps (:name cache)])]
                            (cljs->transit-json sm))]
       (log-cache-activity :write path cache-json sourcemap-json)
@@ -734,10 +734,10 @@
 
 (defn- cached-callback-data
   [name path macros cache-prefix source source-modified raw-load]
-  (let [path (cond-> path
-               macros (add-suffix "$macros"))
-        aname (cond-> name
-                macros ana/macro-ns-name)
+  (let [path         (cond-> path
+                       macros (add-suffix "$macros"))
+        aname        (cond-> name
+                       macros ana/macro-ns-name)
         cache-prefix (if (= :calculate-cache-prefix cache-prefix)
                        (cache-prefix-for-path (second (extract-cache-metadata-mem source)) macros)
                        cache-prefix)
@@ -800,18 +800,18 @@
 (defn- skip-load?
   [{:keys [name macros]}]
   (or
-    (= name 'cljsjs.parinfer)
-    (= name 'cljs.core)
-    (and (= name 'clojure.core.rrb-vector.macros) macros)
-    (and (= name 'cljs.env.macros) macros)
-    (and (= name 'cljs.analyzer.macros) macros)
-    (and (= name 'cljs.compiler.macros) macros)
-    (and (= name 'cljs.js) macros)
-    (and (= name 'cljs.pprint) macros)
-    (and (= name 'cljs.reader) macros)
-    (and (= name 'cljs.tools.reader.reader-types) macros)
-    (and (= name 'tailrecursion.cljson) macros)
-    (and (= name 'lazy-map.core) macros)))
+   (= name 'cljsjs.parinfer)
+   (= name 'cljs.core)
+   (and (= name 'clojure.core.rrb-vector.macros) macros)
+   (and (= name 'cljs.env.macros) macros)
+   (and (= name 'cljs.analyzer.macros) macros)
+   (and (= name 'cljs.compiler.macros) macros)
+   (and (= name 'cljs.js) macros)
+   (and (= name 'cljs.pprint) macros)
+   (and (= name 'cljs.reader) macros)
+   (and (= name 'cljs.tools.reader.reader-types) macros)
+   (and (= name 'tailrecursion.cljson) macros)
+   (and (= name 'lazy-map.core) macros)))
 
 (defn- do-load-file
   [file cb]
@@ -837,9 +837,9 @@
 (defn- do-load-foreign
   [name cb]
   (let [files-to-load (js-deps/files-to-load name)
-        _ (when (:verbose @app-env)
-            (println "Loading foreign libs files:" files-to-load))
-        sources (map file-content (not-yet-loaded files-to-load))]
+        _             (when (:verbose @app-env)
+                        (println "Loading foreign libs files:" files-to-load))
+        sources       (map file-content (not-yet-loaded files-to-load))]
     (cb {:lang   :js
          :source (string/join "\n" sources)})))
 
@@ -892,7 +892,7 @@
 
 (defn- handle-error
   [e include-stacktrace?]
-  (let [cause (or (.-cause e) e)
+  (let [cause                     (or (.-cause e) e)
         is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
     (when-not is-planck-exit-exception?
       (print-error e include-stacktrace?))
@@ -903,7 +903,7 @@
 (defn- ^:export run-main
   [main-ns & args]
   (let [main-args (js->clj args)
-        opts (make-base-eval-opts)]
+        opts      (make-base-eval-opts)]
     (binding [cljs/*load-fn* load
               cljs/*eval-fn* caching-js-eval]
       (cljs/eval st
@@ -926,13 +926,13 @@
 (defn- load-bundled-source-maps!
   []
   (when-not (get (:source-maps @planck.repl/st) 'cljs.core)
-    (let [source-map-path (fn [ns-sym]
-                            (str (cljs.js/ns->relpath ns-sym) ".js.map"))
+    (let [source-map-path  (fn [ns-sym]
+                             (str (cljs.js/ns->relpath ns-sym) ".js.map"))
           load-source-maps (fn [ns-sym]
                              (cljs/load-source-map! st ns-sym (->> ns-sym
-                                                                   source-map-path
-                                                                   js/PLANCK_LOAD
-                                                                   first)))]
+                                                                source-map-path
+                                                                js/PLANCK_LOAD
+                                                                first)))]
       ;; Source maps for bundled macros namespaces other than cljs.core are loaded
       ;; via their cached ".js.map.json" file.
       (doseq [ns-sym '[cljs.core
@@ -1021,7 +1021,7 @@
   to their unmunged forms."
   [ns]
   {:pre [(symbol? ns)]}
-  (let [ns-str (str ns)
+  (let [ns-str        (str ns)
         munged-ns-str (string/replace ns-str #"\." "$")]
     (into {} (for [sym (ns-syms ns)]
                [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
@@ -1063,9 +1063,9 @@
     (str (or (lookup-sym demunge-maps munged-sym)
              (demunge-protocol-fn demunge-maps munged-sym)
              (demunge-local demunge-maps munged-sym)
-           (if (gensym? munged-sym)
-             munged-sym
-             (demunge munged-sym))))))
+             (if (gensym? munged-sym)
+               munged-sym
+               (demunge munged-sym))))))
 
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
@@ -1135,23 +1135,23 @@
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
    (print-error-column-indicator error)
-   (let [error (skip-cljsjs-eval-error error)
-         roa? (reader-or-analysis? error)
-         print-ex-data? (= include-stacktrace? :pst)
+   (let [error               (skip-cljsjs-eval-error error)
+         roa?                (reader-or-analysis? error)
+         print-ex-data?      (= include-stacktrace? :pst)
          include-stacktrace? (or (= include-stacktrace? :pst)
                                  (and include-stacktrace?
                                       (not roa?)))
          include-stacktrace? (if *planck-integration-tests*
                                false
                                include-stacktrace?)
-         message (if (instance? ExceptionInfo error)
-                   (ex-message error)
-                   (.-message error))]
+         message             (if (instance? ExceptionInfo error)
+                               (ex-message error)
+                               (.-message error))]
      (when (or (not ((fnil string/starts-with? "") printed-message message))
                include-stacktrace?)
        (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme)
-                  (str message (when (reader-error? error)
-                                 (location-info error))))))
+                 (str message (when (reader-error? error)
+                                (location-info error))))))
      (when-let [data (and print-ex-data? (ex-data error))]
        (print-value data {::as-code? false}))
      (when include-stacktrace?
@@ -1163,10 +1163,10 @@
                                     {:output-dir "file://(/goog/..)?"})]
          (println
            ((:ex-stack-fn theme)
-             (mapped-stacktrace-str
-               canonical-stacktrace
-               (or (:source-maps @planck.repl/st) {})
-               nil)))))
+            (mapped-stacktrace-str
+              canonical-stacktrace
+              (or (:source-maps @planck.repl/st) {})
+              nil)))))
      (when-let [cause (.-cause error)]
        (recur cause include-stacktrace? message)))))
 
@@ -1202,15 +1202,15 @@
                               (string/replace (name filepath) #"\." "/")
                               #"-" "_")]
       (or
-        (first (js/PLANCK_LOAD (str without-extension ".clj")))
-        (first (js/PLANCK_LOAD (str without-extension ".cljc")))
-        (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
+       (first (js/PLANCK_LOAD (str without-extension ".clj")))
+       (first (js/PLANCK_LOAD (str without-extension ".cljc")))
+       (first (js/PLANCK_LOAD (str without-extension ".cljs")))))
     (or
-      (first (js/PLANCK_LOAD filepath))
-      (first (js/PLANCK_READ_FILE filepath))
-      (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
-      (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
-      (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" ""))))))
+     (first (js/PLANCK_LOAD filepath))
+     (first (js/PLANCK_READ_FILE filepath))
+     (first (js/PLANCK_LOAD (string/replace filepath #"^out/" "")))
+     (first (js/PLANCK_LOAD (string/replace filepath #"^src/" "")))
+     (first (js/PLANCK_LOAD (string/replace filepath #"^/.*/planck-cljs/src/" ""))))))
 
 (defn- fetch-source
   [var]
@@ -1243,7 +1243,7 @@
 (defn- process-deps
   [names opts cb]
   (run-sync! (fn [name cb]
-                (cljs/require name opts cb))
+               (cljs/require name opts cb))
     names
     :error
     cb))
@@ -1395,9 +1395,9 @@
         (let [var (get-var (get-aenv) sym)
               var (assoc var :forms (-> var :meta :forms second)
                              :arglists (-> var :meta :arglists second))
-              m (select-keys var
-                  [:ns :name :doc :forms :arglists :macro :url])
-              m (update m :doc undo-reader-conditional-whitespace-docstring)]
+              m   (select-keys var
+                    [:ns :name :doc :forms :arglists :macro :url])
+              m   (update m :doc undo-reader-conditional-whitespace-docstring)]
           (cond-> (update-in m [:name] name)
             (:protocol-symbol var)
             (assoc :protocol true
@@ -1405,8 +1405,8 @@
                    (->> (get-in var [:protocol-info :methods])
                      (map (fn [[fname sigs]]
                             [fname {:doc      (:doc
-                                                (get-var (get-aenv)
-                                                  (symbol (str (:ns var)) (str fname))))
+                                               (get-var (get-aenv)
+                                                 (symbol (str (:ns var)) (str fname))))
                                     :arglists (seq sigs)}]))
                      (into {})))))))))
 
@@ -1499,16 +1499,16 @@
 (defn- capture-session-state
   "Captures all of the commonly set global vars as a session state map."
   []
-  {:*print-meta* *print-meta*
-   :*print-length* *print-length*
-   :*print-level* *print-level*
+  {:*print-meta*           *print-meta*
+   :*print-length*         *print-length*
+   :*print-level*          *print-level*
    :*print-namespace-maps* *print-namespace-maps*
-   :*unchecked-if* *unchecked-if*
-   :*assert* *assert*
-   :*1 *1
-   :*2 *2
-   :*3 *3
-   :*e *e})
+   :*unchecked-if*         *unchecked-if*
+   :*assert*               *assert*
+   :*1                     *1
+   :*2                     *2
+   :*3                     *3
+   :*e                     *e})
 
 (defn- set-session-state
   "Sets the session state given a sesssion state map."
@@ -1549,8 +1549,8 @@
 (defn- process-1-2-3
   [expression-form value]
   (when-not
-    (or ('#{*1 *2 *3 *e} expression-form)
-        (ns-form? expression-form))
+   (or ('#{*1 *2 *3 *e} expression-form)
+       (ns-form? expression-form))
     (set! *3 *2)
     (set! *2 *1)
     (set! *1 value)))
@@ -1561,7 +1561,7 @@
     (when (:source x)
       (let [source (:source x)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
-            cache (get-namespace file-namespace)]
+            cache  (get-namespace file-namespace)]
         (write-cache relpath file-namespace source cache)))
     (cb {:value nil})))
 
@@ -1573,10 +1573,10 @@
          (if (::as-code? opts)
            planck.pprint.code/pprint
            planck.pprint.data/pprint))
-        value {:width      ((fnil + 0) term-width (::term-width-adj opts))
-               :theme      theme
-               :spec?      (::spec? opts)
-               :keyword-ns (::keyword-ns opts)})
+       value {:width      ((fnil + 0) term-width (::term-width-adj opts))
+              :theme      theme
+              :spec?      (::spec? opts)
+              :keyword-ns (::keyword-ns opts)})
       (prn value))
     (prn value)))
 
@@ -1671,15 +1671,15 @@
 
 (defn- execute-source
   [[source-type source-value] {:keys [expression?] :as opts}]
-  (binding [ana/*cljs-ns* @current-ns
-            *ns* (create-ns @current-ns)
-            cljs/*load-fn* load
-            cljs/*eval-fn* caching-js-eval
+  (binding [ana/*cljs-ns*    @current-ns
+            *ns*             (create-ns @current-ns)
+            cljs/*load-fn*   load
+            cljs/*eval-fn*   caching-js-eval
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value (assoc opts :source-path source-value))
       (let [source-text source-value
-            first-form (eof-guarded-read source-text)]
+            first-form  (eof-guarded-read source-text)]
         (when (not= eof first-form)
           (let [expression-form (and expression? first-form)]
             (if (repl-special? expression-form)
@@ -1730,10 +1730,10 @@
     (reset! current-ns (symbol set-ns)))
   (binding [theme (get-theme (keyword theme-id))]
     (try
-      (execute-source source {:expression? expression?
+      (execute-source source {:expression?           expression?
                               :print-nil-expression? print-nil-expression?
-                              :include-stacktrace? true
-                              :session-id session-id})
+                              :include-stacktrace?   true
+                              :session-id            session-id})
       (catch :default e
         (handle-error e true)))))
 

@@ -49,6 +49,6 @@
   [& body]
   `(let [sb# (js/goog.string.StringBuffer.)]
      (binding [cljs.core/*print-newline* true
-               cljs.core/*print-err-fn* (fn [x#] (.append sb# x#))]
+               cljs.core/*print-err-fn*  (fn [x#] (.append sb# x#))]
        ~@body)
      (str sb#)))

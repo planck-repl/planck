@@ -74,28 +74,28 @@
   (testing "aliased namespaces completions"
     (with-redefs [planck.repl/current-alias-map (fn []
                                                   '{string clojure.string})]
-                 (is-contains-completion "str" "string/")
-                 (is-contains-completion "(str" "(string/")
-                 (is-contains-completion "(set" "(set/" not))
+      (is-contains-completion "str" "string/")
+      (is-contains-completion "(str" "(string/")
+      (is-contains-completion "(set" "(set/" not))
     (with-redefs [planck.repl/all-ns (fn [] '(clojure.set clojure.string))]
-                 (is-contains-completion "(clojure.s" "(clojure.set")))
+      (is-contains-completion "(clojure.s" "(clojure.set")))
   (testing "cljs.core function completions"
     (is-contains-completion "sub" "subs")
     (is-contains-completion "mer" "merge")
     (is-contains-completion "clojure.core/mer" "clojure.core/merge"))
   #_(testing "referred vars completions"
-    (with-redefs [planck.repl/get-namespace (fn [_]
-                                              '{:uses {foo foo.core}
-                                                :requires {foo.core foo.core}
-                                                :use-macros {longer-var bar.core}})]
-                 (is-contains-completion "fo" "foo")
-                 (is-contains-completion "lon" "longer-var")
-                 (is-contains-completion "(lon" "(longer-var")))
+      (with-redefs [planck.repl/get-namespace (fn [_]
+                                                '{:uses       {foo foo.core}
+                                                  :requires   {foo.core foo.core}
+                                                  :use-macros {longer-var bar.core}})]
+        (is-contains-completion "fo" "foo")
+        (is-contains-completion "lon" "longer-var")
+        (is-contains-completion "(lon" "(longer-var")))
   (testing "completions after slash"
     (is-contains-completion "clojure.core/" "clojure.core/merge")
     (is-contains-completion "" "merge")
     (with-redefs [planck.repl/current-alias-map (fn []
                                                   '{string clojure.string})]
-                 (is-contains-completion "(string/" "(string/merge" not)))
+      (is-contains-completion "(string/" "(string/merge" not)))
   #_(testing "JS Completions"
-    (is-contains-completion "js/con" "js/console")))
+      (is-contains-completion "js/con" "js/console")))
