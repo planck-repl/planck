@@ -159,6 +159,15 @@
   (is (= "/foo" (:uri (do-request :get "/foo"))))
   (is (= "/foo" (:uri (do-request :post "/foo")))))
 
+(deftest request-json-body-test
+  (is (= "\"foo\"" (:body (do-request :post "/" {:content-type :json
+                                                 :accept :json
+                                                 :body "\"foo\""}))))
+  (is (= "5" (get-in (do-request :post "/" {:content-type :json
+                                            :accept :json
+                                            :body "\"foo\""})
+                   [:headers "content-length"]))))
+
 (deftest http-request-debug
   (let [url              (form-full-url "/")
         expected-request (fn [method]
