@@ -1,6 +1,5 @@
 (ns planck.bundle
-  "Require namespaces so they will be bundled
-  in the Planck binary."
+  "Require namespaces so they will be bundled in the Planck binary."
   (:require
    [cljs.analyzer.api]
    [cljs.pprint]

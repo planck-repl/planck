@@ -161,7 +161,8 @@
   (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
 
 (defonce
-  ^{:doc     "A sequence of the supplied command line arguments, or nil if none were supplied"
+  ^{:doc "A sequence of the supplied command line arguments, or nil if
+  none were supplied"
     :dynamic true}
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
@@ -176,8 +177,8 @@
   :ret string?)
 
 (defn line-seq
-  "Returns the lines of text from rdr as a lazy sequence of strings.
-  rdr must implement IBufferedReader."
+  "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
+  implement IBufferedReader."
   [rdr]
   (when-let [line (-read-line rdr)]
     (cons line (lazy-seq (line-seq rdr)))))
@@ -187,8 +188,8 @@
   :ret seq?)
 
 (defn read-password
-  "Reads the next line from console with echoing disabled.
-  It will print out a prompt if supplied"
+  "Reads the next line from console with echoing disabled. It will print out a
+  prompt if supplied"
   ([] (read-password ""))
   ([prompt]
    (js/PLANCK_READ_PASSWORD prompt)))
@@ -243,8 +244,8 @@
     (throw (js/Error. "No *writer-fn* fn set."))))
 
 (defn slurp
-  "Opens a reader on f and reads all its contents, returning a string.
-  See planck.io/reader for a complete list of supported arguments."
+  "Opens a reader on f and reads all its contents, returning a string. See
+  planck.io/reader for a complete list of supported arguments."
   [f & opts]
   (with-open [r (apply *reader-fn* f opts)]
     (let [sb (StringBuffer.)]
@@ -263,8 +264,8 @@
   :ret string?)
 
 (defn spit
-  "Opposite of slurp.  Opens f with writer, writes content, then
-  closes f. Options passed to planck.io/writer."
+  "Opposite of slurp. Opens f with writer, writes content, then closes f.
+  Options passed to planck.io/writer."
   [f content & opts]
   (with-open [w (apply *writer-fn* f opts)]
     (-write w (str content))))
@@ -285,8 +286,8 @@
   :ret any?)
 
 (defn ns-resolve
-  "Returns the var to which a symbol will be resolved in the namespace,
-  else nil."
+  "Returns the var to which a symbol will be resolved in the namespace, else
+  nil."
   [ns sym]
   (repl/ns-resolve ns sym))
 
@@ -305,10 +306,10 @@
   :ret (s/nilable var?))
 
 (defn intern
-  "Finds or creates a var named by the symbol name in the namespace
-  ns (which can be a symbol or a namespace), setting its root binding
-  to val if supplied. The namespace must exist. The var will adopt any
-  metadata from the name symbol.  Returns the var."
+  "Finds or creates a var named by the symbol name in the namespace ns (which
+  can be a symbol or a namespace), setting its root binding to val if supplied.
+  The namespace must exist. The var will adopt any metadata from the name
+  symbol. Returns the var."
   ([ns name]
    (repl/intern ns name))
   ([ns name val]
@@ -326,8 +327,8 @@
       (get-in @repl/st [:cljs.analyzer/namespaces ns]))))
 
 (defn init-empty-state
-  "An init function for use with cljs.js/empty-state which initializes
-  the empty state with cljs.core analysis metadata.
+  "An init function for use with cljs.js/empty-state which initializes the
+  empty state with cljs.core analysis metadata.
 
   This is useful because Planck is built with :dump-core set to false.
 

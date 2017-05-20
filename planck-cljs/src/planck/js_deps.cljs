@@ -22,8 +22,8 @@
     foreign-libs))
 
 (defn index-foreign-libs
-  "Indexes a compiler options map containing a :foreign-libs spec,
-  swapping the result into the foreign libs index."
+  "Indexes a compiler options map containing a :foreign-libs spec, swapping
+  the result into the foreign libs index."
   [deps-map]
   (->> deps-map
     :foreign-libs
@@ -38,9 +38,8 @@
       index-foreign-libs)))
 
 (defn topo-sorted-deps
-  "Given a foreign libs index and a dep symbol to load,
-  returns a topologically sorted sequence of deps to load,
-  in load order."
+  "Given a foreign libs index and a dep symbol to load, returns a
+  topologically sorted sequence of deps to load, in load order."
   [index dep]
   {:pre [(symbol? dep)]}
   (let [spec     (dep index)

@@ -78,17 +78,17 @@
     (as-file f)))
 
 (defprotocol IOFactory
-  "Factory functions that create ready-to-use versions of
-  the various stream types, on top of anything that can
-  be unequivocally converted to the requested kind of stream.
+  "Factory functions that create ready-to-use versions of the various stream
+  types, on top of anything that can be unequivocally converted to the
+  requested kind of stream.
 
   Common options include
 
     :append   true to open stream in append mode
     :encoding  string name of encoding to use, e.g. \"UTF-8\".
 
-    Callers should generally prefer the higher level API provided by
-    reader, writer, input-stream, and output-stream."
+  Callers should generally prefer the higher level API provided by reader,
+  writer, input-stream, and output-stream."
   (make-reader [x opts] "Creates an IReader. See also IOFactory docs.")
   (make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
   (make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
@@ -296,9 +296,8 @@
   :ret boolean?)
 
 (defn file
-  "Returns a File for given path.  Multiple-arg
-   versions treat the first argument as parent and subsequent args as
-   children relative to the parent."
+  "Returns a File for given path. Multiple-arg versions treat the first
+   argument as parent and subsequent args as children relative to the parent."
   ([path]
    (File. path))
   ([parent & more]

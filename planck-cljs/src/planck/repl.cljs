@@ -39,10 +39,9 @@
     :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
-       :doc     "*pprint-results* controls whether Planck REPL results are
-  pretty printed. If it is bound to logical false, results
-  are printed in a plain fashion. Otherwise, results are
-  pretty printed."}
+       :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
+  If it is bound to logical false, results are printed in a plain fashion.
+  Otherwise, results are pretty printed."}
 *pprint-results* true)
 
 (def ^:private expression-name "Expression")
@@ -57,9 +56,8 @@
       (recur (subs text (inc x)) (- pos (inc x)) (inc line)))))
 
 (defn- ^:export indent-space-count
-  "Given text representing a partially entered form,
-  returns the number of spaces to indent a newly entered
-  line. Returns 0 if unsuccessful."
+  "Given text representing a partially entered form, returns the number of
+  spaces to indent a newly entered line. Returns 0 if unsuccessful."
   [text]
   (let [pos      (count text)
         balanced (js->clj (js/parinfer.indentMode text
@@ -280,8 +278,8 @@
    (= "EOF while reading string" message)))
 
 (defn- ^:export is-readable?
-  "Returns a string representing any text after the first readible form,
-  nor nil if nothing readible."
+  "Returns a string representing any text after the first readible form, nor
+  nil if nothing readible."
   [source theme-id]
   (try
     (second (repl-read-string source))
@@ -451,8 +449,8 @@
     distinct))
 
 (defn- expand-typed-ns
-  "Expand the typed namespace symbol to a known namespace, consulting
-  current namespace aliases if necessary."
+  "Expand the typed namespace symbol to a known namespace, consulting current
+  namespace aliases if necessary."
   [alias]
   (let [alias (if (symbol-identical? alias 'clojure.core)
                 'cljs.core
@@ -557,12 +555,11 @@
     [-1 -1]))
 
 (defn- ^:export get-highlight-coords
-  "Gets the highlight coordinates [line pos] for the previous matching
-  brace. This is done by progressivly expanding source considered
-  until a readable form is encountered with a matching brace on the
-  other end. The coordinate system is such that line 0 is the current
-  buffer line, line 1 is the previous line, and so on, and pos is the
-  position in that line."
+  "Gets the highlight coordinates [line pos] for the previous matching brace.
+  This is done by progressivly expanding source considered until a readable
+  form is encountered with a matching brace on the other end. The coordinate
+  system is such that line 0 is the current buffer line, line 1 is the previous
+  line, and so on, and pos is the position in that line."
   [pos buffer previous-lines]
   (let [previous-lines  (js->clj previous-lines)
         previous-source (string/join "\n" previous-lines)
@@ -1296,8 +1293,8 @@
             (all-ns)))))
 
 (defn- undo-reader-conditional-whitespace-docstring
-  "Undoes the effect that wrapping a reader conditional around
-  a defn has on a docstring."
+  "Undoes the effect that wrapping a reader conditional around a defn has on a
+  docstring."
   [s]
   ;; We look for five spaces (or six, in case that the docstring
   ;; is not aligned under the first quote) after the first newline
