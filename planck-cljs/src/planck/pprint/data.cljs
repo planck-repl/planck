@@ -56,8 +56,9 @@
   fipp.visit/IVisitor
 
   (visit-unknown [this x]
-    [:text (pr-str x)])
-
+    (if (instance? Eduction x)
+      (visit this (sequence x))
+      [:text (pr-str x)]))
 
   (visit-nil [this]
     (wrap-theme :results-font theme "nil"))
