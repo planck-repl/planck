@@ -480,10 +480,10 @@
 
 (defn- spec-registered-keywords
   [ns]
-  (->> (s/registry)
-    keys
+  (eduction
     (filter keyword?)
-    (filter #(= (str ns) (namespace %)))))
+    (filter #(= (str ns) (namespace %)))
+    (keys (s/registry))))
 
 (defn- local-keyword-str
   [kw]
@@ -497,10 +497,12 @@
 (defn- local-keyword-completions
   [buffer kw-name]
   (let [buffer-prefix (subs buffer 0 (- (count buffer) (count kw-name) 2))]
-    (clj->js (->> (spec-registered-keywords @current-ns)
-               (map local-keyword-str)
-               (filter #(string/starts-with? % (str "::" kw-name)))
-               (map #(str buffer-prefix %))))))
+    (clj->js (sequence
+               (comp
+                 (map local-keyword-str)
+                 (filter #(string/starts-with? % (str "::" kw-name)))
+                 (map #(str buffer-prefix %)))
+               (spec-registered-keywords @current-ns)))))
 
 (defn- ^:export get-completions
   [buffer]
