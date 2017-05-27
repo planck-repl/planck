@@ -51,6 +51,9 @@ set(SOURCE_FILES
 
 add_executable(planck ${SOURCE_FILES})
 
+# Don't optimize http.c as workaround for https://github.com/mfikes/planck/issues/503
+set_source_files_properties(http.c PROPERTIES COMPILE_FLAGS -O0)
+
 find_package(PkgConfig REQUIRED)
 
 find_program(CURL_CONFIG curl-config)
