@@ -80,8 +80,12 @@ size_t write_string_callback(char *buffer, size_t size, size_t nmemb, void
     return size * nmemb;
 }
 
+// Turn off optimization for this function. See https://github.com/mfikes/planck/issues/503
 JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
-                                 size_t argc, const JSValueRef args[], JSValueRef *exception) __attribute__ ((optnone)) {
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) __attribute__ ((optnone));
+
+JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeObject) {
         JSObjectRef opts = JSValueToObject(ctx, args[0], NULL);
         JSValueRef url_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("url"), NULL);
