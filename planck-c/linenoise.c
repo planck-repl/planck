@@ -962,64 +962,65 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
                 l.prompt = rprompt;
                 refreshLine(&l);
 
-                read(l.ifd, &c, 1);
+                if (read(l.ifd, &c, 1)) {
 
-                if (c == keymap[KM_BACKSPACE] || c == keymap[KM_DELETE]) {
-                    if (rlen) {
-                        rbuf[--rlen] = 0;
-                    }
-                    continue;
-                }
-
-                if (c == keymap[KM_REVERSE_I_SEARCH] || c == keymap[KM_HISTORY_PREVIOUS]) {
-                    /* Search for the previous (earlier) match */
-                    if (searchpos > 0) {
-                        searchpos--;
-                    }
-                    skipsame = 1;
-                } else if (c == keymap[KM_HISTORY_NEXT]) {
-                    /* Search for the next (later) match */
-                    if (searchpos < history_len) {
-                        searchpos++;
-                    }
-                    searchdir = 1;
-                    skipsame = 1;
-                } else if (c >= ' ') {
-                    if (rlen >= (int) sizeof(rbuf) - 1) {
+                    if (c == keymap[KM_BACKSPACE] || c == keymap[KM_DELETE]) {
+                        if (rlen) {
+                            rbuf[--rlen] = 0;
+                        }
                         continue;
                     }
 
-                    rbuf[rlen++] = c;
-                    rbuf[rlen] = 0;
-
-                    /* Adding a new char resets the search location */
-                    searchpos = history_len - 1;
-                } else {
-                    /* Exit from incremental search mode */
-                    break;
-                }
-
-                /* Now search through the history for a match */
-                for (; searchpos >= 0 && searchpos < history_len; searchpos += searchdir) {
-                    p = strstr(history[searchpos], rbuf);
-                    if (p) {
-                        /* Found a match */
-                        if (skipsame && strcmp(history[searchpos], l.buf) == 0) {
-                            /* But it is identical, so skip it */
+                    if (c == keymap[KM_REVERSE_I_SEARCH] || c == keymap[KM_HISTORY_PREVIOUS]) {
+                        /* Search for the previous (earlier) match */
+                        if (searchpos > 0) {
+                            searchpos--;
+                        }
+                        skipsame = 1;
+                    } else if (c == keymap[KM_HISTORY_NEXT]) {
+                        /* Search for the next (later) match */
+                        if (searchpos < history_len) {
+                            searchpos++;
+                        }
+                        searchdir = 1;
+                        skipsame = 1;
+                    } else if (c >= ' ') {
+                        if (rlen >= (int) sizeof(rbuf) - 1) {
                             continue;
                         }
-                        /* Copy the matching line and set the cursor position */
-                        set_current(&l, history[searchpos]);
-                        l.pos = p - history[searchpos];
-                        l.history_index = history_len - searchpos - 1;
+
+                        rbuf[rlen++] = c;
+                        rbuf[rlen] = 0;
+
+                        /* Adding a new char resets the search location */
+                        searchpos = history_len - 1;
+                    } else {
+                        /* Exit from incremental search mode */
                         break;
                     }
-                }
 
-                if (!p && c >= ' ') {
-                    /* No match, so don't add it */
-                    rlen--;
-                    rbuf[rlen] = 0;
+                    /* Now search through the history for a match */
+                    for (; searchpos >= 0 && searchpos < history_len; searchpos += searchdir) {
+                        p = strstr(history[searchpos], rbuf);
+                        if (p) {
+                            /* Found a match */
+                            if (skipsame && strcmp(history[searchpos], l.buf) == 0) {
+                                /* But it is identical, so skip it */
+                                continue;
+                            }
+                            /* Copy the matching line and set the cursor position */
+                            set_current(&l, history[searchpos]);
+                            l.pos = p - history[searchpos];
+                            l.history_index = history_len - searchpos - 1;
+                            break;
+                        }
+                    }
+
+                    if (!p && c >= ' ') {
+                        /* No match, so don't add it */
+                        rlen--;
+                        rbuf[rlen] = 0;
+                    }
                 }
             }
 
