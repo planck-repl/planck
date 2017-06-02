@@ -81,7 +81,7 @@ size_t write_string_callback(char *buffer, size_t size, size_t nmemb, void
 }
 
 JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
-                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) __attribute__ ((optnone)) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeObject) {
         JSObjectRef opts = JSValueToObject(ctx, args[0], NULL);
         JSValueRef url_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("url"), NULL);
