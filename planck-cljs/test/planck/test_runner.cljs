@@ -11,12 +11,14 @@
    [planck.io-test]
    [planck.js-deps-test]
    [planck.repl-test]
-   [planck.shell-test]))
+   [planck.shell-test]
+   [planck.socket.alpha-test]))
 
-(st/instrument)
+#_(st/instrument)
 
 (defn run-all-tests []
   (run-tests
+    'planck.socket.alpha-test
     'planck.core-test
     'planck.io-test
     'planck.shell-test

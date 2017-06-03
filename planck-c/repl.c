@@ -5,14 +5,13 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
-#include<sys/socket.h>
-#include<arpa/inet.h>
 
 #include "linenoise.h"
 
 #include "engine.h"
 #include "globals.h"
 #include "keymap.h"
+#include "sockets.h"
 #include "str.h"
 #include "theme.h"
 #include "timers.h"
@@ -444,37 +443,6 @@ void highlight_cancel() {
     }
 }
 
-int write_to_socket(int fd, const char *text) {
-
-    while (true) {
-
-        fd_set fds;
-        FD_ZERO(&fds);
-
-        FD_SET(fd, &fds);
-
-        int rv = select(fd + 1, NULL, &fds, NULL, NULL);
-
-        if (rv == -1) {
-            if (errno == EINTR) {
-                // We ignore interrupts and loop back around
-            } else {
-                return -1;
-            }
-        } else {
-            size_t len = strlen(text);
-            ssize_t n = write(fd, text, len);
-            if (n == len) {
-                return 0;
-            }
-            if (n == -1) {
-                return -1;
-            }
-            text += n;
-        }
-    }
-}
-
 int sock_to_write_to = 0;
 
 void socket_sender(const char *text) {
@@ -485,102 +453,62 @@ void socket_sender(const char *text) {
 
 static int session_id_counter = 0;
 
-void *connection_handler(void *socket_desc) {
+conn_data_cb_ret_t* socket_repl_data_arrived(char *data, int sock, void *state) {
+
+    repl_t *repl = state;
+
+    if (str_has_suffix(data, "\r\n") == 0) {
+        data[strlen(data) - 2] = '\0';
+    }
+
+    sock_to_write_to = sock;
+
+    pthread_mutex_lock(&repl_print_mutex);
+
+    set_print_sender(&socket_sender);
+
+    bool exit = process_line(repl, strdup(data), false);
+
+    set_print_sender(NULL);
+    sock_to_write_to = 0;
+
+    pthread_mutex_unlock(&repl_print_mutex);
+
+    int err = 0;
+    if (!exit && repl->current_prompt != NULL) {
+        err = write_to_socket(sock, repl->current_prompt);
+    }
+
+    conn_data_cb_ret_t* connection_data_arrived_return = malloc(sizeof(conn_data_cb_ret_t));
+
+    connection_data_arrived_return->err = err;
+    connection_data_arrived_return->close = exit;
+
+    return connection_data_arrived_return;
+}
+
+accepted_conn_cb_ret_t* accepted_socket_repl_connection(int sock, void* state) {
     repl_t *repl = make_repl();
     repl->current_prompt = form_prompt(repl, false);
-
     repl->session_id = ++session_id_counter;
-
-    int sock = *(int *) socket_desc;
-    ssize_t read_size;
-    char client_message[4096];
 
     int err = write_to_socket(sock, repl->current_prompt);
 
-    while (!err && (read_size = recv(sock, client_message, 4095, 0)) > 0) {
+    accepted_conn_cb_ret_t* accepted_connection_cb_return = malloc(sizeof(accepted_conn_cb_ret_t));
 
-        client_message[read_size] = '\0';
+    accepted_connection_cb_return->err = err;
+    accepted_connection_cb_return->info = repl;
 
-        if (str_has_suffix(client_message, "\r\n") == 0) {
-            client_message[strlen(client_message) - 2] = '\0';
-        }
-
-        sock_to_write_to = sock;
-
-        pthread_mutex_lock(&repl_print_mutex);
-
-        set_print_sender(&socket_sender);
-
-        bool exit = process_line(repl, strdup(client_message), false);
-
-        set_print_sender(NULL);
-        sock_to_write_to = 0;
-
-        pthread_mutex_unlock(&repl_print_mutex);
-
-        if (exit) {
-            close(sock);
-            break;
-        }
-
-        if (repl->current_prompt != NULL) {
-            err = write_to_socket(sock, repl->current_prompt);
-        }
-    }
-
-    free(socket_desc);
-
-    return NULL;
+    return accepted_connection_cb_return;
 }
 
-void *accept_connections(void *data) {
-
-    int socket_desc, new_socket, c, *new_sock;
-    struct sockaddr_in server, client;
-
-    socket_desc = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket_desc == -1) {
-        engine_perror("Could not create listen socket");
-        return NULL;
-    }
-
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(config.socket_repl_port);
-
-    if (bind(socket_desc, (struct sockaddr *) &server, sizeof(server)) < 0) {
-        engine_perror("Socket bind failed");
-        return NULL;
-    }
-
-    listen(socket_desc, 3);
-
+void socket_repl_listen_successful_cb() {
     if (!config.quiet) {
         char msg[1024];
         snprintf(msg, 1024, "Planck socket REPL listening at %s:%d.\n", config.socket_repl_host,
                  config.socket_repl_port);
         engine_print(msg);
     }
-
-    c = sizeof(struct sockaddr_in);
-    while ((new_socket = accept(socket_desc, (struct sockaddr *) &client, (socklen_t *) &c))) {
-
-        pthread_t handler_thread;
-        new_sock = malloc(sizeof(int));
-        *new_sock = new_socket;
-
-        if (pthread_create(&handler_thread, NULL, connection_handler, (void *) new_sock) < 0) {
-            engine_perror("could not create thread");
-            return NULL;
-        }
-    }
-
-    if (new_socket < 0) {
-        engine_perror("accept failed");
-        return NULL;
-    }
-
-    return NULL;
 }
 
 int run_repl() {
@@ -614,6 +542,14 @@ int run_repl() {
         linenoiseSetHighlightCancelCallback(highlight_cancel);
     }
 
+    socket_accept_info_t socket_accept_data = {config.socket_repl_host,
+                                               config.socket_repl_port,
+                                               socket_repl_listen_successful_cb,
+                                               accepted_socket_repl_connection,
+                                               socket_repl_data_arrived,
+                                               0,
+                                               NULL};
+
     if (config.socket_repl_port) {
         block_until_engine_ready();
 
@@ -623,8 +559,13 @@ int run_repl() {
             set_print_sender(&linenoisePrintNow);
         }
 
-        pthread_t thread;
-        pthread_create(&thread, NULL, accept_connections, NULL);
+        int err = bind_and_listen(&socket_accept_data);
+        if (err == -1) {
+            engine_perror("Failed to set up socket REPL");
+        } else {
+            pthread_t thread;
+            pthread_create(&thread, NULL, accept_connections, &socket_accept_data);
+        }
     }
 
     run_cmdline_loop(repl);

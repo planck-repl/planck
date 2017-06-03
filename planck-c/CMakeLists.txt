@@ -40,6 +40,8 @@ set(SOURCE_FILES
     repl.h
     shell.c
     shell.h
+    sockets.c
+    sockets.h
     str.c
     str.h
     tasks.c

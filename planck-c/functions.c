@@ -9,6 +9,8 @@
 #include <grp.h>
 #include <dirent.h>
 #include <limits.h>
+#include <pthread.h>
+#include <errno.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -23,6 +25,7 @@
 #include "engine.h"
 #include "repl.h"
 #include "clock.h"
+#include "sockets.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
@@ -1101,4 +1104,155 @@ JSValueRef function_high_res_timer(JSContextRef ctx, JSObjectRef function, JSObj
 
     return JSValueMakeNumber(ctx, 1e-6 * system_time());
 
+}
+
+typedef struct data_arrived_info {
+    JSObjectRef data_arrived_cb;
+} data_arrived_info_t;
+
+conn_data_cb_ret_t *socket_conn_data_arrived(char *data, int sock, void *info) {
+
+    data_arrived_info_t *data_arrived_info = info;
+
+    JSValueRef args[2];
+    args[0] = JSValueMakeNumber(ctx, sock);
+    // TODO what if we need bytes instead of dealing with an encoding?
+    args[1] = JSValueMakeString(ctx, JSStringCreateWithUTF8CString(data));
+
+    acquire_eval_lock();
+    JSObjectCallAsFunction(ctx, data_arrived_info->data_arrived_cb, NULL, 2, args, NULL);
+    release_eval_lock();
+
+    conn_data_cb_ret_t *conn_data_arrived_ret = malloc(sizeof(conn_data_cb_ret_t));
+
+    conn_data_arrived_ret->err = 0;
+    conn_data_arrived_ret->close = false;
+
+    return conn_data_arrived_ret;
+}
+
+typedef struct accept_info {
+    JSObjectRef accept_cb;
+} accept_info_t;
+
+accepted_conn_cb_ret_t *accepted_socket_connection(int sock, void *info) {
+
+    accept_info_t *accept_info = info;
+
+    JSValueRef args[1];
+    args[0] = JSValueMakeNumber(ctx, sock);
+
+    acquire_eval_lock();
+    JSValueRef data_arrived_cb_ref = JSObjectCallAsFunction(ctx, accept_info->accept_cb, NULL, 1, args, NULL);
+    release_eval_lock();
+
+    data_arrived_info_t *data_arrived_info = malloc(sizeof(data_arrived_info_t));
+    data_arrived_info->data_arrived_cb = JSValueToObject(ctx, data_arrived_cb_ref, NULL);
+    JSValueProtect(ctx, data_arrived_cb_ref);
+
+    accepted_conn_cb_ret_t *accepted_conn_cb_ret = malloc(sizeof(accepted_conn_cb_ret_t));
+
+    accepted_conn_cb_ret->err = 0;
+    accepted_conn_cb_ret->info = data_arrived_info;
+
+    return accepted_conn_cb_ret;
+}
+
+JSValueRef function_socket_connect(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                   size_t argc, JSValueRef const *args, JSValueRef *exception) {
+    if (argc == 3
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeNumber
+        && JSValueGetType(ctx, args[2]) == kJSTypeObject) {
+
+        char *host = value_to_c_string(ctx, args[0]);
+        int port = (int) JSValueToNumber(ctx, args[1], NULL);
+
+        JSValueRef data_arrived_cb_ref = args[2];
+
+        data_arrived_info_t *data_arrived_info = malloc(sizeof(data_arrived_info_t));
+        data_arrived_info->data_arrived_cb = JSValueToObject(ctx, data_arrived_cb_ref, NULL);
+        JSValueProtect(ctx, data_arrived_cb_ref);
+
+        int sock = connect_socket(host, port, socket_conn_data_arrived, data_arrived_info);
+
+        if (sock == -1) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        } else {
+            return JSValueMakeNumber(ctx, sock);
+        }
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_socket_listen(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber
+        && JSValueGetType(ctx, args[1]) == kJSTypeObject) {
+
+        int port = (int) JSValueToNumber(ctx, args[0], NULL);
+
+        accept_info_t *accept_info = malloc(sizeof(accept_info_t));
+        accept_info->accept_cb = JSValueToObject(ctx, args[1], NULL);
+        JSValueProtect(ctx, args[1]);
+
+        socket_accept_info_t *socket_accept_info = malloc(sizeof(socket_accept_info_t));
+        socket_accept_info->host = NULL;
+        socket_accept_info->port = port;
+        socket_accept_info->listen_successful_cb = NULL;
+        socket_accept_info->accepted_conn_cb = accepted_socket_connection;
+        socket_accept_info->conn_data_cb = socket_conn_data_arrived;
+        socket_accept_info->info = accept_info;
+
+        int err = bind_and_listen(socket_accept_info);
+        if (err == -1) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        } else {
+            pthread_t thread;
+            pthread_create(&thread, NULL, accept_connections, socket_accept_info);
+        }
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_socket_write(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber
+        && JSValueGetType(ctx, args[1]) == kJSTypeString) {
+
+        int sock = (int) JSValueToNumber(ctx, args[0], NULL);
+
+        int err = write_to_socket(sock, value_to_c_string(ctx, args[1]));
+
+        if (err == -1) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_socket_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
+
+        int sock = (int) JSValueToNumber(ctx, args[0], NULL);
+
+        int err = close_socket(sock);
+
+        if (err == -1) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
+    }
+    return JSValueMakeNull(ctx);
 }
