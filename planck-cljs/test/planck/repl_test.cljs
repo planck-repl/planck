@@ -116,3 +116,11 @@
 
 (deftest doc-test
   (is (empty? (with-out-str (planck.repl/doc every)))))
+
+(deftest planck-native?-test
+  (is (planck.repl/planck-native? 'PLANCK_SOCKET_CLOSE))
+  (is (not (planck.repl/planck-native? 'foobar))))
+
+(deftest gensym?-test
+  (is (planck.repl/gensym? (gensym)))
+  (is (not (planck.repl/gensym? 'foobar))))

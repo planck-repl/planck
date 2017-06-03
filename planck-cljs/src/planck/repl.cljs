@@ -1053,9 +1053,13 @@
         (when-let [fn-sym (lookup-sym demunge-maps (str ns "$" fn))]
           (str fn-sym " [" prot-sym "]"))))))
 
-(defn- gensym?
-  [sym]
-  (string/starts-with? (name sym) "G__"))
+(defn- sym-name-starts-with?
+  [prefix sym]
+  (string/starts-with? (name sym) prefix))
+
+(def ^:private gensym? (partial sym-name-starts-with? "G__"))
+
+(def ^:private planck-native? (partial sym-name-starts-with? "PLANCK_"))
 
 (defn- demunge-sym
   [munged-sym]
@@ -1063,7 +1067,7 @@
     (str (or (lookup-sym demunge-maps munged-sym)
              (demunge-protocol-fn demunge-maps munged-sym)
              (demunge-local demunge-maps munged-sym)
-             (if (gensym? munged-sym)
+             (if ((some-fn gensym? planck-native?) munged-sym)
                munged-sym
                (demunge munged-sym))))))
 
