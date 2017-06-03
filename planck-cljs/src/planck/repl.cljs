@@ -380,8 +380,9 @@
          (get-namespace ns-sym))))))
 
 (defn- is-completion?
-  [buffer-match-suffix candidate]
-  (re-find (js/RegExp. (str "^" buffer-match-suffix)) candidate))
+  [match-suffix candidate]
+  (let [escaped-suffix (string/replace match-suffix #"[-\/\\^$*+?.()|\[\]{}]" "\\$&")]
+    (re-find (js/RegExp. (str "^" escaped-suffix) "i") candidate)))
 
 (def ^:private keyword-completions
   [:require :require-macros :import
@@ -509,8 +510,8 @@
   (if-let [kw-name (local-keyword buffer)]
     (local-keyword-completions buffer kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-          typed-ns  (second (re-find #"\(*(\b[a-zA-Z-.]+)/[a-zA-Z-]*$" buffer))]
-      (let [buffer-match-suffix (re-find #":?[a-zA-Z-\.]*$" buffer)
+          typed-ns  (second (re-find #"\(*(\b[a-zA-Z-.<>*=&?]+)/[a-zA-Z-]*$" buffer))]
+      (let [buffer-match-suffix (first (re-find #":?([a-zA-Z-.<>*=&?]*|^\(/)$" buffer))
             buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
         (clj->js (map #(str buffer-prefix %)
                    (sort
