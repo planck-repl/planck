@@ -99,3 +99,6 @@
       (is-contains-completion "(string/" "(string/merge" not)))
   #_(testing "JS Completions"
       (is-contains-completion "js/con" "js/console")))
+
+(deftest doc-test
+  (is (empty? (with-out-str (planck.repl/doc every)))))

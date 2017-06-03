@@ -1176,16 +1176,12 @@
                          (resolve-var env (symbol macros-ns (name sym))))]
     (assoc macro-var :ns macros-ns)))
 
-(defn- all-macros-ns
-  []
-  (->> (all-ns)
-    (filter #(string/ends-with? (str %) "$macros"))))
-
 (defn- get-var
   [env sym]
   (binding [ana/*cljs-warning-handlers* nil]
     (let [var (or (with-compiler-env st (resolve-var env sym))
-                  (some #(get-macro-var env sym %) (all-macros-ns)))]
+                  (some #(get-macro-var env sym %)
+                    (vals (get-in @st [::ana/namespaces @current-ns :use-macros]))))]
       (when var
         (-> (cond-> var
               (not (:ns var))
