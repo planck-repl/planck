@@ -455,28 +455,35 @@ static int session_id_counter = 0;
 
 conn_data_cb_ret_t* socket_repl_data_arrived(char *data, int sock, void *state) {
 
-    repl_t *repl = state;
-
-    if (str_has_suffix(data, "\r\n") == 0) {
-        data[strlen(data) - 2] = '\0';
-    }
-
-    sock_to_write_to = sock;
-
-    pthread_mutex_lock(&repl_print_mutex);
-
-    set_print_sender(&socket_sender);
-
-    bool exit = process_line(repl, strdup(data), false);
-
-    set_print_sender(NULL);
-    sock_to_write_to = 0;
-
-    pthread_mutex_unlock(&repl_print_mutex);
-
     int err = 0;
-    if (!exit && repl->current_prompt != NULL) {
-        err = write_to_socket(sock, repl->current_prompt);
+    bool exit = false;
+
+    if (data) {
+        repl_t *repl = state;
+
+        if (str_has_suffix(data, "\r\n") == 0) {
+            data[strlen(data) - 2] = '\0';
+        }
+
+        sock_to_write_to = sock;
+
+        pthread_mutex_lock(&repl_print_mutex);
+
+        set_print_sender(&socket_sender);
+
+        exit = process_line(repl, strdup(data), false);
+
+        set_print_sender(NULL);
+        sock_to_write_to = 0;
+
+        pthread_mutex_unlock(&repl_print_mutex);
+
+
+        if (!exit && repl->current_prompt != NULL) {
+            err = write_to_socket(sock, repl->current_prompt);
+        }
+    } else {
+        exit = true;
     }
 
     conn_data_cb_ret_t* connection_data_arrived_return = malloc(sizeof(conn_data_cb_ret_t));

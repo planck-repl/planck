@@ -82,6 +82,11 @@ void *conn_handler(void *data) {
         }
     }
 
+    // Call with final NULL to indicate socket close
+    conn_data_cb_ret = conn_handler_info->socket_accept_info->conn_data_cb(
+            NULL, conn_handler_info->sock, state);
+    free(conn_data_cb_ret);
+
     free(data);
 
     return NULL;
@@ -165,6 +170,11 @@ void *read_inbound_socket_data(void *data) {
                 receive_buffer, read_inbound_socket_info->socket_desc, read_inbound_socket_info->data_arrived_info);
         free(conn_data_cb_ret);
     }
+
+    // Call with final NULL to indicate socket close
+    conn_data_cb_ret_t *conn_data_cb_ret = read_inbound_socket_info->conn_data_cb(
+            NULL, read_inbound_socket_info->socket_desc, read_inbound_socket_info->data_arrived_info);
+    free(conn_data_cb_ret);
 
     free(read_inbound_socket_info);
 

@@ -8,7 +8,7 @@
 (s/def ::port integer?)
 (s/def ::data string?)                                      ; Maybe also byte arrays in the future?
 (s/def ::socket integer?)
-(s/def ::data-handler (s/fspec :args (s/cat :socket ::socket :data ::data) :ret nil?))
+(s/def ::data-handler (s/fspec :args (s/cat :socket ::socket :data (s/nilable ::data)) :ret nil?))
 (s/def ::accept-handler (s/fspec :args (s/cat :socket ::socket) :ret ::data-handler))
 (s/def ::opts (s/nilable map?))
 
@@ -18,8 +18,9 @@
   can be closed using `close`.
 
   A data-handler argument must be supplied, which is a function that accepts a
-  socket reference and data. This data handler will be called when data arrives
-  on the socket."
+  socket reference and a nillable data value. This data handler will be called
+  when data arrives on the socket. When the socket is closed the data handler
+  will be called with a nil data value."
   ([host port data-handler]
    (connect host port data-handler nil))
   ([host port data-handler opts]
@@ -52,16 +53,23 @@
 
 (defn listen
   "Opens a server socket, listening for inbound connections. The port to
-  listen on must be specified, along with an accept-handler, which should be a
-  function that accepts a socket reference and returns a data handler. The data
-  handler is a function that accepts a socket reference and some data.
+  listen on must be specified, along with an accept-handler.
+
+  The accept-handler should be a function that accepts a socket reference and
+  returns a data handler.
+
+  The data handler is a function that accepts a socket reference and a
+  nillable data value. This data handler will be called when data arrives on
+  the socket. When the socket is closed the data handler will be called with a
+  nil data value.
 
   For example, an echo server could be written in this way:
 
     (listen 55555
       (fn [socket]
         (fn [socket data]
-          (write socket data))))"
+          (when data
+            (write socket data)))))"
   ([port accept-handler]
    (listen port accept-handler nil))
   ([port accept-handler opts]

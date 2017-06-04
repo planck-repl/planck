@@ -1116,8 +1116,13 @@ conn_data_cb_ret_t *socket_conn_data_arrived(char *data, int sock, void *info) {
 
     JSValueRef args[2];
     args[0] = JSValueMakeNumber(ctx, sock);
-    // TODO what if we need bytes instead of dealing with an encoding?
-    args[1] = JSValueMakeString(ctx, JSStringCreateWithUTF8CString(data));
+
+    if (data) {
+        // TODO what if we need bytes instead of dealing with an encoding?
+        args[1] = JSValueMakeString(ctx, JSStringCreateWithUTF8CString(data));
+    } else {
+        args[1] = JSValueMakeNull(ctx);
+    }
 
     acquire_eval_lock();
     JSObjectCallAsFunction(ctx, data_arrived_info->data_arrived_cb, NULL, 2, args, NULL);
