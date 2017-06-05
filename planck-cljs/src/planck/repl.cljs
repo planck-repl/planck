@@ -433,6 +433,7 @@
     planck.io
     planck.http
     planck.shell
+    planck.socket.alpha
     clojure.core
     clojure.test
     clojure.spec.alpha
