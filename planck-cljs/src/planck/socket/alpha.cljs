@@ -8,8 +8,8 @@
 (s/def ::port integer?)
 (s/def ::data string?)                                      ; Maybe also byte arrays in the future?
 (s/def ::socket integer?)
-(s/def ::data-handler (s/fspec :args (s/cat :socket ::socket :data (s/nilable ::data)) :ret nil?))
-(s/def ::accept-handler (s/fspec :args (s/cat :socket ::socket) :ret ::data-handler))
+(s/def ::data-handler ifn?)
+(s/def ::accept-handler ifn?)
 (s/def ::opts (s/nilable map?))
 
 (defn connect
