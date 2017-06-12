@@ -1,5 +1,6 @@
 (ns planck.repl
   "Planck REPL implementation."
+  (:refer-clojure :exclude [resolve])
   (:require-macros
    [cljs.env.macros :refer [with-compiler-env]]
    [planck.repl :refer [with-err-str]])

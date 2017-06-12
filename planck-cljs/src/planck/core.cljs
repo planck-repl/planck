@@ -1,5 +1,6 @@
 (ns planck.core
   "Core Planck functions for use in scripts."
+  (:refer-clojure :exclude [resolve])
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
