@@ -1,6 +1,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
+#include <strings.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
