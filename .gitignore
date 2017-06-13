@@ -16,3 +16,4 @@ planck-cljs/clojurescript
 /planck-c/cmake-build-debug
 /.planck_cache
 .vagrant
+build-envs/*/*-cloudimg-console.log
