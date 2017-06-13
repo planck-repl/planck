@@ -8,7 +8,7 @@ brew cask install virtualbox vagrant
 
 Here are example steps that can be followed to build Planck on for a given distro:
 
-1. `cd ubuntu-14`
+1. `cd ubuntu-14.04_64`
 2. `vagrant up`
 3. `vagrant ssh`
 4. `git clone https://github.com/mfikes/planck`
