@@ -15,7 +15,15 @@ planck -c src:/path/to/foo.jar:some-lib/src
 
 will cause Planck to search in the `src` directory first, then in `foo.jar` next, and finally `some-lib/src` for files when processing `require`, `require-macros`, `import`, and `ns` forms.
 
-> Paths to JARs cached locally via Leiningen, Boot, or Maven (usually under `/Users/<username>/.m2/repository`) can be used. See the section below on Leiningen and Boot for tips on dependency management.
+Paths to JARs cached locally via Leiningen, Boot, or Maven (usually under `/Users/<username>/.m2/repository`) can be included in Planck's classpath. Additionally, as a convenience, the `-D` or `-​-​dependencies` command line option can be used to append such JARs on the classpath: You can provide a comma separated list of `SYM:VERSION`, and these will be expanded to paths in the Maven repository.
+
+For example,
+
+```sh
+planck -c src -D org.clojure/test.check:0.10.0-alpha1,andare:0.7.0
+```
+
+will expand to a classpath of `src:/Users/myhome/.m2/repository/org/clojure/test.check/0.10.0-alpha1/test.check-0.10.0-alpha1.jar:/Users/myhome/.m2/repository/andare/andare/0.7.0/andare-0.7.0.jar`, assuming your home directory is `/Users/myhome`. In order to use an explicitly-specify path to a local Maven repository, you can additionally include `-L` or `-​-​local-repo`, specifying the repository path.
 
 Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries will work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
 
