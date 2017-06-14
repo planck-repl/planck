@@ -232,7 +232,7 @@ int main(int argc, char **argv) {
     struct option long_options[] = {
             {"help",          no_argument,       NULL, 'h'},
             {"version",       no_argument,       NULL, 'V'},
-            {"dump-sdk",      required_argument, NULL, 'D'},
+            {"dump-sdk",      required_argument, NULL, 'S'},
             {"legal",         no_argument,       NULL, 'l'},
             {"verbose",       no_argument,       NULL, 'v'},
             {"quiet",         no_argument,       NULL, 'q'},
@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "Xh?VD:lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "Xh?VS:lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'X':
                 init_launch_timing();
@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
             case 'V':
                 printf("%s\n", PLANCK_VERSION);
                 exit(0);
-            case 'D':
+            case 'S':
                 dump_sdk(optarg);
                 exit(0);
             case 'l':
