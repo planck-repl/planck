@@ -4,11 +4,10 @@ cd planck-cljs
 script/clean
 cd ..
 
-cd planck-c
-if [ -d build ]
-then
-   cd build
-   make clean
-   cd ..
-fi
+# CMake
+rm -rf planck-c/build
+
+# Site
+cd site
+script/clean
 cd ..
