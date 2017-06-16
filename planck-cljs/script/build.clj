@@ -29,7 +29,7 @@
      :optimize-constants false
      :dump-core          false
      :parallel-build     false
-     :compiler-stats     true}))
+     :compiler-stats     false}))
 
 (defn copy-source
   [filename]

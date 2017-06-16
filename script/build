@@ -47,10 +47,10 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   cd build
   if [ ! -e Makefile ]
   then
-     cmake ..
+     cmake .. > /dev/null
      checkCmdSuccess
   fi
-  make
+  make > /dev/null
   checkCmdSuccess
   cd ../..
   
@@ -100,7 +100,7 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
 fi
 
 cd planck-c/build
-make
+make > /dev/null
 checkCmdSuccess
 cd ../..
 
