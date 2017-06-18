@@ -10,7 +10,7 @@ set -e
 set -o pipefail
 
 # Initialize lein if it hasn't yet been
-script/lein -v > /dev/null
+script/lein -v > /dev/null 2>&1
 
 # Turn off tiered compilation (otherwise unavailability warning will break classpath)
 export LEIN_JVM_OPTS=
