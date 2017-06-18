@@ -20,8 +20,8 @@ export LEIN_SILENT=true
 
 if [ -n "$CLJS_COMMIT" ]; then
   if [ ! -e clojurescript ]; then
-     git clone https://github.com/clojure/clojurescript
-     pushd clojurescript
+     git clone https://github.com/clojure/clojurescript --quiet
+     cd clojurescript
      git reset --hard $CLJS_COMMIT
      # Apply patches
      curl -L http://dev.clojure.org/jira/secure/attachment/16577/CLJS-1997.patch | git apply
@@ -30,8 +30,8 @@ if [ -n "$CLJS_COMMIT" ]; then
          export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
          echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
      fi
-     script/uberjar
-     popd
+     script/uberjar > /dev/null 2>&1
+     cd ..
   fi
   CLJSC_CP=clojurescript/target/cljs.jar:`script/lein with-profile build-commit classpath`
 else
