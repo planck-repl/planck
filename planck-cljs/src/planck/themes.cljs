@@ -4,7 +4,7 @@
    [planck.from.io.aviso.ansi :as ansi]))
 
 (def ^:private colorize-fn-dumb identity)
-(def ^:private colorize-off-dumb "")
+(def ^:private ^:const colorize-off-dumb "")
 
 (def ^:private dumb
   {:results-font         colorize-off-dumb

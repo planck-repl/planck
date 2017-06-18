@@ -10,11 +10,11 @@
                               :xml             "application/xml"
                               :form-urlencoded "application/x-www-form-urlencoded"})
 
-(def ^:private default-timeout 5)
+(def ^:private ^:const default-timeout 5)
 
-(def ^:private boundary-constant "---------------planck-rocks-")
+(def ^:private ^:const boundary-constant "---------------planck-rocks-")
 
-(def ^:private content-disposition "\nContent-Disposition: form-data; name=\"")
+(def ^:private ^:const content-disposition "\nContent-Disposition: form-data; name=\"")
 
 (defn- encode-val [k v]
   (str (js/encodeURIComponent (name k)) "=" (js/encodeURIComponent (str v))))

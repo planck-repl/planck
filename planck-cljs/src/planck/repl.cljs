@@ -45,7 +45,7 @@
   Otherwise, results are pretty printed."}
 *pprint-results* true)
 
-(def ^:private expression-name "Expression")
+(def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
 
 (defn- calc-x-line [text pos line]
