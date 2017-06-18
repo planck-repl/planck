@@ -15,6 +15,9 @@ script/lein -v > /dev/null
 # Turn off tiered compilation (otherwise unavailability warning will break classpath)
 export LEIN_JVM_OPTS=
 
+# Suppress lein output regarding retrieving JARS
+export LEIN_SILENT=true
+
 if [ -n "$CLJS_COMMIT" ]; then
   if [ ! -e clojurescript ]; then
      git clone https://github.com/clojure/clojurescript
