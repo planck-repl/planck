@@ -677,6 +677,18 @@ JSValueRef function_file_writer_write(JSContextRef ctx, JSObjectRef function, JS
     return JSValueMakeNull(ctx);
 }
 
+JSValueRef function_file_writer_flush(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                      size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+        char *descriptor = value_to_c_string(ctx, args[0]);
+        ufile_flush(descriptor_str_to_int(descriptor));
+        free(descriptor);
+    }
+    return JSValueMakeNull(ctx);
+}
+
 JSValueRef function_file_writer_close(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                       size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1
@@ -802,6 +814,18 @@ JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef funct
         free(descriptor);
     }
 
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_file_output_stream_flush(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                             size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeString) {
+
+        char *descriptor = value_to_c_string(ctx, args[0]);
+        file_flush(descriptor_str_to_int(descriptor));
+        free(descriptor);
+    }
     return JSValueMakeNull(ctx);
 }
 

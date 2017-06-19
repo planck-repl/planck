@@ -41,6 +41,11 @@ void ufile_write(descriptor_t descriptor, JSStringRef text) {
     u_file_write(JSStringGetCharactersPtr(text), (uint32_t) JSStringGetLength(text), ufile);
 }
 
+void ufile_flush(descriptor_t descriptor) {
+    UFILE *ufile = descriptor_to_ufile(descriptor);
+    u_fflush(ufile);
+}
+
 void ufile_close(descriptor_t descriptor) {
     UFILE *ufile = descriptor_to_ufile(descriptor);
     u_fclose(ufile);
@@ -74,6 +79,11 @@ size_t file_read(descriptor_t descriptor, size_t buf_size, uint8_t *buf) {
 void file_write(descriptor_t descriptor, size_t buf_size, uint8_t *buf) {
     FILE *file = descriptor_to_file(descriptor);
     fwrite(buf, sizeof(uint8_t), buf_size, file);
+}
+
+void file_flush(descriptor_t descriptor) {
+    FILE *file = descriptor_to_file(descriptor);
+    fflush(file);
 }
 
 void file_close(descriptor_t descriptor) {

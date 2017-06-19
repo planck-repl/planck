@@ -199,7 +199,12 @@
               (throw (js/Error. err)))
             (throw (js/Error. "File closed.")))
           nil)
-        (fn [])
+        (fn []
+          (if (contains? @open-file-writer-descriptors file-descriptor)
+            (if-let [err (js/PLANCK_FILE_WRITER_FLUSH file-descriptor)]
+              (throw (js/Error. err)))
+            (throw (js/Error. "File closed.")))
+          nil)
         (fn []
           (when (contains? @open-file-writer-descriptors file-descriptor)
             (swap! open-file-writer-descriptors disj file-descriptor)
@@ -226,7 +231,10 @@
           (if (contains? @open-file-output-stream-descriptors file-descriptor)
             (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (clj->js byte-array))
             (throw (js/Error. "File closed."))))
-        (fn [])
+        (fn []
+          (if (contains? @open-file-output-stream-descriptors file-descriptor)
+            (js/PLANCK_FILE_OUTPUT_STREAM_FLUSH file-descriptor)
+            (throw (js/Error. "File closed."))))
         (fn []
           (when (contains? @open-file-output-stream-descriptors file-descriptor)
             (swap! open-file-output-stream-descriptors disj file-descriptor)
