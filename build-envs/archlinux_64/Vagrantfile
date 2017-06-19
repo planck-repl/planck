@@ -3,7 +3,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = "terrywang/archlinux"
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
-    sudo pacman -Syu webkitgtk libzip zlib jdk8-openjdk base-devel git bash --needed --noconfirm
+    sudo pacman -Syu webkitgtk libzip zlib jdk8-openjdk base-devel git bash cmake --needed --noconfirm
     git clone https://aur.archlinux.org/leiningen.git
     cd leiningen
     makepkg -i --noconfirm
