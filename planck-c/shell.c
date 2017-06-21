@@ -12,6 +12,7 @@
 #include "engine.h"
 #include "jsc_utils.h"
 #include "tasks.h"
+#include "io.h"
 
 static char **cmd(JSContextRef ctx, const JSObjectRef array) {
     int argc = array_get_count(ctx, array);
@@ -98,6 +99,7 @@ struct ThreadParams {
     int errpipe;
     int outpipe;
     int inpipe;
+    char* in_str;
     pid_t pid;
     int cb_idx;
 };
@@ -130,7 +132,7 @@ int read_child_pipe(int pipe, char **buf_p, size_t *total_p) {
     }
 }
 
-void read_child_pipes(struct ThreadParams *params) {
+void process_child_pipes(struct ThreadParams *params) {
 
     char *out_buf = NULL;
     char *err_buf = NULL;
@@ -139,6 +141,11 @@ void read_child_pipes(struct ThreadParams *params) {
 
     bool out_eof = false;
     bool err_eof = false;
+
+    if (params->in_str) {
+        write(params->inpipe, params->in_str, strlen(params->in_str));
+        close(params->inpipe);
+    }
 
     while (!out_eof || !err_eof) {
 
@@ -215,7 +222,7 @@ static struct SystemResult *wait_for_child(struct ThreadParams *params) {
 
     params->res.status = 0;
 
-    read_child_pipes(params);
+    process_child_pipes(params);
 
     close(params->errpipe);
     close(params->outpipe);
@@ -271,7 +278,7 @@ static void *thread_proc(void *params) {
     return (void *) wait_for_child((struct ThreadParams *) params);
 }
 
-static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *dir, int cb_idx) {
+static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char **env, char *dir, int cb_idx) {
     struct SystemResult result = {0, NULL, NULL};
     struct SystemResult *res = &result;
 
@@ -338,6 +345,8 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char **env, char *di
             params->errpipe = err[0];
             params->outpipe = in[0];
             params->inpipe = out[1];
+            params->in_str = in_str;
+
             params->pid = pid;
             params->cb_idx = cb_idx;
             if (cb_idx == -1) {
@@ -382,6 +391,10 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
     if (argc == 7) {
         char **command = cmd(ctx, (JSObjectRef) args[0]);
         if (command) {
+            char *in_str = NULL;
+            if (!JSValueIsNull(ctx, args[1])) {
+                in_str = value_to_c_string(ctx, args[1]);
+            }
             char **environment = NULL;
             if (!JSValueIsNull(ctx, args[4])) {
                 environment = env(ctx, (JSObjectRef) args[4]);
@@ -394,7 +407,7 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
             if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[6])) {
                 callback_idx = (int) JSValueToNumber(ctx, args[6], NULL);
             }
-            return system_call(ctx, command, environment, dir, callback_idx);
+            return system_call(ctx, command, in_str, environment, dir, callback_idx);
         }
     }
     return JSValueMakeNull(ctx);
