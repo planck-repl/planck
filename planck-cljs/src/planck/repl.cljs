@@ -99,7 +99,7 @@
 (defn- all-ns
   "Returns a sequence of all namespaces."
   []
-  (keys (::ana/namespaces @st)))
+  (filter symbol? (keys (::ana/namespaces @st))))
 
 (defn- drop-macros-suffix
   [ns-name]
