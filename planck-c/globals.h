@@ -25,6 +25,7 @@ struct config {
     bool repl;
     bool javascript;
     bool static_fns;
+    bool fn_invoke_direct;
     bool elide_asserts;
     const char *theme;
     bool dumb_terminal;

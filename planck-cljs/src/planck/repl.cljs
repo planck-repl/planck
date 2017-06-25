@@ -227,7 +227,7 @@
   (swap! default-session-state assoc :*print-namespace-maps* *print-namespace-maps*))
 
 (defn- ^:export init
-  [repl verbose cache-path static-fns elide-asserts]
+  [repl verbose cache-path static-fns fn-invoke-direct elide-asserts]
   (load-core-analysis-caches repl)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
@@ -236,7 +236,9 @@
                                         :cache-path cache-path
                                         :opts       opts}
                                   (when static-fns
-                                    {:static-fns true})))
+                                    {:static-fns true})
+                                  (when fn-invoke-direct
+                                    {:fn-invoke-direct true})))
     (js-deps/index-foreign-libs opts)
     (js-deps/index-upstream-foreign-libs))
   (setup-asserts elide-asserts)
@@ -321,11 +323,11 @@
 
 (defn- make-base-eval-opts
   []
-  {:ns         @current-ns
-   :context    :expr
-   :verbose    (:verbose @app-env)
-   :static-fns (:static-fns @app-env)
-   :source-map true})
+  (merge
+    {:ns         @current-ns
+     :context    :expr
+     :source-map true}
+    (select-keys @app-env [:verbose :static-fns :fn-invoke-direct])))
 
 (defn- process-in-ns
   [argument]
@@ -624,7 +626,7 @@
   (let [m (merge
             (when-not *assert*
               {:elide-asserts true})
-            (select-keys @app-env [:static-fns]))]
+            (select-keys @app-env [:static-fns :fn-invoke-direct]))]
     (if (empty? m)
       nil
       m)))
@@ -1642,9 +1644,8 @@
             expression-name
             (or source-path "File"))
           (merge
-            {:ns         initial-ns
-             :verbose    (:verbose @app-env)
-             :static-fns (:static-fns @app-env)}
+            {:ns initial-ns}
+            (select-keys @app-env [:verbose :static-fns :fn-invoke-direct])
             (if expression?
               (merge {:context       :expr
                       :def-emits-var true}

@@ -291,38 +291,39 @@ int main(int argc, char **argv) {
     char *local_repo = NULL;
 
     struct option long_options[] = {
-            {"help",          no_argument,       NULL, 'h'},
-            {"version",       no_argument,       NULL, 'V'},
-            {"dump-sdk",      required_argument, NULL, 'S'},
-            {"legal",         no_argument,       NULL, 'l'},
-            {"verbose",       no_argument,       NULL, 'v'},
-            {"quiet",         no_argument,       NULL, 'q'},
-            {"repl",          no_argument,       NULL, 'r'},
-            {"static-fns",    no_argument,       NULL, 's'},
-            {"elide-asserts", no_argument,       NULL, 'a'},
-            {"cache",         required_argument, NULL, 'k'},
-            {"eval",          required_argument, NULL, 'e'},
-            {"theme",         required_argument, NULL, 't'},
-            {"socket-repl",   required_argument, NULL, 'n'},
-            {"dumb-terminal", no_argument,       NULL, 'd'},
-            {"classpath",     required_argument, NULL, 'c'},
-            {"dependencies",  required_argument, NULL, 'D'},
-            {"local-repo",    required_argument, NULL, 'L'},
-            {"auto-cache",    no_argument,       NULL, 'K'},
-            {"init",          required_argument, NULL, 'i'},
-            {"main",          required_argument, NULL, 'm'},
+            {"help",             no_argument,       NULL, 'h'},
+            {"version",          no_argument,       NULL, 'V'},
+            {"dump-sdk",         required_argument, NULL, 'S'},
+            {"legal",            no_argument,       NULL, 'l'},
+            {"verbose",          no_argument,       NULL, 'v'},
+            {"quiet",            no_argument,       NULL, 'q'},
+            {"repl",             no_argument,       NULL, 'r'},
+            {"static-fns",       no_argument,       NULL, 's'},
+            {"fn-invoke-direct", no_argument,       NULL, 'Z'},
+            {"elide-asserts",    no_argument,       NULL, 'a'},
+            {"cache",            required_argument, NULL, 'k'},
+            {"eval",             required_argument, NULL, 'e'},
+            {"theme",            required_argument, NULL, 't'},
+            {"socket-repl",      required_argument, NULL, 'n'},
+            {"dumb-terminal",    no_argument,       NULL, 'd'},
+            {"classpath",        required_argument, NULL, 'c'},
+            {"dependencies",     required_argument, NULL, 'D'},
+            {"local-repo",       required_argument, NULL, 'L'},
+            {"auto-cache",       no_argument,       NULL, 'K'},
+            {"init",             required_argument, NULL, 'i'},
+            {"main",             required_argument, NULL, 'm'},
 
             // development options
-            {"javascript",    no_argument,       NULL, 'j'},
-            {"out",           required_argument, NULL, 'o'},
-            {"launch-time",   no_argument,       NULL, 'X'},
+            {"javascript",       no_argument,       NULL, 'j'},
+            {"out",              required_argument, NULL, 'o'},
+            {"launch-time",      no_argument,       NULL, 'X'},
 
-            {0, 0, 0,                                  0}
+            {0, 0, 0,                                     0}
     };
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "Xh?VS:D:L:lvrsak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "Xh?VS:D:L:lvrsZak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'X':
                 init_launch_timing();
@@ -352,6 +353,9 @@ int main(int argc, char **argv) {
                 break;
             case 's':
                 config.static_fns = true;
+                break;
+            case 'Z':
+                config.fn_invoke_direct = true;
                 break;
             case 'a':
                 config.elide_asserts = true;
