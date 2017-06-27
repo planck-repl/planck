@@ -98,3 +98,18 @@
                           (Uri. "jar:file:bogus-path/test-jar.jar!/test_jar/core.cljs"))))
   (is (thrown? js/Error (planck.core/slurp
                           (Uri. "jar:non-file:int-test/test-jar.jar!/test_jar/core.cljs")))))
+
+(deftest buffered-reader-test
+  (let [read-count      (volatile! 0)
+        raw-read        #(let [rv (case @read-count
+                                    0 "ab"
+                                    1 "c\nd"
+                                    2 "ef"
+                                    3 "\n"
+                                    4 nil)]
+                           (vswap! read-count inc)
+                           rv)
+        buffered-reader (planck.core/->BufferedReader raw-read #() (atom nil) (atom 0))]
+    (is (= "abc" (planck.core/-read-line buffered-reader)))
+    (is (= "def" (planck.core/-read-line buffered-reader)))
+    (is (nil? (planck.core/-read-line buffered-reader)))))

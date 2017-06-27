@@ -74,7 +74,7 @@
           (do
             (reset! buffer (str (subs buffered @pos) new-chars))
             (reset! pos 0)
-            (recur this))
+            (recur))
           (do
             (reset! buffer nil)
             (let [rv (subs buffered @pos)]
@@ -85,7 +85,7 @@
         (do
           (reset! buffer new-chars)
           (reset! pos 0)
-          (recur this))
+          (recur))
         nil)))
   IClosable
   (-close [_]
