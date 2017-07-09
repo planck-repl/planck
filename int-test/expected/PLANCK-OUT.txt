@@ -490,10 +490,10 @@ nil
 #'cljs.user/addition-list2
 3
 4
-Ensure we can get into Planck REPL ns and all ns are loaded
+Ensure we can get into Planck REPL ns and ns are loaded
 nil
 nil
-47
+false
 Test timers keeps script going
 start
 end

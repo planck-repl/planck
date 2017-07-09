@@ -628,11 +628,11 @@ lucky-number
 (eval (list #'inc 3))
 REPL_INPUT
 
-echo "Ensure we can get into Planck REPL ns and all ns are loaded"
+echo "Ensure we can get into Planck REPL ns and ns are loaded"
 $PLANCK << REPL_INPUT
 (require 'planck.repl)
 (in-ns 'planck.repl)
-(count (keys (:cljs.analyzer/namespaces @st)))
+(empty? (keys (:cljs.analyzer/namespaces @st)))
 REPL_INPUT
 
 echo "Test timers keeps script going"
