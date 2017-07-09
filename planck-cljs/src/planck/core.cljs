@@ -1,6 +1,6 @@
 (ns planck.core
   "Core Planck functions for use in scripts."
-  (:refer-clojure :exclude [resolve])
+  (:refer-clojure :exclude [*command-line-args* resolve])
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
@@ -163,9 +163,9 @@
 
 (defonce
   ^{:doc "A sequence of the supplied command line arguments, or nil if
-  none were supplied"
-    :dynamic true}
+  none were supplied"}
   *command-line-args*
+  ;; TODO initialize with cljs.core/*command-line-args* we depend on next ClojureScript version
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
 
 (defn read-line
