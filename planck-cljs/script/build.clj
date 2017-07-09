@@ -11,7 +11,7 @@
     (transit/write writer cache)
     (spit (io/file out-path) (.toString out))))
 
-(def non-fatal-warnings #{:protocol-impl-recur-with-target})
+(def non-fatal-warnings #{:undeclared-var :protocol-impl-recur-with-target})
 
 (cljs.analyzer/with-warning-handlers
   [(fn [warning-type env extra]
