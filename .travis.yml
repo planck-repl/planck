@@ -4,6 +4,8 @@ os:
   - linux
   - osx
 
+dist: trusty
+
 compiler:
   - gcc
   - clang
@@ -16,7 +18,5 @@ before_install:
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use openjdk8; fi
-
-dist: trusty
 
 script: script/build && script/test
