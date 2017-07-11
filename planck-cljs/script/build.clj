@@ -11,25 +11,15 @@
     (transit/write writer cache)
     (spit (io/file out-path) (.toString out))))
 
-(def non-fatal-warnings #{:undeclared-var :protocol-impl-recur-with-target})
-
-(cljs.analyzer/with-warning-handlers
-  [(fn [warning-type env extra]
-     (when (warning-type cljs.analyzer/*cljs-warnings*)
-       (when-let [s (cljs.analyzer/error-message warning-type extra)]
-         (binding [*out* *err*]
-           (println "WARNING:" (cljs.analyzer/message env s)))
-         (when-not (warning-type non-fatal-warnings) 
-           (System/exit 1)))))]
-  (api/build (api/inputs "src")
-    {:output-dir         "out"
-     :output-to          "out/main.js"
-     :optimizations      :none
-     :static-fns         true
-     :optimize-constants false
-     :dump-core          false
-     :parallel-build     false
-     :compiler-stats     false}))
+(api/build (api/inputs "src")
+  {:output-dir         "out"
+   :output-to          "out/main.js"
+   :optimizations      :none
+   :static-fns         true
+   :optimize-constants false
+   :dump-core          false
+   :parallel-build     false
+   :compiler-stats     false})
 
 (defn copy-source
   [filename]
