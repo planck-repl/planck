@@ -124,3 +124,10 @@
 (deftest gensym?-test
   (is (planck.repl/gensym? (gensym)))
   (is (not (planck.repl/gensym? 'foobar))))
+
+(deftest test-is-readable?
+  (is (= (planck.repl/is-readable? "(") nil))
+  (is (= (planck.repl/is-readable? "(+ 1 2)") ""))
+  (is (= (planck.repl/is-readable? "(+ 1 2) :foo") " :foo"))
+  (is (= (planck.repl/is-readable? "") nil))
+  (is (= (planck.repl/is-readable? ")") "")))

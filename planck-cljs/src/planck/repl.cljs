@@ -282,9 +282,9 @@
         (throw e)))))
 
 (defn- ^:export is-readable?
-  "Returns a string representing any text after the first readible form, nor
-  nil if nothing readible."
-  [source theme-id]
+  "Returns a string representing any text after the first readable form, nor
+  nil if nothing readable."
+  [source]
   (try
     (second (repl-read-string source))
     (catch :default e
