@@ -267,21 +267,19 @@
 
 (def ^:private eof (js-obj))
 
+(defn- eof-while-reading?
+  [e]
+  (string/starts-with? (ex-message e) "Unexpected EOF"))
+
 (defn- eof-guarded-read
-  "Returns first readable form or no-form if EOF"
+  "Returns first readable form or `eof` if EOF"
   [source-text]
   (try
     (first (repl-read-string source-text))
     (catch :default e
-      (if (= "EOF" (.-message e))
+      (if (eof-while-reading? e)
         eof
         (throw e)))))
-
-(defn- eof-while-reading?
-  [message]
-  (or
-   (= "EOF while reading" message)
-   (= "EOF while reading string" message)))
 
 (defn- ^:export is-readable?
   "Returns a string representing any text after the first readible form, nor
@@ -290,10 +288,9 @@
   (try
     (second (repl-read-string source))
     (catch :default e
-      (let [message (.-message e)]
-        (cond
-          (eof-while-reading? message) nil
-          :else "")))))
+      (cond
+        (eof-while-reading? e) nil
+        :else ""))))
 
 (defn- ns-form?
   [form]

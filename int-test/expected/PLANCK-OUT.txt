@@ -15,8 +15,8 @@ true
 ok
 x
 Test cope with syntax errors
-Invalid number format [34f]
-Invalid token: a:
+Invalid number: 34f.
+Invalid symbol: a:.
 Multi-line data
 [1 2]
 Multi-line string
@@ -45,9 +45,9 @@ nil
 Test run file with exit
 111
 Test run malformed expression
-Unmatched delimiter ]
+Unmatched delimiter ].
 Test run malformed script
-Unmatched delimiter ]
+Unmatched delimiter ].
 Test run expression with analysis error
 First argument to defn must be a symbol at line 1 
 Test run script with analysis error
@@ -469,7 +469,7 @@ Invalid :refer, var clojure.set/diff does not exist
 nil
 Test reader and analysis diagnostics
 Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [foo.bar :quu] at line 1 
-Unmatched delimiter )
+Unmatched delimiter ).
 Test eval
 nil
 1
