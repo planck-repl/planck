@@ -238,6 +238,7 @@
                                         :verbose    verbose
                                         :cache-path cache-path
                                         :opts       opts}
+                                  {:checked-arrays nil}
                                   (when static-fns
                                     {:static-fns true})
                                   (when fn-invoke-direct
@@ -327,7 +328,7 @@
     {:ns         @current-ns
      :context    :expr
      :source-map true}
-    (select-keys @app-env [:verbose :static-fns :fn-invoke-direct])))
+    (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])))
 
 (defn- process-in-ns
   [argument]
@@ -626,7 +627,7 @@
   (let [m (merge
             (when-not *assert*
               {:elide-asserts true})
-            (select-keys @app-env [:static-fns :fn-invoke-direct]))]
+            (select-keys @app-env [:checked-arrays :static-fns :fn-invoke-direct]))]
     (if (empty? m)
       nil
       m)))
@@ -1645,7 +1646,7 @@
             (or source-path "File"))
           (merge
             {:ns initial-ns}
-            (select-keys @app-env [:verbose :static-fns :fn-invoke-direct])
+            (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])
             (if expression?
               (merge {:context       :expr
                       :def-emits-var true}
