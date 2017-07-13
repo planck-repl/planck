@@ -57,6 +57,9 @@ void usage(char *program_name) {
     printf("    -t theme, --theme=theme     Set the color theme\n");
     printf("    -n x, --socket-repl=x       Enable socket REPL where x is port or IP:port\n");
     printf("    -s, --static-fns            Generate static dispatch function calls\n");
+    printf("    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n");
+    printf("                                for unknown functions, but instead direct\n");
+    printf("                                invokes via f(a0,a1...).\n");
     printf("    -a, --elide-asserts         Set *assert* to false to remove asserts\n");
     printf("\n");
     printf("  main options:\n");
@@ -299,7 +302,7 @@ int main(int argc, char **argv) {
             {"quiet",            no_argument,       NULL, 'q'},
             {"repl",             no_argument,       NULL, 'r'},
             {"static-fns",       no_argument,       NULL, 's'},
-            {"fn-invoke-direct", no_argument,       NULL, 'Z'},
+            {"fn-invoke-direct", no_argument,       NULL, 'f'},
             {"elide-asserts",    no_argument,       NULL, 'a'},
             {"cache",            required_argument, NULL, 'k'},
             {"eval",             required_argument, NULL, 'e'},
@@ -323,7 +326,7 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "Xh?VS:D:L:lvrsZak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "Xh?VS:D:L:lvrsfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'X':
                 init_launch_timing();
@@ -354,7 +357,7 @@ int main(int argc, char **argv) {
             case 's':
                 config.static_fns = true;
                 break;
-            case 'Z':
+            case 'f':
                 config.fn_invoke_direct = true;
                 break;
             case 'a':
