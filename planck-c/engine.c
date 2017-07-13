@@ -531,7 +531,7 @@ void *do_engine_init(void *data) {
         arguments[5] = JSValueMakeBoolean(ctx, config.fn_invoke_direct);
         arguments[6] = JSValueMakeBoolean(ctx, config.elide_asserts);
         JSValueRef ex = NULL;
-        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 6,
+        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 7,
                                arguments, &ex);
         debug_print_value("planck.repl/init", ctx, ex);
     }
