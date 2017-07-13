@@ -227,7 +227,7 @@
   (swap! default-session-state assoc :*print-namespace-maps* *print-namespace-maps*))
 
 (defn- ^:export init
-  [repl verbose cache-path static-fns fn-invoke-direct elide-asserts]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts]
   ;; TODO remove exists? check when we depend on next ClojureScript version
   (when (exists? cljs.core/*command-line-args*)
     (set! cljs.core/*command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
@@ -238,7 +238,8 @@
                                         :verbose    verbose
                                         :cache-path cache-path
                                         :opts       opts}
-                                  {:checked-arrays nil}
+                                  (when checked-arrays
+                                    {:checked-arrays (keyword checked-arrays)})
                                   (when static-fns
                                     {:static-fns true})
                                   (when fn-invoke-direct

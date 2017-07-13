@@ -24,6 +24,7 @@ struct config {
     bool is_tty;
     bool repl;
     bool javascript;
+    char* checked_arrays;
     bool static_fns;
     bool fn_invoke_direct;
     bool elide_asserts;

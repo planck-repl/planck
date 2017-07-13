@@ -272,6 +272,7 @@ int main(int argc, char **argv) {
     config.quiet = false;
     config.repl = false;
     config.javascript = false;
+    config.checked_arrays = NULL;
     config.static_fns = false;
     config.elide_asserts = false;
     config.cache_path = NULL;
@@ -301,6 +302,7 @@ int main(int argc, char **argv) {
             {"verbose",          no_argument,       NULL, 'v'},
             {"quiet",            no_argument,       NULL, 'q'},
             {"repl",             no_argument,       NULL, 'r'},
+            {"checked-arrays",   required_argument, NULL, 'Z'},
             {"static-fns",       no_argument,       NULL, 's'},
             {"fn-invoke-direct", no_argument,       NULL, 'f'},
             {"elide-asserts",    no_argument,       NULL, 'a'},
@@ -353,6 +355,16 @@ int main(int argc, char **argv) {
             case 'r':
                 did_encounter_main_opt = true;
                 config.repl = true;
+                break;
+            case 'Z':
+                if (!strcmp(optarg, "warn")) {
+                    config.checked_arrays = "warn";
+                } else if (!strcmp(optarg, "error")) {
+                    config.checked_arrays = "error";
+                } else {
+                    print_usage_error("checked-arrays value must be warn or error", argv[0]);
+                    return EXIT_FAILURE;
+                }
                 break;
             case 's':
                 config.static_fns = true;
