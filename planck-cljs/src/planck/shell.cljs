@@ -5,6 +5,7 @@
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string]
+   [goog.object :as gobj]
    [planck.io :refer [as-file]]
    [planck.repl :as repl]))
 
@@ -20,12 +21,12 @@
 (defn- do-callback [idx]
   (this-as this ((@callbacks idx) this))
   (swap! callbacks dissoc idx))
-(aset js/global "do_async_sh_callback" do-callback)
+(gobj/set js/global "do_async_sh_callback" do-callback)
 
 (defn- translate-result [js-res]
   (let [[exit out err] (js->clj js-res)]
     {:exit exit :out out :err err}))
-(aset js/global "translate_async_result" translate-result)
+(gobj/set js/global "translate_async_result" translate-result)
 
 (def ^:private launch-fail "launch path not accessible")
 
