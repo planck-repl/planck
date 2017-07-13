@@ -14,9 +14,6 @@ Exit on first error
 true
 ok
 x
-Test cope with syntax errors
-Invalid number: 34f.
-Invalid symbol: a:.
 Multi-line data
 [1 2]
 Multi-line string
@@ -459,8 +456,8 @@ nil
 Test reader
 #js [1 2]
 #inst "2015-08-18T01:53:14.614-00:00"
-Set literal contains duplicate key: 1
-Map literal contains duplicate key: 1
+Set literal contains duplicate key: 1.
+Map literal contains duplicate key: 1.
 Test verbose
 5
 Test restore state when require fails

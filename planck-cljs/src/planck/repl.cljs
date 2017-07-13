@@ -254,23 +254,35 @@
     (when-let [ch (rt/read-char reader)]
       (cons ch (read-chars reader)))))
 
+;; Small hack to allow tests to be independent of tools.reader 1.0.0 vs. 1.0.2
+;; Useful until https://github.com/mfikes/planck/issues/521 is resolved
+(defn- ensure-period
+  [e]
+  (if (and (= :reader-exception (:type (ex-data e)))
+           (not (string/ends-with? (ex-message e) ".")))
+    (ex-info (str (ex-message e) ".") (ex-data e) e)
+    e))
+
 (defn- repl-read-string
   "Returns a vector of the first read form, and any balance text."
   [source]
-  (binding [ana/*cljs-ns*    @current-ns
-            *ns*             (create-ns @current-ns)
-            env/*compiler*   st
-            r/*data-readers* tags/*cljs-data-readers*
-            r/resolve-symbol ana/resolve-symbol
-            r/*alias-map*    (current-alias-map)]
-    (let [reader (rt/string-push-back-reader source)]
-      [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))])))
+  (try
+    (binding [ana/*cljs-ns*    @current-ns
+              *ns*             (create-ns @current-ns)
+              env/*compiler*   st
+              r/*data-readers* tags/*cljs-data-readers*
+              r/resolve-symbol ana/resolve-symbol
+              r/*alias-map*    (current-alias-map)]
+      (let [reader (rt/string-push-back-reader source)]
+        [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))]))
+    (catch :default e
+      (throw (ensure-period e)))))
 
 (def ^:private eof (js-obj))
 
 (defn- eof-while-reading?
   [e]
-  (string/starts-with? (ex-message e) "Unexpected EOF"))
+  (string/includes? (ex-message e) "EOF"))
 
 (defn- eof-guarded-read
   "Returns first readable form or `eof` if EOF"

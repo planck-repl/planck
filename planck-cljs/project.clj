@@ -11,7 +11,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript ~(or (System/getenv "CLOJURESCRIPT_VERSION") "1.9.660")]
                  [org.clojure/test.check "0.10.0-alpha2"]
-                 [org.clojure/tools.reader "1.0.2"]
+                 [org.clojure/tools.reader "1.0.0"]
                  [com.cognitect/transit-clj "0.8.300"]
                  [com.cognitect/transit-cljs "0.8.239"]
                  [fipp "0.6.8"]

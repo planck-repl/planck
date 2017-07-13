@@ -131,3 +131,8 @@
   (is (= (planck.repl/is-readable? "(+ 1 2) :foo") " :foo"))
   (is (= (planck.repl/is-readable? "") nil))
   (is (= (planck.repl/is-readable? ")") "")))
+
+(deftest repl-read-string-test
+  (is (thrown? js/Error (planck.repl/repl-read-string "34f")))
+  (is (thrown? js/Error (planck.repl/repl-read-string "a:")))
+  (is (thrown? js/Error (planck.repl/repl-read-string "]"))))
