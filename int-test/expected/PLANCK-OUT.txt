@@ -517,3 +517,8 @@ Test chained timer and sh-async keeps script going
 1
 Disable asserts
 nil
+Testing console logging
+log
+trace
+debug
+info

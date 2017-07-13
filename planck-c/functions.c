@@ -30,8 +30,8 @@
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
 
-JSValueRef function_console_log(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
-                                size_t argc, const JSValueRef args[], JSValueRef *exception) {
+JSValueRef function_console_stdout(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
+                                   size_t argc, JSValueRef const *args, JSValueRef *exception) {
     int i;
     for (i = 0; i < argc; i++) {
         if (i > 0) {
@@ -47,8 +47,8 @@ JSValueRef function_console_log(JSContextRef ctx, JSObjectRef function, JSObject
     return JSValueMakeUndefined(ctx);
 }
 
-JSValueRef function_console_error(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
-                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {
+JSValueRef function_console_stderr(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                   size_t argc, JSValueRef const *args, JSValueRef *exception) {
     int i;
     for (i = 0; i < argc; i++) {
         if (i > 0) {

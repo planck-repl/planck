@@ -394,12 +394,16 @@ void *do_engine_init(void *data) {
 
     display_launch_timing("bootstrap");
 
-    register_global_function(ctx, "PLANCK_CONSOLE_LOG", function_console_log);
-    register_global_function(ctx, "PLANCK_CONSOLE_ERROR", function_console_error);
+    register_global_function(ctx, "PLANCK_CONSOLE_STDOUT", function_console_stdout);
+    register_global_function(ctx, "PLANCK_CONSOLE_STDERR", function_console_stderr);
 
     evaluate_script(ctx, "var console = {};"\
-            "console.log = PLANCK_CONSOLE_LOG;"\
-            "console.error = PLANCK_CONSOLE_ERROR;", "<init>");
+            "console.log = PLANCK_CONSOLE_STDOUT;"\
+            "console.trace = PLANCK_CONSOLE_STDOUT;"\
+            "console.debug = PLANCK_CONSOLE_STDOUT;"\
+            "console.info = PLANCK_CONSOLE_STDOUT;"\
+            "console.warn = PLANCK_CONSOLE_STDERR;"\
+            "console.error = PLANCK_CONSOLE_STDERR;", "<init>");
 
     display_launch_timing("console");
 

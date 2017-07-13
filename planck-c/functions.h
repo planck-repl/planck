@@ -1,8 +1,8 @@
-JSValueRef function_console_log(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object, size_t argc,
-                                const JSValueRef args[], JSValueRef *exception);
+JSValueRef function_console_stdout(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object, size_t argc,
+                                   JSValueRef const *args, JSValueRef *exception);
 
-JSValueRef function_console_error(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
-                                  const JSValueRef args[], JSValueRef *exception);
+JSValueRef function_console_stderr(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
+                                   JSValueRef const *args, JSValueRef *exception);
 
 JSValueRef
 function_read_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc, const JSValueRef args[],
