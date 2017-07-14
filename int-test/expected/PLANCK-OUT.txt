@@ -70,8 +70,6 @@ nil
 true
 Test require REPL special exit in file
 195
-Test require unknown ns
-No such namespace: unknown_ns.core, could not locate unknown_ns/core.cljs, unknown_ns/core.cljc, or Closure namespace "unknown_ns.core"
 Test require :reload with const
 nil
 nil

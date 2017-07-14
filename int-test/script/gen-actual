@@ -147,11 +147,6 @@ $PLANCK -c $SRC <<REPL_INPUT
 REPL_INPUT
 echo $?
 
-echo "Test require unknown ns"
-$PLANCK -c $SRC <<REPL_INPUT
-(require 'unknown_ns.core)
-REPL_INPUT
-
 echo "Test require :reload with const"
 mkdir -p /tmp/PLANCK_SRC/foo
 $PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
