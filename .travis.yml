@@ -15,6 +15,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install leiningen libzip icu4c; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev; fi
+  - curl -sSL https://raw.githubusercontent.com/cljs-oss/canary/master/scripts/install-canary.sh | bash
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then jdk_switcher use openjdk8; fi
