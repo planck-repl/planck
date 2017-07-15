@@ -14,7 +14,7 @@ JSValueRef evaluate_script(JSContextRef ctx, char *script, char *source);
 
 char *value_to_c_string(JSContextRef ctx, JSValueRef val);
 
-char* value_to_c_string_ext(JSContextRef ctx, JSValueRef val, bool stringify);
+char* value_to_c_string_ext(JSContextRef ctx, JSValueRef val, bool handle_non_string_values);
 
 JSValueRef c_string_to_value(JSContextRef ctx, const char *s);
 
