@@ -302,7 +302,7 @@ int main(int argc, char **argv) {
             {"verbose",          no_argument,       NULL, 'v'},
             {"quiet",            no_argument,       NULL, 'q'},
             {"repl",             no_argument,       NULL, 'r'},
-            {"checked-arrays",   required_argument, NULL, 'Z'},
+            {"checked-arrays",   required_argument, NULL, 'A'},
             {"static-fns",       no_argument,       NULL, 's'},
             {"fn-invoke-direct", no_argument,       NULL, 'f'},
             {"elide-asserts",    no_argument,       NULL, 'a'},
@@ -356,7 +356,7 @@ int main(int argc, char **argv) {
                 did_encounter_main_opt = true;
                 config.repl = true;
                 break;
-            case 'Z':
+            case 'A':
                 if (!strcmp(optarg, "warn")) {
                     config.checked_arrays = "warn";
                 } else if (!strcmp(optarg, "error")) {
