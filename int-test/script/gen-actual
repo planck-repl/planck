@@ -680,3 +680,19 @@ $PLANCK - << SCRIPT_INPUT
 (js/console.warn "warn")
 (js/console.error "error")
 SCRIPT_INPUT
+
+echo "Testing low-level print-fns"
+$PLANCK - << SCRIPT_INPUT
+(*print-fn* nil)
+(*print-fn* true)
+(*print-fn* "a")
+(*print-fn* 1)
+(*print-fn* #js [1 2])
+(*print-fn* #js {:foo 1})
+(*print-err-fn* nil)
+(*print-err-fn* true)
+(*print-err-fn* "a")
+(*print-err-fn* 1)
+(*print-err-fn* #js [1 2])
+(*print-err-fn* #js {:foo 1})
+SCRIPT_INPUT

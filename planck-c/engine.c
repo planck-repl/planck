@@ -608,8 +608,8 @@ void engine_println(const char *msg) {
 
 JSValueRef function_print_fn_sender(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                     size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    if (argc == 1 && JSValueIsString(ctx, args[0])) {
-        char *str = value_to_c_string(ctx, args[0]);
+    if (argc == 1) {
+        char *str = value_to_c_string_ext(ctx, args[0], true);
 
         engine_print(str);
 

@@ -520,3 +520,10 @@ log
 trace
 debug
 info
+Testing low-level print-fns
+nulltruea1[
+ 1,
+ 2
+]{
+ "foo": 1
+}

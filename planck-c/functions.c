@@ -398,8 +398,8 @@ JSValueRef function_print_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef
         return NULL;
     }
 
-    if (argc == 1 && JSValueIsString(ctx, args[0])) {
-        char *str = value_to_c_string(ctx, args[0]);
+    if (argc == 1) {
+        char *str = value_to_c_string_ext(ctx, args[0], true);
 
         fprintf(stdout, "%s", str);
         fflush(stdout);
@@ -419,8 +419,8 @@ JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjec
         return NULL;
     }
 
-    if (argc == 1 && JSValueIsString(ctx, args[0])) {
-        char *str = value_to_c_string(ctx, args[0]);
+    if (argc == 1) {
+        char *str = value_to_c_string_ext(ctx, args[0], true);
 
         fprintf(stderr, "%s", str);
         fflush(stderr);

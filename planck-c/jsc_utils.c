@@ -50,16 +50,38 @@ JSValueRef evaluate_script(JSContextRef ctx, char *script, char *source) {
     return val;
 }
 
-char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
-    if (JSValueIsNull(ctx, val)) {
+char *value_to_c_string_ext(JSContextRef ctx, JSValueRef val, bool stringify) {
+    if (!stringify && JSValueIsNull(ctx, val)) {
         return NULL;
     }
 
+    static JSObjectRef stringify_fn = NULL;
     if (!JSValueIsString(ctx, val)) {
-#ifdef DEBUG
-        fprintf(stderr, "WARN: not a string\n");
-#endif
-        return NULL;
+        if (stringify) {
+            if (!stringify_fn) {
+                JSStringRef json_str = JSStringCreateWithUTF8CString("JSON");
+                JSValueRef json_prop = JSObjectGetProperty(ctx, JSContextGetGlobalObject(ctx), json_str, NULL);
+                JSObjectRef json_obj = JSValueToObject(ctx, json_prop, NULL);
+                JSStringRelease(json_str);
+                JSStringRef stringify_str = JSStringCreateWithUTF8CString("stringify");
+                JSValueRef stringify_prop = JSObjectGetProperty(ctx, json_obj, stringify_str, NULL);
+                JSStringRelease(stringify_str);
+                stringify_fn = JSValueToObject(ctx, stringify_prop, NULL);
+                JSValueProtect(ctx, stringify_fn);
+            }
+
+            size_t num_arguments = 3;
+            JSValueRef arguments[num_arguments];
+            arguments[0] = val;
+            arguments[1] = JSValueMakeNull(ctx);
+            arguments[2] = c_string_to_value(ctx, " ");
+            JSValueRef result = JSObjectCallAsFunction(ctx, stringify_fn, JSContextGetGlobalObject(ctx),
+                                                       num_arguments, arguments, NULL);
+
+            return value_to_c_string(ctx, result);
+        } else {
+            return NULL;
+        }
     }
 
     JSStringRef str_ref = JSValueToStringCopy(ctx, val, NULL);
@@ -69,6 +91,10 @@ char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
     JSStringRelease(str_ref);
 
     return str;
+}
+
+char *value_to_c_string(JSContextRef ctx, JSValueRef val) {
+    return value_to_c_string_ext(ctx, val, false);
 }
 
 JSValueRef c_string_to_value(JSContextRef ctx, const char *s) {

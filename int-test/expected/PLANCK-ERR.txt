@@ -24,3 +24,9 @@ Evaluating Expression
 ((2) + (3))
 warn
 error
+nulltruea1[
+ 1,
+ 2
+]{
+ "foo": 1
+}
