@@ -494,18 +494,27 @@ echo "Test empty list of *command-line-args*"
 $PLANCK <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Test empty list of *command-line-args* following main opt"
 $PLANCK -r <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Treat init opts that follow -r main opt as *command-line-args* instead of evaluating them"
 $PLANCK -r -c src -e '(println "hi")' -v <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Treat init opts that follow nice -m ns-name as *command-line-args* instead of evaluating them"
@@ -524,18 +533,27 @@ echo "Treat main opts that follow a main opt as *command-line-args* instead of e
 $PLANCK -r - -m test-main.args -r <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Test *command-line-args* with nice clumped init opts"
 $PLANCK -ve '(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Test *command-line-args* with less nicely clumped init opts"
 $PLANCK -ve'(println "hi")' -r here are some args 2>/dev/null <<REPL_INPUT
 (require 'planck.core)
 planck.core/*command-line-args*
+(if (exists? *command-line-args*)
+  ^:cljs.analyzer/no-resolve *command-line-args*
+  planck.core/*command-line-args*)
 REPL_INPUT
 
 echo "Test binding of *command-line-args* in file run from command line"
