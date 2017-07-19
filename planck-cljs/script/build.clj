@@ -5,11 +5,15 @@
             [cognitect.transit :as transit])
   (:import [java.io ByteArrayOutputStream FileInputStream]))
 
-(defn write-cache [cache out-path]
-  (let [out (ByteArrayOutputStream. 1000000)
-        writer (transit/writer out :json)]
-    (transit/write writer cache)
-    (spit (io/file out-path) (.toString out))))
+(def canary-build? (boolean (System/getenv "CANARY_BUILD")))
+
+(def ci-build? (or canary-build?
+                   (boolean (System/getenv "TRAVIS_OS_NAME"))))
+
+(def checked-arrays (cond
+                      ci-build? :error
+                      (System/getenv "CLJS_CHECKED_ARRAYS") (keyword (System/getenv "CLJS_CHECKED_ARRAYS"))
+                      :else false))
 
 (cljs.analyzer/with-warning-handlers
   [(fn [warning-type env extra]
@@ -25,6 +29,7 @@
      :static-fns         true
      :optimize-constants false
      :dump-core          false
+     :checked-arrays     checked-arrays
      :parallel-build     false
      :compiler-stats     false}))
 
@@ -40,6 +45,12 @@
 (copy-source "cljs/spec/gen/alpha.cljc")
 (copy-source "cljs/analyzer/api.cljc")
 (copy-source "clojure/template.clj")
+
+(defn write-cache [cache out-path]
+  (let [out (ByteArrayOutputStream. 1000000)
+        writer (transit/writer out :json)]
+    (transit/write writer cache)
+    (spit (io/file out-path) (.toString out))))
 
 (let [res (io/resource "cljs/core.cljs.cache.aot.edn")
       cache (read-string (slurp res))]
