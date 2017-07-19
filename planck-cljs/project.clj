@@ -1,4 +1,6 @@
-(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION") "1.9.660"))
+(def clojurescript-version (or (System/getenv "CANARY_CLOJURESCRIPT_VERSION")
+                               (System/getenv "CLJS_VERSION")
+                               "1.9.660"))
 (defproject planck "0.1.0"
   :profiles {:dev
              {:dependencies [[org.clojure/clojurescript ~clojurescript-version]
