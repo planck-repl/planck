@@ -228,9 +228,8 @@
 
 (defn- ^:export init
   [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts]
-  ;; TODO remove exists? check when we depend on next ClojureScript version
-  (when (exists? cljs.core/*command-line-args*)
-    (set! cljs.core/*command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
+  (when (exists? *command-line-args*)
+    (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
   (let [opts (or (read-opts-from-file "opts.clj")
                  {})]
