@@ -1306,11 +1306,11 @@
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
                    #(string/includes? (str %) (str str-or-pattern)))]
-    (sort (mapcat (fn [ns]
-                    (let [ns-name (drop-macros-suffix (str ns))]
-                      (map #(symbol ns-name (str %))
-                        (filter matches? (public-syms ns)))))
-            (all-ns)))))
+    (distinct (sort (mapcat (fn [ns]
+                              (let [ns-name (drop-macros-suffix (str ns))]
+                                (map #(symbol ns-name (str %))
+                                  (filter matches? (public-syms ns)))))
+                      (all-ns))))))
 
 (defn- undo-reader-conditional-whitespace-docstring
   "Undoes the effect that wrapping a reader conditional around a defn has on a

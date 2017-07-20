@@ -24,7 +24,8 @@
 (deftest test-apropos
   (is (= '(cljs.core/ffirst) (planck.repl/apropos "ffirst")))
   (is (= '(cljs.core/ffirst) (planck.repl/apropos ffirst)))
-  (is (= '(cljs.core/ffirst cljs.core/nfirst) (planck.repl/apropos #"[a-z]+first"))))
+  (is (= '(cljs.core/ffirst cljs.core/nfirst) (planck.repl/apropos #"[a-z]+first")))
+  (is (= '(cljs.core/aget) (planck.repl/apropos "aget"))))
 
 (deftest test-dir-planck-repl
   (is (= "*pprint-results*\napropos\ndir\ndoc\nfind-doc\nget-arglists\npst\nsource\n" (with-out-str (planck.repl/dir planck.repl)))))
