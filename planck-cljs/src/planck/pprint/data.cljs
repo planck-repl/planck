@@ -5,6 +5,7 @@
    [clojure.string :as string]
    [fipp.engine :refer [pprint-document]]
    [fipp.visit :refer [visit visit*]]
+   [goog.object :as gobj]
    [planck.themes]))
 
 ;; Derived from fipp.edn
@@ -56,8 +57,20 @@
   fipp.visit/IVisitor
 
   (visit-unknown [this x]
-    (if (instance? Eduction x)
+    (cond
+      (instance? Eduction x)
       (visit this (sequence x))
+      (array? x)
+      (pretty-coll this "#js [" x :line "]" visit)
+      (object? x)
+      (let [kvs (map (fn [k]
+                       [(cond-> k (some? (re-matches #"[A-Za-z][\w\*\+\?!\-']*" k)) keyword)
+                        (gobj/get x k)])
+                  (js-keys x))]
+        (pretty-coll this "#js {" kvs [:span "," :line] "}"
+          (fn [printer [k v]]
+            [:span (visit printer k) " " (visit printer v)])))
+      :else
       [:text (binding [*print-meta* false] (pr-str x))]))
 
   (visit-nil [this]
