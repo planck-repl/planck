@@ -1,6 +1,6 @@
 // Global variables used throughout Planck
 
-#define PLANCK_VERSION "2.5.0"
+#define PLANCK_VERSION "2.6.0"
 
 #define EXIT_SUCCESS_INTERNAL -257
 
