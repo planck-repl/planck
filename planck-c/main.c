@@ -60,6 +60,8 @@ void usage(char *program_name) {
     printf("    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n");
     printf("                                for unknown functions, but instead direct\n");
     printf("                                invokes via f(a0,a1...).\n");
+    printf("    -A x, --checked-arrays x    Enables checked arrays where x is either warn\n");
+    printf("                                or error.\n");
     printf("    -a, --elide-asserts         Set *assert* to false to remove asserts\n");
     printf("\n");
     printf("  main options:\n");
