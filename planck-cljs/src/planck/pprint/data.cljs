@@ -64,7 +64,7 @@
       (pretty-coll this "#js [" x :line "]" visit)
       (object? x)
       (let [kvs (map (fn [k]
-                       [(cond-> k (some? (re-matches #"[A-Za-z][\w\*\+\?!\-']*" k)) keyword)
+                       [(cond-> k (some? (re-matches #"[A-Za-z_\*\+\?!\-'][\w\*\+\?!\-']*" k)) keyword)
                         (gobj/get x k)])
                   (js-keys x))]
         (pretty-coll this "#js {" kvs [:span "," :line] "}"
