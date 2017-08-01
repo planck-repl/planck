@@ -1,11 +1,15 @@
 ## Dependencies
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/dependencies.jpg">
-Source executed via Planck can depend on other bootstrapped-compatible libraries. To do so, the library must be available either as source on an accessible filesystem, or bundled in a JAR, and included in Planck's classapth.
+Source executed via Planck can depend on other bootstrapped-compatible libraries. To do so, the library must be on Planck's classpath, available either as source on an accessible filesystem, or bundled in a JAR.
 
 > Planck can consume conventional JARs meant for use with ClojureScript obtained from [Clojars](https://clojars.org) or elsewhere.
 
-Planck's classpath is specified by providing a colon-separated list of directories and/or JARs via the `-c` or `-​-​classpath` argument, or by the `PLANCK_CLASSPATH` environment variable. The default classpath, if none is specified, is taken as the current working directory.
+Note that, since Planck employs _bootstrapped_ ClojureScript, not all regular ClojureScript libraries will work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
+
+### Classpath Specification
+
+Planck's classpath is specified by providing a colon-separated list of directories and/or JARs via the `-c` / `-​-​classpath` argument, or by the `PLANCK_CLASSPATH` environment variable. The default classpath, if none is specified, is taken as the current working directory.
 
 For example,
 
@@ -15,21 +19,29 @@ planck -c src:/path/to/foo.jar:some-lib/src
 
 will cause Planck to search in the `src` directory first, then in `foo.jar` next, and finally `some-lib/src` for files when processing `require`, `require-macros`, `import`, and `ns` forms.
 
-Paths to JARs cached locally via Leiningen, Boot, or Maven (usually under `/Users/<username>/.m2/repository`) can be included in Planck's classpath. Additionally, as a convenience, the `-D` or `-​-​dependencies` command line option can be used to append such JARs on the classpath: You can provide a comma separated list of `SYM:VERSION`, and these will be expanded to paths in the Maven repository.
+### Abbreviated Dependency Specs
+
+The `-D` / `-​-​dependencies` option can be used to specify coordinates for JARs installed in your local `.m2` repo: You can provide a comma separated list of `SYM:VERSION`, and paths to these JARs will be appended to your classpath.
 
 For example,
 
 ```sh
-planck -c src -D org.clojure/test.check:0.10.0-alpha1,andare:0.7.0
+planck -c src -D andare:0.7.0,org.clojure/test.check:0.10.0-alpha2
 ```
 
-will expand to a classpath of `src:/Users/myhome/.m2/repository/org/clojure/test.check/0.10.0-alpha1/test.check-0.10.0-alpha1.jar:/Users/myhome/.m2/repository/andare/andare/0.7.0/andare-0.7.0.jar`, assuming your home directory is `/Users/myhome`. In order to use an explicitly-specify path to a local Maven repository, you can additionally include `-L` or `-​-​local-repo`, specifying the repository path.
+will expand to a classpath that specifies `src` followed by the paths to the Andare and `test.check` dependencies in your local `.m2` repository.
 
-Note that, since Planck employs bootstrapped ClojureScript, not all regular ClojureScript libraries will work with Planck. In particular, libraries that employ macros that either rely on Java interop, or call macros in the same _compilation stage_ cannot work.  But libraries that employ straightforward macros that expand to ClojureScript work fine.
+In order to use an explicitly-specified path to a Maven repository, you can additionally include `-L` or `-​-​local-repo`, specifying the repository path.
 
-> One example of Planck using a dependency: This documentation is written in markdown, but converted to HTML using Planck using Dmitri Sotnikov's  [markdown-clj](https://github.com/yogthos/markdown-clj) library. This library is written with support for regular ClojureScript, but it also works perfectly well in bootstrapped ClojureScript.
+### Downloading Deps
 
-### Shipping Deps
+While Planck can consume JARs from your local `.m2` repo, it doesn't take care of downloading them. An easy way to quickly download dependencies is to use `boot` with its `-d` option. For example, executing this will ensure the dependencies specified above are installed:
+
+```
+boot -d andare:0.7.0 -d org.clojure/test.check:0.10.0-alpha2
+```
+
+### Bundled Deps
 
 Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes [most of the Google Closure library](gcl.html) as well as these namespaces:
 
@@ -47,54 +59,9 @@ In addition, Planck ships with these libraries:
 * [Fipp](https://github.com/brandonbloom/fipp) 0.6.8
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.239
 
-Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `-c`, `-​-​classpath`, or `PLANCK_CLASSPATH`.
+Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `-c` / `-​-​classpath`, `-D` / `-​-​dependencies`, or `PLANCK_CLASSPATH`.
 
-A consequence of this (as well as the fact that nearly all of the code that ships with Planck is AOT-compiled), means that Planck works with a fixed version of ClojureScript. (It is not possible to update the ClojureScript version by providing a path to a newer version via `-c`, `-​-​classpath`, or `PLANCK_CLASSPATH`.)
-
-### Using Leiningen or Boot for JAR Dependency Management
-
-Planck requires that JARs be available locally and on the classpath, but it doesn't take care of downloading JARs. One solution to this is to use either [Leiningen](http://leiningen.org) or [Boot](http://boot-clj.com) to manage dependencies for you, and to have those tools emit a classpath for use with Planck.
-
-Here is an example using Leiningen: Let's say you want to use [clojurescript.csv](https://github.com/testdouble/clojurescript.csv) from Planck. First make a simple Leiningen `project.clj` just for the purpose of loading this dependency:
-
-```clj
-(defproject foo "0.1.0-SNAPSHOT"
-  :dependencies [[testdouble/clojurescript.csv "0.2.0"]])
-```
-
-Now, with this in place, you can launch Planck using `lein classpath` to automatically generate the classpath string (and also automatically download any deps that haven't yet been downloaded). Here is a sample session showing this working, along with using the library within Planck.
-
-```
-$ planck -c`lein classpath`
-Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.pom from clojars
-Retrieving testdouble/clojurescript.csv/0.2.0/clojurescript.csv-0.2.0.jar from clojars
-cljs.user=> (require '[testdouble.cljs.csv :as csv])
-nil
-cljs.user=> (csv/write-csv [[1 2 3] [4 5 6]])
-"1,2,3\n4,5,6"
-```
-
-If you are using Boot, the equivalent would be
-
-```
-$ planck -c`boot show -c`
-```
-
-#### Caching Classpath
-
-Both Leiningen and Boot take a bit of time to verify that dependency artifacts have been downloaded. To make launching instant, just make a start shell script that looks like the following. (With this approach, be sure to manually delete the `.classpath` file if you change your dependencies.)
-
-```
-if [ ! -f .classpath ]; then
-  classpath=`lein classpath | tee .classpath`
-else
-  classpath=`cat .classpath`
-fi
-
-planck -c $classpath
-```
-
-(And if you are using Boot, replace `lein classpath` with `boot show -c`.)
+A consequence of this (as well as the fact that nearly all of the code that ships with Planck is AOT-compiled), means that Planck works with a fixed version of ClojureScript. (It is not possible to update the ClojureScript version by providing a path to a newer version via `-c` / `-​-​classpath`, `-D` / `-​-​dependencies`, or `PLANCK_CLASSPATH`.)
 
 ### Foreign Libs
 
