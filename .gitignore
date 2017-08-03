@@ -17,3 +17,4 @@ planck-cljs/clojurescript
 /.planck_cache
 .vagrant
 build-envs/*/*-cloudimg-console.log
+/compiler

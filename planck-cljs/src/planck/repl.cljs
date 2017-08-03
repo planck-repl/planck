@@ -203,7 +203,9 @@
     (let [ns-sym-str          (name ns-sym)
           analysis-cache-file (str (string/replace ns-sym-str "." "/") ".cljs.cache.json")]
       (read-and-load-analysis-cache ns-sym analysis-cache-file)
-      (js/goog.require ns-sym-str)
+      (case ns-sym
+        planck.http (goog.require "planck.http")
+        planck.io (goog.require "planck.io"))
       (swap! cljs.js/*loaded* conj ns-sym))))
 
 (defonce ^:private app-env (atom nil))

@@ -23,6 +23,18 @@ unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *
 	}
 EOF
 
+APPLY_CLOSURE="${APPLY_CLOSURE:-1}"
+# Disable Closure on Linux for now, as it is causing crashes
+unamestr=`uname`
+if [[ "$unamestr" == 'Linux' ]]; then
+   APPLY_CLOSURE="0"
+fi
+
+if [ $APPLY_CLOSURE == "1" ]
+then
+  echo ### Optimizing bundled JavaScript with Closure
+fi
+
 cd out
 # Make sure we don't bundle test.check
 rm -rf clojure/test/check*
@@ -43,7 +55,26 @@ done
 for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*.clj' -o -name '*.map' -o -name '*.json' -o -name bundled_sdk_manifest.txt`
 do 
 file=${file:2}
-cp $file $file.bak
+cp -p $file $file.bak
+if [ $APPLY_CLOSURE == "1" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ]
+then
+  if [ ! -f $file.simple ] || [ $file -nt $file.simple ]
+  then
+    if [ -f $file.map ]
+    then
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple --source_map_input $file\|$file.map --create_source_map $file.map.simple
+    else
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple
+    fi
+    echo -n "."
+  fi
+  cp $file.simple $file
+fi
+if [ ${file: -4} == ".map" ] && [ -f $file.simple ]
+then
+  cp $file.simple $file
+fi
+uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
 mv $file.bak $file
 filegz=$file.gz
@@ -52,8 +83,7 @@ rm $filegz
 data_ref=${filegz//\//_}
 data_ref=${data_ref//\./_}
 data_ref=${data_ref//\$/_}
-file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
-echo "unsigned int ${data_ref}_len_uncompressed = ${file_size};" >> ../bundle.c
+echo "unsigned int ${data_ref}_len_uncompressed = ${uncompressed_file_size};" >> ../bundle.c
 cat <<EOF >> ../bundle_dict.c
 	else if (strcmp("${file}", path) == 0) {
 		*gz_len = ${data_ref}_len;
@@ -62,6 +92,10 @@ cat <<EOF >> ../bundle_dict.c
 	}
 EOF
 done
+if [ $APPLY_CLOSURE == "1" ]
+then
+  echo
+fi
 cd ..
 cat <<EOF >> bundle_dict.c
 

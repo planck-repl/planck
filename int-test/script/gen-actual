@@ -473,8 +473,8 @@ REPL_INPUT
 
 echo "Test availability of goog libs"
 $PLANCK <<REPL_INPUT
-(require 'goog.date.Date)
-(goog.date.Date. 2005 3 3)
+(import '(goog Uri))
+(Uri. "http://foo.com")
 REPL_INPUT
 
 echo "Test empty list of *command-line-args*"

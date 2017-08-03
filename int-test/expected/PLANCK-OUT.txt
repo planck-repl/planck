@@ -393,7 +393,7 @@ Test Google Closure index
 nil
 Test availability of goog libs
 nil
-#object[Object 20050403]
+#object[Object http://foo.com]
 Test empty list of *command-line-args*
 nil
 nil

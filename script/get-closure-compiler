@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+CLOSURE_RELEASE="20170626"
+if [ ! -f compiler/closure-compiler-v$CLOSURE_RELEASE.jar ]; then
+  echo "Fetching Google Closure compiler..."
+  mkdir -p compiler
+  cd compiler
+  curl --retry 3 -O -s https://dl.google.com/closure-compiler/compiler-$CLOSURE_RELEASE.zip || { echo "Download failed."; exit 1; }
+  unzip -qu compiler-$CLOSURE_RELEASE.zip
+  echo "Cleaning up Google Closure compiler archive..."
+  rm compiler-$CLOSURE_RELEASE.zip
+  cd ../..
+fi
