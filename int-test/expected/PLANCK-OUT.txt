@@ -525,3 +525,6 @@ nulltruea1[
 ]{
  "foo": 1
 }
+Test global-exports
+nil
+5

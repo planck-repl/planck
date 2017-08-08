@@ -701,3 +701,10 @@ $PLANCK - << SCRIPT_INPUT
 (*print-err-fn* #js [1 2])
 (*print-err-fn* #js {:foo 1})
 SCRIPT_INPUT
+echo ""
+
+echo "Test global-exports"
+$PLANCK -c ${SRC}3 <<REPL_INPUT
+(require '[calculator :refer [add]])
+(add 2 3)
+REPL_INPUT

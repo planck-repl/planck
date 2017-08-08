@@ -210,6 +210,8 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
     size_t num_files = 0;
     char **deps_cljs_files = NULL;
 
+    const char* deps_cljs_filename = "deps.cljs";
+
     if (argc == 0) {
         int i;
         for (i = 0; i < config.num_src_paths; i++) {
@@ -223,7 +225,7 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                 struct stat file_stat;
                 if (stat(location, &file_stat) == 0) {
                     char *error_msg = NULL;
-                    char *source = get_contents_zip(location, "deps.cljs", NULL, &error_msg);
+                    char *source = get_contents_zip(location, deps_cljs_filename, NULL, &error_msg);
                     if (source != NULL) {
                         num_files += 1;
                         deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
@@ -239,6 +241,15 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                     engine_perror(location);
                     config.src_paths[i].blacklisted = true;
                 }
+            } else {
+                char *full_path = str_concat(location, deps_cljs_filename);
+                char *source = get_contents(full_path, NULL);
+                if (source != NULL) {
+                    num_files += 1;
+                    deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
+                    deps_cljs_files[num_files - 1] = source;
+                }
+                free(full_path);
             }
         }
     }

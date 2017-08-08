@@ -1,6 +1,6 @@
 (ns planck.repl
   "Planck REPL implementation."
-  (:refer-clojure :exclude [resolve])
+  (:refer-clojure :exclude [resolve load-file])
   (:require-macros
    [cljs.env.macros :refer [with-compiler-env]]
    [planck.repl :refer [with-err-str]])
@@ -21,7 +21,7 @@
    [goog.string :as gstring]
    [lazy-map.core :refer-macros [lazy-map]]
    [planck.closure :as closure]
-   [planck.js-deps :as js-deps]
+   [planck.js-deps :as deps]
    [planck.pprint.code]
    [planck.pprint.data]
    [planck.pprint.width-adjust]
@@ -48,6 +48,7 @@
 
 (def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
+(def ^:private ^:const js-ext ".js")
 
 (defn- calc-x-line [text pos line]
   (let [x (string/index-of text "\n")]
@@ -252,8 +253,12 @@
                                     {:optimizations :simple})
                                   (when fn-invoke-direct
                                     {:fn-invoke-direct true})))
-    (js-deps/index-foreign-libs opts)
-    (js-deps/index-upstream-foreign-libs))
+    (deps/index-foreign-libs opts)
+    (deps/index-js-libs)
+    (let [index @deps/js-lib-index]
+      (swap! st assoc :js-dependency-index (into index
+                                             (map (fn [[k v]] [(str k) v]))
+                                             index))))
   (setup-asserts elide-asserts)
   (setup-print-namespace-maps repl))
 
@@ -818,20 +823,23 @@
         (inject-planck-eval 'cljs.spec.test.alpha$macros))
       :loaded)))
 
-(defn- closure-index
-  []
-  (let [paths-to-provides
-        (map (fn [[_ path provides]]
-               [path (map second
-                       (re-seq #"'(.*?)'" provides))])
-          (re-seq #"\ngoog\.addDependency\('(.*)', \[(.*?)\].*"
+(defn- closure-index* []
+  (let [paths-to-deps
+        (map (fn [[_ path provides requires]]
+               [path
+                (map second
+                  (re-seq #"'(.*?)'" provides))
+                (map second
+                  (re-seq #"'(.*?)'" requires))])
+          (re-seq #"\ngoog\.addDependency\('(.*)', \[(.*?)\], \[(.*?)\].*"
             (first (js/PLANCK_LOAD "goog/deps.js"))))]
     (into {}
-      (for [[path provides] paths-to-provides
+      (for [[path provides requires] paths-to-deps
             provide provides]
-        [(symbol provide) (str "goog/" (second (re-find #"(.*)\.js$" path)))]))))
+        [(symbol provide) {:path (str "goog/" (second (re-find #"(.*)\.js$" path)))
+                           :requires requires}]))))
 
-(def ^:private closure-index-mem (memoize closure-index))
+(def ^:private closure-index (memoize closure-index*))
 
 (defn- skip-load?
   [{:keys [name macros]}]
@@ -849,55 +857,53 @@
    (and (= name 'tailrecursion.cljson) macros)
    (and (= name 'lazy-map.core) macros)))
 
-(defn- do-load-file
+(defn- load-file
   [file cb]
   (when-not (load-and-callback! nil file false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
-(defonce ^:private foreign-files-loaded (atom #{}))
+(declare goog-dep-source)
 
-(defn- not-yet-loaded
-  "Determines the files not yet loaded, consulting and augmenting
-  foreign-files-loaded."
-  [files-to-load]
-  (let [result (remove @foreign-files-loaded files-to-load)]
-    (swap! foreign-files-loaded into result)
-    result))
-
-(defn- file-content
-  "Loads the content for a given file."
-  [file]
-  (first (or (js/PLANCK_READ_FILE file)
-             (js/PLANCK_LOAD file))))
-
-(defn- do-load-foreign
+;; TODO: we could be smarter and only load the libs that we haven't already loaded
+(defn- load-js-lib
   [name cb]
-  (let [files-to-load (js-deps/files-to-load name)
-        _             (when (:verbose @app-env)
-                        (println "Loading foreign libs files:" files-to-load))
-        sources       (map file-content (not-yet-loaded files-to-load))]
-    (cb {:lang   :js
-         :source (string/join "\n" sources)})))
+  (let [sources (mapcat (fn [{:keys [file requires]}]
+                          (concat (->> requires
+                                    (filter #(string/starts-with? % "goog."))
+                                    (map (comp goog-dep-source symbol)))
+                            [(first (js/PLANCK_LOAD file))]))
+                  (deps/js-libs-to-load name))]
+    (cb {:lang :js
+         :source (string/join "\n" sources)})
+    :loaded))
 
-;; Represents code for which the goog JS is already loaded
-(defn- skip-load-goog-js?
-  [name]
-  ('#{goog.object
-      goog.string
-      goog.string.StringBuffer
-      goog.math.Long} name))
+(defonce ^:private goog-loaded
+  (volatile! '#{goog.object
+                goog.string
+                goog.string.StringBuffer
+                goog.array
+                goog.crypt.base64
+                goog.math.Long}))
 
-(defn- do-load-goog
+(defn- goog-dep-source [name]
+  (let [index (closure-index)]
+    (when-let [{:keys [path]} (get index name)]
+      (let [sorted-deps (remove @goog-loaded (deps/topo-sort index name))]
+        (vswap! goog-loaded into sorted-deps)
+        (reduce str
+          (map (fn [dep-name]
+                 (let [{:keys [path]} (get index dep-name)]
+                   (first (js/PLANCK_LOAD (str path js-ext))))) sorted-deps))))))
+
+(defn- load-goog
+  "Loads a Google Closure implementation source file."
   [name cb]
-  (if (skip-load-goog-js? name)
-    (cb {:lang   :js
-         :source ""})
-    (if-let [goog-path (get (closure-index-mem) name)]
-      (when-not (load-and-callback! name (str goog-path ".js") false :js nil cb)
-        (cb nil))
-      (cb nil))))
+  (if-let [source (goog-dep-source name)]
+    (cb {:source source
+         :lang   :js})
+    (cb nil)))
 
-(defn- do-load-other
+(defn- load-other
   [name path macros cb]
   (loop [extensions (if macros
                       [".clj" ".cljc"]
@@ -917,12 +923,12 @@
 (defn- load
   [{:keys [name macros path file] :as full} cb]
   (cond
+    file (load-file file cb)
     (skip-load? full) (cb {:lang   :js
                            :source ""})
-    file (do-load-file file cb)
-    (name @js-deps/foreign-libs-index) (do-load-foreign name cb)
-    (re-matches #"^goog/.*" path) (do-load-goog name cb)
-    :else (do-load-other name path macros cb)))
+    (re-matches #"^goog/.*" path) (load-goog name cb)
+    (deps/js-lib? name) (load-js-lib name cb)
+    :else (load-other name path macros cb)))
 
 (declare skip-cljsjs-eval-error)
 
