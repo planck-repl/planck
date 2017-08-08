@@ -722,8 +722,12 @@
 
 (defn- compiling
   [m]
-  (cond-> m (cacheable? m)
-    (update :source closure/compile)))
+  (if (cacheable? m)
+    (let [{:keys [source source-map]} (closure/compile (assoc m :sm-data @comp/*source-map-data*))]
+      (when source-map
+        (swap! st assoc-in [:source-maps (:name (:cache m))] source-map))
+      (assoc m :source source))
+    m))
 
 (defn- extension->lang
   [extension]
@@ -1604,10 +1608,10 @@
   [source-text]
   (fn [x cb]
     (when (:source x)
-      (let [source (cond-> (:source x) (simple-optimizations?) closure/compile)
+      (let [x (cond-> x (simple-optimizations?) closure/compile)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
             cache  (get-namespace file-namespace)]
-        (write-cache relpath file-namespace source cache)))
+        (write-cache relpath file-namespace (:source x) cache)))
     (cb {:value nil})))
 
 (defn- print-value
