@@ -1,6 +1,7 @@
 (ns planck.bundle
   "Require namespaces so they will be bundled in the Planck binary."
   (:require
+   [google-closure-compiler-js]
    [cljs.analyzer.api]
    [cljs.pprint]
    [cljs.spec.alpha]

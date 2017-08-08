@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ ! -f jscomp.js ]; then
+  curl -s -O http://planck-repl.org/releases/closure-20170626.0.0/jscomp.js
+fi
+
 # Set the CLJS_COMMIT env var to build our own copy 
 # of ClojureScript compiler. This can be HEAD, a commit hash, etc.
 # When setting, first do script/clean-all first from top-level.

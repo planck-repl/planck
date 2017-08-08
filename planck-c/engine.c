@@ -512,7 +512,7 @@ void *do_engine_init(void *data) {
     set_print_sender(&discarding_sender);
 
     {
-        JSValueRef arguments[7];
+        JSValueRef arguments[8];
         arguments[0] = JSValueMakeBoolean(ctx, config.repl);
         arguments[1] = JSValueMakeBoolean(ctx, config.verbose);
         JSValueRef cache_path_ref = NULL;
@@ -530,8 +530,9 @@ void *do_engine_init(void *data) {
         arguments[4] = JSValueMakeBoolean(ctx, config.static_fns);
         arguments[5] = JSValueMakeBoolean(ctx, config.fn_invoke_direct);
         arguments[6] = JSValueMakeBoolean(ctx, config.elide_asserts);
+        arguments[7] = JSValueMakeBoolean(ctx, config.compile);
         JSValueRef ex = NULL;
-        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 7,
+        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 8,
                                arguments, &ex);
         debug_print_value("planck.repl/init", ctx, ex);
     }

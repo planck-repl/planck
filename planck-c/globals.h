@@ -28,6 +28,7 @@ struct config {
     bool static_fns;
     bool fn_invoke_direct;
     bool elide_asserts;
+    bool compile;
     const char *theme;
     bool dumb_terminal;
 

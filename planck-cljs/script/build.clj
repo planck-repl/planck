@@ -31,6 +31,8 @@
      :dump-core          false
      :checked-arrays     checked-arrays
      :parallel-build     false
+     :foreign-libs       [{:file "jscomp.js"
+                           :provides ["google-closure-compiler-js"]}]
      :compiler-stats     false}))
 
 (defn copy-source

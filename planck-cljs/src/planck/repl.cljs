@@ -20,6 +20,7 @@
    [cognitect.transit :as transit]
    [goog.string :as gstring]
    [lazy-map.core :refer-macros [lazy-map]]
+   [planck.closure :as closure]
    [planck.js-deps :as js-deps]
    [planck.pprint.code]
    [planck.pprint.data]
@@ -228,8 +229,12 @@
   (set! *print-namespace-maps* print-namespace-maps)
   (swap! default-session-state assoc :*print-namespace-maps* *print-namespace-maps*))
 
+(defn- simple-optimizations?
+  []
+  (= :simple (:optimizations @app-env)))
+
 (defn- ^:export init
-  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts compile]
   (when (exists? *command-line-args*)
     (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
@@ -243,6 +248,8 @@
                                     {:checked-arrays (keyword checked-arrays)})
                                   (when static-fns
                                     {:static-fns true})
+                                  (when compile
+                                    {:optimizations :simple})
                                   (when fn-invoke-direct
                                     {:fn-invoke-direct true})))
     (js-deps/index-foreign-libs opts)
@@ -423,6 +430,7 @@
     planck.pprint.code
     planck.pprint.data
     planck.bundle
+    planck.closure
     planck.js-deps
     planck.repl
     planck.repl-resources
@@ -641,7 +649,7 @@
   (let [m (merge
             (when-not *assert*
               {:elide-asserts true})
-            (select-keys @app-env [:checked-arrays :static-fns :fn-invoke-direct]))]
+            (select-keys @app-env [:checked-arrays :static-fns :fn-invoke-direct :optimizations]))]
     (if (empty? m)
       nil
       m)))
@@ -693,15 +701,24 @@
         (throw exception)))
     (js/eval source)))
 
-(defn- caching-js-eval
+(defn- cacheable?
   [{:keys [path name source source-url cache]}]
-  (when (and path source cache (:cache-path @app-env))
+  (and path source cache (:cache-path @app-env)))
+
+(defn- caching-js-eval
+  [{:keys [path name source source-url cache] :as all}]
+  (when (cacheable? all)
     (write-cache path name source cache))
   (let [source-url (or source-url
                        (when (and (not (empty? path))
                                   (not= expression-name path))
                          (file-url (js-path-for-name name))))]
     (js-eval source source-url)))
+
+(defn- compiling
+  [m]
+  (cond-> m (cacheable? m)
+    (update :source closure/compile)))
 
 (defn- extension->lang
   [extension]
@@ -919,12 +936,15 @@
       (js/PLANCK_SET_EXIT_VALUE 1)
       (set! *e (skip-cljsjs-eval-error e)))))
 
+(defn- get-eval-fn []
+  (cond-> caching-js-eval (simple-optimizations?) (comp compiling)))
+
 (defn- ^:export run-main
   [main-ns & args]
   (let [main-args (js->clj args)
         opts      (make-base-eval-opts)]
     (binding [cljs/*load-fn* load
-              cljs/*eval-fn* caching-js-eval]
+              cljs/*eval-fn* (get-eval-fn)]
       (cljs/eval st
         `(~'require (quote ~(symbol main-ns)))
         opts
@@ -1578,7 +1598,7 @@
   [source-text]
   (fn [x cb]
     (when (:source x)
-      (let [source (:source x)
+      (let [source (cond-> (:source x) (simple-optimizations?) closure/compile)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
             cache  (get-namespace file-namespace)]
         (write-cache relpath file-namespace source cache)))
@@ -1692,7 +1712,7 @@
   (binding [ana/*cljs-ns*    @current-ns
             *ns*             (create-ns @current-ns)
             cljs/*load-fn*   load
-            cljs/*eval-fn*   caching-js-eval
+            cljs/*eval-fn*   (get-eval-fn)
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)
       (process-execute-path source-value (assoc opts :source-path source-value))

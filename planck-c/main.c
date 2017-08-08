@@ -289,6 +289,8 @@ int main(int argc, char **argv) {
 
     config.main_ns_name = NULL;
 
+    config.compile = false;
+
     config.socket_repl_port = 0;
     config.socket_repl_host = NULL;
 
@@ -317,6 +319,7 @@ int main(int argc, char **argv) {
             {"dependencies",     required_argument, NULL, 'D'},
             {"local-repo",       required_argument, NULL, 'L'},
             {"auto-cache",       no_argument,       NULL, 'K'},
+            {"compile",          no_argument,       NULL, 'Z'},
             {"init",             required_argument, NULL, 'i'},
             {"main",             required_argument, NULL, 'm'},
 
@@ -330,8 +333,11 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "Xh?VS:D:L:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "ZXh?VS:D:L:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
+            case 'Z':
+                config.compile = true;
+                break;
             case 'X':
                 init_launch_timing();
                 break;
