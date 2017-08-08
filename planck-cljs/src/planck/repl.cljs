@@ -1660,7 +1660,7 @@
 (defn- load-form?
   "Determines if the expression is a form that loads code."
   [expression-form]
-  (call-form? expression-form '#{require require-macros}))
+  (call-form? expression-form '#{ns require require-macros import load load-file}))
 
 (defn- def-form?
   "Determines if the expression is a def expression which returns a Var."
@@ -1688,10 +1688,10 @@
             {:ns initial-ns}
             (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])
             (if expression?
-              (merge {:context       :expr
-                      :def-emits-var true}
-                (when (load-form? expression-form)
-                  {:source-map true}))
+              (merge {:context       :expr}
+                (if (load-form? expression-form)
+                  {:source-map true}
+                  {:def-emits-var true}))
               (merge {:source-map true}
                 (when (:cache-path @app-env)
                   {:cache-source (cache-source-fn source-text)}))))
