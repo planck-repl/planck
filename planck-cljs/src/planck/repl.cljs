@@ -1678,7 +1678,10 @@
 (defn- load-form?
   "Determines if the expression is a form that loads code."
   [expression-form]
-  (call-form? expression-form '#{ns require require-macros import load load-file}))
+  (call-form? expression-form '#{require require-macros import
+                                 cljs.core/require cljs.core/require-macros cljs.core/import
+                                 clojure.core/require clojure.core/require-macros clojure.core/import
+                                 ns load load-file}))
 
 (defn- def-form?
   "Determines if the expression is a def expression which returns a Var."
