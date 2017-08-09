@@ -24,11 +24,6 @@ unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *
 EOF
 
 APPLY_CLOSURE="${APPLY_CLOSURE:-1}"
-# Disable Closure on Linux for now, as it is causing crashes
-unamestr=`uname`
-if [[ "$unamestr" == 'Linux' ]]; then
-   APPLY_CLOSURE="0"
-fi
 
 if [ $APPLY_CLOSURE == "1" ]
 then
