@@ -730,7 +730,8 @@
 
 (defn- compiling
   [m]
-  (if (:cache m)
+  (if (and (not (= :js (:lang m)))
+           (:cache m))
     (let [{:keys [source source-map]} (compile (assoc m
                                                  :sm-data @comp/*source-map-data*))]
       (when source-map
