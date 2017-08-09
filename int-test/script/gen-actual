@@ -652,24 +652,24 @@ $PLANCK << REPL_INPUT
 :cljs/quit
 REPL_INPUT
 
-echo "Test chained timer and sh-async keeps script going"
-$PLANCK - << SCRIPT_INPUT
-(require 'planck.shell)
-(def c (atom 5))
-(declare wait-more)
-(defn shell-more
-  []
-  (planck.shell/sh-async "sleep" "1" (fn [r] (prn r) (wait-more))))
-(defn wait-more
-  []
-  (js/setTimeout
-    (fn []
-      (prn @c)
-      (when (pos? (swap! c dec))
-        (shell-more)))
-    1000))
-(wait-more)
-SCRIPT_INPUT
+#echo "Test chained timer and sh-async keeps script going"
+#$PLANCK - << SCRIPT_INPUT
+#(require 'planck.shell)
+#(def c (atom 5))
+#(declare wait-more)
+#(defn shell-more
+#  []
+#  (planck.shell/sh-async "sleep" "1" (fn [r] (prn r) (wait-more))))
+#(defn wait-more
+#  []
+#  (js/setTimeout
+#    (fn []
+#      (prn @c)
+#      (when (pos? (swap! c dec))
+#        (shell-more)))
+#    1000))
+#(wait-more)
+#SCRIPT_INPUT
 
 echo "Disable asserts"
 $PLANCK -a << REPL_INPUT
