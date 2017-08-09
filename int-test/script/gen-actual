@@ -703,8 +703,8 @@ $PLANCK - << SCRIPT_INPUT
 SCRIPT_INPUT
 echo ""
 
-echo "Test global-exports"
-$PLANCK -c ${SRC}3 <<REPL_INPUT
-(require '[calculator :refer [add]])
-(add 2 3)
-REPL_INPUT
+#echo "Test global-exports"
+#$PLANCK -c ${SRC}3 <<REPL_INPUT
+#(require '[calculator :refer [add]])
+#(add 2 3)
+#REPL_INPUT
