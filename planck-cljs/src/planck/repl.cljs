@@ -730,7 +730,7 @@
   [m]
   (closure/compile
     (merge m
-      (select-keys @app-env [:optimizations]))))
+      (select-keys @app-env [:optimizations :verbose]))))
 
 (defn- compiling
   [m]

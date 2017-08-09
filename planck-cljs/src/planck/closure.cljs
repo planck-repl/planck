@@ -6,10 +6,12 @@
 (defn compile
   "Uses Closure to compile JavaScript source. If :sm-data is supplied, a
   composed :source-map will calculated and be returned in the result."
-  [{:keys [source sm-data optimizations]
+  [{:keys [name source sm-data optimizations verbose]
     :or {optimizations :simple}}]
   (when-not (exists? js/compile)
     (js/AMBLY_IMPORT_SCRIPT "jscomp.js"))
+  (when verbose
+    (println "Applying" optimizations "Closure optimizations to" name))
   (let [result (js/compile #js {:jsCode                   #js [#js {:src source}]
                                 :compilationLevel         (case optimizations
                                                             :simple "SIMPLE"
@@ -21,6 +23,8 @@
                                 :applyInputSourceMaps     false})]
     (when-not (empty? (.-errors result))
       (prn (.-errors result)))
+    (when-not (empty? (.-warnings result))
+      (prn (.-warnings result)))
     (if (.-compiledCode result)
       (merge {:source (.-compiledCode result)}
         (when (some? sm-data)
