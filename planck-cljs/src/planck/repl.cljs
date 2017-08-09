@@ -1859,11 +1859,12 @@
         (orig-print-err-fn (:reset-font theme))))))
 
 (defn- register-speced-vars
-  "Facilitates temporary workaround for CLJS-1989."
+  "Facilitates workaround if CLJS-1989 not in place."
   [& speced-vars]
-  (let [_speced_vars (eval 'cljs.spec.alpha$macros/_speced_vars)]
-    (doseq [speced-var speced-vars]
-      (swap! _speced_vars conj speced-var))))
+  (when (neg? (gstring/compareVersions *clojurescript-version* "1.9.655"))
+    (let [_speced_vars (eval 'cljs.spec.alpha$macros/_speced_vars)]
+      (doseq [speced-var speced-vars]
+        (swap! _speced_vars conj speced-var)))))
 
 (register-speced-vars
   `get-arglists)
