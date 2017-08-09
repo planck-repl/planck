@@ -32,7 +32,7 @@ fi
 
 if [ $APPLY_CLOSURE == "1" ]
 then
-  echo ### Optimizing bundled JavaScript with Closure
+  echo "### Optimizing bundled JavaScript with Closure"
 fi
 
 cd out
