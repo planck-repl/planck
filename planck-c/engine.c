@@ -530,7 +530,9 @@ void *do_engine_init(void *data) {
         arguments[4] = JSValueMakeBoolean(ctx, config.static_fns);
         arguments[5] = JSValueMakeBoolean(ctx, config.fn_invoke_direct);
         arguments[6] = JSValueMakeBoolean(ctx, config.elide_asserts);
-        arguments[7] = JSValueMakeBoolean(ctx, config.compile);
+        JSStringRef optimizations_str = JSStringCreateWithUTF8CString(config.optimizations);
+        JSValueRef optimizations_ref = JSValueMakeString(ctx, optimizations_str);
+        arguments[7] = optimizations_ref;
         JSValueRef ex = NULL;
         JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 8,
                                arguments, &ex);

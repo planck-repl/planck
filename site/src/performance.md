@@ -77,6 +77,24 @@ In short, enabling it can lead to performance benefits, being more amenable to i
 
 And—importantly for Planck—it can be used to work around a particularly severe JavaScriptCore perf [bug](http://dev.clojure.org/jira/browse/CLJS-910) that you can encounter when evaluating the JavaScript generated for lengthy literal list forms.
 
+### Closure Optimizations
+
+You can specify the Closure compiler level to be applied to source loaded from namespaces by using `-O` or `-​-optimizations`. The allowed values are `none`, `whitespace`, and `simple`. (Planck doesn't support whole-program optimization, so `advanced` is not an option.)
+
+Consider this example:
+
+```text
+$ planck -q -K -c src --optimizations simple
+cljs.user=> (require 'foo.core)
+nil
+```
+
+When the `require` form above is evaluated, the ClojureScript code is first transpiled to JavaScript, and then Google Closure is applied to that resulting code, using the _simple_ optimizations level. If, for example, you `(set! *print-fn-bodies* true)` and example function Vars in the `foo.core` namespace, you will see that _simple_ optimizations have been applied.
+
+Furthermore, if you have caching enabled (the `-K` option above), then code is cached with the optimization level specified. If you later run Planck with a different optimization level, cached code will be invalided and re-compiled at the new optimization level.
+
+While enabling caching is not required, using optimizations and caching together makes sense, given that Closure optimization can take a bit of time to apply.
+
 ### Removing Asserts
 
 ClojureScript allows you to embed runtime assertions into your code. Here is an example of triggering an assert at the Planck REPL:

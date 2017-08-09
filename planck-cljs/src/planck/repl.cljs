@@ -230,12 +230,12 @@
   (set! *print-namespace-maps* print-namespace-maps)
   (swap! default-session-state assoc :*print-namespace-maps* *print-namespace-maps*))
 
-(defn- simple-optimizations?
+(defn- compile?
   []
-  (= :simple (:optimizations @app-env)))
+  (some? (:optimizations @app-env)))
 
 (defn- ^:export init
-  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts compile]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations]
   (when (exists? *command-line-args*)
     (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
@@ -249,8 +249,8 @@
                                     {:checked-arrays (keyword checked-arrays)})
                                   (when static-fns
                                     {:static-fns true})
-                                  (when compile
-                                    {:optimizations :simple})
+                                  (when (not= optimizations "none")
+                                    {:optimizations (keyword optimizations)})
                                   (when fn-invoke-direct
                                     {:fn-invoke-direct true})))
     (deps/index-foreign-libs opts)
@@ -700,6 +700,8 @@
 
 (defn- js-eval
   [source source-url]
+  #_(when (:verbose @app-env)
+    (println-verbose (str "Evaluating JavaScript:\n" source)))
   (if source-url
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
@@ -720,10 +722,17 @@
                          (file-url (js-path-for-name name))))]
     (js-eval source source-url)))
 
+(defn- compile
+  [m]
+  (closure/compile
+    (merge m
+      (select-keys @app-env [:optimizations]))))
+
 (defn- compiling
   [m]
-  (if (cacheable? m)
-    (let [{:keys [source source-map]} (closure/compile (assoc m :sm-data @comp/*source-map-data*))]
+  (if (:cache m)
+    (let [{:keys [source source-map]} (compile (assoc m
+                                                 :sm-data @comp/*source-map-data*))]
       (when source-map
         (swap! st assoc-in [:source-maps (:name (:cache m))] source-map))
       (assoc m :source source))
@@ -947,7 +956,7 @@
       (set! *e (skip-cljsjs-eval-error e)))))
 
 (defn- get-eval-fn []
-  (cond-> caching-js-eval (simple-optimizations?) (comp compiling)))
+  (cond-> caching-js-eval (compile?) (comp compiling)))
 
 (defn- ^:export run-main
   [main-ns & args]
@@ -1608,7 +1617,7 @@
   [source-text]
   (fn [x cb]
     (when (:source x)
-      (let [x (cond-> x (simple-optimizations?) closure/compile)
+      (let [x (cond-> x (compile?) compile)
             [file-namespace relpath] (extract-cache-metadata-mem source-text)
             cache  (get-namespace file-namespace)]
         (write-cache relpath file-namespace (:source x) cache)))

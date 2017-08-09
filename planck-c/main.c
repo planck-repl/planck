@@ -60,6 +60,8 @@ void usage(char *program_name) {
     printf("    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n");
     printf("                                for unknown functions, but instead direct\n");
     printf("                                invokes via f(a0,a1...).\n");
+    printf("    -O x, --optimizations x     Closure compiler level applied to source loaded\n");
+    printf("                                from namespaces: none, whitespace, or simple.\n");
     printf("    -A x, --checked-arrays x    Enables checked arrays where x is either warn\n");
     printf("                                or error.\n");
     printf("    -a, --elide-asserts         Set *assert* to false to remove asserts\n");
@@ -277,6 +279,7 @@ int main(int argc, char **argv) {
     config.checked_arrays = NULL;
     config.static_fns = false;
     config.elide_asserts = false;
+    config.optimizations = "none";
     config.cache_path = NULL;
     config.theme = NULL;
     config.dumb_terminal = false;
@@ -288,8 +291,6 @@ int main(int argc, char **argv) {
     config.scripts = NULL;
 
     config.main_ns_name = NULL;
-
-    config.compile = false;
 
     config.socket_repl_port = 0;
     config.socket_repl_host = NULL;
@@ -309,6 +310,7 @@ int main(int argc, char **argv) {
             {"checked-arrays",   required_argument, NULL, 'A'},
             {"static-fns",       no_argument,       NULL, 's'},
             {"fn-invoke-direct", no_argument,       NULL, 'f'},
+            {"optimizations",    required_argument, NULL, 'O'},
             {"elide-asserts",    no_argument,       NULL, 'a'},
             {"cache",            required_argument, NULL, 'k'},
             {"eval",             required_argument, NULL, 'e'},
@@ -333,11 +335,8 @@ int main(int argc, char **argv) {
     int opt, option_index;
     bool did_encounter_main_opt = false;
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(argc, argv, "ZXh?VS:D:L:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(argc, argv, "O:Xh?VS:D:L:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'Z':
-                config.compile = true;
-                break;
             case 'X':
                 init_launch_timing();
                 break;
@@ -371,6 +370,18 @@ int main(int argc, char **argv) {
                     config.checked_arrays = "error";
                 } else {
                     print_usage_error("checked-arrays value must be warn or error", argv[0]);
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'O':
+                if (!strcmp(optarg, "none")) {
+                    config.optimizations = "none";
+                } else if (!strcmp(optarg, "whitespace")) {
+                    config.optimizations = "whitespace";
+                } else if (!strcmp(optarg, "simple")) {
+                    config.optimizations = "simple";
+                } else {
+                    print_usage_error("optimizations value must be none, whitespace, or simple", argv[0]);
                     return EXIT_FAILURE;
                 }
                 break;
