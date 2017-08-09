@@ -398,16 +398,20 @@
 
 (defn- completion-candidates-for-ns
   [ns-sym allow-private?]
-  (map (comp str key)
-    (into []
-      (comp
-        (filter (if allow-private?
-                  identity
-                  #(not (:private (val %)))))
-        (remove #(:anonymous (val %))))
-      (apply merge
-        ((juxt :defs :macros)
-         (get-namespace ns-sym))))))
+  (if (string/starts-with? (str ns-sym) "goog")
+    (if (find-ns ns-sym)
+      (into [] (js-keys (.getObjectByName js/goog (str ns-sym))))
+      [])
+    (map (comp str key)
+      (into []
+        (comp
+          (filter (if allow-private?
+                    identity
+                    #(not (:private (val %)))))
+          (remove #(:anonymous (val %))))
+        (apply merge
+          ((juxt :defs :macros)
+           (get-namespace ns-sym)))))))
 
 (defn- is-completion?
   [match-suffix candidate]

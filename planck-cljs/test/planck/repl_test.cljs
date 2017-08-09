@@ -115,6 +115,10 @@
     (is-contains-completion "(?" "(?merge" not)
     (is-contains-completion "(MER" "(merge")))
 
+(deftest completions-for-goog-ns
+  (is (some #{"isArrayLike"} (planck.repl/completion-candidates-for-ns 'goog false)))
+  (is (some #{"trimLeft"} (planck.repl/completion-candidates-for-ns 'goog.string false))))
+
 (deftest doc-test
   (is (empty? (with-out-str (planck.repl/doc every)))))
 
