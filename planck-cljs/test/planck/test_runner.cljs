@@ -5,6 +5,7 @@
    [fipp.edn]
    [general.core-test]
    [general.fipp-test]
+   [planck.closure-test]
    [planck.core :refer [exit]]
    [planck.core-test]
    [planck.http-test]
@@ -25,5 +26,6 @@
     'planck.repl-test
     'planck.js-deps-test
     'planck.http-test
+    'planck.closure-test
     'general.core-test
     'general.fipp-test))
