@@ -143,7 +143,19 @@ void process_child_pipes(struct ThreadParams *params) {
     bool err_eof = false;
 
     if (params->in_str) {
-        write(params->inpipe, params->in_str, strlen(params->in_str));
+        char *to_write = params->in_str;
+        bool done = false;
+        while (!done) {
+            ssize_t result = write(params->inpipe, to_write, strlen(to_write));
+            if (result == -1) {
+                engine_perror("planck.shell write in");
+                done = true;
+            } else if (result != strlen(to_write)) {
+                to_write += result;
+            } else {
+                done = true;
+            }
+        }
         close(params->inpipe);
     }
 
