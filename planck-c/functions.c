@@ -69,10 +69,10 @@ JSValueRef function_read_file(JSContextRef ctx, JSObjectRef function, JSObjectRe
     // TODO: implement fully
 
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeString) {
-        char path[100];
+        char path[PATH_MAX];
         JSStringRef path_str = JSValueToStringCopy(ctx, args[0], NULL);
-        assert(JSStringGetLength(path_str) < 100);
-        JSStringGetUTF8CString(path_str, path, 100);
+        assert(JSStringGetLength(path_str) < PATH_MAX);
+        JSStringGetUTF8CString(path_str, path, PATH_MAX);
         JSStringRelease(path_str);
 
         // debug_print_value("read_file", ctx, args[0]);
