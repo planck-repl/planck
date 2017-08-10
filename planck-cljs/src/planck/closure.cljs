@@ -31,7 +31,8 @@
     (println "Closure compilation errors" (.-errors results))
     (throw (ex-info "Closure compilation errors" {:name          name
                                                   :optimizations optimizations
-                                                  :errors        (.-errors results)}))))
+                                                  :errors        (.-errors results)})))
+  results)
 
 (defn- extract-results
   [source sm-data results]
