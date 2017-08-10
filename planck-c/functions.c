@@ -535,10 +535,10 @@ JSValueRef function_import_script(JSContextRef ctx, JSObjectRef function, JSObje
                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeString) {
         JSStringRef path_str_ref = JSValueToStringCopy(ctx, args[0], NULL);
-        assert(JSStringGetLength(path_str_ref) < 100);
-        char tmp[100];
+        assert(JSStringGetLength(path_str_ref) < PATH_MAX);
+        char tmp[PATH_MAX];
         tmp[0] = '\0';
-        JSStringGetUTF8CString(path_str_ref, tmp, 100);
+        JSStringGetUTF8CString(path_str_ref, tmp, PATH_MAX);
         JSStringRelease(path_str_ref);
 
         bool can_skip_load = false;
