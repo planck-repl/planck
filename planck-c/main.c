@@ -586,6 +586,13 @@ int main(int argc, char **argv) {
             script.expression = false;
         }
 
+#ifdef JAVASCRIPT_CORE_3
+        // These two lines appear to work around a bad bug where things crash on Linux with JSC 3
+        // when running planck in non-REPL mode (executing a script)
+        evaluate_source("text", "nil", true, false, NULL, config.theme, true, 0);
+        evaluate_source("text", "(require 'planck.repl)", true, false, NULL, config.theme, true, 0);
+#endif
+
         evaluate_source(script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
     } else if (config.repl) {
         if (!config.quiet) {
