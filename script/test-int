@@ -1,20 +1,4 @@
-#!planck-c/build/planck
-(ns planck.test
-  (:require [planck.shell :refer [sh]]
-            [planck.core :refer [exit]]))
+#!/usr/bin/env bash
 
-(defn succeeded? [result]
-  (zero? (:exit result)))
-
-(defn file-exists? [filename]
-  (succeeded? (sh "ls" filename)))
-
-(println "Running integration tests...")
-
-(let [test-results (sh "int-test/script/run-tests")]
-  (if (succeeded? test-results)
-    (println "Integration tests have passed.")
-    (do
-      (println (:out test-results))
-      (println "Integration tests have failed.")
-      (exit (:exit test-results)))))
+echo "Running integration tests..."
+int-test/script/run-tests

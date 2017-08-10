@@ -1,46 +1,13 @@
-#!planck-c/build/planck
-(ns planck.test
-  (:require [planck.shell :refer [sh]]
-            [planck.core :refer [exit]]))
+#!/usr/bin/env bash
 
-(defn succeeded? [result]
-  (zero? (:exit result)))
+set -e
 
-(defn file-exists? [filename]
-  (succeeded? (sh "ls" filename)))
+script/get-tcheck
 
-(defn print-results [results]
-  (println (:out results))
-  (println (:err results)))
+echo "Running unit tests..."
+script/test-unit
 
-(println "Running unit tests...")
+echo
+script/test-int
 
-(let [results (sh "script/get-tcheck")]
-  (when-not (succeeded? results)
-    (print-results results)
-    (exit 1)))
-
-(let [results (sh "script/test-unit")]
-  (when-not (succeeded? results)
-    (print-results results)
-    (exit 1)))
-
-(println "Running integration tests...")
-
-(let [results (sh "script/test-int")]
-  (when-not (succeeded? results)
-    (print-results results)
-    (exit 1)))
-
-(comment
-
-(println "Running core tests...")
-
-(let [results (sh "script/test-core")]
-  (when-not (succeeded? results)
-    (print-results results)
-    (println "Core tests have failed.")
-    (exit 1)))
-)
-
-(println "All tests have passed.")
+echo "All tests have passed."
