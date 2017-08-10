@@ -23,11 +23,28 @@ unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *
 	}
 EOF
 
-APPLY_CLOSURE="${APPLY_CLOSURE:-1}"
-
-if [ $APPLY_CLOSURE == "1" ]
+JAVASCRIPT_CORE="${JAVASCRIPT_CORE:-4}"
+unamestr=`uname`
+if [ "$unamestr" == 'Linux' ]
 then
-  echo "### Optimizing bundled JavaScript with Closure"
+  if [ ! -d /usr/include/webkitgtk-4.0 ] && [ -d /usr/include/webkitgtk-3.0 ]
+  then
+    echo "Detected JavaScriptCore 3"
+    JAVASCRIPT_CORE=3
+  fi
+fi
+
+CLOSURE_OPTIMIZATIONS="${CLOSURE_OPTIMIZATIONS:-SIMPLE}"
+
+if [ $JAVASCRIPT_CORE == "3" ] && [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
+then
+  echo "Because JavaScriptCore 3, setting Closure Optimizations to WHITESPACE_ONLY"
+  CLOSURE_OPTIMIZATIONS=WHITESPACE_ONLY
+fi
+
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
+then
+  echo "### Optimizing bundled JavaScript with Closure Optimizations:" $CLOSURE_OPTIMIZATIONS
 fi
 
 cd out
@@ -51,15 +68,15 @@ for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*
 do 
 file=${file:2}
 cp -p $file $file.bak
-if [ $APPLY_CLOSURE == "1" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ]
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ]
 then
   if [ ! -f $file.simple ] || [ $file -nt $file.simple ]
   then
     if [ -f $file.map ]
     then
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple --source_map_input $file\|$file.map --create_source_map $file.map.simple
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple --source_map_input $file\|$file.map --create_source_map $file.map.simple
     else
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple
     fi
     echo -n "."
   fi
@@ -87,7 +104,7 @@ cat <<EOF >> ../bundle_dict.c
 	}
 EOF
 done
-if [ $APPLY_CLOSURE == "1" ]
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
 then
   echo
 fi
