@@ -501,6 +501,16 @@ nil
 nil
 end
 nil
+Test chained timer and sh-async keeps script going
+5
+{:exit 0, :out "", :err ""}
+4
+{:exit 0, :out "", :err ""}
+3
+{:exit 0, :out "", :err ""}
+2
+{:exit 0, :out "", :err ""}
+1
 Disable asserts
 nil
 Testing console logging
