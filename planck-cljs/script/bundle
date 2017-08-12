@@ -68,7 +68,7 @@ for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*
 do 
 file=${file:2}
 cp -p $file $file.bak
-if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ]
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ]
 then
   if [ ! -f $file.simple ] || [ $file -nt $file.simple ]
   then

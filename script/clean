@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+rm -rf compiler
+
 cd planck-cljs
 script/clean
 cd ..

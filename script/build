@@ -12,7 +12,7 @@ checkCmdSuccess() {
     fi
 }
 
-export CLOSURE_RELEASE="20170626"
+export CLOSURE_RELEASE="20170806"
 script/get-closure-compiler
 
 NON_BUNDLED_SRC=`find planck-cljs -type f -newer planck-c/bundle.c`

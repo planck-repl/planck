@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-CLOSURE_RELEASE="20170626"
 if [ ! -f compiler/closure-compiler-v$CLOSURE_RELEASE.jar ]; then
   echo "Fetching Google Closure compiler..."
   mkdir -p compiler
