@@ -70,21 +70,21 @@ file=${file:2}
 cp -p $file $file.bak
 if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
 then
-  if [ ! -f $file.simple ] || [ $file -nt $file.simple ]
+  if [ ! -f $file.optim ] || [ $file -nt $file.optim ]
   then
     if [ -f $file.map ]
     then
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple --source_map_input $file\|$file.map --create_source_map $file.map.simple
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim
     else
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.simple
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.optim
     fi
     echo -n "."
   fi
-  cp $file.simple $file
+  cp $file.optim $file
 fi
-if [ ${file: -4} == ".map" ] && [ -f $file.simple ]
+if [ ${file: -4} == ".map" ] && [ -f $file.optim ]
 then
-  cp $file.simple $file
+  cp $file.optim $file
 fi
 uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
