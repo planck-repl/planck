@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-rm -rf compiler
+if [ -z "$BUILD_PPA" ]; then
+    rm -rf compiler
+fi
 
 cd planck-cljs
 script/clean

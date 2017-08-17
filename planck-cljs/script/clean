@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 script/lein clean
-rm -f jscomp.js
+if [ -z "$BUILD_PPA" ]; then
+    rm -f jscomp.js
+fi
 rm -rf resources
 rm -rf tools.reader
 rm -rf clojurescript
