@@ -9,8 +9,7 @@ On Ubuntu, clone and then make a sources archive that includes all necessary JAR
 0. `cd planck`
 0. `script/build-sandbox`
 0. `cp ~/.lein/self-installs/leiningen-2.7.1-standalone.jar planck-cljs/sandbox-m2`
-0. Remove line that removes `jscomp.js`
-0. `script/clean`
+0. `BUILD_PPA=1 script/clean`
 0. `cd ..`
 0. `tar cvzf planck_2.0.0.orig.tar.gz planck`
 
