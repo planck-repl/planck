@@ -937,6 +937,13 @@
         (recur (next extensions)))
       (cb nil))))
 
+(defn- load-cljs-nodejs
+  "Loads a minimal facsimile of cljs.nodejs"
+  [name path cb]
+  (swap! name-path assoc name path)
+  (cb {:source "(ns cljs.nodejs)\n(defn enable-util-print! [])"
+       :lang :clj}))
+
 ; file here is an alternate parameter denoting a filesystem path
 (defn- load
   [{:keys [name macros path file] :as full} cb]
@@ -946,6 +953,7 @@
                            :source ""})
     (re-matches #"^goog/.*" path) (load-goog name cb)
     (deps/js-lib? name) (load-js-lib name cb)
+    (= name 'cljs.nodejs) (load-cljs-nodejs name path cb)
     :else (load-other name path macros cb)))
 
 (declare skip-cljsjs-eval-error)

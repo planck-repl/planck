@@ -708,3 +708,10 @@ echo ""
 #(require '[calculator :refer [add]])
 #(add 2 3)
 #REPL_INPUT
+
+echo "Test cljs.nodejs"
+$PLANCK <<REPL_INPUT
+(require '[cljs.nodejs :as nodejs])
+(nodejs/enable-util-print!)
+(println "hi")
+REPL_INPUT

@@ -525,3 +525,8 @@ nulltruea1[
 ]{
  "foo": 1
 }
+Test cljs.nodejs
+nil
+nil
+hi
+nil
