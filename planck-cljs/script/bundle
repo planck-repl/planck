@@ -36,7 +36,11 @@ fi
 
 CLOSURE_OPTIMIZATIONS="${CLOSURE_OPTIMIZATIONS:-SIMPLE}"
 
-if [ $JAVASCRIPT_CORE == "3" ] && [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
+if [ ${CANARY_BUILD:-0} == "1" ]
+then
+  echo "Because this is a Canary build, setting Closure Optimizations to NONE"
+  CLOSURE_OPTIMIZATIONS=NONE
+elif [ $JAVASCRIPT_CORE == "3" ] && [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
 then
   echo "Because JavaScriptCore 3, setting Closure Optimizations to WHITESPACE_ONLY"
   CLOSURE_OPTIMIZATIONS=WHITESPACE_ONLY
