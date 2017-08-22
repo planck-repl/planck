@@ -34,16 +34,32 @@ then
   fi
 fi
 
-CLOSURE_OPTIMIZATIONS="${CLOSURE_OPTIMIZATIONS:-SIMPLE}"
+FAST_BUILD="${FAST_BUILD:-0}"
 
 if [ ${CANARY_BUILD:-0} == "1" ]
 then
-  echo "Because this is a Canary build, setting Closure Optimizations to NONE"
+  echo "Because this is a Canary build, setting FAST_BUILD=1"
+  FAST_BUILD=1
+fi
+
+CLOSURE_OPTIMIZATIONS="${CLOSURE_OPTIMIZATIONS:-SIMPLE}"
+
+if [ $FAST_BUILD == "1" ]
+then
+  echo "Because this is a fast build, setting Closure Optimizations to NONE"
   CLOSURE_OPTIMIZATIONS=NONE
 elif [ $JAVASCRIPT_CORE == "3" ] && [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
 then
   echo "Because JavaScriptCore 3, setting Closure Optimizations to WHITESPACE_ONLY"
   CLOSURE_OPTIMIZATIONS=WHITESPACE_ONLY
+fi
+
+AOT_DECODE_SOURCE_MAPS="${AOT_DECODE_SOURCE_MAPS:-1}"
+
+if [ $FAST_BUILD == "1" ]
+then
+  echo "Because this is a fast build, disabling AOT decoding of source maps"
+  AOT_DECODE_SOURCE_MAPS=0
 fi
 
 if [ $CLOSURE_OPTIMIZATIONS != "NONE" ]
@@ -91,7 +107,7 @@ then
   cp $file.optim $file
 fi
 # For the second pass, we will have the planck binary available and we can use it to AOT decode source maps
-if [ ${file: -4} == ".map" ] && [ -f ../../planck-c/build/planck ]
+if [ $AOT_DECODE_SOURCE_MAPS == "1" ] && [ ${file: -4} == ".map" ] && [ -f ../../planck-c/build/planck ]
 then
   echo -n "."
   ../../planck-c/build/planck ../script/decode.cljs $file

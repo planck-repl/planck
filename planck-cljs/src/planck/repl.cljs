@@ -1000,12 +1000,19 @@
     (let [source-map-path  (fn [ns-sym]
                              (str (cljs.js/ns->relpath ns-sym) ".js.map"))
           load-source-maps (fn [ns-sym]
-                             (let [sm (-> ns-sym
-                                        source-map-path
-                                        js/PLANCK_LOAD
-                                        first
-                                        transit-json->cljs)]
-                               (swap! st assoc-in [:source-maps ns-sym] sm)))]
+                             (when-let [sm-text (->> ns-sym
+                                                  source-map-path
+                                                  js/PLANCK_LOAD
+                                                  first)]
+                               ;; Detect if we have source maps in need of decoding
+                               ;; or if they are AOT decoded.
+                               (if (or (string/starts-with? sm-text "{\"version\"")
+                                       (string/starts-with? sm-text "{\n\"version\""))
+                                 (cljs/load-source-map! st ns-sym (->> ns-sym
+                                                                    source-map-path
+                                                                    js/PLANCK_LOAD
+                                                                    first))
+                                 (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))))]
       ;; Source maps for bundled macros namespaces other than cljs.core are loaded
       ;; via their cached ".js.map.json" file.
       (doseq [ns-sym '[cljs.core
