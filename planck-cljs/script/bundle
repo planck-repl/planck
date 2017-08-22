@@ -90,6 +90,12 @@ if [ ${file: -4} == ".map" ] && [ -f $file.optim ]
 then
   cp $file.optim $file
 fi
+# For the second pass, we will have the planck binary available and we can use it to AOT decode source maps
+if [ ${file: -4} == ".map" ] && [ -f ../../planck-c/build/planck ]
+then
+  echo -n "."
+  ../../planck-c/build/planck ../script/decode.cljs $file
+fi
 uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
 mv $file.bak $file

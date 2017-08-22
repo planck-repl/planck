@@ -1000,10 +1000,12 @@
     (let [source-map-path  (fn [ns-sym]
                              (str (cljs.js/ns->relpath ns-sym) ".js.map"))
           load-source-maps (fn [ns-sym]
-                             (cljs/load-source-map! st ns-sym (->> ns-sym
-                                                                source-map-path
-                                                                js/PLANCK_LOAD
-                                                                first)))]
+                             (let [sm (-> ns-sym
+                                        source-map-path
+                                        js/PLANCK_LOAD
+                                        first
+                                        transit-json->cljs)]
+                               (swap! st assoc-in [:source-maps ns-sym] sm)))]
       ;; Source maps for bundled macros namespaces other than cljs.core are loaded
       ;; via their cached ".js.map.json" file.
       (doseq [ns-sym '[cljs.core
