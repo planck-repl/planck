@@ -36,9 +36,9 @@ fi
 
 FAST_BUILD="${FAST_BUILD:-0}"
 
-if [ ${CANARY_BUILD:-0} == "1" ]
+if [ ! -z "$TRAVIS_OS_NAME" ]
 then
-  echo "Because this is a Canary build, setting FAST_BUILD=1"
+  echo "Because this is a CI build, setting FAST_BUILD=1"
   FAST_BUILD=1
 fi
 
