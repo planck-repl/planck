@@ -28,6 +28,33 @@
    [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
    [planck.themes :refer [get-theme]]))
 
+(defn- distinct-by
+  "Returns a lazy sequence of the elements of coll, removing any elements that
+  return duplicate values when passed to a function f."
+  ([f]
+   (fn [rf]
+     (let [seen (volatile! #{})]
+       (fn
+         ([] (rf))
+         ([result] (rf result))
+         ([result x]
+          (let [fx (f x)]
+            (if (contains? @seen fx)
+              result
+              (do (vswap! seen conj fx)
+                  (rf result x)))))))))
+  ([f coll]
+   (let [step (fn step [xs seen]
+                (lazy-seq
+                  ((fn [[x :as xs] seen]
+                     (when-let [s (seq xs)]
+                       (let [fx (f x)]
+                         (if (contains? seen fx)
+                           (recur (rest s) seen)
+                           (cons x (step (rest s) (conj seen fx)))))))
+                   xs seen)))]
+     (step coll #{}))))
+
 #_(s/fdef planck.repl$macros/dir
     :args (s/cat :sym symbol?))
 
@@ -690,12 +717,14 @@
         (when sourcemap-json "and source map ")
         "for " path))))
 
+(declare strip-source-map)
+
 (defn- write-cache
   [path name source cache]
   (when (and path source cache (:cache-path @app-env))
     (let [cache-json     (cljs->transit-json cache)
           sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps (:name cache)])]
-                           (cljs->transit-json sm))]
+                           (cljs->transit-json (strip-source-map sm)))]
       (log-cache-activity :write path cache-json sourcemap-json)
       (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
         (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
@@ -1161,6 +1190,22 @@
            :when (not= demunged "cljs.core/-invoke [cljs.core/IFn]")]
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
+
+(defn- strip-source-map
+  "Strips a source map down to the minimal representation needed for mapping
+  stacktraces. This means we only need the :line and :col fields, we only need
+  the last element in each vector of such maps, and we can eliminate
+  duplicates, taking the smallest col number for each unique value."
+  [sm]
+  (into {}
+    (map (fn [[row cols]]
+           [row (->> cols
+                  (map (fn [[col frames]]
+                         [col [(select-keys (peek frames) [:line :col])]]))
+                  (sort-by first)
+                  (distinct-by second)
+                  (into {}))]))
+    sm))
 
 (defonce ^:private can-show-indicator (atom false))
 

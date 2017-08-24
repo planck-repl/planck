@@ -2,7 +2,8 @@
   (:require
    [cljs.source-map :as sm]
    [cognitect.transit :as transit]
-   [planck.core :refer [slurp spit]]))
+   [planck.core :refer [slurp spit]]
+   [planck.repl :refer [strip-source-map]]))
 
 (defn cljs->transit-json
   [x]
@@ -12,5 +13,6 @@
 (let [file (first *command-line-args*)
       sm-json (slurp file)
       decoded (sm/decode (.parse js/JSON sm-json))
-      decoded-transit-json (cljs->transit-json decoded)]
-  (spit file decoded-transit-json))
+      stripped (strip-source-map decoded)
+      transit-json (cljs->transit-json stripped)]
+  (spit file transit-json))

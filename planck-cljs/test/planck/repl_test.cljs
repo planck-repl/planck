@@ -141,3 +141,9 @@
   (is (thrown? js/Error (planck.repl/repl-read-string "34f")))
   (is (thrown? js/Error (planck.repl/repl-read-string "a:")))
   (is (thrown? js/Error (planck.repl/repl-read-string "]"))))
+
+(deftest strip-source-map-test
+  (let [input-sm {0 {2 [{:line 1 :col 1} {:line 2 :col 2 :name "a"}]
+                     3 [{:line 2 :col 2 :name "b"}]}}
+        stripped {0 {2 [{:line 2 :col 2}]}}]
+    (is (= stripped (planck.repl/strip-source-map input-sm)))))
