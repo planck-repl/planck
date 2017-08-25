@@ -315,6 +315,20 @@ void run_main_in_ns(char *ns, size_t argc, char **argv) {
     JSObjectCallAsFunction(ctx, run_main_fn, global_obj, num_arguments, arguments, NULL);
 }
 
+void run_main_cli_fn() {
+    int err = block_until_engine_ready();
+    if (err) {
+        engine_println(block_until_engine_ready_failed_msg);
+        return;
+    }
+
+    JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
+    JSObjectRef run_main_cli_fn = get_function("planck.repl", "run-main-cli-fn");
+    acquire_eval_lock();
+    JSObjectCallAsFunction(ctx, run_main_cli_fn, global_obj, 0, NULL, NULL);
+    release_eval_lock();
+}
+
 char *get_current_ns() {
     int err = block_until_engine_ready();
     if (err) {

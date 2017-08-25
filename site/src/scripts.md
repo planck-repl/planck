@@ -40,6 +40,8 @@ Hello there!
 
 ### Main Function
 
+#### Specifying the Main Namespace
+
 If you'd like your script to start execution by executing a main function, you can make use of Planck's `-m` command-line option, specifying the namespace containing a `-main` function. Let's say you have `foo/core.cljs` with:
 
 ```
@@ -58,6 +60,34 @@ then this works:
 $ planck -m foo.core ClojureScript
 Hello ClojureScript!
 ```
+
+#### Specifying the Main Function
+
+Alternatively, you can make use of `cljs.core/*main-cli-fn*`. If this Var is set to a function, and `-m` hasn't been specified, then the main function will be called.
+
+This can be especially useful for standalone scripts on Linux, where it is not possible to specify interpreter arguments in the shebang line. Consider this alternative to the above, where this file is saved as `foo`:
+
+```
+#!/usr/bin/env planck
+(ns foo.core)
+
+(defn greet [name]
+  (println (str "Hello " name "!")))
+
+(defn -main [name]
+  (greet name))
+  
+(set! *main-cli-fn* -main)
+```
+
+Then this works:
+
+```
+$ ./foo ClojureScript
+Hello ClojureScript!
+```
+
+All that needs to be ensured is that the code that `set!`s `*main-cli-fn*` is called, either via a `-e` to require the needed namespace, or by direct execution as in the example above.
 
 ### Interacting with standard input and output
 

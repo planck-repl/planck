@@ -1000,6 +1000,13 @@
 (defn- get-eval-fn []
   (cond-> caching-js-eval (compile?) (comp compiling)))
 
+(defn- run-main-impl
+  [main args]
+  (try
+    (apply main args)
+    (catch :default e
+      (handle-error e true))))
+
 (defn- ^:export run-main
   [main-ns & args]
   (let [main-args (js->clj args)
@@ -1017,11 +1024,13 @@
               nil
               (merge opts {:ns (symbol main-ns)})
               (fn [{:keys [ns value error] :as ret}]
-                (try
-                  (apply value main-args)
-                  (catch :default e
-                    (handle-error e true)))))))))
+                (run-main-impl value main-args)))))))
     nil))
+
+(defn- ^:export run-main-cli-fn
+  []
+  (when (fn? *main-cli-fn*)
+    (run-main-impl *main-cli-fn* *command-line-args*)))
 
 (defn- load-bundled-source-maps!
   []

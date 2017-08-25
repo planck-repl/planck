@@ -33,6 +33,16 @@ Test main unhandled
 1
 Test main exit
 17
+Test main cli fn
+"Hello" "World"
+Test main cli fn zero
+0
+Test main cli fn one
+0
+Test main cli fn unhandled
+1
+Test main cli fn exit
+17
 Test REPL exit
 nil
 118

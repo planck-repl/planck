@@ -87,6 +87,26 @@ echo "Test main exit"
 $PLANCK -c $SRC -m test-main.exit 
 echo $?
 
+echo "Test main cli fn"
+$PLANCK $SRC/test_main_cli_fn/core.cljs Hello World
+
+echo "Test main cli fn zero"
+$PLANCK $SRC/test_main_cli_fn/zero.cljs
+echo $?
+
+echo "Test main cli fn one"
+# Return value of main is _not_ the return value
+$PLANCK $SRC/test_main_cli_fn/one.cljs
+echo $? 
+
+echo "Test main cli fn unhandled"
+$PLANCK $SRC/test_main_cli_fn/unhandled.cljs > /dev/null
+echo $?
+
+echo "Test main cli fn exit"
+$PLANCK $SRC/test_main_cli_fn/exit.cljs
+echo $?
+
 echo "Test REPL exit"
 $PLANCK <<REPL_INPUT
 (require 'planck.core)

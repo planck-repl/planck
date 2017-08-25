@@ -602,6 +602,10 @@ int main(int argc, char **argv) {
         run_repl();
     }
 
+    if (!config.repl && !config.main_ns_name) {
+        run_main_cli_fn();
+    }
+
     if (exit_value == EXIT_SUCCESS) {
         block_until_tasks_complete();
     }

@@ -27,6 +27,8 @@ JSObjectRef get_function(char *namespace, char *name);
 
 void run_main_in_ns(char *ns, size_t argc, char **argv);
 
+void run_main_cli_fn();
+
 char *get_current_ns();
 
 char **get_completions(const char *buffer, int *num_completions);
