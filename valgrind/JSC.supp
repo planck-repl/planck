@@ -1,0 +1,27 @@
+{
+   <jsccond>
+   Memcheck:Cond
+   ...
+   obj:/usr/lib/*/libjavascriptcore*
+}
+
+{
+   <jscval8>
+   Memcheck:Value8
+   ...
+   obj:/usr/lib/*/libjavascriptcore*
+}
+
+{
+   <jscaddr8>
+   Memcheck:Addr8
+   ...
+   obj:/usr/lib/*/libjavascriptcore*
+}
+
+{
+   <jscaddr4>
+   Memcheck:Addr4
+   ...
+   obj:/usr/lib/*/libjavascriptcore*
+}
