@@ -104,13 +104,15 @@ char *get_cljs_version() {
         free(bundle_js);
         return version;
     } else {
-        return "(Unknown)";
+        return strdup("(Unknown)");
     }
 }
 
 void banner() {
     printf("Planck %s\n", PLANCK_VERSION);
-    printf("ClojureScript %s\n", get_cljs_version());
+    char* cljs_version = get_cljs_version();
+    printf("ClojureScript %s\n", cljs_version);
+    free(cljs_version);
 
     printf("    Docs: (doc function-name-here)\n");
     printf("          (find-doc \"part-of-name-here\")\n");
