@@ -530,7 +530,6 @@ int run_repl() {
     repl_t *repl = make_repl();
     s_repl = repl;
 
-    repl->current_ns = strdup("cljs.user");
     repl->current_prompt = form_prompt(repl, false);
 
     // Per-type initialization
