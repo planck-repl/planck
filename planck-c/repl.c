@@ -245,11 +245,14 @@ bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
 pthread_mutex_t repl_print_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void run_cmdline_loop(repl_t *repl) {
+
+    char *input_line = NULL;
+
     while (true) {
-        char *input_line = NULL;
 
         if (config.dumb_terminal) {
             display_prompt(repl->current_prompt);
+            free(input_line);
             input_line = get_input();
             if (input_line == NULL) { // Ctrl-D pressed
                 printf("\n");
@@ -301,6 +304,7 @@ void run_cmdline_loop(repl_t *repl) {
                 }
             }
 
+            free(input_line);
             input_line = line;
         }
 
@@ -332,6 +336,8 @@ void run_cmdline_loop(repl_t *repl) {
             break;
         }
     }
+
+    free(input_line);
 }
 
 void completion(const char *buf, linenoiseCompletions *lc) {
