@@ -276,8 +276,10 @@ void run_cmdline_loop(repl_t *repl) {
                 fprintf(stdout, "\n");
             }
 
-            char *line = linenoise(repl->current_prompt, form_prompt(repl, true), prompt_ansi_code_for_theme(config.theme),
+            char *secondary_prompt = form_prompt(repl, true);
+            char *line = linenoise(repl->current_prompt, secondary_prompt, prompt_ansi_code_for_theme(config.theme),
                                    repl->indent_space_count);
+            free(secondary_prompt);
 
             pthread_mutex_lock(&repl_print_mutex);
 
