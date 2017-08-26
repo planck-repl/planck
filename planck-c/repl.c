@@ -308,7 +308,7 @@ void run_cmdline_loop(repl_t *repl) {
         // so that things like brace highlighting work properly.
         // But for large input, let process line more efficiently
         // handle the input.
-        bool break_out;
+        bool break_out = false;
         if (strlen(input_line) < 16384) {
             char *tokenize = strdup(input_line);
             char *saveptr;
