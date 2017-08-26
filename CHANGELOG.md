@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. This change
 - Optimizations for source map loading when first exception is printed.
 - Honor `cljs.core/*main-cli-fn*`, calling if set.
 
+### Fixed
+- Eliminate leaks and properly initialize memory.
+
 ## [2.7.3] - 2017-08-17
 ### Fixed
 - Fix issue with Ubuntu PPA release.
