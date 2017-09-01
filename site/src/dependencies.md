@@ -69,7 +69,9 @@ It is possible to use foreign libraries with Planck.
 
 > “Foreign” libraries are implemented in a language that is not ClojureScript. (In other words, JavaScript!)
 
-Planck will honor a `deps.cljs` file embedded in a JAR file. A `deps.cljs` file will have a [`:foreign-libs`](https://github.com/clojure/clojurescript/wiki/Compiler-Options#foreign-libs) specification for upstream foreign dependencies packaged in the JAR, essentially indicating the synthetic namespace, the JavaScript file that needs to be loaded, and an indication of any other dependencies that need to be loaded. 
+Planck will honor any `deps.cljs` files on the classpath (including those embedded in a JAR file). A `deps.cljs` file will have a [`:foreign-libs`](https://github.com/clojure/clojurescript/wiki/Compiler-Options#foreign-libs) specification for foreign dependencies, essentially indicating the synthetic namespace, the JavaScript file that needs to be loaded, and an indication of any other dependencies that need to be loaded.
+
+> While `deps.cljs` files are usually bundled in JAR files in order to convey upstream foreign lib dependencies, you can also put a `deps.cljs` file directly on Planck's classpath in order to specify `:foreign-libs`. (This is useful since Planck doesn't provide a command line argument mechanism for specifying foreign libs.) 
 
 One easy way to make use of foreign libs packaged in this manner is via the excellent [CLJSJS](http://cljsjs.github.io) project. While many of the libraries packaged by CLJSJS cannot work with Planck because they either require a browser environment or Node, some utility libraries work just fine.
 
