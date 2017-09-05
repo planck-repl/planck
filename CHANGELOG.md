@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Optimizations for source map loading when first exception is printed.
 - Honor `cljs.core/*main-cli-fn*`, calling if set.
+- Facsimile of `cljs.nodejs` for code calling `enable-util-print!`.
 
 ### Fixed
 - Eliminate leaks and properly initialize memory.
