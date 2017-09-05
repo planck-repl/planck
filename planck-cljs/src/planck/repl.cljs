@@ -1901,7 +1901,7 @@
   found."
   [s]
   (try
-    (when-let [var (some->> s repl-read-string first (resolve-var (assoc-in @env/*compiler* [:ns :name] (.-name *ns*))))]
+    (when-let [var (some->> s repl-read-string first (resolve-var (assoc @env/*compiler* :ns (ana/get-namespace ana/*cljs-ns*))))]
       (let [arglists (if-not (or (:macro var))
                        (:arglists var)
                        (-> var :meta :arglists second))]
