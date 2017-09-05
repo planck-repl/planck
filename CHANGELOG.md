@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - Eliminate leaks and properly initialize memory.
+- `planck.repl/get-arglists` now resolves symbols in current namespace.
 
 ## [2.7.3] - 2017-08-17
 ### Fixed
