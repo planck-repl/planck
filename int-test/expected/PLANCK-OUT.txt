@@ -540,3 +540,8 @@ nil
 nil
 hi
 nil
+Test get-arglist
+nil
+#'foo.core/fun
+([arg1 arg2])
+([f coll] [f val coll])

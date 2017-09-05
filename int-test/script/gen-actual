@@ -735,3 +735,11 @@ $PLANCK <<REPL_INPUT
 (nodejs/enable-util-print!)
 (println "hi")
 REPL_INPUT
+
+echo "Test get-arglist"
+$PLANCK <<REPL_INPUT
+(ns foo.core)
+(defn fun [arg1 arg2] (+ arg1 arg2))
+(planck.repl/get-arglists "fun")
+(planck.repl/get-arglists "reduce")
+REPL_INPUT
