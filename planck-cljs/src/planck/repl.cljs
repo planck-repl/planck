@@ -891,6 +891,7 @@
 (defn- skip-load?
   [{:keys [name macros]}]
   (or
+   (= name 'goog)
    (= name 'cljsjs.parinfer)
    (= name 'cljs.core)
    (and (= name 'clojure.core.rrb-vector.macros) macros)

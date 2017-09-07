@@ -6,6 +6,7 @@
    [clojure.test.check.clojure-test :refer-macros [defspec]]
    [clojure.test.check.generators :as gen]
    [clojure.test.check.properties :as prop :include-macros true]
+   [goog :as g]
    [planck.repl :as repl]))
 
 (deftest get-highlight-coords
@@ -147,3 +148,7 @@
                      3 [{:line 2 :col 2 :name "b"}]}}
         stripped {0 {2 [{:line 2 :col 2}]}}]
     (is (= stripped (planck.repl/strip-source-map input-sm)))))
+
+(deftest require-goog-test
+  (is (false? (g/isArrayLike nil)))
+  (is (true? (g/isArray #js []))))
