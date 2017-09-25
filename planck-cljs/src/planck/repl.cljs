@@ -1784,6 +1784,10 @@
               (merge {:context       :expr}
                 (if (load-form? expression-form)
                   {:source-map true}
+                  {:def-emits-var true})
+                ;; With CLJS-2367, we can unconditionally set :def-emits-var, thus allowing the
+                ;; self-hosted implementation to use this to detect REPLs (avoiding CLJS-2365, etc.)
+                (when-not (neg? (gstring/compareVersions *clojurescript-version* "1.9.933"))
                   {:def-emits-var true}))
               (merge {:source-map true}
                 (when (:cache-path @app-env)
