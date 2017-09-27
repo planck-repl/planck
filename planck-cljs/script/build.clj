@@ -15,12 +15,15 @@
                       (System/getenv "CLJS_CHECKED_ARRAYS") (keyword (System/getenv "CLJS_CHECKED_ARRAYS"))
                       :else false))
 
+(def non-fatal-warnings #{:redef})
+
 (cljs.analyzer/with-warning-handlers
   [(fn [warning-type env extra]
      (when (warning-type cljs.analyzer/*cljs-warnings*)
        (when-let [s (cljs.analyzer/error-message warning-type extra)]
          (binding [*out* *err*]
-           (println "WARNING:" (cljs.analyzer/message env s))
+           (println "WARNING:" (cljs.analyzer/message env s)))
+         (when-not (warning-type non-fatal-warnings)
            (System/exit 1)))))]
   (api/build (api/inputs "src")
     {:output-dir         "out"
