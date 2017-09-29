@@ -506,8 +506,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    init_classpath(classpath);
-
+    if (classpath) {
+        init_classpath(classpath);
+    }
 
     if (config.num_src_paths == 0) {
         char *classpath = getenv("PLANCK_CLASSPATH");
