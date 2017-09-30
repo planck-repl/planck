@@ -23,24 +23,25 @@ export LEIN_JVM_OPTS=
 export LEIN_SILENT=true
 
 if [ -n "$CLJS_COMMIT" ]; then
-  if [ ! -e clojurescript ]; then
-     git clone https://github.com/clojure/clojurescript --quiet
-     cd clojurescript
-     git reset --hard $CLJS_COMMIT
-     # Apply patches
-     # curl -L http://dev.clojure.org/jira/secure/attachment/16577/CLJS-1997.patch | git apply
-     # Deal with the case when building in sandbox mode
-     if [ -e ../profiles.clj ]; then
-         export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
-         echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
-     fi
-     script/uberjar > /dev/null 2>&1
-     cd ..
+  if [ -e clojurescript ]; then
+    rm -rf clojurescript
   fi
-  CLJSC_CP=clojurescript/target/cljs.jar:`script/lein with-profile build-commit classpath`
-else
-  CLJSC_CP=`script/lein with-profile build-release classpath`
+  git clone https://github.com/clojure/clojurescript --quiet
+  cd clojurescript
+  git reset --hard $CLJS_COMMIT
+  # Apply patches
+  # curl -L http://dev.clojure.org/jira/secure/attachment/16577/CLJS-1997.patch | git apply
+  # Deal with the case when building in sandbox mode
+  if [ -e ../profiles.clj ]; then
+      export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
+      echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
+  fi
+  export CLJS_VERSION=`script/build 2> /dev/null | grep 'Building ClojureScript' | tail -1 | cut -c 31-`
+  echo Using locally built ClojureScript $CLJS_VERSION
+  cd ..
 fi
+
+CLJSC_CP=`script/lein with-profile build-release classpath`
 
 mkdir -p out/cljs/analyzer
 java -cp $CLJSC_CP clojure.main script/build.clj
