@@ -7,7 +7,7 @@ On Ubuntu, clone and then make a sources archive that includes all necessary JAR
 0. `ssh` to Ubuntu build box.
 0. `git clone https://github.com/mfikes/planck`
 0. `cd planck`
-0. `script/build-sandbox`
+0. `FAST_BUILD=1 script/build-sandbox`
 0. `cp ~/.lein/self-installs/leiningen-2.7.1-standalone.jar planck-cljs/sandbox-m2`
 0. `BUILD_PPA=1 script/clean`
 0. `cd ..`
