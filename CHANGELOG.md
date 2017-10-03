@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file. This change
 - Honor `cljs.core/*main-cli-fn*`, calling if set.
 - Facsimile of `cljs.nodejs` for code calling `enable-util-print!`.
 
+### Changed
+- ClojureScript 1.9.946.
+
 ### Fixed
 - Eliminate leaks and properly initialize memory.
 - `planck.repl/get-arglists` now resolves symbols in current namespace.
