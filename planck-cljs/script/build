@@ -13,6 +13,11 @@ CLJS_COMMIT="${CLJS_COMMIT:-}"
 set -e
 set -o pipefail
 
+# Handle case where LEIN_HOME has been set
+if [ -n "$LEIN_HOME" ]; then
+  export LEIN_HOME=../lein_home
+fi
+
 # Initialize lein if it hasn't yet been
 script/lein -v > /dev/null 2>&1
 

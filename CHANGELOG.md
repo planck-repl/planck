@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- Fix Linux PPA build issue with build box home dir
 
 ## [2.8.0] - 2017-10-03
 ### Added

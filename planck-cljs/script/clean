@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# Handle case where LEIN_HOME has been set
+if [ -n "$LEIN_HOME" ]; then
+  export LEIN_HOME=../lein_home
+fi
+
 script/lein clean
 if [ -z "$BUILD_PPA" ]; then
     rm -f jscomp.js
