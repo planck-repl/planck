@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.8.0] - 2017-10-03
 ### Added
 - Optimizations for source map loading when first exception is printed.
 - Honor `cljs.core/*main-cli-fn*`, calling if set.
@@ -543,7 +545,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.7.3...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.8.0...HEAD
+[2.8.0]: https://github.com/mfikes/planck/compare/2.7.3...2.8.0
 [2.7.3]: https://github.com/mfikes/planck/compare/2.7.0...2.7.3
 [2.7.0]: https://github.com/mfikes/planck/compare/2.6.0...2.7.0
 [2.6.0]: https://github.com/mfikes/planck/compare/2.5.0...2.6.0
