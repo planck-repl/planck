@@ -13,7 +13,7 @@
                  [org.clojure/clojurescript ~clojurescript-version]
                  [org.clojure/test.check "0.10.0-alpha2"]
                  [com.cognitect/transit-clj "0.8.300"]
-                 [com.cognitect/transit-cljs "0.8.239"]
+                 [com.cognitect/transit-cljs "0.8.243"]
                  [fipp "0.6.8"]
                  [malabarba/lazy-map "1.3"]
                  [cljsjs/parinfer "1.8.1-0"]]
