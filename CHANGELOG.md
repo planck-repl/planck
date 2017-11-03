@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - transit-cljs 0.8.243
 
+### Fixed
+- Fix issue where source/doc would work on private planck.repl Vars ([#542](https://github.com/mfikes/planck/issues/542))
+
 ## [2.8.1] - 2017-10-03
 ### Fixed
 - Fix Linux PPA build issue with build box home dir

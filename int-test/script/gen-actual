@@ -234,14 +234,16 @@ $PLANCK <<REPL_INPUT
 (dir foo.bar)
 REPL_INPUT
 
-echo "Test doc special"
+echo "Test doc"
 $PLANCK -c $SRC <<REPL_INPUT
 (doc bogus)
 (doc inc)
 (doc when)
 (doc if)
 (doc catch)
+(doc ns-resolve)
 (doc doc)
+(doc planck.repl/doc)
 (doc fn) ; macro with :forms
 (doc IWriter)
 (defn f "docstring" [param])
@@ -257,6 +259,9 @@ $PLANCK -c $SRC <<REPL_INPUT
 (source bogus)
 (source inc)
 (source when)
+(source ns-resolve)
+(source doc)
+(source planck.repl/doc)
 (require '[test-doc-source.core :as tds])
 (source test-doc-source.core/my-function)
 (source tds/my-function)

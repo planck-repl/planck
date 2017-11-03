@@ -1320,8 +1320,8 @@
   [env sym]
   (binding [ana/*cljs-warning-handlers* nil]
     (let [var (or (with-compiler-env st (resolve-var env sym))
-                  (some #(get-macro-var env sym %)
-                    (vals (get-in @st [::ana/namespaces @current-ns :use-macros]))))]
+                  (when-let [macros-ns (sym (get-in @st [::ana/namespaces @current-ns :use-macros]))]
+                    (get-macro-var env sym macros-ns)))]
       (when var
         (-> (cond-> var
               (not (:ns var))
