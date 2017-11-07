@@ -748,3 +748,10 @@ $PLANCK <<REPL_INPUT
 (planck.repl/get-arglists "fun")
 (planck.repl/get-arglists "reduce")
 REPL_INPUT
+
+echo "Test in 'a' namespace"
+$PLANCK <<REPL_INPUT
+(ns a.core)
+(def a 3)
+a
+REPL_INPUT

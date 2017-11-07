@@ -564,3 +564,7 @@ nil
 #'foo.core/fun
 ([arg1 arg2])
 ([f coll] [f val coll])
+Test in 'a' namespace
+nil
+#'a.core/a
+3
