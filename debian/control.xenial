@@ -1,0 +1,13 @@
+Source: planck
+Section: devel
+Priority: optional
+Maintainer: Mike Fikes <mike@fikesfarm.com>
+Build-Depends: git, cmake, default-jdk, clang, pkg-config, vim-common, libjavascriptcoregtk-4.0-dev, libglib2.0-dev, libzip-dev, libcurl4-gnutls-dev, libicu-dev
+Standards-Version: 3.9.6
+Homepage: http://planck-repl.org
+
+Package: planck
+Architecture: any
+Depends: libjavascriptcoregtk-4.0-bin, libzip4
+Description: Stand-alone ClojureScript REPL
+ A stand-alone ClojureScript REPL for macOS and Linux based on JavaScriptCore.
