@@ -1923,10 +1923,6 @@
     (catch :default _
       nil)))
 
-(s/fdef get-arglists
-  :args (s/cat :s string?)
-  :ret (s/nilable (s/coll-of vector? :kind list?)))
-
 (defn- intern
   ([ns name]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
