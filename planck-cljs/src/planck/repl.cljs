@@ -559,27 +559,45 @@
   (second (re-find #"::([a-zA-Z-]*)$" buffer)))
 
 (defn- local-keyword-completions
-  [buffer kw-name]
-  (let [buffer-prefix (subs buffer 0 (- (count buffer) (count kw-name) 2))]
-    (clj->js (sequence
-               (comp
-                 (map local-keyword-str)
-                 (filter #(string/starts-with? % (str "::" kw-name)))
-                 (map #(str buffer-prefix %)))
-               (spec-registered-keywords @current-ns)))))
+  [kw-name]
+  (let [kw-source (str "::" kw-name)]
+    (clj->js (into [kw-source]
+               (sequence
+                 (comp
+                   (map local-keyword-str)
+                   (filter #(string/starts-with? % kw-source)))
+                 (spec-registered-keywords @current-ns))))))
+
+(defn- longest-common-prefix
+  [strings]
+  (let [minl (apply min (map count strings))]
+    (loop [l minl]
+      (if (> l 0)
+        (if (every? #{(subs (first strings) 0 l)}
+              (map #(subs % 0 l) (rest strings)))
+          (subs (first strings) 0 l)
+          (recur (dec l)))
+        ""))))
 
 (defn- ^:export get-completions
+  "Returns an array of the buffer-match-suffix, along with completions for the
+  entered text. If one completion is returned the line should be completed to
+  match it (in which the completion may actually only be a longest prefix from
+  the list of candiates), otherwise the list of completions should be
+  displayed."
   [buffer]
   (if-let [kw-name (local-keyword buffer)]
-    (local-keyword-completions buffer kw-name)
+    (local-keyword-completions kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
           typed-ns  (second (re-find #"\(*(\b[a-zA-Z-.<>*=&?]+)/[a-zA-Z-]*$" buffer))]
       (let [buffer-match-suffix (first (re-find #":?([a-zA-Z-.<>*=&?]*|^\(/)$" buffer))
-            buffer-prefix       (subs buffer 0 (- (count buffer) (count buffer-match-suffix)))]
-        (clj->js (map #(str buffer-prefix %)
-                   (sort
-                     (filter (partial is-completion? buffer-match-suffix)
-                       (completion-candidates top-form? typed-ns)))))))))
+            completions         (sort (filter (partial is-completion? buffer-match-suffix)
+                                        (completion-candidates top-form? typed-ns)))
+            common-prefix (longest-common-prefix completions)]
+        (if (or (empty? common-prefix)
+                (= common-prefix buffer-match-suffix))
+          (clj->js (into [buffer-match-suffix] completions))
+          #js [buffer-match-suffix common-prefix])))))
 
 (defn- is-completely-readable?
   [source]

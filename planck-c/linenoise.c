@@ -372,6 +372,8 @@ static void freeCompletions(linenoiseCompletions *lc) {
         free(lc->cvec);
 }
 
+int linenoiseEditInsert(struct linenoiseState *l, char c);
+
 /* This is an helper function for linenoiseEdit() and is called when the
  * user types the <tab> key in order to complete the string currently in the
  * input.
@@ -384,54 +386,42 @@ static int completeLine(struct linenoiseState *ls) {
     char c = 0;
 
     completionCallback(ls->buf, &lc);
-    if (lc.len == 0) {
+    if (lc.len == 1) {
         linenoiseBeep();
+    } else if (lc.len == 2) {
+        size_t i;
+        size_t prefix_len = strlen(lc.cvec[0]);
+        size_t count = strlen(lc.cvec[1]) - prefix_len;
+        for (i = 0; i < count; i++) {
+            linenoiseEditInsert(ls, lc.cvec[1][prefix_len + i]);
+        }
+        refreshLine(ls);
     } else {
-        size_t stop = 0, i = 0;
-
-        while (!stop) {
-            /* Show completion or original buffer */
-            if (i < lc.len) {
-                struct linenoiseState saved = *ls;
-
-                ls->len = ls->pos = strlen(lc.cvec[i]);
-                ls->buf = lc.cvec[i];
-                refreshLine(ls);
-                ls->len = saved.len;
-                ls->pos = saved.pos;
-                ls->buf = saved.buf;
-            } else {
-                refreshLine(ls);
-            }
-
-            nread = read(ls->ifd, &c, 1);
-            if (nread <= 0) {
-                freeCompletions(&lc);
-                return -1;
-            }
-
-            switch (c) {
-                case 9: /* tab */
-                    i = (i + 1) % (lc.len + 1);
-                    if (i == lc.len) linenoiseBeep();
-                    break;
-                case 27: /* escape */
-                    /* Re-show original buffer */
-                    if (i < lc.len) refreshLine(ls);
-                    stop = 1;
-                    break;
-                default:
-                    /* Update buffer and return */
-                    if (i < lc.len) {
-                        nwritten = snprintf(ls->buf, ls->buflen, "%s", lc.cvec[i]);
-                        ls->len = ls->pos = nwritten;
-                    }
-                    stop = 1;
-                    break;
+        size_t i;
+        size_t max_completion_length = 0;
+        for (i = 1; i < lc.len; i++) {
+            if (strlen(lc.cvec[i]) > max_completion_length) {
+                max_completion_length = strlen(lc.cvec[i]);
             }
         }
-    }
+        size_t column_width = max_completion_length + 1;
 
+        size_t columns = (getColumns(STDIN_FILENO, STDOUT_FILENO) - 4) / column_width;
+
+        char format[100];
+        sprintf(format, "%%-%zus", column_width);
+
+        for (i = 1; i < lc.len; i++) {
+            if ((i - 1) % columns == 0) {
+                printf("\r\n");
+            }
+            printf(format, lc.cvec[i]);
+            printf(" ");
+        }
+        printf("\n");
+        printf("\n");
+        refreshLine(ls);
+    }
     freeCompletions(&lc);
     return c; /* Return last read character */
 }
