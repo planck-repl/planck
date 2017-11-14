@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.9.0] - 2017-11-14
 ### Changed
 - transit-cljs 0.8.243
 - Show completion candidates when hitting tab ([#527](https://github.com/mfikes/planck/issues/527))
@@ -561,7 +563,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.8.1...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.9.0...HEAD
+[2.9.0]: https://github.com/mfikes/planck/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/mfikes/planck/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/mfikes/planck/compare/2.7.3...2.8.0
 [2.7.3]: https://github.com/mfikes/planck/compare/2.7.0...2.7.3
