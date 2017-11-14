@@ -6,7 +6,7 @@
    [cljs.spec.alpha :as s]
    [clojure.string]
    [goog.object :as gobj]
-   [planck.io :refer [as-file]]
+   [planck.io :as io :refer [as-file]]
    [planck.repl :as repl]))
 
 (def ^:dynamic *sh-dir* nil)
@@ -118,7 +118,7 @@
   (s/alt :in (s/cat :key #{:in} :val string?)
     :in-enc (s/cat :key #{:in-enc} :val string?)
     :out-enc (s/cat :key #{:out-enc} :val string?)
-    :dir (s/cat :key #{:dir} :val :planck.io/coercible-file?)
+    :dir (s/cat :key #{:dir} :val (s/or :string string? :file io/file?))
     :env (s/cat :key #{:env} :val ::string-string-map?)))
 
 (s/def ::sh-args (s/cat :cmd (s/+ string?) :opts (s/* ::sh-opt)))

@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Fix issue where source/doc would work on private planck.repl Vars ([#542](https://github.com/mfikes/planck/issues/542))
 - Fix issue where global a/b/c shadowed by locals ([#543](https://github.com/mfikes/planck/issues/543))
+- Eliminate stale reference to `coercible-file?` spec ([#544](https://github.com/mfikes/planck/issues/544))
 
 ## [2.8.1] - 2017-10-03
 ### Fixed

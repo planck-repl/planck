@@ -32,6 +32,16 @@
              (planck.shell/sh "pwd"))]
     (is (not= 0 (:exit rv)))))
 
+(deftest specify-dir-test
+  (is (string/ends-with?
+        (:out (planck.shell/sh "pwd" :dir "script"))
+        "script\n"))
+  (is (string/ends-with?
+        (:out (planck.shell/sh "pwd" :dir (planck.io/file "script")))
+        "script\n"))
+  (let [rv (planck.shell/sh "pwd" :dir "bogus")]
+    (is (not= 0 (:exit rv)))))
+
 (deftest with-sh-env-test
   (is (= "FOO=BAR\n" (:out (planck.shell/with-sh-env {"FOO" "BAR"}
                              (planck.shell/sh "env"))))))
