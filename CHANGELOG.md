@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Update build to use Lein 2.8.1
 
 ## [2.9.0] - 2017-11-14
 ### Changed
