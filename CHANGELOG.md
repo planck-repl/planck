@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Site docs for `--fn-invoke-direct` ([#547](https://github.com/mfikes/planck/issues/547))
+
 ### Changed
 - Update build to use Lein 2.8.1
 - Eliminate doc site reference to `:static-fns` as a workaround for (fixed) JavaScriptCore perf bug.
