@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Changed
 - Update build to use Lein 2.8.1
+- Eliminate doc site reference to `:static-fns` as a workaround for (fixed) JavaScriptCore perf bug.
 
 ## [2.9.0] - 2017-11-14
 ### Changed

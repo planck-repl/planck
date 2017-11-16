@@ -75,8 +75,6 @@ David Nolen [commented](https://groups.google.com/forum/m/#!msg/clojurescript/ho
 
 In short, enabling it can lead to performance benefits, being more amenable to inlining, _etc._, but usually you want to leave it turned off during dev.
 
-And—importantly for Planck—it can be used to work around a particularly severe JavaScriptCore perf [bug](http://dev.clojure.org/jira/browse/CLJS-910) that you can encounter when evaluating the JavaScript generated for lengthy literal list forms.
-
 ### Closure Optimizations
 
 You can specify the Closure compiler level to be applied to source loaded from namespaces by using `-O` or `-​-optimizations`. The allowed values are `none`, `whitespace`, and `simple`. (Planck doesn't support whole-program optimization, so `advanced` is not an option.)
