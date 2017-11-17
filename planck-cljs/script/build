@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ ! -f jscomp.js ]; then
-  curl -s -O http://planck-repl.org/releases/closure-${CLOSURE_RELEASE}.0.0/jscomp.js
+  curl -s -O http://planck-repl.org/releases/closure-${CLOSURE_JS_RELEASE}/jscomp.js
 fi
 
 # Set the CLJS_COMMIT env var to build our own copy 
