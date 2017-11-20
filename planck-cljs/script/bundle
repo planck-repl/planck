@@ -23,6 +23,8 @@ unsigned char *bundle_path_to_addr(char *path, unsigned int *len, unsigned int *
 	}
 EOF
 
+: ${XXDI:=xxd -i}
+
 JAVASCRIPT_CORE="${JAVASCRIPT_CORE:-4}"
 unamestr=`uname`
 if [ "$unamestr" == 'Linux' ]
@@ -116,7 +118,7 @@ uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
 mv $file.bak $file
 filegz=$file.gz
-xxd -i $filegz >> ../bundle.c
+${XXDI} $filegz >> ../bundle.c
 rm $filegz
 data_ref=${filegz//\//_}
 data_ref=${data_ref//\./_}
