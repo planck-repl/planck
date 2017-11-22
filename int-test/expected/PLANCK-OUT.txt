@@ -465,6 +465,10 @@ Test binding of *command-line-args* in file run from command line
 (here are some args)
 (here are some args)
 0
+Test binding of *command-line-args* in file run from command line, passing through short opts
+(here -f are -k some -sL args)
+(here -f are -k some -sL args)
+0
 Test classpath
 nil
 :src

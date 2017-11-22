@@ -572,6 +572,10 @@ echo "Test binding of *command-line-args* in file run from command line"
 $PLANCK $SRC/test_args/args_in_file.cljs here are some args
 echo $?
 
+echo "Test binding of *command-line-args* in file run from command line, passing through short opts"
+$PLANCK $SRC/test_args/args_in_file.cljs here -f are -k some -sL args
+echo $?
+
 echo "Test classpath"
 $PLANCK -c $SRC:${SRC}2 <<REPL_INPUT
 (require 'test-src-paths.core)
