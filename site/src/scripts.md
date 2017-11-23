@@ -113,13 +113,12 @@ it receives on standard input to standard out:
 
 ### Command Line Arguments
 
-If you'd like to gain access to the command line arguments passed to your script, they are available in `planck.core/*command-line-args*` (mimicking the behavior of `clojure.core/*command-line-args*` when writing scripts with Clojure).
+If you'd like to gain access to the command line arguments passed to your script, they are available in `cljs.core/*command-line-args*`.
 
 With `bar.cljs`:
 
 ```
-(ns bar.core
-  (:require [planck.core :refer [*command-line-args*]]))
+(ns bar.core)
 
 (println (str "Hello " (first *command-line-args*) "!"))
 ```
@@ -169,8 +168,7 @@ Commands can be executed by running the `sh` function as seen in the following e
 ```
 #!/usr/bin/env planck
 (ns foo.core
-  (:require [planck.shell :refer [sh]]
-            [planck.core :refer [*command-line-args*]]))
+  (:require [planck.shell :refer [sh]]))
 
 (defn list-files [dir]
   (println "listing files in" dir)

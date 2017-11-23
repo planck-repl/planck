@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 - Eliminate doc site reference to `:static-fns` as a workaround for (fixed) JavaScriptCore perf bug.
 - Update to Closure v20170910
 - Update build to allow alternate `xxd -i` implementation ([#549](https://github.com/mfikes/planck/issues/549))
+- Update doc site to reflect that `cljs.core/*command-line-args*` is populated.
 
 ### Fixed
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
