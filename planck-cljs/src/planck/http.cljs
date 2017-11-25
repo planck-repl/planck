@@ -199,6 +199,32 @@
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
+(defn head
+  "Performs a HEAD request. It takes an URL and an optional map of options.
+  These include:
+  :timeout, number, default 5 seconds
+  :debug, boolean, assoc the request on to the response
+  :headers, map, a map containing headers"
+  ([url] (head url {}))
+  ([url opts] (request js/PLANCK_REQUEST :head url opts)))
+
+(s/fdef head
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers])))
+  :ret (s/keys :req-un [::headers ::status]))
+
+(defn delete
+  "Performs a DELETE request. It takes an URL and an optional map of options.
+  These include:
+  :timeout, number, default 5 seconds
+  :debug, boolean, assoc the request on to the response
+  :headers, map, a map containing headers"
+  ([url] (delete url {}))
+  ([url opts] (request js/PLANCK_REQUEST :delete url opts)))
+
+(s/fdef delete
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers])))
+  :ret (s/keys :req-un [::headers ::status]))
+
 (defn post
   "Performs a POST request. It takes an URL and an optional map of options
   These options include the options for get in addition to:
@@ -213,6 +239,36 @@
 (s/def ::multipart-params seq?)
 
 (s/fdef post
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
+                                                        ::form-params ::multipart-params])))
+  :ret (s/keys :req-un [::body ::headers ::status]))
+
+(defn put
+  "Performs a PUT request. It takes an URL and an optional map of options
+  These options include the options for get in addition to:
+  :form-params, a map, will become the body of the request, urlencoded
+  :multipart-params, a list of tuples, used for file-upload
+                     {:multipart-params [[\"name\" \"value\"]
+                                         [\"name\" [\"content\" \"filename\"]]"
+  ([url] (put url {}))
+  ([url opts] (request js/PLANCK_REQUEST :put url opts)))
+
+(s/fdef put
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
+                                                        ::form-params ::multipart-params])))
+  :ret (s/keys :req-un [::body ::headers ::status]))
+
+(defn patch
+  "Performs a PATCH request. It takes an URL and an optional map of options
+  These options include the options for get in addition to:
+  :form-params, a map, will become the body of the request, urlencoded
+  :multipart-params, a list of tuples, used for file-upload
+                     {:multipart-params [[\"name\" \"value\"]
+                                         [\"name\" [\"content\" \"filename\"]]"
+  ([url] (patch url {}))
+  ([url opts] (request js/PLANCK_REQUEST :patch url opts)))
+
+(s/fdef patch
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
                                                         ::form-params ::multipart-params])))
   :ret (s/keys :req-un [::body ::headers ::status]))

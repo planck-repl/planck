@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Site docs for `--fn-invoke-direct` ([#547](https://github.com/mfikes/planck/issues/547))
+- Implement http put, patch, delete, head ([#548](https://github.com/mfikes/planck/issues/548))
 
 ### Changed
 - Update build to use Lein 2.8.1

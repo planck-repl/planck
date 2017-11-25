@@ -145,19 +145,26 @@
 (defn do-request
   ([method url-suffix] (do-request method url-suffix {}))
   ([method url-suffix opts]
-   (let [full-url (form-full-url url-suffix)]
+   (let [opts (assoc opts :timeout 30)
+         full-url (form-full-url url-suffix)]
      (->>
        (case method
          :get (http/get full-url opts)
-         :post (http/post full-url opts))
+         :head (http/head full-url opts)
+         :delete (http/delete full-url opts)
+         :post (http/post full-url opts)
+         :put (http/put full-url opts)
+         :patch (http/patch full-url opts))
        :body
        transit->clj))))
 
 (deftest request-uri-test
   (is (= "/" (:uri (do-request :get "/"))))
   (is (= "/" (:uri (do-request :post "/"))))
-  (is (= "/foo" (:uri (do-request :get "/foo"))))
-  (is (= "/foo" (:uri (do-request :post "/foo")))))
+  (is (= "/" (:uri (do-request :get "/"))))
+  (is (= "/foo" (:uri (do-request :post "/foo"))))
+  (is (= "/foo" (:uri (do-request :put "/foo"))))
+  (is (= "/foo" (:uri (do-request :patch "/foo")))))
 
 (deftest request-json-body-test
   (is (= "\"foo\"" (:body (do-request :post "/" {:content-type :json
@@ -177,5 +184,11 @@
                             :timeout 5})]
     (is (= (expected-request "GET")
           (:request (http/get url {:debug true}))))
+    (is (= (expected-request "DELETE")
+          (:request (http/delete url {:debug true}))))
     (is (= (expected-request "POST")
-          (:request (http/post url {:debug true}))))))
+          (:request (http/post url {:debug true}))))
+    (is (= (expected-request "PUT")
+          (:request (http/put url {:debug true}))))
+    (is (= (expected-request "PATCH")
+          (:request (http/patch url {:debug true}))))))
