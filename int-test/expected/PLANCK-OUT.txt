@@ -123,6 +123,15 @@ macro-crazy
 somemacro
 xfirst
 nil
+nil
+keywordize-keys
+postwalk
+postwalk-replace
+prewalk
+prewalk-replace
+stringify-keys
+walk
+nil
 Test doc
 nil
 -------------------------

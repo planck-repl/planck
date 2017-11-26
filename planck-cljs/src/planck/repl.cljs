@@ -1437,12 +1437,21 @@
                             (js-eval source source-url))))))))
           (handle-error (js/Error. (str "Could not load file " file)) false))))))
 
+(defn- resolve-ns
+  "Resolves a namespace symbol to a namespace by first checking to see if it
+  is a namespace alias."
+  [ns-sym]
+  (or (get-in @st [::ana/namespaces ana/*cljs-ns* :requires ns-sym])
+      (get-in @st [::ana/namespaces ana/*cljs-ns* :require-macros ns-sym])
+      ns-sym))
+
 (defn- dir*
   [nsname]
-  (run! prn
-    (distinct (sort (concat
-                      (public-syms nsname)
-                      (public-syms (add-macros-suffix nsname)))))))
+  (let [ns (resolve-ns nsname)]
+    (run! prn
+      (distinct (sort (concat
+                        (public-syms ns)
+                        (public-syms (add-macros-suffix ns))))))))
 
 (defn- apropos*
   [str-or-pattern]

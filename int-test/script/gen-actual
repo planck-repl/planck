@@ -232,6 +232,8 @@ $PLANCK <<REPL_INPUT
 (defmacro somemacro [])
 (in-ns 'cljs.user)
 (dir foo.bar)
+(require '[clojure.walk :as walk])
+(dir walk)
 REPL_INPUT
 
 echo "Test doc"
