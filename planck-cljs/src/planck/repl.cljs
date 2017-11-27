@@ -440,6 +440,12 @@
           ((juxt :defs :macros)
            (get-namespace ns-sym)))))))
 
+(defn- completion-candidates-for-current-ns []
+  (let [cur-ns @current-ns]
+    (into (completion-candidates-for-ns cur-ns true)
+      (comp (mapcat keys) (map str))
+      ((juxt :renames :rename-macros :uses :use-macros) (get-namespace cur-ns)))))
+
 (defn- is-completion?
   [match-suffix candidate]
   (let [escaped-suffix (string/replace match-suffix #"[-\/\\^$*+?.()|\[\]{}]" "\\$&")]
@@ -536,7 +542,7 @@
            (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
            (completion-candidates-for-ns 'cljs.core$macros false)
-           (completion-candidates-for-ns @current-ns true)
+           (completion-candidates-for-current-ns)
            (when top-form?
              (concat
                (map str (keys special-doc-map))
