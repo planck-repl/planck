@@ -932,14 +932,21 @@
 
 (declare goog-dep-source)
 
+(defn- load-minified-libs?
+  [opts]
+  (= :simple (:optimizations opts)))
+
 ;; TODO: we could be smarter and only load the libs that we haven't already loaded
 (defn- load-js-lib
-  [name cb]
-  (let [sources (mapcat (fn [{:keys [file requires]}]
-                          (concat (->> requires
-                                    (filter #(string/starts-with? % "goog."))
-                                    (map (comp goog-dep-source symbol)))
-                            [(first (js/PLANCK_LOAD file))]))
+  [name opts cb]
+  (let [sources (mapcat (fn [{:keys [file file-min requires]}]
+                          (let [file (or (and (load-minified-libs? opts)
+                                              file-min)
+                                         file)]
+                            (concat (->> requires
+                                      (filter #(string/starts-with? % "goog."))
+                                      (map (comp goog-dep-source symbol)))
+                              [(first (js/PLANCK_LOAD file))])))
                   (deps/js-libs-to-load name))]
     (cb {:lang :js
          :source (string/join "\n" sources)})
@@ -996,15 +1003,23 @@
 
 ; file here is an alternate parameter denoting a filesystem path
 (defn- load
-  [{:keys [name macros path file] :as full} cb]
+  [{:keys [name macros path file] :as full} opts cb]
   (cond
     file (load-file file cb)
     (skip-load? full) (cb {:lang   :js
                            :source ""})
     (re-matches #"^goog/.*" path) (load-goog name cb)
-    (deps/js-lib? name) (load-js-lib name cb)
+    (deps/js-lib? name) (load-js-lib name opts cb)
     (= name 'cljs.nodejs) (load-cljs-nodejs name path cb)
     :else (load-other name path macros cb)))
+
+(defn- load-opts
+  []
+  (select-keys @app-env [:optimizations]))
+
+(defn- load-fn
+  [m cb]
+  (load m (load-opts) cb))
 
 (declare skip-cljsjs-eval-error)
 
@@ -1032,7 +1047,7 @@
   [main-ns & args]
   (let [main-args (js->clj args)
         opts      (make-base-eval-opts)]
-    (binding [cljs/*load-fn* load
+    (binding [cljs/*load-fn* load-fn
               cljs/*eval-fn* (get-eval-fn)]
       (cljs/eval st
         `(~'require (quote ~(symbol main-ns)))
@@ -1416,7 +1431,7 @@
 (defn- process-execute-path
   [file opts]
   (binding [theme (assoc theme :err-font (:verbose-font theme))]
-    (load {:file file}
+    (load-fn {:file file}
       (fn [{:keys [lang source source-url cache]}]
         (if source
           (case lang
@@ -1843,7 +1858,7 @@
   [[source-type source-value] {:keys [expression?] :as opts}]
   (binding [ana/*cljs-ns*    @current-ns
             *ns*             (create-ns @current-ns)
-            cljs/*load-fn*   load
+            cljs/*load-fn*   load-fn
             cljs/*eval-fn*   (get-eval-fn)
             r/*data-readers* tags/*cljs-data-readers*]
     (if-not (= "text" source-type)

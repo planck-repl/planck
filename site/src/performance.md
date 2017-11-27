@@ -83,8 +83,9 @@ Even with `:static-fns` enabled, unknown higher-order functions will be called u
 
 An illustrative example is the code emitted for `(defn f [g x] (g x))`. With `:static-fns` disabled, `g.call(null,x)` is emitted for the function body. With `:static-fns` enabled, the emitted code will test determining if `g` is associated with a single-arity static dispatch implementation, and if so, call it, otherwise falling back to `g.call(null,x)`. But, with `:fn-invoke-direct`, the fallback branch will instead involve a direct call `g(x)`.
 
-### Closure Optimizations
+### Optimizations
 
+#### Closure
 You can specify the Closure compiler level to be applied to source loaded from namespaces by using `-O` or `-​-optimizations`. The allowed values are `none`, `whitespace`, and `simple`. (Planck doesn't support whole-program optimization, so `advanced` is not an option.)
 
 Consider this example:
@@ -100,6 +101,10 @@ When the `require` form above is evaluated, the ClojureScript code is first tran
 Furthermore, if you have caching enabled (the `-K` option above), then code is cached with the optimization level specified. If you later run Planck with a different optimization level, cached code will be invalided and re-compiled at the new optimization level.
 
 While enabling caching is not required, using optimizations and caching together makes sense, given that Closure optimization can take a bit of time to apply.
+
+#### Foreign Libs
+
+If optimizations is set to `simple`, Planck will use `:file-min` in preference to `:file` when loading foreign lib dependencies. (See the Dependencies section of this guide for more information on loading foreign lib dependencies.)
 
 ### Removing Asserts
 

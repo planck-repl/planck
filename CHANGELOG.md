@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This change
 - Update build to allow alternate `xxd -i` implementation ([#549](https://github.com/mfikes/planck/issues/549))
 - Update doc site to reflect that `cljs.core/*command-line-args*` is populated.
 - Update doc site Dependencies Foreign Libs CLJSJS section to use `boot`
+- Use `:foreign-libs` `:file-min` if optimizations `simple` ([#555](https://github.com/mfikes/planck/issues/555))
 
 ### Fixed
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
