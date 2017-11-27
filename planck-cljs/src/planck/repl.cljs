@@ -749,12 +749,6 @@
         cache-json
         sourcemap-json))))
 
-(def ^:private ^:dynamic *source* nil)
-
-(defn- non-shadowing-js-eval
-  []
-  (js/eval *source*))
-
 (defn- js-eval
   [source source-url]
   #_(when (:verbose @app-env)
@@ -763,8 +757,9 @@
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
         (throw exception)))
-    (binding [*source* source]
-      (non-shadowing-js-eval))))
+    ;; Eval in global scope
+    (let [geval js/eval]
+      (geval source))))
 
 (defn- cacheable?
   [{:keys [path name source source-url cache]}]

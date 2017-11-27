@@ -581,3 +581,9 @@ Test in 'a' namespace
 nil
 #'a.core/a
 3
+Forms should be evaluated in global scope
+true
+Can't find variable: source
+
+Can't find variable: a
+

@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
+- `this` bound to `planck.repl` when foreign lib loaded ([#554](https://github.com/mfikes/planck/issues/554))
 
 ## [2.9.0] - 2017-11-14
 ### Changed

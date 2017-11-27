@@ -761,3 +761,10 @@ $PLANCK <<REPL_INPUT
 (def a 3)
 a
 REPL_INPUT
+
+echo "Forms should be evaluated in global scope"
+$PLANCK <<REPL_INPUT
+(= js/global (js-this))
+js/source
+js/a
+REPL_INPUT
