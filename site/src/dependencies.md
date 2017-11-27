@@ -75,9 +75,9 @@ Planck will honor any `deps.cljs` files on the classpath (including those embedd
 
 One easy way to make use of foreign libs packaged in this manner is via the excellent [CLJSJS](http://cljsjs.github.io) project. While many of the libraries packaged by CLJSJS cannot work with Planck because they either require a browser environment or Node, some utility libraries work just fine.
 
-Here's an example: Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to place the CLJSJS `[cljsjs/long "3.0.3-1"]` dependency vector in a `project.clj` file as described in the previous section on using Leiningen for JAR deps.
+Here's an example: Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to execute `boot -d cljsjs/long:3.0.3-1` as described in the Downloading Deps section above.
 
-If you pass the Leiningen-generated classpath containing this JAR to Planck, after start up you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
+If you launch Planck wtih `planck -D cljsjs/long:3.0.3-1`, you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
 
 ```clojure-repl
 cljs.user=> (require 'cljsjs.long)

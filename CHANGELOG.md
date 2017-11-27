@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This change
 - Update to Closure v20170910
 - Update build to allow alternate `xxd -i` implementation ([#549](https://github.com/mfikes/planck/issues/549))
 - Update doc site to reflect that `cljs.core/*command-line-args*` is populated.
+- Update doc site Dependencies Foreign Libs CLJSJS section to use `boot`
 
 ### Fixed
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
