@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file. This change
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
 - `this` bound to `planck.repl` when foreign lib loaded ([#554](https://github.com/mfikes/planck/issues/554))
 - Auto-complete for referred Vars ([#556](https://github.com/mfikes/planck/issues/556))
+- Clear EOF after reading file so subsequent read calls will see any appended data ([#557](https://github.com/mfikes/planck/issues/557))
 
 ## [2.9.0] - 2017-11-14
 ### Changed

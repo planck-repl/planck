@@ -29,6 +29,11 @@ JSStringRef ufile_read(descriptor_t descriptor) {
     JSStringRef rv = NULL;
     void *buffer = malloc(sizeof(uint16_t) * 1024);
     int32_t read = u_file_read(buffer, 1024, ufile);
+    /* If we've read to the end of the file, clear the EOF indicator
+     * so that subsequent read calls will try again. */
+    if (u_feof(ufile)) {
+        clearerr(u_fgetfile(ufile));
+    }
     if (read > 0) {
         rv = JSStringCreateWithCharacters(buffer, (size_t) read);
     }
