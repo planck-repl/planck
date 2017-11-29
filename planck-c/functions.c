@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <pthread.h>
 #include <errno.h>
+#include <time.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
@@ -1292,6 +1293,29 @@ JSValueRef function_socket_close(JSContextRef ctx, JSObjectRef function, JSObjec
             JSValueRef arguments[1];
             arguments[0] = c_string_to_value(ctx, strerror(errno));
             *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_sleep(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                          size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber
+        && JSValueGetType(ctx, args[1]) == kJSTypeNumber) {
+
+        int millis = (int) JSValueToNumber(ctx, args[0], NULL);
+        int nanos = (int) JSValueToNumber(ctx, args[1], NULL);
+
+        struct timespec t;
+        t.tv_sec = millis / 1000;
+        t.tv_nsec = 1000 * 1000 * (millis % 1000) + nanos;
+        
+        if (t.tv_sec != 0 || t.tv_nsec != 0) {
+            int err = nanosleep(&t, NULL);
+            if (err) {
+                engine_perror("sleep");
+            }
         }
     }
     return JSValueMakeNull(ctx);

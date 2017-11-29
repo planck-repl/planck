@@ -343,6 +343,18 @@
   :args (s/cat :state map?)
   :ret map?)
 
+(defn sleep
+  "Causes execution to block for the specified number of milliseconds plus the
+  optionally specified number of nanoseconds.
+
+  millis should not be negative and nanos should be in the range 0–999999"
+  ([millis] (sleep millis 0))
+  ([millis nanos] (js/PLANCK_SLEEP millis nanos)))
+
+(s/fdef sleep
+  :args (s/alt :unary (s/cat :millis #(and (integer? %) (not (neg? %))))
+               :binary (s/cat :millis #(and (integer? %) (not (neg? %))) :nanos #(and (integer? %) (<= 0 % 999999)))))
+
 ;; Ensure planck.io and planck.http are loaded so that their
 ;; facilities are available
 (repl/side-load-ns 'planck.http)

@@ -26,6 +26,7 @@ _Vars_
 [read-line](#read-line)<br/>
 [read-password](#read-password)<br/>
 [resolve](#resolve)<br/>
+[sleep](#sleep)<br/>
 [slurp](#slurp)<br/>
 [spit](#spit)<br/>
 [with-open](#with-open)<br/>
@@ -197,6 +198,17 @@ Spec<br/>
 Spec<br/>
  _args_: `(cat :sym symbol?)`<br/>
  _ret_: `(nilable var?)`<br/>
+
+### <a name="sleep"></a>sleep
+`([f & opts])`
+
+  Causes execution to block for the specified number of milliseconds plus the
+  optionally specified number of nanoseconds.
+
+  `millis` should not be negative and `nanos` should be in the range 0–999999
+
+Spec<br/>
+ _args_: `(alt :unary (cat :millis #(and (integer? %) (not (neg? %)))) :binary (cat :millis #(and (integer? %) (not (neg? %))) :nanos #(and (integer? %) (<= 0 % 999999))))`<br/>
 
 ### <a name="slurp"></a>slurp
 `([f & opts])`

@@ -113,3 +113,13 @@
     (is (= "abc" (planck.core/-read-line buffered-reader)))
     (is (= "def" (planck.core/-read-line buffered-reader)))
     (is (nil? (planck.core/-read-line buffered-reader)))))
+
+(deftest sleep-test
+  (let [before (system-time)
+        _      (planck.core/sleep 10)
+        after  (system-time)]
+    (is (> (- after before) 8)))
+  (let [before (system-time)
+        _      (planck.core/sleep 0 100000)
+        after  (system-time)]
+    (is (> (- after before) 0.08))))
