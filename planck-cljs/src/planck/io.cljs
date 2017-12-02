@@ -108,18 +108,6 @@
   (when (bad-file-descriptor? file-descriptor)
     (throw (ex-info "Failed to open file." {:file file, :opts opts}))))
 
-(defn- make-string-reader
-  [s]
-  (let [content (atom s)]
-    (letfn [(read [] (let [return @content]
-                       (reset! content nil)
-                       return))]
-      (planck.core/->BufferedReader
-        read
-        (fn [])
-        (atom nil)
-        (atom 0)))))
-
 (defn- make-jar-uri-reader
   [jar-uri opts]
   (let [file-uri (Uri. (.getPath jar-uri))]
@@ -127,7 +115,7 @@
       (let [[file-path resource] (string/split (.getPath file-uri) #"!/")
             [content error-msg] (js/PLANCK_LOAD_FROM_JAR file-path resource)]
         (if-not (nil? content)
-          (make-string-reader content)
+          (planck.core/make-string-reader content)
           (throw (ex-info (str "Failed to extract resource from JAR: " error-msg)
                    {:uri       jar-uri
                     :jar-file  file-path
@@ -141,11 +129,11 @@
   [bundle-uri opts]
   (let [path    (.getPath bundle-uri)
         content (first (js/PLANCK_LOAD path))]
-    (make-string-reader content)))
+    (planck.core/make-string-reader content)))
 
 (defn- make-http-uri-reader
   [uri opts]
-  (make-string-reader (:body (http/get (str uri) {}))))
+  (planck.core/make-string-reader (:body (http/get (str uri) {}))))
 
 (defn- make-http-uri-writer
   [uri opts]

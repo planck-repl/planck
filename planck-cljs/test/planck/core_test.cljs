@@ -123,3 +123,16 @@
         _      (planck.core/sleep 0 100000)
         after  (system-time)]
     (is (> (- after before) 0.08))))
+
+(deftest read-string-test
+  (is (= 1.1 (planck.core/read-string "1.1") ))
+  (is (thrown? js/Error (planck.core/read-string "1.1.1 (+ 1 1)")))
+  (is (= '(+ 1 1) (planck.core/read-string "(+ 1 1)")))
+  (is (= 5 (planck.core/read-string "; foo\n5")))
+  (is (= 'x (planck.core/read-string "#^String x")))
+  (is (= '(1) (planck.core/read-string "(1)")))
+  (is (= '(+ 1 2) (planck.core/read-string "(+ 1 2) (- 3 2)")))
+  (is (= '(clojure.core/deref a) (planck.core/read-string "@a")))
+  (is (= '(+ 1 2) (planck.core/read-string "(+ 1 2))))))")))
+  (is (= '(\( \x \y \) \z) (planck.core/read-string "(\\( \\x \\y \\) \\z)")))
+  (is (= 11 (planck.core/read-string (str "2r" "1011")))))

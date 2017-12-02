@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file. This change
 - Implement http put, patch, delete, head ([#548](https://github.com/mfikes/planck/issues/548))
 - Make `dir` work on aliases ([#552](https://github.com/mfikes/planck/issues/552))
 - Add `planck.core/sleep` ([#558](https://github.com/mfikes/planck/issues/558))
+- Add `planck.core/read` ([#560](https://github.com/mfikes/planck/issues/560))
+- Add `planck.core/read-string` ([#559](https://github.com/mfikes/planck/issues/559))
 
 ### Changed
 - Update build to use Lein 2.8.1

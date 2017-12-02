@@ -5,6 +5,8 @@
    [planck.core :refer [with-open]])
   (:require
    [cljs.spec.alpha :as s]
+   [cljs.tools.reader :as r]
+   [cljs.tools.reader.reader-types :as rt]
    [clojure.string :as string]
    [planck.repl :as repl])
   (:import
@@ -55,6 +57,18 @@
   (-close [_]
     (raw-close)))
 
+(defn- fission!
+  "Breaks an atom's value into two parts. The supplied function should
+  return a pair. The first element will be set to be the atom's new
+  value and the second element will be returned."
+  [atom f & args]
+  (loop []
+    (let [old @atom
+          [new-in new-out] (apply f old args)]
+      (if (compare-and-set! atom old new-in)
+        new-out
+        (recur)))))
+
 (defrecord BufferedReader [raw-read raw-close buffer pos]
   IReader
   (-read [_]
@@ -88,6 +102,24 @@
             (reset! pos 0)
             (recur))
           nil))))
+  rt/Reader
+  (read-char [this]
+    (loop []
+      (if (seq @buffer)
+        (fission! buffer (fn [s]
+                           [(subs s 1) (first s)]))
+        (when (reset! buffer (raw-read))
+          (recur)))))
+  (peek-char [this]
+    (loop []
+      (if (seq @buffer)
+        (first @buffer)
+        (when (reset! buffer (raw-read))
+          (recur)))))
+  rt/IPushbackReader
+  (unread [this ch]
+    (swap! buffer (fn [s]
+                    (str ch s))))
   IClosable
   (-close [_]
     (raw-close)))
@@ -177,6 +209,50 @@
   :args (s/cat)
   :ret string?)
 
+(defn read
+  "Reads the first object from a cljs.tools.reader.reader-types/IPushbackReader
+  Returns the object read. If EOF, throws if eof-error? is true.
+  Otherwise returns sentinel. If no reader is provided, *in* will be used.
+  Opts is a persistent map with valid keys:
+     :read-cond - :allow to process reader conditionals, or
+                  :preserve to keep all branches
+     :features - persistent set of feature keywords for reader conditionals
+     :eof - on eof, return value unless :eofthrow, then throw.
+            if not specified, will throw"
+  ([] (read *in*))
+  ([reader]
+   (r/read reader))
+  ([opts reader]
+   (r/read opts reader))
+  ([reader eof-error? eof-value]
+   (r/read reader eof-error? eof-value)))
+
+(s/fdef read
+  :args (s/alt :nullary (s/cat)
+               :unary (s/cat :reader #(satisfies? rt/IPushbackReader %))
+               :binary (s/cat :opts map? :reader #(satisfies? rt/IPushbackReader %))
+               :ternary (s/cat :reader #(satisfies? rt/IPushbackReader %) :eof-error? boolean? :eof-value any?)))
+
+(defn- make-string-reader
+  [s]
+  (let [content (volatile! s)]
+    (->BufferedReader
+      (fn [] (let [return @content]
+               (vreset! content nil)
+               return))
+      (fn [])
+      (atom nil)
+      (atom 0))))
+
+(defn read-string
+  "Reads one object from the string s. Optionally include reader
+  options, as specified in read."
+  ([s] (read (make-string-reader s)))
+  ([opts s] (read opts (make-string-reader s))))
+
+(s/fdef read-string
+  :args (s/alt :unary (s/cat :s string?)
+               :binary (s/cat :opts map? :s string?)))
 (defn line-seq
   "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
   implement IBufferedReader."
