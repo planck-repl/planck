@@ -46,8 +46,14 @@
   (-read [this] "Returns available characters as a string or nil if EOF."))
 
 (defprotocol IBufferedReader
-  "Protocol for reading line-based content."
+  "Protocol for reading line-based content. Instances of IBufferedReader must
+   also satisfy IReader."
   (-read-line [this] "Reads the next line."))
+
+(defprotocol IPushbackReader
+  "Protocol for readers that support undo. Instances of IPushbackReader must
+  also satisfy IBufferedReader."
+  (-unread [this s] "Pushes a string of characters back on to the stream."))
 
 (defrecord Reader [raw-read raw-close]
   IReader
@@ -102,24 +108,10 @@
             (reset! pos 0)
             (recur))
           nil))))
-  rt/Reader
-  (read-char [this]
-    (loop []
-      (if (seq @buffer)
-        (fission! buffer (fn [s]
-                           [(subs s 1) (first s)]))
-        (when (reset! buffer (raw-read))
-          (recur)))))
-  (peek-char [this]
-    (loop []
-      (if (seq @buffer)
-        (first @buffer)
-        (when (reset! buffer (raw-read))
-          (recur)))))
-  rt/IPushbackReader
-  (unread [this ch]
-    (swap! buffer (fn [s]
-                    (str ch s))))
+  IPushbackReader
+  (-unread [this s]
+    (swap! buffer #(str s %))
+    (reset! pos 0))
   IClosable
   (-close [_]
     (raw-close)))
@@ -162,7 +154,7 @@
     (raw-close)))
 
 (defonce
-  ^{:doc     "An IReader representing standard input for read operations."
+  ^{:doc     "An IPushbackReader representing standard input for read operations."
     :dynamic true}
   *in*
   (let [closed (atom false)]
@@ -209,8 +201,26 @@
   :args (s/cat)
   :ret string?)
 
+(defn- adapt-pushback-reader
+  [pushback-reader]
+  (reify
+    rt/Reader
+    (read-char [this]
+      (when-some [characters (-read pushback-reader)]
+        (when (> (.-length characters) 1)
+          (-unread pushback-reader (subs characters 1)))
+        (subs characters 0 1)))
+    (peek-char [this]
+      (when-some [ch (rt/read-char this)]
+        (-unread pushback-reader ch)
+        ch))
+    rt/IPushbackReader
+    (unread [this ch]
+      (when (some? ch)
+        (-unread pushback-reader ch)))))
+
 (defn read
-  "Reads the first object from a cljs.tools.reader.reader-types/IPushbackReader
+  "Reads the first object from an IPushbackReader.
   Returns the object read. If EOF, throws if eof-error? is true.
   Otherwise returns sentinel. If no reader is provided, *in* will be used.
   Opts is a persistent map with valid keys:
@@ -221,17 +231,17 @@
             if not specified, will throw"
   ([] (read *in*))
   ([reader]
-   (r/read reader))
+   (r/read (adapt-pushback-reader reader)))
   ([opts reader]
-   (r/read opts reader))
+   (r/read opts (adapt-pushback-reader reader)))
   ([reader eof-error? eof-value]
-   (r/read reader eof-error? eof-value)))
+   (r/read (adapt-pushback-reader reader) eof-error? eof-value)))
 
 (s/fdef read
   :args (s/alt :nullary (s/cat)
-               :unary (s/cat :reader #(satisfies? rt/IPushbackReader %))
-               :binary (s/cat :opts map? :reader #(satisfies? rt/IPushbackReader %))
-               :ternary (s/cat :reader #(satisfies? rt/IPushbackReader %) :eof-error? boolean? :eof-value any?)))
+               :unary (s/cat :reader #(satisfies? IPushbackReader %))
+               :binary (s/cat :opts map? :reader #(satisfies? IPushbackReader %))
+               :ternary (s/cat :reader #(satisfies? IPushbackReader %) :eof-error? boolean? :eof-value any?)))
 
 (defn- make-string-reader
   [s]

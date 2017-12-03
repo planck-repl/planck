@@ -8,6 +8,7 @@ _Protocols_
 [IClosable](#IClosable)<br/>
 [IInputStream](#IInputStream)<br/>
 [IOutputStream](#IOutputStream)<br/>
+[IPushbackReader](#IPushbackReader)<br/>
 [IReader](#IReader)<br/>
 
 _Vars_
@@ -38,7 +39,8 @@ _Vars_
 ### <a name="IBufferedReader"></a>IBufferedReader
 _Protocol_
 
-Protocol for reading line-based content.
+Protocol for reading line-based content. Instances of `IBufferedReader` must
+   also satisfy [`IReader`](#IReader).
 
   `-read-line`<br/>
   `([this])`<br/>
@@ -76,6 +78,16 @@ _Protocol_
   `([this])`<br/>
   Flushes output.
 
+### <a name="IPushbackReader"></a>IPushbackReader
+_Protocol_
+
+Protocol for readers that support undo. Instances of `IPushbackReader` must
+  also satisfy [`IBufferedReader`](#IBufferedReader).
+
+  `-unread`<br/>
+  `([this s])`<br/>
+  Pushes a string of characters back on to the stream.
+  
 ### <a name="IReader"></a>IReader
 _Protocol_
 
@@ -175,7 +187,7 @@ Spec<br/>
 ### <a name="read"></a>read
 `([] [reader] [opts reader] [reader eof-error? eof-value])`
 
-  Reads the first object from a `cljs.tools.reader.reader-types/IPushbackReader`
+  Reads the first object from a [`IPushbackReader`](#IPushbackReader).
   Returns the object read. If EOF, throws if `eof-error?` is `true`.
   Otherwise returns sentinel. If no reader is provided, [`*in*`](#in) will be used.
   Opts is a persistent map with valid keys:

@@ -261,7 +261,7 @@
       (throw (ex-info (str "Can't make an output stream from " x) {})))))
 
 (defn reader
-  "Attempts to coerce its argument into an open IBufferedReader."
+  "Attempts to coerce its argument into an open IPushbackReader."
   [x & opts]
   (make-reader x (when opts (apply hash-map opts))))
 

@@ -176,7 +176,7 @@ Attempts to coerce its argument into an open [`IOutputStream`](planck-core.html#
 ### <a name="reader"></a>reader
 `([x & opts])`
 
-Attempts to coerce its argument into an open [`IBufferedReader`](planck-core.html#IBufferedReader).
+Attempts to coerce its argument into an open [`IPushbackReader`](planck-core.html#IPushbackReader).
   
 ### <a name="writer"></a>writer
 `([x & opts])`
