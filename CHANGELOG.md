@@ -19,6 +19,9 @@ All notable changes to this project will be documented in this file. This change
 - Update doc site Dependencies Foreign Libs CLJSJS section to use `boot`
 - Use `:foreign-libs` `:file-min` if optimizations `simple` ([#555](https://github.com/mfikes/planck/issues/555))
 
+### Removed
+- Remove `planck.core` types meant to be private ([#562](https://github.com/mfikes/planck/issues/562))
+
 ### Fixed
 - Single-dash command line args not passed to script ([#550](https://github.com/mfikes/planck/issues/550))
 - `this` bound to `planck.repl` when foreign lib loaded ([#554](https://github.com/mfikes/planck/issues/554))

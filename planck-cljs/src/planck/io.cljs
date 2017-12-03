@@ -137,7 +137,7 @@
 
 (defn- make-http-uri-writer
   [uri opts]
-  (planck.core/->Writer
+  (planck.core/make-raw-writer
     (fn [content]
       (let [name     (or (:param-name opts) "file")
             filename (or (:filename opts) "file.pnk")]
@@ -162,7 +162,7 @@
     (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-reader-descriptors conj file-descriptor)
-      (planck.core/->BufferedReader
+      (planck.core/make-raw-pushback-reader
         (fn []
           (if (contains? @open-file-reader-descriptors file-descriptor)
             (let [[result err] (js/PLANCK_FILE_READER_READ file-descriptor)]
@@ -180,7 +180,7 @@
     (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-writer-descriptors conj file-descriptor)
-      (planck.core/->Writer
+      (planck.core/make-raw-writer
         (fn [s]
           (if (contains? @open-file-writer-descriptors file-descriptor)
             (if-let [err (js/PLANCK_FILE_WRITER_WRITE file-descriptor s)]
@@ -201,7 +201,7 @@
     (let [file-descriptor (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-input-stream-descriptors conj file-descriptor)
-      (planck.core/->InputStream
+      (planck.core/make-raw-input-stream
         (fn []
           (if (contains? @open-file-input-stream-descriptors file-descriptor)
             (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor))
@@ -214,7 +214,7 @@
     (let [file-descriptor (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-output-stream-descriptors conj file-descriptor)
-      (planck.core/->OutputStream
+      (planck.core/make-raw-output-stream
         (fn [byte-array]
           (if (contains? @open-file-output-stream-descriptors file-descriptor)
             (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (clj->js byte-array))
