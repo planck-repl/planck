@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file. This change
 - `this` bound to `planck.repl` when foreign lib loaded ([#554](https://github.com/mfikes/planck/issues/554))
 - Auto-complete for referred Vars ([#556](https://github.com/mfikes/planck/issues/556))
 - Clear EOF after reading file so subsequent read calls will see any appended data ([#557](https://github.com/mfikes/planck/issues/557))
+- `source` fails on Vars whose source has ns-aliased keywords ([#561](https://github.com/mfikes/planck/issues/561))
 
 ## [2.9.0] - 2017-11-14
 ### Changed
