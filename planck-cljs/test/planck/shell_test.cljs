@@ -42,6 +42,19 @@
   (let [rv (planck.shell/sh "pwd" :dir "bogus")]
     (is (not= 0 (:exit rv)))))
 
+(deftest inline-env-test
+  (is (= "FOO=BAR\n" (:out (planck.shell/sh "env" :env {"FOO" "BAR"})))))
+
 (deftest with-sh-env-test
   (is (= "FOO=BAR\n" (:out (planck.shell/with-sh-env {"FOO" "BAR"}
                              (planck.shell/sh "env"))))))
+
+(deftest with-sh-env-throws-on-nil-env-vars-test
+  (is (thrown-with-msg? js/Error
+                        #"fails spec"
+                        (planck.shell/with-sh-env {nil "value-for-a-nil-key"}
+                          (planck.shell/sh "env"))))
+  (is (thrown-with-msg? js/Error
+                        #"fails spec"
+                        (planck.shell/with-sh-env {"key-with-a-nil-value" nil}
+                          (planck.shell/sh "env")))))
