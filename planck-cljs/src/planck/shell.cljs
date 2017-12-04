@@ -36,6 +36,8 @@
   (let [{:keys [cmd opts cb]} (s/conform ::sh-async-args args)]
     (when (nil? cmd)
       (throw (s/explain ::sh-async-args args)))
+    (when-not (s/valid? (s/nilable ::string-string-map?) *sh-env*)
+      (throw (js/Error. (s/explain-str ::string-string-map? *sh-env*))))
     (let [{:keys [in in-enc out-enc env dir]}
           (merge {:out-enc nil :in-enc nil :dir (and *sh-dir* [:sh-dir *sh-dir*]) :env *sh-env*}
             (into {} (map (comp (juxt :key :val) second) opts)))

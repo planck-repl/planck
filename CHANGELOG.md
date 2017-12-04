@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### Fixed
+- `with-sh-env` codepath subjects `env` to spec validation ([#565](https://github.com/mfikes/planck/issues/565))
+
 ## [2.10.0] - 2017-12-07
 ### Added
 - Site docs for `--fn-invoke-direct` ([#547](https://github.com/mfikes/planck/issues/547))
