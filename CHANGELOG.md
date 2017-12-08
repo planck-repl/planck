@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.10.0] - 2017-12-07
 ### Added
 - Site docs for `--fn-invoke-direct` ([#547](https://github.com/mfikes/planck/issues/547))
 - Implement http put, patch, delete, head ([#548](https://github.com/mfikes/planck/issues/548))
@@ -589,7 +591,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.9.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.10.0...HEAD
+[2.10.0]: https://github.com/mfikes/planck/compare/2.9.0...2.10.0
 [2.9.0]: https://github.com/mfikes/planck/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/mfikes/planck/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/mfikes/planck/compare/2.7.3...2.8.0
