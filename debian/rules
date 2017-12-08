@@ -22,7 +22,7 @@ binary-arch:
 
 clean:
 	mkdir -p lein_home/self-installs
-	cp planck-cljs/sandbox-m2/leiningen-2.7.1-standalone.jar lein_home/self-installs
+	cp planck-cljs/sandbox-m2/leiningen-2.8.1-standalone.jar lein_home/self-installs
 	LEIN_HOME=lein_home LEIN_ROOT=1 BUILD_PPA=1 script/clean
 
 .PHONY: binary binary-arch binary-indep clean
