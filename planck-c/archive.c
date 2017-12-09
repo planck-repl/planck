@@ -14,8 +14,7 @@ typedef struct zip_file zip_file_t;
 
 void format_zip_error(const char *prefix, zip_t *zip, char **error_msg);
 
-char *get_contents_zip(const char *path, const char *name, time_t *last_modified, char **error_msg) {
-
+void* open_archive(const char *path, char **error_msg) {
     zip_t *archive = zip_open(path, ZIP_RDONLY, NULL);
 
     if (archive == NULL && error_msg) {
@@ -26,9 +25,20 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
         return NULL;
     }
 
+    return archive;
+}
+
+void close_archive(void* archive) {
+    zip_close(archive);
+}
+
+char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified, char **error_msg) {
+
+    zip_t *archive = archive_p;
+    
     zip_stat_t stat;
     if (zip_stat(archive, name, 0, &stat) < 0) {
-        goto close_archive;
+        return NULL;
     }
 
     zip_file_t *f = zip_fopen(archive, name, 0);
@@ -36,7 +46,7 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
         if (error_msg) {
             format_zip_error("zip_fopen", archive, error_msg);
         }
-        goto close_archive;
+        return NULL;
     }
 
     if (last_modified != NULL) {
@@ -60,7 +70,6 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
     buf[stat.size] = '\0';
 
     zip_fclose(f);
-    zip_close(archive);
 
     return buf;
 
@@ -69,9 +78,6 @@ char *get_contents_zip(const char *path, const char *name, time_t *last_modified
 
     close_f:
     zip_fclose(f);
-
-    close_archive:
-    zip_close(archive);
 
     return NULL;
 }

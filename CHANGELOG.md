@@ -11,6 +11,7 @@ Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/p
 
 ### Fixed
 - `with-sh-env` codepath subjects `env` to spec validation ([#565](https://github.com/mfikes/planck/issues/565))
+- Improve perf of loading resources from JARs ([#566](https://github.com/mfikes/planck/issues/566))
 
 ## [2.10.0] - 2017-12-07
 ### Added

@@ -148,11 +148,22 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                     struct stat file_stat;
                     if (stat(location, &file_stat) == 0) {
                         char *error_msg = NULL;
-                        contents = get_contents_zip(location, path, &last_modified, &error_msg);
-                        if (!contents && error_msg) {
-                            engine_print(error_msg);
-                            engine_print("\n");
-                            free(error_msg);
+                        if (!config.src_paths[i].archive) {
+                            config.src_paths[i].archive = open_archive(location, &error_msg);
+                            if (error_msg) {
+                                engine_print(error_msg);
+                                engine_print("\n");
+                                free(error_msg);
+                            }
+                        }
+                        if (config.src_paths[i].archive) {
+                            contents = get_contents_zip(config.src_paths[i].archive, path,
+                                                        &last_modified, &error_msg);
+                            if (!contents && error_msg) {
+                                engine_print(error_msg);
+                                engine_print("\n");
+                                free(error_msg);
+                            }
                         }
                         loaded_type = type;
                         loaded_location = location;
@@ -226,16 +237,27 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                 struct stat file_stat;
                 if (stat(location, &file_stat) == 0) {
                     char *error_msg = NULL;
-                    char *source = get_contents_zip(location, deps_cljs_filename, NULL, &error_msg);
-                    if (source != NULL) {
-                        num_files += 1;
-                        deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
-                        deps_cljs_files[num_files - 1] = source;
-                    } else {
+                    if (!config.src_paths[i].archive) {
+                        config.src_paths[i].archive = open_archive(location, &error_msg);
                         if (error_msg) {
                             engine_print(error_msg);
                             engine_print("\n");
                             free(error_msg);
+                        }
+                    }
+                    if (config.src_paths[i].archive) {
+                        char *source = get_contents_zip(config.src_paths[i].archive, deps_cljs_filename,
+                                                        NULL, &error_msg);
+                        if (source != NULL) {
+                            num_files += 1;
+                            deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
+                            deps_cljs_files[num_files - 1] = source;
+                        } else {
+                            if (error_msg) {
+                                engine_print(error_msg);
+                                engine_print("\n");
+                                free(error_msg);
+                            }
                         }
                     }
                 } else {
@@ -286,16 +308,27 @@ JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObje
         JSStringGetUTF8CString(resource_path_str, resource_path, PATH_MAX);
         JSStringRelease(resource_path_str);
 
-        char *error_msg = NULL;
-        char *contents = get_contents_zip(jar_path, resource_path, NULL, &error_msg);
-
+        char *contents = NULL;
         JSStringRef contents_str = NULL;
-        if (contents != NULL) {
-            contents_str = JSStringCreateWithUTF8CString(contents);
-            free(contents);
-        } else {
+
+        char *error_msg = NULL;
+        void *archive = open_archive(jar_path, &error_msg);
+        if (!archive) {
             if (!error_msg) {
-                error_msg = strdup("Resource not found in JAR");
+                error_msg = strdup("Failed to open JAR");
+            }
+        } else {
+            contents = get_contents_zip(archive, resource_path, NULL, &error_msg);
+
+            close_archive(archive);
+
+            if (contents != NULL) {
+                contents_str = JSStringCreateWithUTF8CString(contents);
+                free(contents);
+            } else {
+                if (!error_msg) {
+                    error_msg = strdup("Resource not found in JAR");
+                }
             }
         }
 
