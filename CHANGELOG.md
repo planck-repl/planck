@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### Changed
+- Use Clojure 1.9.0 when building Planck
+
 ### Fixed
 - `with-sh-env` codepath subjects `env` to spec validation ([#565](https://github.com/mfikes/planck/issues/565))
 

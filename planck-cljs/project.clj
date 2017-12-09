@@ -9,7 +9,7 @@
               :source-paths ["dev"]}
              :build-release 
              {}}
-  :dependencies [[org.clojure/clojure "1.8.0"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript ~clojurescript-version]
                  [org.clojure/test.check "0.10.0-alpha2"]
                  [com.cognitect/transit-clj "0.8.300"]
