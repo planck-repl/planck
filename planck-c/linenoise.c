@@ -675,6 +675,25 @@ void linenoiseEditMoveRight(struct linenoiseState *l) {
     }
 }
 
+/* Move cursor to the end of the current word. */
+void linenoiseEditMoveWordEnd(struct linenoiseState *l) {
+    if (l->len == 0 || l->pos >= l->len) return;
+    if (l->buf[l->pos] == ' ')
+        while (l->pos < l->len && l->buf[l->pos] == ' ') ++l->pos;
+    while (l->pos < l->len && l->buf[l->pos] != ' ') ++l->pos;
+    refreshLine(l);
+}
+
+/* Move cursor to the start of the current word. */
+void linenoiseEditMoveWordStart(struct linenoiseState *l) {
+    if (l->len == 0) return;
+    if (l->buf[l->pos-1] == ' ') --l->pos;
+    if (l->buf[l->pos] == ' ')
+        while (l->pos > 0 && l->buf[l->pos] == ' ') --l->pos;
+    while (l->pos > 0 && l->buf[l->pos-1] != ' ') --l->pos;
+    refreshLine(l);
+}
+
 /* Move cursor to the start of the line. */
 void linenoiseEditMoveHome(struct linenoiseState *l) {
     if (l->pos != 0) {
@@ -753,6 +772,16 @@ void linenoiseEditDeletePrevWord(struct linenoiseState *l) {
     diff = old_pos - l->pos;
     memmove(l->buf + l->pos, l->buf + old_pos, l->len - old_pos + 1);
     l->len -= diff;
+    refreshLine(l);
+}
+
+/* Delete the next word, maintaining the cursor at the same position */
+void linenoiseEditDeleteNextWord(struct linenoiseState *l) {
+    size_t next_word_end = l->pos;
+    while (next_word_end < l->len && l->buf[next_word_end] == ' ') ++next_word_end;
+    while (next_word_end < l->len && l->buf[next_word_end] != ' ') ++next_word_end;
+    memmove(l->buf+l->pos, l->buf+next_word_end, l->len-next_word_end);
+    l->len -= next_word_end - l->pos;
     refreshLine(l);
 }
 
@@ -1036,7 +1065,19 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             if (read(l.ifd, seq, 1) != -1) {
                 if (seq[0] != '[' && seq[0] != 'O') {
                     c = seq[0];
-                    goto process_char;
+                    switch (seq[0]) {
+                    case 'f':
+                        linenoiseEditMoveWordEnd(&l);
+                        break;
+                    case 'b':
+                        linenoiseEditMoveWordStart(&l);
+                        break;
+                    case 'd':
+                        linenoiseEditDeleteNextWord(&l);
+                        break;
+                    default:
+                        goto process_char;
+                    }
                 } else if (read(l.ifd, seq + 1, 1) != -1) {
 
                     /* ESC [ sequences. */
