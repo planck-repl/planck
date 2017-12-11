@@ -56,7 +56,7 @@ You can also type Ctrl-R in order to display a `(reverse-i-search)` prompt: In t
 
 #### Tab Completion
 
-You can use the tab key to auto-complete. Try typing `(map` and then hitting the tab key. You will be presented choices like `map-indexed`, `map?`, `mapcat`, _etc._ Hitting shift-tab returns to the originally entered text. Tab completion works aginst core names and also against names you introduce. If you do
+You can use the tab key to auto-complete. Try typing `(in` and then hitting the tab key. You will be presented choices like `into`, `interpose`, `inc`, _etc._ If you then type `t` and hit the tab key, you will be presented with a more narrow list of completion candidates. Tab completion works against core names and also against names you introduce. If you do
 
 ```clj
 (def supercalifragilisticexpialidocious "something quite atrocious")
