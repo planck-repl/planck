@@ -115,6 +115,14 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, method);
         curl_easy_setopt(handle, CURLOPT_URL, url);
 
+        char *socket = NULL;
+        JSValueRef socket_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("socket"), NULL);
+        if (!JSValueIsUndefined(ctx, socket_ref)) {
+          socket = value_to_c_string(ctx, socket_ref);
+          curl_easy_setopt(handle, CURLOPT_UNIX_SOCKET_PATH, socket);
+        }
+        free(socket);
+
         struct curl_slist *headers = NULL;
         if (!JSValueIsNull(ctx, headers_obj)) {
             JSPropertyNameArrayRef properties = JSObjectCopyPropertyNames(ctx, headers_obj);
