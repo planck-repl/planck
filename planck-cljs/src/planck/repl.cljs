@@ -595,8 +595,8 @@
   (if-let [kw-name (local-keyword buffer)]
     (local-keyword-completions kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
-          typed-ns  (second (re-find #"\(*(\b[a-zA-Z-.<>*=&?]+)/[a-zA-Z-]*$" buffer))]
-      (let [buffer-match-suffix (first (re-find #":?([a-zA-Z-.<>*=&?]*|^\(/)$" buffer))
+          typed-ns  (second (re-find #"\(*(\b[a-zA-Z0-9-.<>*=&?]+)/[a-zA-Z0-9-]*$" buffer))]
+      (let [buffer-match-suffix (first (re-find #":?([a-zA-Z0-9-.<>*=&?]*|^\(/)$" buffer))
             completions         (sort (filter (partial is-completion? buffer-match-suffix)
                                         (completion-candidates top-form? typed-ns)))
             common-prefix (longest-common-prefix completions)]
