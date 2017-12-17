@@ -535,6 +535,9 @@ int run_repl() {
     // Per-type initialization
 
     if (!config.dumb_terminal) {
+
+        linenoiseSetupSigWinchHandler();
+
         char *home = getenv("HOME");
         if (home != NULL) {
             char history_name[] = ".planck_history";

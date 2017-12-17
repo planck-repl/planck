@@ -43,6 +43,8 @@
 extern "C" {
 #endif
 
+void linenoiseSetupSigWinchHandler();
+
 typedef struct linenoiseCompletions {
     size_t len;
     char **cvec;
