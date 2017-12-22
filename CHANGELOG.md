@@ -16,6 +16,7 @@ Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/p
 - Auto-completion fails with numbers in ns names ([#578](https://github.com/mfikes/planck/issues/578))
 - Terminal size changes not detected until line entered ([#584](https://github.com/mfikes/planck/issues/584))
 - Odd jump if you paste long line ([#459](https://github.com/mfikes/planck/issues/459))
+- Don't use sequence to print eduction ([#590](https://github.com/mfikes/planck/issues/590))
 
 ## [2.10.0] - 2017-12-07
 ### Added

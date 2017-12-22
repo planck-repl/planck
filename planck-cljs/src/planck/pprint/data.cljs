@@ -59,7 +59,9 @@
   (visit-unknown [this x]
     (cond
       (instance? Eduction x)
-      (visit this (sequence x))
+      (if print-length
+        (fipp.visit/visit-seq this (into [] (take (inc print-length)) x))
+        (visit this (sequence x)))
       (array? x)
       (pretty-coll this "#js [" x :line "]" visit)
       (object? x)
