@@ -51,6 +51,11 @@
 (copy-source "cljs/analyzer/api.cljc")
 (copy-source "clojure/template.clj")
 
+(try
+  (copy-source "cljs/core/specs/alpha.cljc")
+  (copy-source "cljs/core/specs/alpha.cljs")
+  (catch Throwable _))
+
 (defn write-cache [cache out-path]
   (let [out (ByteArrayOutputStream. 1000000)
         writer (transit/writer out :json)]

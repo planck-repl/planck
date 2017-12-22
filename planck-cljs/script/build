@@ -49,4 +49,5 @@ fi
 CLJSC_CP=`script/lein with-profile build-release classpath`
 
 mkdir -p out/cljs/analyzer
+mkdir -p out/cljs/core/specs
 java -cp $CLJSC_CP clojure.main script/build.clj
