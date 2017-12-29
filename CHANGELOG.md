@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Use Clojure 1.9.0 when building Planck
+- Change `file-seq` implementation to be reducible ([#594](https://github.com/mfikes/planck/issues/594))
 
 ### Added
 Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))

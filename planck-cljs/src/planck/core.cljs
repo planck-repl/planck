@@ -305,10 +305,20 @@
   (fn [_]
     (throw (js/Error. "No *file?-fn* fn set."))))
 
+(defn- reducible-tree-seq
+  [branch? children root]
+  (eduction
+    (take-while some?)
+    (map first)
+    (iterate (fn [[node & queue]]
+               (cond-> queue
+                 (branch? node) (into (reverse (children node)))))
+      [root])))
+
 (defn file-seq
   "A tree seq on files"
   [dir]
-  (tree-seq
+  (reducible-tree-seq
     (fn [f] (js/PLANCK_IS_DIRECTORY (:path f)))
     (fn [d] (map *as-file-fn*
               (js->clj (js/PLANCK_LIST_FILES (:path d)))))
