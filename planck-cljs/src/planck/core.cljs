@@ -4,6 +4,7 @@
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
+   [goog.object :as gobj]
    [cljs.spec.alpha :as s]
    [cljs.tools.reader :as r]
    [cljs.tools.reader.reader-types :as rt]
@@ -307,13 +308,14 @@
 
 (defn- reducible-tree-seq
   [branch? children root]
-  (eduction
-    (take-while some?)
-    (map first)
-    (iterate (fn [[node & queue]]
-               (cond-> queue
-                 (branch? node) (into (reverse (children node)))))
-      [root])))
+  (doto (eduction
+          (take-while some?)
+          (map first)
+          (iterate (fn [[node & queue]]
+                     (cond-> queue
+                       (branch? node) (into (reverse (children node)))))
+            [root]))
+    (gobj/set "cljs$core$IPending$_realized_QMARK_$arity$1" (constantly true))))
 
 (defn file-seq
   "A tree seq on files"

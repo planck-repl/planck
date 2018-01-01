@@ -6,6 +6,7 @@
    [clojure.string :as string]
    [foo.core]
    [planck.core]
+   [planck.io :as io]
    [clojure.string :as string])
   (:import
    (goog Uri)))
@@ -136,3 +137,6 @@
   (is (= '(+ 1 2) (planck.core/read-string "(+ 1 2))))))")))
   (is (= '(\( \x \y \) \z) (planck.core/read-string "(\\( \\x \\y \\) \\z)")))
   (is (= 11 (planck.core/read-string (str "2r" "1011")))))
+
+(deftest test-issue-595
+  (is (true? (realized? (planck.core/file-seq (io/file "/tmp"))))))
