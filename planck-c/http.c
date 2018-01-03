@@ -12,7 +12,7 @@
 
 #ifndef CURL_VERSION_UNIX_SOCKETS
 #define CURL_VERSION_UNIX_SOCKETS 0
-#define CURLOPT_UNIX_SOCKET_PATH null
+#define CURLOPT_UNIX_SOCKET_PATH 0
 #endif
 
 struct header_state {
