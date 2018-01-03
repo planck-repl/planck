@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.8)
 project(planck C)
 
 set(CMAKE_BUILD_TYPE Release)
@@ -55,20 +55,26 @@ add_executable(planck ${SOURCE_FILES})
 
 find_package(PkgConfig REQUIRED)
 
-find_program(CURL_CONFIG curl-config)
-if(CURL_CONFIG)
-  execute_process(COMMAND ${CURL_CONFIG} --cflags
-                  OUTPUT_VARIABLE CURL_CFLAGS
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  execute_process(COMMAND ${CURL_CONFIG} --libs
-                  OUTPUT_VARIABLE CURL_LIBS
-                  OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CURL_CFLAGS}")
-  target_link_libraries(planck ${CURL_LIBS})
-else(CURL_CONFIG)
-  find_library(CURL curl)
-  target_link_libraries(planck ${CURL})
-endif(CURL_CONFIG)
+FIND_PACKAGE(CURL)
+if(CURL_FOUND)
+    include_directories(${CURL_INCLUDE_DIR})
+    target_link_libraries(planck ${CURL_LIBRARIES})
+else(CURL_FOUND)
+    find_program(CURL_CONFIG curl-config)
+    if(CURL_CONFIG)
+        execute_process(COMMAND ${CURL_CONFIG} --cflags
+                OUTPUT_VARIABLE CURL_CFLAGS
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        execute_process(COMMAND ${CURL_CONFIG} --libs
+                OUTPUT_VARIABLE CURL_LIBS
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CURL_CFLAGS}")
+        target_link_libraries(planck ${CURL_LIBS})
+    else(CURL_CONFIG)
+        find_library(CURL curl)
+        target_link_libraries(planck ${CURL})
+    endif(CURL_CONFIG)
+endif(CURL_FOUND)
 
 pkg_check_modules(ZLIB REQUIRED zlib)
 include_directories(${ZLIB_INCLUDE_DIRS})
