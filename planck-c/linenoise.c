@@ -118,6 +118,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 #include "linenoise.h"
 #include "clock.h"
 
@@ -140,7 +141,7 @@ uint64_t lastCharRead;
 static int pasting = 0;
 static const char *currentPromptAnsiCode;
 
-static struct linenoiseState *printNowState;
+static struct linenoiseState *activeState;
 
 /* The linenoiseState structure represents the state during line editing.
  * We pass this state to functions implementing specific editing
@@ -833,7 +834,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
     refreshLine(&l);
 
     // Set things up so we can handle async prints coming int
-    printNowState = &l;
+    activeState = &l;
 
     while (1) {
         char c;
@@ -856,7 +857,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
         }
 
         if (nread <= 0) {
-            printNowState = NULL;
+            activeState = NULL;
             return l.len;
         }
 
@@ -914,7 +915,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             c = completeLine(&l);
             /* Return on errors */
             if (c < 0) {
-                printNowState = NULL;
+                activeState = NULL;
                 return l.len;
             }
             /* Read next character when 0 */
@@ -928,11 +929,11 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             history_len--;
             free(history[history_len]);
             if (mlmode) linenoiseEditMoveEnd(&l);
-            printNowState = NULL;
+            activeState = NULL;
             return (int) l.len;
         } else if (c == keymap[KM_CANCEL]) {
             errno = EAGAIN;
-            printNowState = NULL;
+            activeState = NULL;
             return -1;
         } else if (c == keymap[KM_BACKSPACE] || c == keymap[KM_DELETE]) {
             linenoiseEditBackspace(&l);
@@ -943,7 +944,7 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             } else {
                 history_len--;
                 free(history[history_len]);
-                printNowState = NULL;
+                activeState = NULL;
                 return -1;
             }
         } else if (c == keymap[KM_SWAP_CHARS]) { /* swaps current character with previous. */
@@ -1148,12 +1149,12 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             linenoiseEditDeletePrevWord(&l);
         } else {
             if (linenoiseEditInsert(&l, c)) {
-                printNowState = NULL;
+                activeState = NULL;
                 return -1;
             }
         }
     }
-    printNowState = NULL;
+    activeState = NULL;
     return l.len;
 }
 
@@ -1274,8 +1275,8 @@ void linenoisePrintNow(const char *text) {
     if (strcmp(text, "\n") != 0) {
         fprintf(stdout, "\r\x1b[0K%s\n", text);
 
-        if (printNowState) {
-            refreshLine(printNowState);
+        if (activeState) {
+            refreshLine(activeState);
         }
     }
 }
@@ -1435,4 +1436,14 @@ int linenoiseHistoryLoad(const char *filename) {
     }
     fclose(fp);
     return 0;
+}
+
+void sigwinchHandler( int sig_number ) {
+    if (activeState) {
+        activeState->cols = getColumns(activeState->ifd, activeState->ofd);
+    }
+}
+
+void linenoiseSetupSigWinchHandler() {
+    signal(SIGWINCH, sigwinchHandler);
 }

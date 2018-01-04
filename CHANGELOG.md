@@ -5,14 +5,21 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Use Clojure 1.9.0 when building Planck
+- Use FindCurl when building Planck ([#598](https://github.com/mfikes/planck/issues/598))
 
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))
+- Add support for core.specs.alpha ([#592](https://github.com/mfikes/planck/issues/592))
 - Update Dependencies page showing how to use deps.edn ([#575](https://github.com/mfikes/planck/issues/575))
 
 ### Fixed
 - `with-sh-env` codepath subjects `env` to spec validation ([#565](https://github.com/mfikes/planck/issues/565))
 - Improve perf of loading resources from JARs ([#566](https://github.com/mfikes/planck/issues/566))
+- Update site docs for tab completion ([#545](https://github.com/mfikes/planck/issues/545))
+- Auto-completion fails with numbers in ns names ([#578](https://github.com/mfikes/planck/issues/578))
+- Terminal size changes not detected until line entered ([#584](https://github.com/mfikes/planck/issues/584))
+- Odd jump if you paste long line ([#459](https://github.com/mfikes/planck/issues/459))
+- Don't use sequence to print eduction ([#590](https://github.com/mfikes/planck/issues/590))
 
 ## [2.10.0] - 2017-12-07
 ### Added

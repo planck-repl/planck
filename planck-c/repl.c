@@ -5,6 +5,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "linenoise.h"
 
@@ -417,6 +418,28 @@ void highlight(const char *buf, int pos) {
         if (num_lines_up != -1) {
             int relative_horiz = highlight_pos - current_pos;
 
+            struct winsize w;
+            int rv = ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+            int terminal_width = rv == -1 ? 80 : w.ws_col;
+
+            int prompt_length = (int) strlen(s_repl->current_prompt);
+
+            int cursor_absolute_pos = current_pos + prompt_length + 1;
+            int highlight_absolute_pos = highlight_pos + prompt_length;
+
+            if (cursor_absolute_pos > terminal_width
+                && -relative_horiz >= cursor_absolute_pos % terminal_width) {
+                relative_horiz = -(-relative_horiz - terminal_width) % terminal_width;
+                num_lines_up += 1 + (terminal_width * (cursor_absolute_pos / terminal_width)
+                                     - highlight_absolute_pos) / terminal_width;
+            }
+
+            // The math above isn't correct for very large buffered lines, so
+            // simply skip hopping in that case to avoid botching the terminal.
+            if (cursor_absolute_pos > (3 * terminal_width - prompt_length)) {
+                return;
+            }
+
             if (num_lines_up != 0) {
                 fprintf(stdout, "\x1b[%dA", num_lines_up);
             }
@@ -535,6 +558,9 @@ int run_repl() {
     // Per-type initialization
 
     if (!config.dumb_terminal) {
+
+        linenoiseSetupSigWinchHandler();
+
         char *home = getenv("HOME");
         if (home != NULL) {
             char history_name[] = ".planck_history";
