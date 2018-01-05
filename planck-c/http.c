@@ -191,6 +191,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_string_callback);
 
         JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
+        JSValueProtect(ctx, result);
 
         int res = curl_easy_perform(handle);
         if (res != 0) {
@@ -220,6 +221,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_slist_free_all(headers);
         curl_easy_cleanup(handle);
 
+        JSValueUnprotect(ctx, result);
         return result;
     }
 
