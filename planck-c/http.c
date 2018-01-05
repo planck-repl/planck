@@ -10,9 +10,19 @@
 #include "engine.h"
 #include "jsc_utils.h"
 
+#ifndef CURL_VERSION_UNIX_SOCKETS
+#define CURL_VERSION_UNIX_SOCKETS 0
+#define CURLOPT_UNIX_SOCKET_PATH 0
+#endif
+
 struct header_state {
     JSObjectRef *headers;
 };
+
+int curl_has_feature(int feature_const) {
+  curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
+  return data->features & feature_const;
+}
 
 size_t header_to_object_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
     struct header_state *state = (struct header_state *) userdata;
@@ -115,6 +125,20 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, method);
         curl_easy_setopt(handle, CURLOPT_URL, url);
 
+        char *socket = NULL;
+        JSValueRef socket_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("socket"), NULL);
+        if (!JSValueIsUndefined(ctx, socket_ref)) {
+          if (curl_has_feature(CURL_VERSION_UNIX_SOCKETS)) {
+            socket = value_to_c_string(ctx, socket_ref);
+            curl_easy_setopt(handle, CURLOPT_UNIX_SOCKET_PATH, socket);
+          } else {
+            JSStringRef val_str = JSStringCreateWithUTF8CString("This version of libcurl does not support UNIX sockets.");
+            JSValueRef val_ref = JSValueMakeString(ctx, val_str);
+            return val_ref;
+          }
+        }
+        free(socket);
+
         struct curl_slist *headers = NULL;
         if (!JSValueIsNull(ctx, headers_obj)) {
             JSPropertyNameArrayRef properties = JSObjectCopyPropertyNames(ctx, headers_obj);
@@ -167,6 +191,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_string_callback);
 
         JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
+        JSValueProtect(ctx, result);
 
         int res = curl_easy_perform(handle);
         if (res != 0) {
@@ -196,6 +221,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_slist_free_all(headers);
         curl_easy_cleanup(handle);
 
+        JSValueUnprotect(ctx, result);
         return result;
     }
 

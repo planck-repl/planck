@@ -181,7 +181,8 @@
   :debug, boolean, assoc the request on to the response
   :accepts, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
-  :headers, map, a map containing headers"
+  :headers, map, a map containing headers
+  :socket, string, specifying a system path to a socket to use"
   ([url] (get url {}))
   ([url opts] (request js/PLANCK_REQUEST :get url opts)))
 
@@ -192,11 +193,13 @@
 (s/def ::headers (s/and map? (fn [m]
                                (and (every? keyword? (keys m))
                                     (every? string? (vals m))))))
+(s/def ::socket string?)
 (s/def ::body string?)
 (s/def ::status integer?)
 
 (s/fdef get
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un
+                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn head
@@ -209,7 +212,7 @@
   ([url opts] (request js/PLANCK_REQUEST :head url opts)))
 
 (s/fdef head
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn delete
@@ -222,7 +225,7 @@
   ([url opts] (request js/PLANCK_REQUEST :delete url opts)))
 
 (s/fdef delete
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn post
@@ -240,7 +243,7 @@
 
 (s/fdef post
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params])))
+                                                        ::form-params ::multipart-params ::socket])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn put
@@ -255,7 +258,7 @@
 
 (s/fdef put
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params])))
+                                                        ::form-params ::multipart-params ::socket])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn patch
@@ -270,7 +273,7 @@
 
 (s/fdef patch
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params])))
+                                                        ::form-params ::multipart-params ::socket])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (repl/register-speced-vars
