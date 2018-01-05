@@ -75,6 +75,6 @@ $ script/test
 
 # License
 
-Copyright © 2015–2017 Mike Fikes and Contributors
+Copyright © 2015–2018 Mike Fikes and Contributors
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
