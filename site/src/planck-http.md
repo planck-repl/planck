@@ -21,10 +21,11 @@ _Vars_
   `:debug`, boolean, assoc the request on to the response<br/>
   `:accepts`, keyword or string. Valid keywords are `:json` or `:xml`<br/>
   `:content-type`, keyword or string Valid keywords are `:json` or `:xml`<br/>
-  `:headers`, map, a map containing headers
+  `:headers`, map, a map containing headers<br/>
+  `:socket`, string, specifying a system path to a socket to use
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accepts ::content-type ::headers])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accepts ::content-type ::headers ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="head"></a>head
@@ -33,10 +34,11 @@ Spec<br/>
   These include:<br/>
   `:timeout`, number, default 5 seconds<br/>
   `:debug`, boolean, assoc the request on to the response<br/>
-  `:headers`, map, a map containing headers
+  `:headers`, map, a map containing headers<br/>
+  `:socket`, string, specifying a system path to a socket to use
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="delete"></a>delete
@@ -45,10 +47,11 @@ Spec<br/>
   These include:<br/>
   `:timeout`, number, default 5 seconds<br/>
   `:debug`, boolean, assoc the request on to the response<br/>
-  `:headers`, map, a map containing headers
+  `:headers`, map, a map containing headers<br/>
+  `:socket`, string, specifying a system path to a socket to use
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
  
 ### <a name="post"></a>post
@@ -62,7 +65,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="put"></a>put
@@ -76,7 +79,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="patch"></a>patch
@@ -90,5 +93,5 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`

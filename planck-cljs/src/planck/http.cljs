@@ -207,7 +207,8 @@
   These include:
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
-  :headers, map, a map containing headers"
+  :headers, map, a map containing headers
+  :socket, string, specifying a system path to a socket to use"
   ([url] (head url {}))
   ([url opts] (request js/PLANCK_REQUEST :head url opts)))
 
@@ -220,7 +221,8 @@
   These include:
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
-  :headers, map, a map containing headers"
+  :headers, map, a map containing headers
+  :socket, string, specifying a system path to a socket to use"
   ([url] (delete url {}))
   ([url opts] (request js/PLANCK_REQUEST :delete url opts)))
 
