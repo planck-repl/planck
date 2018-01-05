@@ -19,6 +19,7 @@ Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/p
 - Terminal size changes not detected until line entered ([#584](https://github.com/mfikes/planck/issues/584))
 - Odd jump if you paste long line ([#459](https://github.com/mfikes/planck/issues/459))
 - Don't use sequence to print eduction ([#590](https://github.com/mfikes/planck/issues/590))
+- Can't make trivial revisions to `function_http_request` without `SIGSEGV`s ([#600](https://github.com/mfikes/planck/issues/600))
 
 ## [2.10.0] - 2017-12-07
 ### Added
