@@ -109,8 +109,6 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
                                                                            JSStringCreateWithUTF8CString("headers"),
                                                                            NULL), NULL);
 
-        JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("foo"), NULL);
-
         CURL *handle = curl_easy_init();
         assert(handle != NULL);
 
