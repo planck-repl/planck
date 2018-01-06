@@ -125,6 +125,9 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, method);
         curl_easy_setopt(handle, CURLOPT_URL, url);
 
+        JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
+        JSValueProtect(ctx, result);
+
         char *socket = NULL;
         JSValueRef socket_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("socket"), NULL);
         if (!JSValueIsUndefined(ctx, socket_ref)) {
@@ -132,9 +135,11 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
             socket = value_to_c_string(ctx, socket_ref);
             curl_easy_setopt(handle, CURLOPT_UNIX_SOCKET_PATH, socket);
           } else {
-            JSStringRef val_str = JSStringCreateWithUTF8CString("This version of libcurl does not support UNIX sockets.");
-            JSValueRef val_ref = JSValueMakeString(ctx, val_str);
-            return val_ref;
+            JSStringRef error_str = JSStringCreateWithUTF8CString("This version of libcurl does not support UNIX sockets.");
+            JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("error"), JSValueMakeString(ctx, error_str),
+                                kJSPropertyAttributeReadOnly, NULL);
+            JSValueUnprotect(ctx, result);
+            return result;
           }
         }
         free(socket);
@@ -189,9 +194,6 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         body_state.data = NULL;
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, &body_state);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_string_callback);
-
-        JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
-        JSValueProtect(ctx, result);
 
         int res = curl_easy_perform(handle);
         if (res != 0) {
