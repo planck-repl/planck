@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))
 - Add support for core.specs.alpha ([#592](https://github.com/mfikes/planck/issues/592))
+- HTTP facility supports UNIX sockets ([#597](https://github.com/mfikes/planck/issues/597))
 - Update Dependencies page showing how to use deps.edn ([#575](https://github.com/mfikes/planck/issues/575))
 
 ### Fixed
