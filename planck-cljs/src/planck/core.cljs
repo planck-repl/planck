@@ -1,6 +1,6 @@
 (ns planck.core
   "Core Planck functions for use in scripts."
-  (:refer-clojure :exclude [*command-line-args* resolve])
+  (:refer-clojure :exclude [*command-line-args* resolve tree-seq])
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
@@ -304,6 +304,98 @@
   *file?-fn*
   (fn [_]
     (throw (js/Error. "No *file?-fn* fn set."))))
+
+(def ^:private UNREALIZED-SEED #js {})
+
+(deftype ^:private TreeSeq [meta f prev-seed ^:mutable seed ^:mutable next]
+  Object
+  (seedval [coll]
+    (when (identical? UNREALIZED-SEED seed)
+      (set! seed (f prev-seed)))
+    seed)
+  (toString [coll]
+    (pr-str* coll))
+
+  IPending
+  (-realized? [coll]
+    (not (identical? seed UNREALIZED-SEED)))
+
+  IWithMeta
+  (-with-meta [coll meta] (TreeSeq. meta f prev-seed seed next))
+
+  IMeta
+  (-meta [coll] meta)
+
+  ISeq
+  (-first [coll]
+    (aget (.seedval coll) 0))
+  (-rest [coll]
+    (when (nil? next)
+      (set! next (if-some [s (.seedval coll)]
+                   (TreeSeq. nil f s UNREALIZED-SEED nil)
+                   ())))
+    next)
+
+  INext
+  (-next [coll]
+    (let [x (-rest coll)]
+      (if (empty? x)
+        nil
+        x)))
+
+  ICollection
+  (-conj [coll o] (cons o coll))
+
+  IEmptyableCollection
+  (-empty [coll] (-with-meta (.-EMPTY List) meta))
+
+  ISequential
+  ISeqable
+  (-seq [coll]
+    (if (.seedval coll) coll nil))
+
+  IEquiv
+  (-equiv [coll other] (equiv-sequential coll other))
+
+  IReduce
+  (-reduce [coll rf]
+    (if-some [s (.seedval coll)]
+      (if-some [s' (f s)]
+        (loop [ret (rf (aget s 0) (aget s' 0)) s s']
+          (if (reduced? ret)
+            @ret
+            (if-some [s (f s)]
+              (recur (rf ret (aget s 0)) s)
+              ret)))
+        (aget s 0))
+      (rf)))
+  (-reduce [coll rf start]
+    (if-some [s (.seedval coll)]
+      (loop [ret (rf start (aget s 0)) s s]
+        (if (reduced? ret)
+          @ret
+          (if-some [s (f s)]
+            (recur (rf ret (aget s 0)) s)
+            ret)))
+      start)))
+
+(defn- tree-seq
+  [branch? children root]
+  (TreeSeq. nil
+    (fn [[node pair]]
+      (when-some [[[node' & r] cont] (if (branch? node)
+                                       (if-some [cs (not-empty (children node))]
+                                         #js [cs pair]
+                                         pair)
+                                       pair)]
+        (if (some? r)
+          #js [node' #js [r cont]]
+          #js [node' cont])))
+    nil #js [root nil] nil))
+
+(extend-protocol IPrintWithWriter
+  TreeSeq
+  (-pr-writer [coll writer opts] (pr-sequential-writer writer pr-writer "(" " " ")" opts coll)))
 
 (defn file-seq
   "A tree seq on files"
