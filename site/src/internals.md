@@ -72,7 +72,7 @@ To actually read from the file, `slurp` calls another `js/PLANCK_FILE_READER_REA
 
 A few Planck ClojureScript namespaces are bundled with Planck in order to provide mappings onto these I/O primitives, exposing the simple APIs—like `slurp`—that you are familiar with: `planck.core`, `planck.io`, and `planck.shell`.
 
-In a nutshell, that’s really a big part of what Plank _is_: Some glue between ClojureScript and the native host environment.
+In a nutshell, that’s really a big part of what Planck _is_: Some glue between ClojureScript and the native host environment.
 
 ### Affordances
 

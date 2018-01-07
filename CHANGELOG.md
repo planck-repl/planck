@@ -413,7 +413,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - A quiet mode that disables banner and other output.
 - Support for `clojure.core.reducers`.
-- Ability to use `cljs.js` itself within Plank via `planck.core/init-empty-state`.
+- Ability to use `cljs.js` itself within Planck via `planck.core/init-empty-state`.
 - Autocompletion on commonly used keywords and other autocomplete improvements.
 
 ### Changed
