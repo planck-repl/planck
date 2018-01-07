@@ -2,7 +2,7 @@
   (:require-macros
    [planck.core])
   (:require
-   [clojure.test :refer [deftest is testing]]
+   [clojure.test :refer [deftest is are testing]]
    [clojure.string :as string]
    [foo.core]
    [planck.core]
@@ -136,3 +136,33 @@
   (is (= '(+ 1 2) (planck.core/read-string "(+ 1 2))))))")))
   (is (= '(\( \x \y \) \z) (planck.core/read-string "(\\( \\x \\y \\) \\z)")))
   (is (= 11 (planck.core/read-string (str "2r" "1011")))))
+
+(deftest tree-seq-test
+  (are [branch? children root] (= (planck.core/tree-seq branch? children root)
+                                  (tree-seq branch? children root))
+    seq? identity '((1 2 (3)) (4))
+    map? #(interleave (keys %) (vals %)) {:a 1 :b {:c 3 :d 4 :e {:f 6 :g 7}}}
+    next rest '(:A (:B (:D) (:E)) (:C (:F)))
+    sequential? seq [[1 2 [3]] [4]]))
+
+(deftest iterate-seq-test
+  (is (= ["nil"] (planck.core/iterate-seq pr-str (constantly 3) nil)))
+  (is (= [0 1 2] (take 3 (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0]))))
+  (is (= [0 1] (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0])))
+  (is (= 1 (reduce + 0 (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0]))))
+  (is (= 1 (reduce + (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0]))))
+  (is (realized? (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0])))
+  (is (not (realized? (rest (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0])))))
+  (is (= {:a 1} (meta (with-meta (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0]) {:a 1}))))
+  (is (= [:y :x 0 1] (conj (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0]) :x :y)))
+  (let [v (empty (with-meta (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0]) {:a 1}))]
+    (is (= () v))
+    (is (= {:a 1} (meta v)))))
+
+(deftest line-seq-test
+  (are [xs s] (= xs (planck.core/line-seq (planck.core/make-string-reader s)))
+    nil ""
+    ["a"] "a"
+    ["a" "b"] "a\nb"
+    ["a" "b"] "a\nb\n"
+    ["a" "b" "c"] "a\nb\nc"))
