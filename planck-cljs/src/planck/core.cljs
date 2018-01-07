@@ -307,7 +307,7 @@
 
 (def ^:private UNREALIZED-SEED #js {})
 
-(deftype ^:private TreeSeq [meta f prev-seed ^:mutable seed ^:mutable next]
+(deftype ^:private IterateSeq [meta f extract prev-seed ^:mutable seed ^:mutable next]
   Object
   (seedval [coll]
     (when (identical? UNREALIZED-SEED seed)
@@ -321,7 +321,7 @@
     (not (identical? seed UNREALIZED-SEED)))
 
   IWithMeta
-  (-with-meta [coll meta] (TreeSeq. meta f prev-seed seed next))
+  (-with-meta [coll meta] (IterateSeq. meta f extract prev-seed seed next))
 
   IMeta
   (-meta [coll] meta)
@@ -332,7 +332,7 @@
   (-rest [coll]
     (when (nil? next)
       (set! next (if-some [s (.seedval coll)]
-                   (TreeSeq. nil f s UNREALIZED-SEED nil)
+                   (IterateSeq. nil f extract s UNREALIZED-SEED nil)
                    ())))
     next)
 
@@ -361,40 +361,40 @@
   (-reduce [coll rf]
     (if-some [s (.seedval coll)]
       (if-some [s' (f s)]
-        (loop [ret (rf (aget s 0) (aget s' 0)) s s']
+        (loop [ret (rf (extract s) (extract s')) s s']
           (if (reduced? ret)
             @ret
             (if-some [s (f s)]
-              (recur (rf ret (aget s 0)) s)
+              (recur (rf ret (extract s)) s)
               ret)))
-        (aget s 0))
+        (extract s))
       (rf)))
   (-reduce [coll rf start]
     (if-some [s (.seedval coll)]
-      (loop [ret (rf start (aget s 0)) s s]
+      (loop [ret (rf start (extract s)) s s]
         (if (reduced? ret)
           @ret
           (if-some [s (f s)]
-            (recur (rf ret (aget s 0)) s)
+            (recur (rf ret (extract s)) s)
             ret)))
       start)))
 
 (defn- tree-seq
   [branch? children root]
-  (TreeSeq. nil
+  (IterateSeq. nil
     (fn [[node pair]]
       (when-some [[[node' & r] cont] (if (branch? node)
                                        (if-some [cs (not-empty (children node))]
-                                         #js [cs pair]
+                                         [cs pair]
                                          pair)
                                        pair)]
         (if (some? r)
-          #js [node' #js [r cont]]
-          #js [node' cont])))
-    nil #js [root nil] nil))
+          [node' #js [r cont]]
+          [node' cont])))
+    first nil [root nil] nil))
 
 (extend-protocol IPrintWithWriter
-  TreeSeq
+  IterateSeq
   (-pr-writer [coll writer opts] (pr-sequential-writer writer pr-writer "(" " " ")" opts coll)))
 
 (defn file-seq
