@@ -344,6 +344,10 @@
             ret)))
       start)))
 
+(extend-protocol IPrintWithWriter
+  IterateSeq
+  (-pr-writer [coll writer opts] (pr-sequential-writer writer pr-writer "(" " " ")" opts coll)))
+
 (defn- iterate-seq
   "Like iterate, but returns a directly reducible lazy sequence of
   (g x), (g (f x)), (g (f (f x))), etc., while f returns a non-nil
@@ -401,10 +405,6 @@
           [node' [r cont]]
           [node' cont])))
     [root nil]))
-
-(extend-protocol IPrintWithWriter
-  IterateSeq
-  (-pr-writer [coll writer opts] (pr-sequential-writer writer pr-writer "(" " " ")" opts coll)))
 
 (defn file-seq
   "A tree seq on files"
