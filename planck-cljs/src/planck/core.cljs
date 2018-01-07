@@ -361,8 +361,8 @@
   "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
   implement IBufferedReader."
   [rdr]
-  (when-let [first-line (-read-line rdr)]
-    (iterate-seq identity #(-read-line rdr) first-line)))
+  (when-let [line (-read-line rdr)]
+    (iterate-seq identity #(-read-line rdr) line)))
 
 (s/fdef line-seq
   :args (s/cat :rdr #(instance? IBufferedReader %))
