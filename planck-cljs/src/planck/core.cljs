@@ -307,7 +307,7 @@
 
 (def ^:private UNREALIZED-SEED #js {})
 
-(deftype ^:private IterateSeq [meta f extract prev-seed ^:mutable seed ^:mutable next]
+(deftype ^:private IterateSeq [meta f g prev-seed ^:mutable seed ^:mutable next]
   Object
   (seedval [coll]
     (when (identical? UNREALIZED-SEED seed)
@@ -321,18 +321,18 @@
     (not (identical? seed UNREALIZED-SEED)))
 
   IWithMeta
-  (-with-meta [coll meta] (IterateSeq. meta f extract prev-seed seed next))
+  (-with-meta [coll meta] (IterateSeq. meta f g prev-seed seed next))
 
   IMeta
   (-meta [coll] meta)
 
   ISeq
   (-first [coll]
-    (aget (.seedval coll) 0))
+    (g (.seedval coll)))
   (-rest [coll]
     (when (nil? next)
       (set! next (if-some [s (.seedval coll)]
-                   (IterateSeq. nil f extract s UNREALIZED-SEED nil)
+                   (IterateSeq. nil f g s UNREALIZED-SEED nil)
                    ())))
     next)
 
@@ -361,27 +361,34 @@
   (-reduce [coll rf]
     (if-some [s (.seedval coll)]
       (if-some [s' (f s)]
-        (loop [ret (rf (extract s) (extract s')) s s']
+        (loop [ret (rf (g s) (g s')) s s']
           (if (reduced? ret)
             @ret
             (if-some [s (f s)]
-              (recur (rf ret (extract s)) s)
+              (recur (rf ret (g s)) s)
               ret)))
-        (extract s))
+        (g s))
       (rf)))
   (-reduce [coll rf start]
     (if-some [s (.seedval coll)]
-      (loop [ret (rf start (extract s)) s s]
+      (loop [ret (rf start (g s)) s s]
         (if (reduced? ret)
           @ret
           (if-some [s (f s)]
-            (recur (rf ret (extract s)) s)
+            (recur (rf ret (g s)) s)
             ret)))
       start)))
 
+(defn- iterate-seq
+  "Like iterate, but returns a directy reducible lazy sequence of
+  (g x), (g (f x)), (g (f (f x)), etc., while f
+  returns a non-nil value."
+  [f g init]
+  (->IterateSeq nil f g nil init nil))
+
 (defn- tree-seq
   [branch? children root]
-  (IterateSeq. nil
+  (iterate-seq
     (fn [[node pair]]
       (when-some [[[node' & r] cont] (if (branch? node)
                                        (if-some [cs (not-empty (children node))]
@@ -389,9 +396,10 @@
                                          pair)
                                        pair)]
         (if (some? r)
-          [node' #js [r cont]]
+          [node' [r cont]]
           [node' cont])))
-    first nil [root nil] nil))
+    first
+    [root nil]))
 
 (extend-protocol IPrintWithWriter
   IterateSeq
