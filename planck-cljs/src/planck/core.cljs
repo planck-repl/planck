@@ -353,14 +353,16 @@
   (g x), (g (f x)), (g (f (f x))), etc., while f returns a non-nil
   value."
   [g f x]
-  (->IterateSeq nil g f nil x nil))
+  (if (nil? x)
+    (list (g x))
+    (->IterateSeq nil g f nil x nil)))
 
 (defn line-seq
   "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
   implement IBufferedReader."
   [rdr]
-  (when-let [line (-read-line rdr)]
-    (cons line (lazy-seq (line-seq rdr)))))
+  (when-let [first-line (-read-line rdr)]
+    (iterate-seq identity #(-read-line rdr) first-line)))
 
 (s/fdef line-seq
   :args (s/cat :rdr #(instance? IBufferedReader %))
