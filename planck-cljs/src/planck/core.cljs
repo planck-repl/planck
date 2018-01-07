@@ -269,41 +269,6 @@
 (s/fdef read-string
   :args (s/alt :unary (s/cat :s string?)
                :binary (s/cat :opts map? :s string?)))
-(defn line-seq
-  "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
-  implement IBufferedReader."
-  [rdr]
-  (when-let [line (-read-line rdr)]
-    (cons line (lazy-seq (line-seq rdr)))))
-
-(s/fdef line-seq
-  :args (s/cat :rdr #(instance? IBufferedReader %))
-  :ret seq?)
-
-(defn read-password
-  "Reads the next line from console with echoing disabled. It will print out a
-  prompt if supplied"
-  ([] (read-password ""))
-  ([prompt]
-   (js/PLANCK_READ_PASSWORD prompt)))
-
-(s/fdef read-password
-  :args (s/cat :prompt (s/? string?))
-  :ret string?)
-
-(defonce
-  ^{:dynamic true
-    :private true}
-  *as-file-fn*
-  (fn [_]
-    (throw (js/Error. "No *as-file-fn* fn set."))))
-
-(defonce
-  ^{:dynamic true
-    :private true}
-  *file?-fn*
-  (fn [_]
-    (throw (js/Error. "No *file?-fn* fn set."))))
 
 (def ^:private UNREALIZED-SEED #js {})
 
@@ -385,6 +350,42 @@
   value."
   [g f x]
   (->IterateSeq nil g f nil x nil))
+
+(defn line-seq
+  "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
+  implement IBufferedReader."
+  [rdr]
+  (when-let [line (-read-line rdr)]
+    (cons line (lazy-seq (line-seq rdr)))))
+
+(s/fdef line-seq
+  :args (s/cat :rdr #(instance? IBufferedReader %))
+  :ret seq?)
+
+(defn read-password
+  "Reads the next line from console with echoing disabled. It will print out a
+  prompt if supplied"
+  ([] (read-password ""))
+  ([prompt]
+   (js/PLANCK_READ_PASSWORD prompt)))
+
+(s/fdef read-password
+  :args (s/cat :prompt (s/? string?))
+  :ret string?)
+
+(defonce
+  ^{:dynamic true
+    :private true}
+  *as-file-fn*
+  (fn [_]
+    (throw (js/Error. "No *as-file-fn* fn set."))))
+
+(defonce
+  ^{:dynamic true
+    :private true}
+  *file?-fn*
+  (fn [_]
+    (throw (js/Error. "No *file?-fn* fn set."))))
 
 (defn- tree-seq
   [branch? children root]
