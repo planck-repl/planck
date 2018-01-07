@@ -286,7 +286,7 @@
     (not (identical? seed UNREALIZED-SEED)))
 
   IWithMeta
-  (-with-meta [coll meta] (IterateSeq. meta f g prev-seed seed next))
+  (-with-meta [coll meta] (IterateSeq. meta g f prev-seed seed next))
 
   IMeta
   (-meta [coll] meta)
@@ -297,7 +297,7 @@
   (-rest [coll]
     (when (nil? next)
       (set! next (if-some [s (.seedval coll)]
-                   (IterateSeq. nil f g s UNREALIZED-SEED nil)
+                   (IterateSeq. nil g f s UNREALIZED-SEED nil)
                    ())))
     next)
 
