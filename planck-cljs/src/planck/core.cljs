@@ -307,7 +307,7 @@
 
 (def ^:private UNREALIZED-SEED #js {})
 
-(deftype ^:private IterateSeq [meta f g prev-seed ^:mutable seed ^:mutable next]
+(deftype ^:private IterateSeq [meta g f prev-seed ^:mutable seed ^:mutable next]
   Object
   (seedval [coll]
     (when (identical? UNREALIZED-SEED seed)
@@ -383,12 +383,13 @@
   "Like iterate, but returns a directly reducible lazy sequence of
   (g x), (g (f x)), (g (f (f x))), etc., while f returns a non-nil
   value."
-  [f g init]
-  (->IterateSeq nil f g nil init nil))
+  [g f x]
+  (->IterateSeq nil g f nil x nil))
 
 (defn- tree-seq
   [branch? children root]
   (iterate-seq
+    first
     (fn [[node pair]]
       (when-some [[[node' & r] cont] (if (branch? node)
                                        (if-some [cs (not-empty (children node))]
@@ -398,7 +399,6 @@
         (if (some? r)
           [node' [r cont]]
           [node' cont])))
-    first
     [root nil]))
 
 (extend-protocol IPrintWithWriter
