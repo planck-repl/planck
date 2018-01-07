@@ -56,4 +56,4 @@ Within Cursive, add a REPL to the project and choose “Use clojure.main in norm
 (tubular.core/connect 7777)
 ```
 
-This will piggyback a Socket REPL session in the Cursive Clojure REPL, and you will see the `cljs.user=>` prompt from Planck. Use the pulldown to switch Cursive's REPL type fro `clj` to `cljs`, and you should be good to go. In particular you can use Cursive's REPL menu option to load files into Planck, sync namespaces, and send forms to the Plank REPL.
+This will piggyback a Socket REPL session in the Cursive Clojure REPL, and you will see the `cljs.user=>` prompt from Planck. Use the pulldown to switch Cursive's REPL type fro `clj` to `cljs`, and you should be good to go. In particular you can use Cursive's REPL menu option to load files into Planck, sync namespaces, and send forms to the Planck REPL.
