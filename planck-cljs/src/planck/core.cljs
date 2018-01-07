@@ -380,9 +380,9 @@
       start)))
 
 (defn- iterate-seq
-  "Like iterate, but returns a directy reducible lazy sequence of
-  (g x), (g (f x)), (g (f (f x)), etc., while f
-  returns a non-nil value."
+  "Like iterate, but returns a directly reducible lazy sequence of
+  (g x), (g (f x)), (g (f (f x))), etc., while f returns a non-nil
+  value."
   [f g init]
   (->IterateSeq nil f g nil init nil))
 
