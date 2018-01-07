@@ -146,7 +146,7 @@
     sequential? seq [[1 2 [3]] [4]]))
 
 (deftest iterate-seq-test
-  (is (= "nil" (planck.core/iterate-seq pr-str (constantly 3) nil)))
+  (is (= ["nil"] (planck.core/iterate-seq pr-str (constantly 3) nil)))
   (is (= [0 1 2] (take 3 (planck.core/iterate-seq first (fn [[x]] [(inc x)]) [0]))))
   (is (= [0 1] (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0])))
   (is (= 1 (reduce + 0 (planck.core/iterate-seq first (fn [[x]] (when (zero? x) [(inc x)])) [0]))))
@@ -162,7 +162,7 @@
 (deftest line-seq-test
   (are [xs s] (= xs (planck.core/line-seq (planck.core/make-string-reader s)))
     nil ""
-    ("a") "a"
-    ("a" "b") "a\nb"
-    ("a" "b") "a\nb\n"
-    ("a" "b" "c") "a\nb\nc"))
+    ["a"] "a"
+    ["a" "b"] "a\nb"
+    ["a" "b"] "a\nb\n"
+    ["a" "b" "c"] "a\nb\nc"))
