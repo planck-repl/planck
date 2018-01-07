@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Use Clojure 1.9.0 when building Planck
 - Use FindCurl when building Planck ([#598](https://github.com/mfikes/planck/issues/598))
+- Make the result of `file-seq` directly reducible ([#594](https://github.com/mfikes/planck/issues/594))
 
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))
