@@ -1,6 +1,6 @@
 (ns planck.core
   "Core Planck functions for use in scripts."
-  (:refer-clojure :exclude [*command-line-args* resolve])
+  (:refer-clojure :exclude [*command-line-args* resolve tree-seq])
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
@@ -269,6 +269,92 @@
 (s/fdef read-string
   :args (s/alt :unary (s/cat :s string?)
                :binary (s/cat :opts map? :s string?)))
+
+(def ^:private UNREALIZED-SEED #js {})
+
+(deftype ^:private IterateSeq [meta g f prev-seed ^:mutable seed ^:mutable next]
+  Object
+  (seedval [coll]
+    (when (identical? UNREALIZED-SEED seed)
+      (set! seed (f prev-seed)))
+    seed)
+  (toString [coll]
+    (pr-str* coll))
+
+  IPending
+  (-realized? [coll]
+    (not (identical? seed UNREALIZED-SEED)))
+
+  IWithMeta
+  (-with-meta [coll meta] (IterateSeq. meta g f prev-seed seed next))
+
+  IMeta
+  (-meta [coll] meta)
+
+  ISeq
+  (-first [coll]
+    (g (.seedval coll)))
+  (-rest [coll]
+    (when (nil? next)
+      (set! next (if-some [s (.seedval coll)]
+                   (IterateSeq. nil g f s UNREALIZED-SEED nil)
+                   ())))
+    next)
+
+  INext
+  (-next [coll]
+    (let [x (-rest coll)]
+      (if (empty? x)
+        nil
+        x)))
+
+  ICollection
+  (-conj [coll o] (cons o coll))
+
+  IEmptyableCollection
+  (-empty [coll] (-with-meta (.-EMPTY List) meta))
+
+  ISequential
+  ISeqable
+  (-seq [coll]
+    (if (.seedval coll) coll nil))
+
+  IEquiv
+  (-equiv [coll other] (equiv-sequential coll other))
+
+  IReduce
+  (-reduce [coll rf]
+    (if-some [s (.seedval coll)]
+      (if-some [s' (f s)]
+        (loop [ret (rf (g s) (g s')) s s']
+          (if (reduced? ret)
+            @ret
+            (if-some [s (f s)]
+              (recur (rf ret (g s)) s)
+              ret)))
+        (g s))
+      (rf)))
+  (-reduce [coll rf start]
+    (if-some [s (.seedval coll)]
+      (loop [ret (rf start (g s)) s s]
+        (if (reduced? ret)
+          @ret
+          (if-some [s (f s)]
+            (recur (rf ret (g s)) s)
+            ret)))
+      start)))
+
+(extend-protocol IPrintWithWriter
+  IterateSeq
+  (-pr-writer [coll writer opts] (pr-sequential-writer writer pr-writer "(" " " ")" opts coll)))
+
+(defn- iterate-seq
+  "Like iterate, but returns a directly reducible lazy sequence of
+  (g x), (g (f x)), (g (f (f x))), etc., while f returns a non-nil
+  value."
+  [g f x]
+  (->IterateSeq nil g f nil x nil))
+
 (defn line-seq
   "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
   implement IBufferedReader."
@@ -304,6 +390,21 @@
   *file?-fn*
   (fn [_]
     (throw (js/Error. "No *file?-fn* fn set."))))
+
+(defn- tree-seq
+  [branch? children root]
+  (iterate-seq
+    first
+    (fn [[node pair]]
+      (when-some [[[node' & r] cont] (if (branch? node)
+                                       (if-some [cs (not-empty (children node))]
+                                         [cs pair]
+                                         pair)
+                                       pair)]
+        (if (some? r)
+          [node' [r cont]]
+          [node' cont])))
+    [root nil]))
 
 (defn file-seq
   "A tree seq on files"
