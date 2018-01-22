@@ -78,12 +78,14 @@
     (is (= "a\nb\n" (spit-slurp test-file "a\nb\n")))))
 
 (deftest init-empty-state-test
-  (is (= {:ns 'cljs.user, :value '(2 3 4)}
-        (cljs.js/eval-str (cljs.js/empty-state planck.core/init-empty-state)
-          "(map inc [1 2 3])"
-          nil
-          {:eval cljs.js/js-eval}
-          identity))))
+  (cljs.js/eval-str (cljs.js/empty-state planck.core/init-empty-state)
+    "(map inc [1 2 3])"
+    nil
+    {:eval cljs.js/js-eval}
+    (fn [{:keys [ns value error]}]
+      (is (nil? error))
+      (is (= 'cljs.user ns))
+      (is (= '(2 3 4) value)))))
 
 (deftest slurp-url-test
   (is (string/includes? (planck.core/slurp "http://planck-repl.org") "Planck")))
