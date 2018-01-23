@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+## [2.11.0] - 2018-01-23
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))
 - Add support for core.specs.alpha ([#592](https://github.com/mfikes/planck/issues/592))
@@ -611,7 +612,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.10.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.11.0...HEAD
+[2.11.0]: https://github.com/mfikes/planck/compare/2.10.0...2.11.0
 [2.10.0]: https://github.com/mfikes/planck/compare/2.9.0...2.10.0
 [2.9.0]: https://github.com/mfikes/planck/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/mfikes/planck/compare/2.8.0...2.8.1

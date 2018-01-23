@@ -5,7 +5,7 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 
 ```
 $ planck
-Planck 2.10.0
+Planck 2.11.0
 ClojureScript 1.9.946
     Docs: (doc function-name-here)
           (find-doc "part-of-name-here")
