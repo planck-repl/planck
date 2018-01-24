@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-script/clean
-CLJS_COMMIT=${CLJS_COMMIT:=HEAD} script/build
-script/test
