@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### Changed
+- Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building
+
 ## [2.11.0] - 2018-01-23
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))

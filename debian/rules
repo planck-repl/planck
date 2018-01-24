@@ -7,7 +7,7 @@ build: build-indep
 build-indep: build-arch
 
 build-arch:
-	LEIN_HOME=lein_home LEIN_ROOT=1 script/build-sandbox
+	script/build-sandbox
 
 binary: binary-indep
 
@@ -21,8 +21,6 @@ binary-arch:
 	dpkg --build debian/tmp ..
 
 clean:
-	mkdir -p lein_home/self-installs
-	cp planck-cljs/sandbox-m2/leiningen-2.8.1-standalone.jar lein_home/self-installs
-	LEIN_HOME=lein_home LEIN_ROOT=1 BUILD_PPA=1 script/clean
+	BUILD_PPA=1 script/clean
 
 .PHONY: binary binary-arch binary-indep clean

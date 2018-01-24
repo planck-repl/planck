@@ -4,50 +4,17 @@ if [ ! -f jscomp.js ]; then
   curl -s -O http://planck-repl.org/releases/closure-${CLOSURE_JS_RELEASE}/jscomp.js
 fi
 
-# Set the CLJS_COMMIT env var to build our own copy 
-# of ClojureScript compiler. This can be HEAD, a commit hash, etc.
-# When setting, first do script/clean-all first from top-level.
-CLJS_COMMIT="${CLJS_COMMIT:-}"
-
 # Make sure we fail and exit on the command that actually failed.
 set -e
 set -o pipefail
 
-# Handle case where LEIN_HOME has been set
-if [ -n "$LEIN_HOME" ]; then
-  export LEIN_HOME=../lein_home
-fi
-
-# Initialize lein if it hasn't yet been
-script/lein -v > /dev/null 2>&1
-
-# Turn off tiered compilation (otherwise unavailability warning will break classpath)
-export LEIN_JVM_OPTS=
-
-# Suppress lein output regarding retrieving JARS
-export LEIN_SILENT=true
-
-if [ -n "$CLJS_COMMIT" ]; then
-  if [ -e clojurescript ]; then
-    rm -rf clojurescript
-  fi
-  git clone https://github.com/clojure/clojurescript --quiet
-  cd clojurescript
-  git reset --hard $CLJS_COMMIT
-  # Apply patches
-  # curl -L http://dev.clojure.org/jira/secure/attachment/16577/CLJS-1997.patch | git apply
-  # Deal with the case when building in sandbox mode
-  if [ -e ../profiles.clj ]; then
-      export MAVEN_OPTS="-Dmaven.repo.local=../sandbox-m2"
-      echo "{:dev {:local-repo \"../sandbox-m2\"}}" > profiles.clj
-  fi
-  export CLJS_VERSION=`script/build 2> /dev/null | grep 'Building ClojureScript' | tail -1 | cut -c 31-`
-  echo Using locally built ClojureScript $CLJS_VERSION
-  cd ..
-fi
-
-CLJSC_CP=`script/lein with-profile build-release classpath`
-
 mkdir -p out/cljs/analyzer
 mkdir -p out/cljs/core/specs
-java -cp $CLJSC_CP clojure.main script/build.clj
+
+export PATH=script:$PATH
+
+if [ -n "${CANARY_CLOJURESCRIPT_VERSION+set}" ]; then
+  DEPS="{:deps {org.clojure/clojurescript {:mvn/version \"$CANARY_CLOJURESCRIPT_VERSION\"}}}"
+fi
+
+clojure -Sdeps "${DEPS:-{}}" script/build.clj
