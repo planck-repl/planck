@@ -54,16 +54,10 @@ Set the optional `FAST_BUILD` environment variable to quickly build a developmen
 $ FAST_BUILD=1 script/build
 ```
 
-To build against a specific (locally installed) ClojureScript version, specify `CLJS_VERSION`:
+To build against a specific ClojureScript dependency, specify `-Sdeps`, which will be passed through to the underlying [`clojure`](https://clojure.org/guides/deps_and_cli) command.
 
 ```
-$ CLJS_VERSION=1.9.908 script/build
-```
-
-To locally build and use a specific ClojureScript commit, specify `CLJS_COMMIT`:
-
-```
-$ CLJS_COMMIT=d450122 script/build
+$ script/build -Sdeps "{:deps {org.clojure/clojurescript {:mvn/version \"1.9.946\"}}}"
 ```
 
 ## Tests
