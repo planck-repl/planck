@@ -5,10 +5,15 @@
 On Ubuntu, clone and then make a sources archive that includes all necessary JARs.
 
 0. `ssh` to Ubuntu build box.
+0. `curl -O https://download.clojure.org/install/linux-install-1.9.0.315.sh`
+0. `chmod +x linux-install-1.9.0.315.sh`
+0. `sudo ./linux-install-1.9.0.315.sh`
 0. `git clone https://github.com/mfikes/planck`
 0. `cd planck`
+0. `cp /usr/local/bin/clojure planck-cljs/script`
+0. `cp /usr/local/lib/clojure/libexec planck-cljs/script/libexec`
+0. Edit `planck-cljs/script/clojure` and revise `install_dir` to be `script`
 0. `FAST_BUILD=1 script/build-sandbox`
-0. `cp ~/.lein/self-installs/leiningen-2.8.1-standalone.jar planck-cljs/sandbox-m2`
 0. `BUILD_PPA=1 script/clean`
 0. `cd ..`
 0. `tar cvzf planck_2.<x>.<y>.orig.tar.gz planck`

@@ -1,1 +1,2 @@
-lein_home/self-installs/leiningen-2.8.1-standalone.jar
+planck_cljs/script/clojure
+planck_cljs/script/clj

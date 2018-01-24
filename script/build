@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+while [ $# -gt 0 ]
+do
+  case "$1" in
+    -Sdeps)
+      shift
+      export DEPS="${1}"
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 #----------------------------------------------------
 # Exit if the last command failed, indicating 
 # that there was a build failure
