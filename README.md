@@ -46,8 +46,6 @@ $ script/build
 
 The resulting binary will be `planck-c/build/planck`.
 
-### Parameterized Builds
-
 Specify `-fast` to quickly build a development version that skips Closure optimization:
 
 ```
