@@ -3,6 +3,11 @@
 while [ $# -gt 0 ]
 do
   case "$1" in
+    -fast)
+      shift
+      export FAST_BUILD=1
+      shift
+      ;;
     -Sdeps)
       shift
       export DEPS="${1}"

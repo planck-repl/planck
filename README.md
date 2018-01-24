@@ -48,10 +48,10 @@ The resulting binary will be `planck-c/build/planck`.
 
 ### Parameterized Builds
 
-Set the optional `FAST_BUILD` environment variable to quickly build a development version that skips Closure optimization:
+Specify `-fast` to quickly build a development version that skips Closure optimization:
 
 ```
-$ FAST_BUILD=1 script/build
+$ script/build -fast
 ```
 
 To build against a specific ClojureScript dependency, specify `-Sdeps`, which will be passed through to the underlying [`clojure`](https://clojure.org/guides/deps_and_cli) command.
