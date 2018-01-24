@@ -4,8 +4,8 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "shell", privileged: false, inline: <<-SHELL
     sudo pacman -Syu webkitgtk libzip zlib jdk8-openjdk base-devel git bash cmake --needed --noconfirm
-    git clone https://aur.archlinux.org/leiningen.git
-    cd leiningen
-    makepkg -i --noconfirm
+    curl -O https://download.clojure.org/install/linux-install-1.9.0.315.sh
+    chmod +x linux-install-1.9.0.315.sh
+    sudo ./linux-install-1.9.0.315.sh
   SHELL
 end

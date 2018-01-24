@@ -5,9 +5,9 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
     sudo apt-get install -y git clang cmake pkg-config javascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev default-jdk maven unzip
-    mkdir bin
-    curl -L https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein > bin/lein
-    chmod +x bin/lein
+    curl -O https://download.clojure.org/install/linux-install-1.9.0.315.sh
+    chmod +x linux-install-1.9.0.315.sh
+    sudo ./linux-install-1.9.0.315.sh
   SHELL
 
 end
