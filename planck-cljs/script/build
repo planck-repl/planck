@@ -12,7 +12,9 @@ mkdir -p out/cljs/analyzer
 mkdir -p out/cljs/core/specs
 
 export PATH=script:$PATH
-if [ -v CANARY_CLOJURESCRIPT_VERSION ]
+
+if [ -v CANARY_CLOJURESCRIPT_VERSION ]; then
   DEPS="{:deps {org.clojure/clojurescript {:mvn/version \"$CANARY_CLOJURESCRIPT_VERSION\"}}}"
 fi
+
 clojure -Sdeps "${DEPS:-{}}" script/build.clj
