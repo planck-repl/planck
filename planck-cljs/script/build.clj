@@ -91,10 +91,10 @@
                   "/tmp/cljs-aot-cache/core.cljs.cache.aot.edn"))
         cache (read-string (slurp res))]
     (doseq [key (keys cache)]
-      (write-cache (key cache) (str "out/cljs/core.cljs.cache.aot." (munge key) ".json")))
-    (finally
-      (when (.exists (io/file "/tmp/cljs-aot-cache"))
-        (delete-recursively (io/file "/tmp/cljs-aot-cache"))))))
+      (write-cache (key cache) (str "out/cljs/core.cljs.cache.aot." (munge key) ".json"))))
+  (finally
+    (when (.exists (io/file "/tmp/cljs-aot-cache"))
+      (delete-recursively (io/file "/tmp/cljs-aot-cache")))))
 
 (let [res "out/cljs/core$macros.cljc.cache.json"
       cache (transit/read (transit/reader (FileInputStream. res) :json))]
