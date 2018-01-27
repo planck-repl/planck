@@ -1,9 +1,11 @@
 (ns script.bootstrap.build
   (:require [clojure.java.io :as io]
             [cljs.build.api :as api]
-            [cljs.analyzer]
+            [cljs.analyzer :as ana]
+            [cljs.env :as env]
+            [cljs.compiler :as comp]
             [cognitect.transit :as transit])
-  (:import [java.io ByteArrayOutputStream FileInputStream]))
+  (:import [java.io ByteArrayOutputStream File FileInputStream]))
 
 (def canary-build? (boolean (System/getenv "CANARY_BUILD")))
 
@@ -16,6 +18,10 @@
                       :else false))
 
 (def non-fatal-warnings #{:redef})
+
+(defn delete-recursively [fname]
+  (doseq [f (reverse (file-seq (io/file fname)))]
+    (io/delete-file f true)))
 
 (cljs.analyzer/with-warning-handlers
   [(fn [warning-type env extra]
@@ -62,10 +68,33 @@
     (transit/write writer cache)
     (spit (io/file out-path) (.toString out))))
 
-(let [res (io/resource "cljs/core.cljs.cache.aot.edn")
-      cache (read-string (slurp res))]
-  (doseq [key (keys cache)]
-    (write-cache (key cache) (str "out/cljs/core.cljs.cache.aot." (munge key) ".json"))))
+;; Needed in the case that we are depending on a
+;; ClojureScript source tree via deps.edn (instead of
+;; on a built ClojureScript JAR). This is a rough copy
+;; of the functionality in cljs.closure/aot-cache-core
+(defn aot-cache-core []
+  (let [src (io/file (.getFile (io/resource "cljs/core.cljs")))
+        base (io/file "/tmp/cljs-aot-cache")
+        dest (io/file base "core.aot.js")
+        cache (io/file base "core.cljs.cache.aot.edn")]
+    (io/make-parents dest)
+    (env/with-compiler-env (env/default-compiler-env {:infer-externs true})
+      (comp/compile-file src dest
+        {:source-map true
+         :source-map-url "core.js.map"
+         :output-dir (str "src" File/separator "main" File/separator "cljs")})
+      (ana/write-analysis-cache 'cljs.core cache src))))
+
+(try
+  (let [res (or (io/resource "cljs/core.cljs.cache.aot.edn")
+              (do (aot-cache-core)
+                  "/tmp/cljs-aot-cache/core.cljs.cache.aot.edn"))
+        cache (read-string (slurp res))]
+    (doseq [key (keys cache)]
+      (write-cache (key cache) (str "out/cljs/core.cljs.cache.aot." (munge key) ".json"))))
+  (finally
+    (when (.exists (io/file "/tmp/cljs-aot-cache"))
+      (delete-recursively (io/file "/tmp/cljs-aot-cache")))))
 
 (let [res "out/cljs/core$macros.cljc.cache.json"
       cache (transit/read (transit/reader (FileInputStream. res) :json))]
