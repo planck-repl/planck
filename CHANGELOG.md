@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building
+- Tweaks to build process supporting depending on a ClojureScript source tree (instead of JAR)
 
 ## [2.11.0] - 2018-01-23
 ### Added
