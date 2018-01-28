@@ -358,12 +358,3 @@
 (set! planck.core/*writer-fn* writer)
 (set! planck.core/*as-file-fn* as-file)
 (set! planck.core/*file?-fn* file?)
-
-(repl/register-speced-vars
-  `build-uri
-  `file?
-  `file
-  `file-attributes
-  `delete-file
-  `directory?
-  `resource)

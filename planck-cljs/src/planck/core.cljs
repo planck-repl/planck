@@ -451,17 +451,3 @@
 ;; facilities are available
 (repl/side-load-ns 'planck.http)
 (repl/side-load-ns 'planck.io)
-
-(repl/register-speced-vars
-  `exit
-  `read-line
-  `line-seq
-  `read-password
-  `file-seq
-  `slurp
-  `spit
-  `eval
-  `ns-resolve
-  `resolve
-  `intern
-  `init-empty-state)
