@@ -137,7 +137,3 @@
 (s/fdef sh-async
   :args ::sh-async-args
   :ret nil?)
-
-(repl/register-speced-vars
-  `sh
-  `sh-async)

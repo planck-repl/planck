@@ -680,7 +680,7 @@
   ([] (form-compiled-by-string nil))
   ([opts]
    (str "// Compiled by ClojureScript "
-     *clojurescript-version*
+     (or *clojurescript-version* "0.0.0000")
      (when opts
        (str " " (pr-str opts))))))
 
@@ -1832,14 +1832,10 @@
             {:ns initial-ns}
             (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])
             (if expression?
-              (merge {:context       :expr}
-                (if (load-form? expression-form)
-                  {:source-map true}
-                  {:def-emits-var true})
-                ;; With CLJS-2367, we can unconditionally set :def-emits-var, thus allowing the
-                ;; self-hosted implementation to use this to detect REPLs (avoiding CLJS-2365, etc.)
-                (when-not (neg? (gstring/compareVersions *clojurescript-version* "1.9.933"))
-                  {:def-emits-var true}))
+              (merge {:context       :expr
+                      :def-emits-var true}
+                (when (load-form? expression-form)
+                  {:source-map true}))
               (merge {:source-map true}
                 (when (:cache-path @app-env)
                   {:cache-source (cache-source-fn source-text)}))))
@@ -1987,14 +1983,3 @@
         (orig-print-err-fn (:err-font theme))
         (orig-print-err-fn msg)
         (orig-print-err-fn (:reset-font theme))))))
-
-(defn- register-speced-vars
-  "Facilitates workaround if CLJS-1989 not in place."
-  [& speced-vars]
-  (when (neg? (gstring/compareVersions *clojurescript-version* "1.9.655"))
-    (let [_speced_vars (eval 'cljs.spec.alpha$macros/_speced_vars)]
-      (doseq [speced-var speced-vars]
-        (swap! _speced_vars conj speced-var)))))
-
-(register-speced-vars
-  `get-arglists)

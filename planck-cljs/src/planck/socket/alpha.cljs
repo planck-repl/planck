@@ -78,9 +78,3 @@
 (s/fdef listen
   :args (s/cat :socket ::socket :accept-handler ::accept-handler :opts (s/? ::opts))
   :ret nil?)
-
-(repl/register-speced-vars
-  `connect
-  `write
-  `close
-  `listen)

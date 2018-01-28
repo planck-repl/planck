@@ -277,7 +277,3 @@
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
                                                         ::form-params ::multipart-params ::socket])))
   :ret (s/keys :req-un [::body ::headers ::status]))
-
-(repl/register-speced-vars
-  `get
-  `post)
