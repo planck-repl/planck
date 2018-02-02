@@ -520,7 +520,18 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_SET_TIMEOUT", function_set_timeout);
     evaluate_script(ctx,
-                    "var PLANCK_CALLBACK_STORE = {};\nvar setTimeout = function( fn, ms ) {\nid = PLANCK_SET_TIMEOUT(ms);PLANCK_CALLBACK_STORE[id] = fn;return id;\n}\nvar PLANCK_RUN_TIMEOUT = function( id ) {\nif( PLANCK_CALLBACK_STORE[id] )\nPLANCK_CALLBACK_STORE[id]();\ndelete PLANCK_CALLBACK_STORE[id];\n}\n",
+                    "var PLANCK_CALLBACK_STORE = {};\
+                     var setTimeout = function( fn, ms ) {\
+                       id = PLANCK_SET_TIMEOUT(ms);\
+                       PLANCK_CALLBACK_STORE[id] = fn;\
+                       return id;\
+                     };\
+                     var PLANCK_RUN_TIMEOUT = function( id ) {\
+                       if( PLANCK_CALLBACK_STORE[id] ) {\
+                         PLANCK_CALLBACK_STORE[id]();\
+                         delete PLANCK_CALLBACK_STORE[id];\
+                       }\
+                    };",
                     "<init>");
 
     display_launch_timing("setTimeout");
