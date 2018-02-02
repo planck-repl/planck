@@ -531,6 +531,9 @@ void *do_engine_init(void *data) {
                          PLANCK_CALLBACK_STORE[id]();\
                          delete PLANCK_CALLBACK_STORE[id];\
                        }\
+                    };\
+                    var clearTimeout = function( id ) {\
+                       delete PLANCK_CALLBACK_STORE[id];\
                     };",
                     "<init>");
 

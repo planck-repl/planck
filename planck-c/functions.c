@@ -1113,29 +1113,12 @@ JSValueRef function_read_password(JSContextRef ctx, JSObjectRef function, JSObje
     return JSValueMakeNull(ctx);
 }
 
-struct timeout_data_t {
-    unsigned long long id;
-};
-
-char *timeout_id_to_str(unsigned long long id) {
-    char *rv = malloc(21);
-    sprintf(rv, "%llu", id);
-    return rv;
-};
-
-JSValueRef timeout_data_to_js_value(JSContextRef ctx, struct timeout_data_t *timeout_data) {
-    char *id_str = timeout_id_to_str(timeout_data->id);
-    JSValueRef rv = c_string_to_value(ctx, id_str);
-    free(id_str);
-    return rv;
-}
-
 void do_run_timeout(void *data) {
 
-    struct timeout_data_t *timeout_data = data;
+    unsigned long *timeout_data = data;
 
     JSValueRef args[1];
-    args[0] = timeout_data_to_js_value(ctx, timeout_data);
+    args[0] = JSValueMakeNumber(ctx, (double)*timeout_data);
     free(timeout_data);
 
     static JSObjectRef run_timeout_fn = NULL;
@@ -1148,7 +1131,7 @@ void do_run_timeout(void *data) {
     release_eval_lock();
 }
 
-static unsigned long long timeout_id = 0;
+static unsigned long timeout_id = 0;
 
 JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
@@ -1157,9 +1140,16 @@ JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObject
 
         int millis = (int) JSValueToNumber(ctx, args[0], NULL);
 
-        struct timeout_data_t *timeout_data = malloc(sizeof(struct timeout_data_t));
-        timeout_data->id = ++timeout_id;
-        JSValueRef rv = timeout_data_to_js_value(ctx, timeout_data);
+        if (timeout_id == 9007199254740991) {
+            timeout_id = 0;
+        } else {
+            ++timeout_id;
+        }
+
+        JSValueRef rv = JSValueMakeNumber(ctx, (double)timeout_id);
+
+        unsigned long *timeout_data = malloc(sizeof(unsigned long));
+        *timeout_data = timeout_id;
 
         start_timer(millis, do_run_timeout, (void *) timeout_data);
 
