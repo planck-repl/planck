@@ -539,7 +539,8 @@ void *do_engine_init(void *data) {
                      var PLANCK_INTERVAL_CALLBACK_STORE = {};\
                      var setInterval = function( fn, ms ) {\
                         var id = PLANCK_SET_INTERVAL(ms, null);\
-                        PLANCK_INTERVAL_CALLBACK_STORE[id] = function(){ fn(); PLANCK_SET_INTERVAL(ms, id); };\
+                        PLANCK_INTERVAL_CALLBACK_STORE[id] = \
+                          function(){ fn(); PLANCK_SET_INTERVAL(ms, id); };\
                         return id;\
                      };\
                      var PLANCK_RUN_INTERVAL = function( id ) {\
