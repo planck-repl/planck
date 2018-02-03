@@ -519,22 +519,37 @@ void *do_engine_init(void *data) {
     display_launch_timing("setup command line args");
 
     register_global_function(ctx, "PLANCK_SET_TIMEOUT", function_set_timeout);
+    register_global_function(ctx, "PLANCK_SET_INTERVAL", function_set_interval);
     evaluate_script(ctx,
-                    "var PLANCK_CALLBACK_STORE = {};\
+                    "var PLANCK_TIMEOUT_CALLBACK_STORE = {};\
                      var setTimeout = function( fn, ms ) {\
-                       id = PLANCK_SET_TIMEOUT(ms);\
-                       PLANCK_CALLBACK_STORE[id] = fn;\
+                       var id = PLANCK_SET_TIMEOUT(ms);\
+                       PLANCK_TIMEOUT_CALLBACK_STORE[id] = fn;\
                        return id;\
                      };\
                      var PLANCK_RUN_TIMEOUT = function( id ) {\
-                       if( PLANCK_CALLBACK_STORE[id] ) {\
-                         PLANCK_CALLBACK_STORE[id]();\
-                         delete PLANCK_CALLBACK_STORE[id];\
+                       if( PLANCK_TIMEOUT_CALLBACK_STORE[id] ) {\
+                         PLANCK_TIMEOUT_CALLBACK_STORE[id]();\
+                         delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
                        }\
-                    };\
-                    var clearTimeout = function( id ) {\
-                       delete PLANCK_CALLBACK_STORE[id];\
-                    };",
+                     };\
+                     var clearTimeout = function( id ) {\
+                        delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
+                     };\
+                     var PLANCK_INTERVAL_CALLBACK_STORE = {};\
+                     var setInterval = function( fn, ms ) {\
+                        var id = PLANCK_SET_INTERVAL(ms, null);\
+                        PLANCK_INTERVAL_CALLBACK_STORE[id] = function(){ fn(); PLANCK_SET_INTERVAL(ms, id); };\
+                        return id;\
+                     };\
+                     var PLANCK_RUN_INTERVAL = function( id ) {\
+                        if( PLANCK_INTERVAL_CALLBACK_STORE[id] ) {\
+                          PLANCK_INTERVAL_CALLBACK_STORE[id]();\
+                        }\
+                     };\
+                     var clearInterval = function( id ) {\
+                        delete PLANCK_INTERVAL_CALLBACK_STORE[id];\
+                     };",
                     "<init>");
 
     display_launch_timing("setTimeout");

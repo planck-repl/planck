@@ -1158,6 +1158,58 @@ JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObject
     return JSValueMakeNull(ctx);
 }
 
+void do_run_interval(void *data) {
+
+    unsigned long *interval_data = data;
+
+    JSValueRef args[1];
+    args[0] = JSValueMakeNumber(ctx, (double)*interval_data);
+    free(interval_data);
+
+    static JSObjectRef run_interval_fn = NULL;
+    if (!run_interval_fn) {
+        run_interval_fn = get_function("global", "PLANCK_RUN_INTERVAL");
+        JSValueProtect(ctx, run_interval_fn);
+    }
+    acquire_eval_lock();
+    JSObjectCallAsFunction(ctx, run_interval_fn, NULL, 1, args, NULL);
+    release_eval_lock();
+}
+
+static unsigned long interval_id = 0;
+
+JSValueRef function_set_interval(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                 size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
+
+        int millis = (int) JSValueToNumber(ctx, args[0], NULL);
+
+        unsigned long curr_interval_id;
+
+        if (JSValueIsNull(ctx, args[1])) {
+            if (interval_id == 9007199254740991) {
+                interval_id = 0;
+            } else {
+                ++interval_id;
+            }
+            curr_interval_id = interval_id;
+        } else {
+            curr_interval_id = (unsigned long) JSValueToNumber(ctx, args[1], NULL);
+        }
+
+        JSValueRef rv = JSValueMakeNumber(ctx, (double)curr_interval_id);
+
+        unsigned long *interval_data = malloc(sizeof(unsigned long));
+        *interval_data = curr_interval_id;
+
+        start_timer(millis, do_run_interval, (void *) interval_data);
+
+        return rv;
+    }
+    return JSValueMakeNull(ctx);
+}
+
 JSValueRef function_high_res_timer(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                    size_t argc, const JSValueRef args[], JSValueRef *exception) {
 
