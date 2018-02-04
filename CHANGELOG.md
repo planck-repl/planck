@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Support `js/clearTimeout`, `js/setInterval`, and `js/clearInterval` ([#127](https://github.com/mfikes/planck/issues/597))
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building

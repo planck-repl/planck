@@ -540,7 +540,7 @@ from sh-async
 Can exit with timer
 start
 nil
-nil
+1
 end
 nil
 Test chained timer and sh-async keeps script going
