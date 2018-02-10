@@ -1,5 +1,4 @@
 {:deps {org.clojure/clojurescript {:mvn/version "1.9.946"}
-        com.google.javascript/closure-compiler-unshaded {:mvn/version "v20170910"}
         org.clojure/test.check {:mvn/version "0.10.0-alpha2"}
         com.cognitect/transit-clj {:mvn/version "0.8.300"}
         com.cognitect/transit-cljs {:mvn/version "0.8.243"}
