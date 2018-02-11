@@ -1208,7 +1208,11 @@
   (string/ends-with? file ".js"))
 
 (defn- file->ns-sym [file]
-  (symbol (string/replace (st/remove-ext file) "/" ".")))
+  (-> file
+    st/remove-ext
+    (string/replace "/" ".")
+    (string/replace "_" "-")
+    symbol))
 
 (defn- qualify [name file]
   (cond->> name
