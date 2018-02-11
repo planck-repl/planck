@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - In stacktraces, JavaScript sources assumed to be ClojureScript ([#624](https://github.com/mfikes/planck/issues/624))
+- Bundled JavaScript files not source-mapped ([#630](https://github.com/mfikes/planck/issues/630))
 
 ## [2.11.0] - 2018-01-23
 ### Added

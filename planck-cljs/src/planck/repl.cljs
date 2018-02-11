@@ -25,7 +25,7 @@
    [planck.pprint.code]
    [planck.pprint.data]
    [planck.pprint.width-adjust]
-   [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
+   [planck.repl-resources :refer [repl-special-doc-map special-doc-map bundled-aot-namespaces]]
    [planck.themes :refer [get-theme]]))
 
 (defn- distinct-by
@@ -1088,67 +1088,12 @@
                                ;; or if they are AOT decoded.
                                (if (or (string/starts-with? sm-text "{\"version\"")
                                        (string/starts-with? sm-text "{\n\"version\""))
-                                 (cljs/load-source-map! st ns-sym (->> ns-sym
-                                                                    source-map-path
-                                                                    js/PLANCK_LOAD
-                                                                    first))
+                                 (cljs/load-source-map! st ns-sym sm-text)
                                  (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))))]
       ;; Source maps for bundled macros namespaces other than cljs.core are loaded
       ;; via their cached ".js.map.json" file.
-      (doseq [ns-sym '[cljs.core
-                       cljs.core$macros
-                       cljs.analyzer.api
-                       cljs.compiler
-                       cljs.env
-                       cljs.js
-                       cljs.pprint
-                       cljs.reader
-                       cljs.source-map
-                       cljs.source-map.base64
-                       cljs.source-map.base64-vlq
-                       cljs.spec.alpha
-                       cljs.spec.gen.alpha
-                       cljs.spec.test.alpha
-                       cljs.stacktrace
-                       cljs.tagged-literals
-                       cljs.test
-                       cljs.tools.reader
-                       cljs.tools.reader.impl.commons
-                       cljs.tools.reader.impl.utils
-                       cljs.tools.reader.reader-types
-                       clojure.core.reducers
-                       clojure.core.rrb-vector
-                       clojure.core.rrb-vector.interop
-                       clojure.core.rrb-vector.nodes
-                       clojure.core.rrb-vector.protocols
-                       clojure.core.rbb-vector.rbbt
-                       clojure.core.rbb-vector.transients
-                       clojure.core.rrb-vector.trees
-                       clojure.data
-                       clojure.set
-                       clojure.string
-                       clojure.walk
-                       clojure.zip
-                       cognitect.transit
-                       fipp.clojure
-                       fipp.deque
-                       fipp.edn
-                       fipp.ednize
-                       fipp.visit
-                       lazy-map.core
-                       planck.core
-                       planck.from.io.aviso.ansi
-                       planck.http
-                       planck.io
-                       planck.js-deps
-                       planck.pprint.code
-                       planck.pprint.data
-                       planck.pprint.width-adjust
-                       planck.repl
-                       planck.repl-resources
-                       planck.shell
-                       planck.themes]]
-        (load-source-maps ns-sym)))))
+      (load-source-maps 'cljs.core$macros)
+      (run! load-source-maps bundled-aot-namespaces))))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
 
