@@ -98,7 +98,7 @@ then
     then
       java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim
     else
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.optim
+      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT3 --language_out ECMASCRIPT3 --process_closure_primitives false --js $file --js_output_file $file.optim --create_source_map $file.map
     fi
     echo -n "."
   fi
