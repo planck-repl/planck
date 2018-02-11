@@ -1231,6 +1231,33 @@
                munged-sym
                (demunge munged-sym))))))
 
+;; Revise mapped-frame so it doesn't automatically assume source files are .cljs
+;; Hack by checking to see if .cljs file exists
+(defn- mapped-frame
+  [{:keys [function file line column]} sms opts]
+  (let [no-source-file?      (if-not file true (string/starts-with? file "<"))
+        [line' column' call] (if no-source-file?
+                               [line column nil]
+                               (st/mapped-line-column-call sms file line column))
+        exists?              (fn [file] (some? (js/PLANCK_LOAD file)))
+        file'                (when-not no-source-file?
+                               (if (string/ends-with? file ".js")
+                                 (let [cljs-file (str (subs file 0 (- (count file) 3)) ".cljs")]
+                                   (if (exists? cljs-file)
+                                     cljs-file
+                                     file))
+                                 file))]
+    {:function function
+     :call     call
+     :file     (if no-source-file?
+                 (str "NO_SOURCE_FILE" (when file (str " " file)))
+                 file')
+     :line     line'
+     :column   column'}))
+
+;; Monkey-patch mapped-frame
+(set! st/mapped-frame mapped-frame)
+
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
    (mapped-stacktrace-str stacktrace sms nil))
