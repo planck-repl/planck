@@ -1076,22 +1076,22 @@
 
 (defn- load-bundled-source-maps!
   [ns-syms]
-  (when-not (get (:source-maps @planck.repl/st) 'cljs.core)
-    (let [source-map-path  (fn [ns-sym]
-                             (str (cljs.js/ns->relpath ns-sym) ".js.map"))
-          load-source-maps (fn [ns-sym]
-                             (when-not (get-in [:source-maps ns-sym] @st)
-                               (when-let [sm-text (->> ns-sym
-                                                    source-map-path
-                                                    js/PLANCK_LOAD
-                                                    first)]
-                                 ;; Detect if we have source maps in need of decoding
-                                 ;; or if they are AOT decoded.
-                                 (if (or (string/starts-with? sm-text "{\"version\"")
-                                         (string/starts-with? sm-text "{\n\"version\""))
-                                   (cljs/load-source-map! st ns-sym sm-text)
-                                   (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text))))))]
-      (run! load-source-maps ns-syms))))
+  (let [source-map-path  (fn [ns-sym]
+                           (str (cljs.js/ns->relpath ns-sym) ".js.map"))
+        load-source-maps (fn [ns-sym]
+                           (when-not (get-in @st [:source-maps ns-sym])
+                             (if-let [sm-text (->> ns-sym
+                                                  source-map-path
+                                                  js/PLANCK_LOAD
+                                                  first)]
+                               ;; Detect if we have source maps in need of decoding
+                               ;; or if they are AOT decoded.
+                               (if (or (string/starts-with? sm-text "{\"version\"")
+                                       (string/starts-with? sm-text "{\n\"version\""))
+                                 (cljs/load-source-map! st ns-sym sm-text)
+                                 (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))
+                               (swap! st assoc-in [:source-maps ns-sym] {}))))]
+    (run! load-source-maps ns-syms)))
 
 (defn- load-core-macros-source-maps! []
   (load-bundled-source-maps! '[cljs.core$macros]))
