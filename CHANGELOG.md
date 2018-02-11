@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file. This change
 - Tweaks to build process supporting depending on a ClojureScript source tree (instead of JAR)
 - Update to Closure v20180204
 
+### Fixed
+- In stacktraces, JavaScript sources assumed to be ClojureScript ([#624](https://github.com/mfikes/planck/issues/624))
+
 ## [2.11.0] - 2018-01-23
 ### Added
 - Add `M-f`, `M-b`, and `M-d` support for REPL ([#569](https://github.com/mfikes/planck/issues/569))
