@@ -18,6 +18,11 @@ do
   esac
 done
 
+if [ -z ${FAST_BUILD+set} ]; then
+  echo "Creating an optimized build, which can take more than half an hour."
+  echo "Specifying -fast skips optimizations and takes less than two minutes."
+fi
+
 #----------------------------------------------------
 # Exit if the last command failed, indicating 
 # that there was a build failure
