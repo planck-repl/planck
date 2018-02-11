@@ -25,7 +25,7 @@
    [planck.pprint.code]
    [planck.pprint.data]
    [planck.pprint.width-adjust]
-   [planck.repl-resources :refer [repl-special-doc-map special-doc-map bundled-aot-namespaces]]
+   [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
    [planck.themes :refer [get-theme]]))
 
 (defn- distinct-by
@@ -1075,25 +1075,26 @@
     (run-main-impl *main-cli-fn* *command-line-args*)))
 
 (defn- load-bundled-source-maps!
-  []
+  [ns-syms]
   (when-not (get (:source-maps @planck.repl/st) 'cljs.core)
     (let [source-map-path  (fn [ns-sym]
                              (str (cljs.js/ns->relpath ns-sym) ".js.map"))
           load-source-maps (fn [ns-sym]
-                             (when-let [sm-text (->> ns-sym
-                                                  source-map-path
-                                                  js/PLANCK_LOAD
-                                                  first)]
-                               ;; Detect if we have source maps in need of decoding
-                               ;; or if they are AOT decoded.
-                               (if (or (string/starts-with? sm-text "{\"version\"")
-                                       (string/starts-with? sm-text "{\n\"version\""))
-                                 (cljs/load-source-map! st ns-sym sm-text)
-                                 (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))))]
-      ;; Source maps for bundled macros namespaces other than cljs.core are loaded
-      ;; via their cached ".js.map.json" file.
-      (load-source-maps 'cljs.core$macros)
-      (run! load-source-maps bundled-aot-namespaces))))
+                             (when-not (get-in [:source-maps ns-sym] @st)
+                               (when-let [sm-text (->> ns-sym
+                                                    source-map-path
+                                                    js/PLANCK_LOAD
+                                                    first)]
+                                 ;; Detect if we have source maps in need of decoding
+                                 ;; or if they are AOT decoded.
+                                 (if (or (string/starts-with? sm-text "{\"version\"")
+                                         (string/starts-with? sm-text "{\n\"version\""))
+                                   (cljs/load-source-map! st ns-sym sm-text)
+                                   (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text))))))]
+      (run! load-source-maps ns-syms))))
+
+(defn- load-core-macros-source-maps! []
+  (load-bundled-source-maps! '[cljs.core$macros]))
 
 (defonce ^:dynamic ^:private *planck-integration-tests* false)
 
@@ -1307,12 +1308,14 @@
      (when-let [data (and print-ex-data? (ex-data error))]
        (print-value data {::as-code? false}))
      (when include-stacktrace?
-       (load-bundled-source-maps!)
+       (load-core-macros-source-maps!)
        (let [canonical-stacktrace (st/parse-stacktrace
                                     {}
                                     (.-stack error)
                                     {:ua-product :safari}
-                                    {:output-dir "file://(/goog/..)?"})]
+                                    {:output-dir "file://(/goog/..)?"})
+             file->ns-sym         (fn [file] (symbol (string/replace (st/remove-ext file) "/" ".")))]
+         (load-bundled-source-maps! (distinct (map (comp file->ns-sym :file) canonical-stacktrace)))
          (println
            ((:ex-stack-fn theme)
             (mapped-stacktrace-str
