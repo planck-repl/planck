@@ -1204,17 +1204,17 @@
 ;; Monkey-patch mapped-frame
 (set! st/mapped-frame mapped-frame)
 
-(defn file->ns [file]
-  'zoo.core)
-
 (defn- js-file? [file]
   (string/ends-with? file ".js"))
+
+(defn- file->ns-sym [file]
+  (symbol (string/replace (st/remove-ext file) "/" ".")))
 
 (defn- qualify [name file]
   (cond->> name
     (not (or (string/includes? name "/")
              (js-file? file)))
-    (str (file->ns file) "/")))
+    (str (file->ns-sym file) "/")))
 
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
@@ -1326,8 +1326,7 @@
                                     {}
                                     (.-stack error)
                                     {:ua-product :safari}
-                                    {:output-dir "file://(/goog/..)?"})
-             file->ns-sym         (fn [file] (symbol (string/replace (st/remove-ext file) "/" ".")))]
+                                    {:output-dir "file://(/goog/..)?"})]
          (load-bundled-source-maps! (distinct (map (comp file->ns-sym :file) canonical-stacktrace)))
          (println
            ((:ex-stack-fn theme)
