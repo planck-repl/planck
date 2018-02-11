@@ -1204,13 +1204,26 @@
 ;; Monkey-patch mapped-frame
 (set! st/mapped-frame mapped-frame)
 
+(defn file->ns [file]
+  'zoo.core)
+
+(defn- js-file? [file]
+  (string/ends-with? file ".js"))
+
+(defn- qualify [name file]
+  (cond->> name
+    (not (or (string/includes? name "/")
+             (js-file? file)))
+    (str (file->ns file) "/")))
+
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
    (mapped-stacktrace-str stacktrace sms nil))
   ([stacktrace sms opts]
    (apply str
      (for [{:keys [function file line column]} (st/mapped-stacktrace stacktrace sms opts)
-           :let [demunged (str (when function (demunge-sym function)))]
+           :let [demunged (-> (str (when function (demunge-sym function)))
+                            (qualify file))]
            :when (not= demunged "cljs.core/-invoke [cljs.core/IFn]")]
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
