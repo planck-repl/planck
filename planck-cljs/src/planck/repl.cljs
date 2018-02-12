@@ -1128,7 +1128,7 @@
   [ns]
   {:pre [(symbol? ns)]}
   (let [ns-str        (str ns)
-        munged-ns-str (string/replace ns-str #"\." "$")]
+        munged-ns-str (string/escape ns-str {\- \_ \. \$})]
     (into {} (for [sym (ns-syms ns)]
                [(str munged-ns-str "$" (munge sym)) (symbol ns-str (str sym))]))))
 
