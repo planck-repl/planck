@@ -1326,11 +1326,12 @@
        (print-value data {::as-code? false}))
      (when include-stacktrace?
        (load-core-macros-source-maps!)
-       (let [canonical-stacktrace (st/parse-stacktrace
-                                    {}
-                                    (.-stack error)
-                                    {:ua-product :safari}
-                                    {:output-dir "file://(/goog/..)?"})]
+       (let [canonical-stacktrace (->> (st/parse-stacktrace
+                                         {}
+                                         (.-stack error)
+                                         {:ua-product :safari}
+                                         {:output-dir "file://(/goog/..)?"})
+                                    (take-while #(not= "PLANCK_EVAL" (:function %))))]
          (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
          (println
            ((:ex-stack-fn theme)
