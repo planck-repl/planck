@@ -1331,7 +1331,7 @@
                                     (.-stack error)
                                     {:ua-product :safari}
                                     {:output-dir "file://(/goog/..)?"})]
-         (load-bundled-source-maps! (distinct (map (comp file->ns-sym :file) canonical-stacktrace)))
+         (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
          (println
            ((:ex-stack-fn theme)
             (mapped-stacktrace-str
