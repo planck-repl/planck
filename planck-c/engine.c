@@ -593,10 +593,10 @@ void *do_engine_init(void *data) {
         display_launch_timing("repl requires");
     }
 
-    set_print_sender(NULL);
-
     evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
     evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
+
+    set_print_sender(NULL);
 
     display_launch_timing("engine ready");
 
@@ -680,7 +680,7 @@ void set_print_sender(void (*sender)(const char *msg)) {
 
     evaluate_script(ctx, "cljs.core.set_print_fn_BANG_.call(null,PLANCK_PRINT_FN);", "<init>");
     evaluate_script(ctx, "cljs.core.set_print_err_fn_BANG_.call(null,PLANCK_PRINT_ERR_FN);", "<init>");
-
+    evaluate_script(ctx, "cljs.core._STAR_print_newline_STAR_ = true;", "<init>");
 }
 
 bool engine_print_newline() {
