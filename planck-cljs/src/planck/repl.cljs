@@ -1204,13 +1204,30 @@
 ;; Monkey-patch mapped-frame
 (set! st/mapped-frame mapped-frame)
 
+(defn- js-file? [file]
+  (string/ends-with? file ".js"))
+
+(defn- file->ns-sym [file]
+  (-> file
+    st/remove-ext
+    (string/replace "/" ".")
+    (string/replace "_" "-")
+    symbol))
+
+(defn- qualify [name file]
+  (cond->> name
+    (not (or (string/includes? name "/")
+             (js-file? file)))
+    (str (file->ns-sym file) "/")))
+
 (defn- mapped-stacktrace-str
   ([stacktrace sms]
    (mapped-stacktrace-str stacktrace sms nil))
   ([stacktrace sms opts]
    (apply str
      (for [{:keys [function file line column]} (st/mapped-stacktrace stacktrace sms opts)
-           :let [demunged (str (when function (demunge-sym function)))]
+           :let [demunged (-> (str (when function (demunge-sym function)))
+                            (qualify file))]
            :when (not= demunged "cljs.core/-invoke [cljs.core/IFn]")]
        (str \tab demunged " (" file (when line (str ":" line))
          (when column (str ":" column)) ")" \newline)))))
@@ -1313,8 +1330,7 @@
                                     {}
                                     (.-stack error)
                                     {:ua-product :safari}
-                                    {:output-dir "file://(/goog/..)?"})
-             file->ns-sym         (fn [file] (symbol (string/replace (st/remove-ext file) "/" ".")))]
+                                    {:output-dir "file://(/goog/..)?"})]
          (load-bundled-source-maps! (distinct (map (comp file->ns-sym :file) canonical-stacktrace)))
          (println
            ((:ex-stack-fn theme)
