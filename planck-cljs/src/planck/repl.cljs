@@ -1298,6 +1298,10 @@
                (:file data))
       (str " at line " (:line data) " " (file-path (:file data))))))
 
+(def ^:private stack-truncation-functions
+  #{"PLANCK_EVAL"
+    "planck$repl$run_main_impl"})
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -1331,7 +1335,7 @@
                                          (.-stack error)
                                          {:ua-product :safari}
                                          {:output-dir "file://(/goog/..)?"})
-                                    (take-while #(not= "PLANCK_EVAL" (:function %))))]
+                                    (take-while #(not (stack-truncation-functions (:function %)))))]
          (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
          (println
            ((:ex-stack-fn theme)
