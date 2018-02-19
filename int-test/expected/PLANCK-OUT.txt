@@ -108,6 +108,13 @@ nil
 :reloaded
 Test require-macros unknown ns
 No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
+Test spec cache
+nil
+true
+false
+nil
+true
+false
 Test require-macros REPL special
 nil
 5
