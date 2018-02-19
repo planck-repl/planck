@@ -216,6 +216,18 @@ $PLANCK -c $SRC <<REPL_INPUT
 (require-macros 'unknown-ns.core)
 REPL_INPUT
 
+echo "Test spec cache"
+$PLANCK -Kc $SRC <<REPL_INPUT
+(require 'test-cache-spec.foo)
+(test-cache-spec.foo/valid? 3)
+(test-cache-spec.foo/valid? "a")
+REPL_INPUT
+$PLANCK -Kc $SRC <<REPL_INPUT
+(require 'test-cache-spec.foo)
+(test-cache-spec.foo/valid? 3)
+(test-cache-spec.foo/valid? "a")
+REPL_INPUT
+
 echo "Test require-macros REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (require-macros 'test-require-macros.core)
