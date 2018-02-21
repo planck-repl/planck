@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 - Support `js/clearTimeout`, `js/setInterval`, and `js/clearInterval` ([#127](https://github.com/mfikes/planck/issues/597))
 - Add a NixOS 17.09 build environment
 - Include informative message about `-fast` when building ([#587](https://github.com/mfikes/planck/issues/587))
+- Allow HTTP response body to optionally be encoded as binary ([#649](https://github.com/mfikes/planck/issues/649))
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building

@@ -111,6 +111,11 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         if (JSValueIsNumber(ctx, timeout_ref)) {
             timeout = (time_t) JSValueToNumber(ctx, timeout_ref, NULL);
         }
+        JSValueRef binary_response_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("binary-response"), NULL);
+        bool binary_response = false;
+        if (JSValueIsBoolean(ctx, binary_response_ref)) {
+            binary_response = JSValueToBoolean(ctx, binary_response_ref);
+        }
         JSValueRef method_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("method"), NULL);
         char *method = value_to_c_string(ctx, method_ref);
         JSValueRef body_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("body"), NULL);
@@ -209,9 +214,21 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 
         // printf("%d bytes, %x\n", body_state.offset, body_state.data);
         if (body_state.data != NULL) {
-            JSStringRef body_str = JSStringCreateWithUTF8CString(body_state.data);
-            JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"), JSValueMakeString(ctx, body_str),
-                                kJSPropertyAttributeReadOnly, NULL);
+            if (binary_response) {
+                JSValueRef bytes[body_state.length];
+                int i;
+                for (i = 0; i < body_state.length; i++) {
+                    bytes[i] = JSValueMakeNumber(ctx, (uint8_t )body_state.data[i]);
+                }
+                JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"),
+                                    JSObjectMakeArray(ctx, body_state.length, bytes, NULL),
+                                    kJSPropertyAttributeReadOnly, NULL);
+            } else {
+                JSStringRef body_str = JSStringCreateWithUTF8CString(body_state.data);
+                JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"),
+                                    JSValueMakeString(ctx, body_str),
+                                    kJSPropertyAttributeReadOnly, NULL);
+            }
             free(body_state.data);
         }
 

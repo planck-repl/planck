@@ -182,7 +182,8 @@
   :accepts, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
-  :socket, string, specifying a system path to a socket to use"
+  :socket, string, specifying a system path to a socket to use
+  :binary-response, boolean, encode response body as vector of unsigned bytes"
   ([url] (get url {}))
   ([url opts] (request js/PLANCK_REQUEST :get url opts)))
 
@@ -194,12 +195,13 @@
                                (and (every? keyword? (keys m))
                                     (every? string? (vals m))))))
 (s/def ::socket string?)
-(s/def ::body string?)
+(s/def ::binary-response boolean?)
+(s/def ::body (s/or :string string? :binary vector?))
 (s/def ::status integer?)
 
 (s/fdef get
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un
-                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket])))
+                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn head
