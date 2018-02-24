@@ -587,6 +587,10 @@ void *do_engine_init(void *data) {
 
     display_launch_timing("planck.repl/init");
 
+    char version_script[1024];
+    snprintf(version_script, 1024, "cljs.core._STAR_clojurescript_version_STAR_ = \"%s\";", config.clojurescript_version);
+    evaluate_script(ctx, version_script, "<init>");
+
     if (config.repl) {
         evaluate_source("text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])",
                         true, false, "cljs.user", "dumb", false, 0);

@@ -15,3 +15,6 @@
   (let [t0 (system-time)
         t1 (system-time)]
     (is (<= t0 t1))))
+
+(deftest clojurescript-version-test
+  (is (some? *clojurescript-version*)))

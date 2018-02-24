@@ -685,7 +685,7 @@
   ([] (form-compiled-by-string nil))
   ([opts]
    (str "// Compiled by ClojureScript "
-     (or *clojurescript-version* "0.0.0000")
+     *clojurescript-version*
      (when opts
        (str " " (pr-str opts))))))
 

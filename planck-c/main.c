@@ -108,11 +108,13 @@ char *get_cljs_version() {
     }
 }
 
+struct config config;
+int exit_value = 0;
+bool return_termsize = false;
+
 void banner() {
     printf("Planck %s\n", PLANCK_VERSION);
-    char* cljs_version = get_cljs_version();
-    printf("ClojureScript %s\n", cljs_version);
-    free(cljs_version);
+    printf("ClojureScript %s\n", config.clojurescript_version);
 
     printf("    Docs: (doc function-name-here)\n");
     printf("          (find-doc \"part-of-name-here\")\n");
@@ -122,10 +124,6 @@ void banner() {
 
     printf("\n");
 }
-
-struct config config;
-int exit_value = 0;
-bool return_termsize = false;
 
 char *ensure_trailing_slash(char *s) {
     if (str_has_suffix(s, "/") == 0) {
@@ -359,6 +357,8 @@ int main(int argc, char **argv) {
 
     config.socket_repl_port = 0;
     config.socket_repl_host = NULL;
+
+    config.clojurescript_version = get_cljs_version();
 
     char *classpath = NULL;
     char *dependencies = NULL;
