@@ -251,6 +251,21 @@ void run_cmdline_loop(repl_t *repl) {
 
     while (true) {
 
+        /* Gross hack to avoid a race condition. If
+         * evaluating (js/setTimeout #(prn 1) 0)
+         * sometimes the (prn 1) side effect does not
+         * appear. Sleeping a millisecond here
+         * appears to successfully work around
+         * whatever is causing it.
+         */
+        struct timespec t;
+        t.tv_sec = 0;
+        t.tv_nsec = 1000 * 1000;
+        int err = nanosleep(&t, NULL);
+        if (err) {
+            engine_perror("repl nanosleep");
+        }
+
         if (config.dumb_terminal) {
             display_prompt(repl->current_prompt);
             free(input_line);

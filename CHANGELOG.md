@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. This change
 - Bundled JavaScript files not source-mapped ([#630](https://github.com/mfikes/planck/issues/630))
 - Fully qualified name lost in stacktrace w/optimization ([#635](https://github.com/mfikes/planck/issues/635))
 - Incorrect stacktrace demunging with hyphens ([#641](https://github.com/mfikes/planck/issues/641))
+- Sometimes async prints missing ([#655](https://github.com/mfikes/planck/issues/655))
 
 ## [2.11.0] - 2018-01-23
 ### Added
