@@ -9,6 +9,8 @@
 
 (def canary-build? (boolean (System/getenv "CANARY_BUILD")))
 
+(def sandbox-build? (boolean (System/getenv "SANDBOX_BUILD")))
+
 (def ci-build? (or canary-build?
                    (boolean (System/getenv "TRAVIS_OS_NAME"))))
 
@@ -40,9 +42,10 @@
      :dump-core          false
      :checked-arrays     checked-arrays
      :parallel-build     false
-     :foreign-libs       [{:file "jscomp.js"
+     :foreign-libs       [{:file     "jscomp.js"
                            :provides ["google-closure-compiler-js"]}]
-     :compiler-stats     false}))
+     :compiler-stats     false
+     :aot-cache          (not sandbox-build?)}))
 
 (defn copy-source
   [filename]
