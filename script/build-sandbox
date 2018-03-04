@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
+export SANDBOX_BUILD=1
 script/build -Sdeps "{:mvn/local-repo \"sandbox-m2\"}"
