@@ -9,6 +9,7 @@
    [cljs.test]
    [clojure.core.reducers]
    [clojure.data]
+   [clojure.reflect]
    [clojure.zip]
    [fipp.clojure]
    [fipp.deque]
