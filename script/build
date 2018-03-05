@@ -7,6 +7,10 @@ do
       export FAST_BUILD=1
       shift
       ;;
+    -R*)
+      export RESOLVE_ALIAS="${1:2}"
+      shift
+      ;;
     -Sdeps)
       shift
       export DEPS="${1}"

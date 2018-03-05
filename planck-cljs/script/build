@@ -17,4 +17,8 @@ if [ -n "${CANARY_CLOJURESCRIPT_VERSION+set}" ]; then
   DEPS="{:deps {org.clojure/clojurescript {:mvn/version \"$CANARY_CLOJURESCRIPT_VERSION\"}}}"
 fi
 
-clojure -Sdeps "${DEPS:-{}}" script/build.clj
+if [ -n "${RESOLVE_ALIAS+set}" ]; then
+  clojure -R"${RESOLVE_ALIAS}" -Sdeps "${DEPS:-{}}" script/build.clj
+else
+  clojure -Sdeps "${DEPS:-{}}" script/build.clj
+fi
