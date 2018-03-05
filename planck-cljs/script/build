@@ -20,6 +20,5 @@ fi
 if [ -n "${RESOLVE_ALIAS+set}" ]; then
   clojure -R"${RESOLVE_ALIAS}" -Sdeps "${DEPS:-{}}" script/build.clj
 else
-  echo "no resolve"
   clojure -Sdeps "${DEPS:-{}}" script/build.clj
 fi
