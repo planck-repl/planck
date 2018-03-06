@@ -23,6 +23,7 @@ All notable changes to this project will be documented in this file. This change
 - Incorrect stacktrace demunging with hyphens ([#641](https://github.com/mfikes/planck/issues/641))
 - Sometimes async prints missing ([#655](https://github.com/mfikes/planck/issues/655))
 - `clojure.reflect` not bundled ([#667](https://github.com/mfikes/planck/issues/667))
+- Remove unnecessary equals signs between options and parameter values in help output
 
 ## [2.11.0] - 2018-01-23
 ### Added
