@@ -115,14 +115,6 @@ bool return_termsize = false;
 void banner() {
     printf("Planck %s\n", PLANCK_VERSION);
     printf("ClojureScript %s\n", config.clojurescript_version);
-
-    printf("    Docs: (doc function-name-here)\n");
-    printf("          (find-doc \"part-of-name-here\")\n");
-    printf("  Source: (source function-name-here)\n");
-    printf("    Exit: Control+D or :cljs/quit or exit or quit\n");
-    printf(" Results: Stored in vars *1, *2, *3, an exception in *e\n");
-
-    printf("\n");
 }
 
 char *ensure_trailing_slash(char *s) {

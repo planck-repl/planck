@@ -7,12 +7,6 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 $ planck
 Planck 2.11.0
 ClojureScript 1.9.946
-    Docs: (doc function-name-here)
-          (find-doc "part-of-name-here")
-  Source: (source function-name-here)
-    Exit: Control+D or :cljs/quit or exit or quit
- Results: Stored in vars *1, *2, *3, an exception in *e
-
 cljs.user=> ▊
 ```
 

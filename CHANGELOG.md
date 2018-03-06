@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This change
 - Update to Closure v20180204
 - Avoid consequences enable-console-print! in core ([#638](https://github.com/mfikes/planck/issues/638))
 - Truncate stacktraces to stop in user code
+- Use a simpler startup banner matching ClojureScript
 
 ### Fixed
 - In stacktraces, JavaScript sources assumed to be ClojureScript ([#624](https://github.com/mfikes/planck/issues/624))
