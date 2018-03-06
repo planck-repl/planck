@@ -49,9 +49,10 @@
       (cond
         (or (== 126 exit)
             (== 127 exit))
-        (if (empty? err)
-          (throw (ex-info launch-fail translated))
-          (throw (ex-info (string/trimr err) err translated)))
+        (throw (ex-info (if (empty? err)
+                          launch-fail
+                          (string/trimr err))
+                 translated))
 
         (and (== -1 exit)
              (= launch-fail err))
