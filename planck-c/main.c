@@ -38,10 +38,10 @@ void usage(char *program_name) {
     printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
     printf("\n");
     printf("  init options:\n");
-    printf("    -i path, --init=path        Load a file or resource\n");
-    printf("    -e string, --eval=string    Evaluate expressions in string; print non-nil\n");
+    printf("    -i path, --init path        Load a file or resource\n");
+    printf("    -e string, --eval string    Evaluate expressions in string; print non-nil\n");
     printf("                                values\n");
-    printf("    -c cp, --classpath=cp       Use colon-delimited cp for source directories\n");
+    printf("    -c cp, --classpath cp       Use colon-delimited cp for source directories\n");
     printf("                                and JARs. PLANCK_CLASSPATH env var may be used\n");
     printf("                                instead.\n");
     printf("    -D dep, --dependencies dep  Use comma-separated list of dependencies to\n");
@@ -52,12 +52,12 @@ void usage(char *program_name) {
     printf("                                will look for dependencies. Defaults to\n");
     printf("                                ~/.m2/repository.\n");
     printf("    -K, --auto-cache            Create and use .planck_cache dir for cache\n");
-    printf("    -k path, --cache=path       If dir exists at path, use it for cache\n");
+    printf("    -k path, --cache path       If dir exists at path, use it for cache\n");
     printf("    -q, --quiet                 Quiet mode\n");
     printf("    -v, --verbose               Emit verbose diagnostic output\n");
     printf("    -d, --dumb-terminal         Disable line editing / VT100 terminal control\n");
-    printf("    -t theme, --theme=theme     Set the color theme\n");
-    printf("    -n x, --socket-repl=x       Enable socket REPL where x is port or IP:port\n");
+    printf("    -t theme, --theme theme     Set the color theme\n");
+    printf("    -n x, --socket-repl x       Enable socket REPL where x is port or IP:port\n");
     printf("    -s, --static-fns            Generate static dispatch function calls\n");
     printf("    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n");
     printf("                                for unknown functions, but instead direct\n");
@@ -69,7 +69,7 @@ void usage(char *program_name) {
     printf("    -a, --elide-asserts         Set *assert* to false to remove asserts\n");
     printf("\n");
     printf("  main options:\n");
-    printf("    -m ns-name, --main=ns-name Call the -main function from a namespace with\n");
+    printf("    -m ns-name, --main ns-name Call the -main function from a namespace with\n");
     printf("                               args\n");
     printf("    -r, --repl                 Run a repl\n");
     printf("    path                       Run a script from a file or resource\n");
