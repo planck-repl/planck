@@ -50,12 +50,12 @@
         (or (== 126 exit)
             (== 127 exit))
         (if (empty? err)
-          (throw (js/Error. launch-fail))
+          (throw (ex-info launch-fail translated))
           (throw (ex-info (string/trimr err) err translated)))
 
         (and (== -1 exit)
              (= launch-fail err))
-        (throw (js/Error. launch-fail))
+        (throw (ex-info launch-fail translated))
 
         :else
         (if async? nil translated)))))
