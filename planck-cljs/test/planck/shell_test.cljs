@@ -58,3 +58,12 @@
                         #"fails spec"
                         (planck.shell/with-sh-env {"key-with-a-nil-value" nil}
                           (planck.shell/sh "env")))))
+
+(deftest launch-fail-ex-info-test
+  (try
+    (planck.shell/sh "env" "abc")
+    (catch :default e
+      (is (= {:exit 127, :out "", :err "env: abc: No such file or directory\n"}
+            (ex-data e)))
+      (is (= "env: abc: No such file or directory"
+            (ex-message e))))))

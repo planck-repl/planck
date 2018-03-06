@@ -4,7 +4,7 @@
    [planck.shell])
   (:require
    [cljs.spec.alpha :as s]
-   [clojure.string]
+   [clojure.string :as string]
    [goog.object :as gobj]
    [planck.io :as io :refer [as-file]]
    [planck.repl :as repl]))
@@ -46,11 +46,18 @@
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc
                                          (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
-      (if (or (== 126 exit)
-              (== 127 exit)
-              (and (== -1 exit)
-                   (= launch-fail err)))
+      (cond
+        (or (== 126 exit)
+            (== 127 exit))
+        (if (empty? err)
+          (throw (js/Error. launch-fail))
+          (throw (ex-info (string/trimr err) err translated)))
+
+        (and (== -1 exit)
+             (= launch-fail err))
         (throw (js/Error. launch-fail))
+
+        :else
         (if async? nil translated)))))
 
 (defn sh
