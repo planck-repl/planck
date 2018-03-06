@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file. This change
 - Sometimes async prints missing ([#655](https://github.com/mfikes/planck/issues/655))
 - `clojure.reflect` not bundled ([#667](https://github.com/mfikes/planck/issues/667))
 - Remove unnecessary equals signs between options and parameter values in help output
+- Provide more info if sh err is 126 or 127 ([#673](https://github.com/mfikes/planck/issues/673))
 
 ## [2.11.0] - 2018-01-23
 ### Added
