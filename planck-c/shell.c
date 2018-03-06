@@ -290,6 +290,76 @@ static void *thread_proc(void *params) {
     return (void *) wait_for_child((struct ThreadParams *) params);
 }
 
+static const char *get_path(void) {
+    const char *s = getenv("PATH");
+    return (s != NULL) ? s : ":/bin:/usr/bin";
+}
+
+static size_t count_occurrences(const char *s, char c) {
+    size_t count;
+    for (count = 0; *s != '\0'; s++)
+        count += (*s == c);
+    return count;
+}
+
+static const char *const *split_path(const char *path) {
+    const char *p, *q;
+    char **pathv;
+    int i;
+    size_t count = count_occurrences(path, ':') + 1;
+
+    pathv = malloc(count + 1);
+    pathv[count] = NULL;
+    for (p = path, i = 0; i < count; i++, p = q + 1) {
+        for (q = p; (*q != ':') && (*q != '\0'); q++);
+        if (q == p)
+            pathv[i] = "./";
+        else {
+            int add_slash = ((*(q - 1)) != '/');
+            pathv[i] = malloc(q - p + add_slash + 1);
+            memcpy(pathv[i], p, q - p);
+            if (add_slash)
+                pathv[i][q - p] = '/';
+            pathv[i][q - p + add_slash] = '\0';
+        }
+    }
+    return (const char *const *) pathv;
+}
+
+static void planck_execvpe(const char *file, char * const *argv, char * const * envp) {
+    if (strchr(file, '/') != NULL) {
+        execve(file, argv, envp);
+    } else {
+        char expanded_file[PATH_MAX];
+        size_t filelen = strlen(file);
+        int sticky_errno = 0;
+        const char *const *dirs = split_path(get_path());
+        for (; *dirs; dirs++) {
+            const char *dir = *dirs;
+            size_t dirlen = strlen(dir);
+            if (filelen + dirlen + 1 >= PATH_MAX) {
+                errno = ENAMETOOLONG;
+                continue;
+            }
+            memcpy(expanded_file, dir, dirlen);
+            memcpy(expanded_file + dirlen, file, filelen);
+            expanded_file[dirlen + filelen] = '\0';
+            execve(expanded_file, argv, envp);
+            switch (errno) {
+                case EACCES:
+                    sticky_errno = errno;
+                case ENOENT:
+                case ENOTDIR:
+                    break;
+                default:
+                    return;
+            }
+        }
+        if (sticky_errno != 0)
+            errno = sticky_errno;
+    }
+}
+
 static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char **env, char *dir, int cb_idx) {
     struct SystemResult result = {0, NULL, NULL};
     struct SystemResult *res = &result;
@@ -332,10 +402,10 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char *
         close(err[0]);
         close(in[0]);
         if (env) {
-            extern char **environ;
-            environ = env;
+            planck_execvpe(cmd[0], cmd, env);
+        } else {
+            execvp(cmd[0], cmd);
         }
-        execvp(cmd[0], cmd);
         if (errno == EACCES || errno == EPERM) {
             exit(126);
         } else if (errno == ENOENT) {
