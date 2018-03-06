@@ -113,7 +113,6 @@ int exit_value = 0;
 bool return_termsize = false;
 
 void banner() {
-    printf("Planck %s\n", PLANCK_VERSION);
     printf("ClojureScript %s\n", config.clojurescript_version);
 }
 
