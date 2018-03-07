@@ -403,7 +403,11 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char *
         close(err[0]);
         close(in[0]);
         if (env) {
+#ifdef __APPLE__
             planck_execvpe(cmd[0], cmd, env);
+#else
+            execvpe(cmd[0], cmd, env);
+#endif
         } else {
             execvp(cmd[0], cmd);
         }
