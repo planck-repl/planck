@@ -309,7 +309,7 @@ static const char *const *split_path(const char *path) {
     int i;
     size_t count = count_occurrences(path, ':') + 1;
 
-    pathv = malloc(count + 1);
+    pathv = malloc((count + 1)*(sizeof(char*)));
     pathv[count] = NULL;
     for (p = path, i = 0; i < count; i++, p = q + 1) {
         for (q = p; (*q != ':') && (*q != '\0'); q++);
@@ -403,7 +403,11 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char *
         close(err[0]);
         close(in[0]);
         if (env) {
+#ifdef __APPLE__
             planck_execvpe(cmd[0], cmd, env);
+#else
+            execvpe(cmd[0], cmd, env);
+#endif
         } else {
             execvp(cmd[0], cmd);
         }
