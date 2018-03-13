@@ -1305,7 +1305,11 @@
 
 (def ^:private stack-truncation-functions
   #{"PLANCK_EVAL"
-    "planck$repl$run_main_impl"})
+    "global code"
+    "planck$repl$run_main_impl"
+    "planck$pprint$width_adjust$force_eval"
+    "planck$repl$print_value"
+    "fipp$visit$IVisitor$visit_seq$arity$2"})
 
 (defn- print-error
   ([error]
