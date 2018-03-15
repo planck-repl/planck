@@ -360,7 +360,7 @@
 
 (defn make-parents
   "Given the same arg(s) as for file, creates all parent directories of
-   the file they represent."
+  the file they represent."
   [f & more]
   (when-some [parent (get-parent-file (apply file f more))]
     (js/PLANCK_MKDIRS (:path parent))))
