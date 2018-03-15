@@ -895,10 +895,10 @@ JSValueRef function_mkdirs(JSContextRef ctx, JSObjectRef function, JSObjectRef t
         free(path);
         
         if (rv == -1) {
-            return JSValueMakeBoolean(ctx, FALSE);
+            return JSValueMakeBoolean(ctx, false);
         }
     }
-    return JSValueMakeBoolean(ctx, TRUE);
+    return JSValueMakeBoolean(ctx, true);
 }
 
 JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
