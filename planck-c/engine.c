@@ -473,6 +473,7 @@ void *do_engine_init(void *data) {
     register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_FLUSH", function_file_output_stream_flush);
     register_global_function(ctx, "PLANCK_FILE_OUTPUT_STREAM_CLOSE", function_file_output_stream_close);
 
+    register_global_function(ctx, "PLANCK_MKDIRS", function_mkdirs);
     register_global_function(ctx, "PLANCK_DELETE", function_delete_file);
 
     register_global_function(ctx, "PLANCK_LIST_FILES", function_list_files);
