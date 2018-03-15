@@ -23,6 +23,7 @@ _Vars_
 [input-stream](#input-stream)<br/>
 [make-input-stream](#make-input-stream)<br/>
 [make-output-stream](#make-output-stream)<br/>
+[make-parents](#make-parents)<br/>
 [make-reader](#make-reader)<br/>
 [make-writer](#make-writer)<br/>
 [output-stream](#output-stream)<br/>
@@ -157,6 +158,16 @@ Creates an [`IInputStream`](planck-core.html#IInputStream). See also [`IOFactory
 `([x opts])`
   
 Creates an [`IOutputStream`](planck-core.html#IOutputStream). See also [`IOFactory`](#IOFactory) docs.
+
+### <a name="make-parents"></a>make-parents
+`([f & more])`
+
+Given the same arg(s) as for [`file`](#file), creates all parent directories of
+the file they represent.
+
+Spec<br/>
+ _args_: `(cat :path-or-parent string? :more (* string?))`<br/>
+ _ret_: `boolean?`
   
 ### <a name="make-reader"></a>make-reader
 `([x opts])`

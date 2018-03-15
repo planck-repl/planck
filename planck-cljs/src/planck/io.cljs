@@ -349,6 +349,26 @@
   :args (s/cat :n (s/nilable string?))
   :ret (s/nilable #(instance? Uri %)))
 
+(defn- get-parent-file [file]
+  (let [path (:path file)]
+    (let [ndx (.lastIndexOf path "/")]
+      (if (< ndx 1)
+        (if (> (count path) 1)
+          (planck.io/file "/")
+          nil)
+        (planck.io/file (subs path 0 ndx))))))
+
+(defn make-parents
+  "Given the same arg(s) as for file, creates all parent directories of
+   the file they represent."
+  [f & more]
+  (when-some [parent (get-parent-file (apply file f more))]
+    (js/PLANCK_MKDIRS (:path parent))))
+
+(s/fdef make-parents
+  :args (s/cat :path-or-parent string? :more (s/* string?))
+  :ret boolean?)
+
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
 (def ^:deprecated slurp planck.core/slurp)
