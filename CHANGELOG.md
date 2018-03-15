@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 - Include informative message about `-fast` when building ([#587](https://github.com/mfikes/planck/issues/587))
 - Allow HTTP response body to optionally be encoded as binary ([#649](https://github.com/mfikes/planck/issues/649))
 - Added io/make-parents ([#470](https://github.com/mfikes/planck/issues/470))
+- Added `io/as-relative-path`
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building
@@ -28,6 +29,7 @@ All notable changes to this project will be documented in this file. This change
 - Remove unnecessary equals signs between options and parameter values in help output
 - Provide more info if sh err is 126 or 127 ([#673](https://github.com/mfikes/planck/issues/673))
 - Degenerate PATH if any env map supplied to `planck.shell/sh` ([#672](https://github.com/mfikes/planck/issues/672))
+- `io/file` should make use of `io/as-file` internally ([#683](https://github.com/mfikes/planck/issues/683))
 
 ## [2.11.0] - 2018-01-23
 ### Added
