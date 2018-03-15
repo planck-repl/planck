@@ -1,6 +1,6 @@
 (ns planck.core
   "Core Planck functions for use in scripts."
-  (:refer-clojure :exclude [*command-line-args* resolve])
+  (:refer-clojure :exclude [*command-line-args* resolve eval])
   (:require-macros
    [planck.core :refer [with-open]])
   (:require
@@ -372,7 +372,7 @@
 (defn eval
   "Evaluates the form data structure (not text!) and returns the result."
   [form]
-  (repl/eval form))
+  (cljs.core/eval form))
 
 (s/fdef eval
   :args (s/cat :form any?)

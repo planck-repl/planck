@@ -1,6 +1,6 @@
 (ns planck.repl
   "Planck REPL implementation."
-  (:refer-clojure :exclude [resolve load-file])
+  (:refer-clojure :exclude [resolve load-file eval])
   (:require-macros
    [cljs.env.macros :refer [with-compiler-env]]
    [planck.repl :refer [with-err-str]])
@@ -880,8 +880,6 @@
             (cljs/load-analysis-cache! st aname cache)
             {:cache cache}))))))
 
-(declare inject-planck-eval)
-
 (defn- load-and-callback!
   [name path macros lang cache-prefix cb]
   (let [[raw-load [source modified loaded-path]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
@@ -897,8 +895,6 @@
              :file   loaded-path}
             (when-not (= :js lang)
               (cached-callback-data name path macros cache-prefix source modified raw-load))))
-      (when (and (= name 'cljs.spec.test.alpha) macros)
-        (inject-planck-eval 'cljs.spec.test.alpha$macros))
       :loaded)))
 
 (defn- closure-index* []
@@ -1879,45 +1875,8 @@
               (process-repl-special expression-form opts)
               (process-execute-source source-text expression-form opts))))))))
 
-
-;; The following volatiles and fns set up a scheme to
-;; emit function values into JavaScript as numeric
-;; references that are looked up.
-
-(defonce ^:private fn-index (volatile! 0))
-(defonce ^:private fn-refs (volatile! {}))
-
-(defn- clear-fns!
-  "Clears saved functions."
-  []
-  (vreset! fn-refs {}))
-
-(defn- put-fn
-  "Saves a function, returning a numeric representation."
-  [f]
-  (let [n (vswap! fn-index inc)]
-    (vswap! fn-refs assoc n f)
-    n))
-
-(defn- get-fn
-  "Gets a function, given its numeric representation."
-  [n]
-  (get @fn-refs n))
-
-(defn- emit-fn [f]
-  (print "planck.repl.get_fn(" (put-fn f) ")"))
-
-(defmethod comp/emit-constant js/Function
-  [f]
-  (emit-fn f))
-
-(defmethod comp/emit-constant cljs.core/Var
-  [f]
-  (emit-fn f))
-
 (defn- ^:export execute
   [source expression? print-nil-expression? set-ns theme-id session-id]
-  (clear-fns!)
   (reset-show-indicator!)
   (when set-ns
     (reset! current-ns (symbol set-ns)))
@@ -1975,10 +1934,6 @@
   ([ns name val]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
      (eval `(def ~name ~val) (ns-name the-ns)))))
-
-(defn- inject-planck-eval
-  [target-ns]
-  (intern target-ns 'eval eval))
 
 (defn- ^:export wrap-color-err
   []

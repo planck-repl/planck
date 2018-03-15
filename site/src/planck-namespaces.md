@@ -28,7 +28,7 @@ The `planck.core/file-seq` function imitates `clojure.core/file-seq`.
 
 If you need to prompt for a password, take a look at `planck.core/read-password`.
 
-The `planck.core` defines `eval` and other dynamic functions like `resolve`, `ns-resolve`, and `intern`.
+The `planck.core` namespace defines dynamic functions like `resolve`, `ns-resolve`, and `intern`.
 
 Additionally, `planck.core/exit` is a function that takes an integer `exit-value` argument, so you can cause a Planck script to exit with any desired Unix exit value.
 
