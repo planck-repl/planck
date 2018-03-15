@@ -282,6 +282,19 @@
 
 (def ^:private ^:const path-separator "/")
 
+(defn as-relative-path
+  "Take an as-file-able thing and return a string if it is
+   a relative path, else throws an exception."
+  [x]
+  (let [f (as-file x)]
+    (if (string/starts-with? (:path f) path-separator)
+      (throw (ex-info (str f " is not a relative path") {:f f}))
+      (:path f))))
+
+(s/fdef as-relative-path
+  :args (s/cat :x any?)
+  :ret string?)
+
 (defn ^boolean file?
   "Returns true if x is a File."
   [x]
@@ -292,15 +305,18 @@
   :ret boolean?)
 
 (defn file
-  "Returns a File for given path. Multiple-arg versions treat the first
-   argument as parent and subsequent args as children relative to the parent."
-  ([path]
-   (File. path))
-  ([parent & more]
-   (File. (apply str parent (interleave (repeat path-separator) more)))))
+  "Returns a File, passing each arg to as-file. Multiple-arg versions treat
+  the first argument as parent and subsequent args as children relative to the
+  parent."
+  ([arg]
+   (as-file arg))
+  ([parent child]
+   (File. (str (:path (as-file parent)) path-separator (as-relative-path child))))
+  ([parent child & more]
+   (reduce file (file parent child) more)))
 
 (s/fdef file
-  :args (s/cat :path-or-parent string? :more (s/* string?))
+  :args (s/cat :path-or-parent any? :more (s/* any?))
   :ret file?)
 
 (defn file-attributes
@@ -354,7 +370,7 @@
     (let [ndx (.lastIndexOf path "/")]
       (if (< ndx 1)
         (if (> (count path) 1)
-          (planck.io/file "/")
+          (planck.io/file path-separator)
           nil)
         (planck.io/file (subs path 0 ndx))))))
 
@@ -366,7 +382,7 @@
     (js/PLANCK_MKDIRS (:path parent))))
 
 (s/fdef make-parents
-  :args (s/cat :path-or-parent string? :more (s/* string?))
+  :args (s/cat :path-or-parent any? :more (s/* any?))
   :ret boolean?)
 
 ;; These have been moved
