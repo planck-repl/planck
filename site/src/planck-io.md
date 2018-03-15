@@ -14,6 +14,7 @@ _Types_
 _Vars_
 
 [as-file](#as-file)<br/>
+[as-relative-path](#as-relative-path)<br/>
 [as-url](#as-url)<br/>
 [delete-file](#delete-file)<br/>
 [directory?](#directory?)<br/>
@@ -92,6 +93,12 @@ Represents a file.
 `([x])`
 
 Coerce argument to a [`File`](#File).
+
+### <a name="as-relative-path"></a>as-relative-path
+`([x])`
+
+Take an [`as-file`](#as-file)-able thing and return a string if it is
+a relative path, else throws an exception.
   
 ### <a name="as-url"></a>as-url
 `([x])`
@@ -116,14 +123,13 @@ Spec<br/>
  _ret_: `boolean?`<br/>
  
 ### <a name="file"></a>file
-`([path] [parent & more])`
+`([arg] [parent child] [parent child & more])`
 
-Returns a [`File`](#File) for given path.  Multiple-arg
-versions treat the first argument as parent and subsequent args as
-children relative to the parent.
+Returns a [`File`](#File), passing each arg to [`as-file`](#as-file).  Multiple-arg versions treat the first argument as parent and subsequent 
+args as children relative to the parent.
 
 Spec<br/>
- _args_: `(cat :path-or-parent string? :more (* string?))`<br/>
+ _args_: `(cat :path-or-parent any? :more (* any?))`<br/>
  _ret_: `file?`
 
 ### <a name="file?"></a>file?
@@ -166,7 +172,7 @@ Given the same arg(s) as for [`file`](#file), creates all parent directories of
 the file they represent.
 
 Spec<br/>
- _args_: `(cat :path-or-parent string? :more (* string?))`<br/>
+ _args_: `(cat :path-or-parent any? :more (* any?))`<br/>
  _ret_: `boolean?`
   
 ### <a name="make-reader"></a>make-reader
