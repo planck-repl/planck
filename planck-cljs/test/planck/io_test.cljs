@@ -80,3 +80,16 @@
       (is (instance? Uri resource))
       (is "bundled" (.getScheme resource))
       (is (string/includes? (planck.core/slurp resource) "ns planck.repl")))))
+
+(deftest as-relative-path-test
+  (is (= "a/b/c" (planck.io/as-relative-path "a/b/c")))
+  (is (= "a/b/c" (planck.io/as-relative-path (planck.io/file "a/b/c"))))
+  (is (thrown? js/Error (planck.io/as-relative-path (planck.io/file "/a/b/c")))))
+
+(deftest file-test
+  (is (= (planck.io/file "/tmp") (planck.io/file (planck.io/file "/tmp"))))
+  (is (= (planck.io/file "/a/b") (planck.io/file "/a" "b")))
+  (is (= (planck.io/file "/a/b") (planck.io/file (planck.io/file "/a") (planck.io/file "b"))))
+  (is (= (planck.io/file "/a/b") (planck.io/file "/a" (planck.io/file "b"))))
+  (is (= (planck.io/file "/a/b") (planck.io/file (planck.io/file "/a") "b")))
+  (is (= (planck.io/file "/a/b/c") (planck.io/file "/a" "b" "c"))))
