@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 - Allow HTTP response body to optionally be encoded as binary ([#649](https://github.com/mfikes/planck/issues/649))
 - Added `io/make-parents` ([#470](https://github.com/mfikes/planck/issues/470))
 - Added `io/as-relative-path`
+- Support classpath-relative paths (starting with `@` or `@/`) for `-i` and script paths 
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building

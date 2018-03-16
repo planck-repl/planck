@@ -881,11 +881,13 @@
             {:cache cache}))))))
 
 (defn- load-and-callback!
-  [name path macros lang cache-prefix cb]
-  (let [[raw-load [source modified loaded-path]] [js/PLANCK_LOAD (js/PLANCK_LOAD path)]
+  [name path load-domain macros lang cache-prefix cb]
+  (let [[raw-load [source modified loaded-path]] [js/PLANCK_LOAD (when (contains? #{:classpath nil} load-domain)
+                                                                   (js/PLANCK_LOAD path))]
         [raw-load [source modified loaded-path]] (if source
                                                    [raw-load [source modified loaded-path]]
-                                                   [js/PLANCK_READ_FILE (js/PLANCK_READ_FILE path) path])]
+                                                   [js/PLANCK_READ_FILE (when (contains? #{:filesystem nil} load-domain)
+                                                                          (js/PLANCK_READ_FILE path)) path])]
     (when source
       (when name
         (swap! name-path assoc name path))
@@ -933,8 +935,8 @@
    (and (= name 'lazy-map.core) macros)))
 
 (defn- load-file
-  [file cb]
-  (when-not (load-and-callback! nil file false :clj :calculate-cache-prefix cb)
+  [file load-domain cb]
+  (when-not (load-and-callback! nil file load-domain false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
 (declare goog-dep-source)
@@ -994,6 +996,7 @@
       (when-not (load-and-callback!
                   name
                   (str path (first extensions))
+                  nil
                   macros
                   (extension->lang (first extensions))
                   (cache-prefix-for-path path macros)
@@ -1010,9 +1013,9 @@
 
 ; file here is an alternate parameter denoting a filesystem path
 (defn- load
-  [{:keys [name macros path file] :as full} opts cb]
+  [{:keys [name macros path file load-domain] :as full} opts cb]
   (cond
-    file (load-file file cb)
+    file (load-file file load-domain cb)
     (skip-load? full) (cb {:lang   :js
                            :source ""})
     (re-matches #"^goog/.*" path) (load-goog name cb)
@@ -1436,10 +1439,25 @@
 
 (declare execute-source)
 
+(defn- with-load-domain
+  [file]
+  (cond
+    (string/starts-with? file "@")
+    {:file (subs file 1)
+     :load-domain :classpath}
+
+    (string/starts-with? file "@/")
+    {:file (subs file 2)
+     :load-domain :classpath}
+
+    :else
+    {:file file
+     :load-domain :filesystem}))
+
 (defn- process-execute-path
   [file opts]
   (binding [theme (assoc theme :err-font (:verbose-font theme))]
-    (load-fn {:file file}
+    (load-fn (with-load-domain file)
       (fn [{:keys [lang source source-url cache]}]
         (if source
           (case lang
@@ -1661,8 +1679,8 @@
               path
               (str (root-directory @current-ns) \/ path))
         src (.substring src 1)]
-    (or (and (first (js/PLANCK_LOAD (str src ".cljs"))) (str src ".cljs"))
-        (str src ".cljc"))))
+    (or (and (first (js/PLANCK_LOAD (str src ".cljs"))) (str "@" src ".cljs"))
+        (str "@" src ".cljc"))))
 
 (defn- process-load
   [paths opts]

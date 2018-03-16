@@ -19,6 +19,12 @@ export PLANCK="$PLANCK_BINARY --quiet --theme=plain"
 echo "Repeated ordered -e and -i, supressing nil"
 $PLANCK -i $SRC/no-ns/foo.cljs -e ':a' -e 'nil' -i $SRC/no-ns/bar.cljs -e 2 -i $SRC/no-ns/foo.cljs
 
+echo "Repeated ordered -e and -i, supressing nil, classpath resources @"
+$PLANCK -c $SRC -i @no-ns/foo.cljs -e ':a' -e 'nil' -i @no-ns/bar.cljs -e 2 -i @no-ns/foo.cljs
+
+echo "Repeated ordered -e and -i, supressing nil, classpath resources @/"
+$PLANCK -c $SRC -i @/no-ns/foo.cljs -e ':a' -e 'nil' -i @/no-ns/bar.cljs -e 2 -i @/no-ns/foo.cljs
+
 echo "Test :cljs/quit"
 $PLANCK <<REPL_INPUT
 1
@@ -124,6 +130,18 @@ echo $?
 echo "Test run file with exit"
 $PLANCK $SRC/test_exit/exit_in_file.cljs
 echo $?
+
+echo "Test run file directly"
+$PLANCK $SRC/run_file/core.cljs
+
+echo "Test run file classpath resource @"
+$PLANCK -c $SRC @run_file/core.cljs
+
+echo "Test run file classpath without @"
+$PLANCK -c $SRC run_file/core.cljs
+
+echo "Test run file classpath resource @/"
+$PLANCK -c $SRC @/run_file/core.cljs
 
 echo "Test run malformed expression"
 $PLANCK -e ']'
@@ -306,22 +324,15 @@ load-me.core/a
 load-me.core/b
 REPL_INPUT
 
-echo "Test load-file from classpath"
+echo "Test load-file from classpath - expect this to fail"
 $PLANCK -c $SRC <<REPL_INPUT
 (load-file "test_load_file/core.cljs")
-test-load-file.core/success
 REPL_INPUT
 
 echo "Test load REPL special"
 $PLANCK -c $SRC <<REPL_INPUT
 (in-ns 'test-load-file.other)
 (load "core")
-test-load-file.core/success
-REPL_INPUT
-
-echo "Test load-file from classpath env var"
-PLANCK_CLASSPATH=$SRC $PLANCK <<REPL_INPUT
-(load-file "test_load_file/core.cljs")
 test-load-file.core/success
 REPL_INPUT
 
