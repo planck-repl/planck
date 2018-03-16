@@ -89,7 +89,8 @@ void usage(char *program_name) {
     printf("  The init options may be repeated and mixed freely, but must appear before\n");
     printf("  any main option.\n");
     printf("\n");
-    printf("  Paths may be absolute or relative in the filesystem.\n");
+    printf("  Paths may be absolute or relative in the filesystem or relative to\n");
+    printf("  classpath. Classpath-relative paths have prefix of @ or @/\n");
     printf("\n");
     printf("  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n");
     printf("\n");

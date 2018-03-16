@@ -4,6 +4,18 @@ foo
 bar
 2
 foo
+Repeated ordered -e and -i, supressing nil, classpath resources @
+foo
+:a
+bar
+2
+foo
+Repeated ordered -e and -i, supressing nil, classpath resources @/
+foo
+:a
+bar
+2
+foo
 Test :cljs/quit
 1
 Test quit
@@ -51,6 +63,14 @@ nil
 119
 Test run file with exit
 111
+Test run file directly
+:run-file.core/hello
+Test run file classpath resource @
+:run-file.core/hello
+Test run file classpath without @
+Could not load file run_file/core.cljs
+Test run file classpath resource @/
+:run-file.core/hello
 Test run malformed expression
 Unmatched delimiter ].
 Test run malformed script
@@ -299,14 +319,11 @@ true
 nil
 3
 4
-Test load-file from classpath
+Test load-file from classpath - expect this to fail
+Could not load file test_load_file/core.cljs
 nil
-true
 Test load REPL special
 nil
-nil
-true
-Test load-file from classpath env var
 nil
 true
 Test doc support for load-file REPL special
