@@ -179,6 +179,7 @@
   These include:
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
+  :insecure, proceed even if the connection is considered insecure
   :accepts, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
@@ -189,6 +190,7 @@
 
 (s/def ::timeout integer?)
 (s/def ::debug boolean?)
+(s/def ::insecure boolean?)
 (s/def ::accepts (s/or :kw #{:json :xml} :str string?))
 (s/def ::content-type (s/or :kw #{:json :xml} :str string?))
 (s/def ::headers (s/and map? (fn [m]
@@ -201,7 +203,7 @@
 
 (s/fdef get
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un
-                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response])))
+                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response ::insecure])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn head
@@ -209,13 +211,14 @@
   These include:
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
+  :insecure, proceed even if the connection is considered insecure
   :headers, map, a map containing headers
   :socket, string, specifying a system path to a socket to use"
   ([url] (head url {}))
   ([url opts] (request js/PLANCK_REQUEST :head url opts)))
 
 (s/fdef head
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn delete
@@ -223,13 +226,14 @@
   These include:
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
+  :insecure, proceed even if the connection is considered insecure
   :headers, map, a map containing headers
   :socket, string, specifying a system path to a socket to use"
   ([url] (delete url {}))
   ([url opts] (request js/PLANCK_REQUEST :delete url opts)))
 
 (s/fdef delete
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn post
@@ -247,7 +251,7 @@
 
 (s/fdef post
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket])))
+                                                        ::form-params ::multipart-params ::socket ::insecure])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn put
@@ -262,7 +266,7 @@
 
 (s/fdef put
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket])))
+                                                        ::form-params ::multipart-params ::socket ::insecure])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn patch
@@ -277,5 +281,5 @@
 
 (s/fdef patch
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket])))
+                                                        ::form-params ::multipart-params ::socket ::insecure])))
   :ret (s/keys :req-un [::body ::headers ::status]))
