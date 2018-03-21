@@ -134,6 +134,17 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
         JSValueProtect(ctx, result);
 
+        JSValueRef insecure_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("insecure"), NULL);
+        bool insecure = false;
+        if(JSValueIsBoolean(ctx, insecure_ref)) {
+            insecure = JSValueToBoolean(ctx, insecure_ref);
+        }
+
+        if(insecure) {
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0L);
+            curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
+        }
+
         char *socket = NULL;
         JSValueRef socket_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("socket"), NULL);
         if (!JSValueIsUndefined(ctx, socket_ref)) {
