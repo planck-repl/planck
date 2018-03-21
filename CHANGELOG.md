@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 - Added `io/make-parents` ([#470](https://github.com/mfikes/planck/issues/470))
 - Added `io/as-relative-path`
 - Support classpath-relative paths (starting with `@` or `@/`) for `-i` and script paths 
+- Support for insecure http connections ([#694](https://github.com/mfikes/planck/issues/694))
 
 ### Changed
 - Use `clojure` / `deps.edn` instead of `lein` / `project.clj` when building
