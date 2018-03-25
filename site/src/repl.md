@@ -5,7 +5,7 @@ If you don't provide any `-i` or `-e` options or args to `planck` when launching
 
 ```
 $ planck
-ClojureScript 1.9.946
+ClojureScript 1.10.238
 cljs.user=> ▊
 ```
 
