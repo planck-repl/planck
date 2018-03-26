@@ -3,7 +3,7 @@
 while [ $# -gt 0 ]
 do
   case "$1" in
-    -fast)
+    --fast)
       export FAST_BUILD=1
       shift
       ;;
@@ -32,7 +32,7 @@ fi
 
 if [ -z ${FAST_BUILD+set} ]; then
   echo "Creating an optimized build, which can take more than half an hour."
-  echo "Specifying -fast skips optimizations and takes less than two minutes."
+  echo "Specifying --fast skips optimizations and takes less than two minutes."
 fi
 
 #----------------------------------------------------

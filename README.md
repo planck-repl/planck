@@ -101,10 +101,10 @@ $ script/build
 
 The resulting binary will be `planck-c/build/planck`.
 
-Specify `-fast` to quickly build a development version that skips Closure optimization:
+Specify `--fast` to quickly build a development version that skips Closure optimization:
 
 ```
-$ script/build -fast
+$ script/build --fast
 ```
 
 If you specify `-Sdeps` or `-R<alias>`, it will be passed through to the underlying [`clojure`](https://clojure.org/guides/deps_and_cli) command during the build process. This can be used to specify a ClojureScript dep to use.
