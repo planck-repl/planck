@@ -7,6 +7,10 @@ do
       export FAST_BUILD=1
       shift
       ;;
+    --verbose)
+      export VERBOSE_BUILD=1
+      shift
+      ;;
     -R*)
       export RESOLVE_ALIAS="${1:2}"
       shift
@@ -21,6 +25,10 @@ do
       ;;
   esac
 done
+
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
 
 if [ -z ${FAST_BUILD+set} ]; then
   echo "Creating an optimized build, which can take more than half an hour."

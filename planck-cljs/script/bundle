@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
+
 # Run this from the planck/planck-cljs directory
 
 # Make sure we fail and exit on the command that actually failed.

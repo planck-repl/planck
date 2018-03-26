@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
+
 mkdir -p lib
 if [ ! -f lib/test.check-0.10.0-alpha2.jar ]; then
   cp ~/.m2/repository/org/clojure/test.check/0.10.0-alpha2/test.check-0.10.0-alpha2.jar lib/test.check-0.10.0-alpha2.jar

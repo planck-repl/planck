@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
+
 if [ ! -f compiler/closure-compiler-v$CLOSURE_RELEASE.jar ]; then
   echo "Fetching Google Closure compiler..."
   mkdir -p compiler
