@@ -1,3 +1,8 @@
+// Define _GNU_SOURCE so that execvpe is defined for non macOS builds
+#ifndef __APPLE__
+#define _GNU_SOURCE
+#endif
+
 #include <assert.h>
 #include <pthread.h>
 #include <string.h>
