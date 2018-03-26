@@ -12,4 +12,5 @@ rm -rf target
 rm -rf resources
 rm -rf tools.reader
 rm -rf clojurescript
+rm -rf .cpcache
 script/clean-bundle
