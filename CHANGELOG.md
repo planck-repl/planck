@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+## [2.12.6] - 2018-03-26
+### Fixed
+- Fixed issues with building Ubuntu PPA in sandbox environment
+- Fixed implicit definition of `execvpe` when compiling for Linux
+
 ## [2.12.0] - 2018-03-25
 ### Added
 - Support `js/clearTimeout`, `js/setInterval`, and `js/clearInterval` ([#127](https://github.com/mfikes/planck/issues/597))
@@ -644,7 +649,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.12.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.12.6...HEAD
+[2.12.6]: https://github.com/mfikes/planck/compare/2.12.0...2.12.6
 [2.12.0]: https://github.com/mfikes/planck/compare/2.11.0...2.12.0
 [2.11.0]: https://github.com/mfikes/planck/compare/2.10.0...2.11.0
 [2.10.0]: https://github.com/mfikes/planck/compare/2.9.0...2.10.0
