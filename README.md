@@ -64,12 +64,14 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 #### clojure.java.io/ -> planck.io/
 
 [as-file](http://planck-repl.org/planck-io.html#as-file),
+[as-relative-path](http://planck-repl.org/planck-io.html#as-relative-path),
 [as-url](http://planck-repl.org/planck-io.html#as-url),
 [delete-file](http://planck-repl.org/planck-io.html#delete-file),
 [file](http://planck-repl.org/planck-io.html#file),
 [input-stream](http://planck-repl.org/planck-io.html#input-stream),
 [make-input-stream](http://planck-repl.org/planck-io.html#make-input-stream),
 [make-output-stream](http://planck-repl.org/planck-io.html#make-output-stream),
+[make-parents](http://planck-repl.org/planck-io.html#make-parents),
 [make-reader](http://planck-repl.org/planck-io.html#make-reader),
 [make-writer](http://planck-repl.org/planck-io.html#make-writer),
 [output-stream](http://planck-repl.org/planck-io.html#output-stream),
