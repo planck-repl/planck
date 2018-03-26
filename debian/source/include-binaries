@@ -1,3 +1,4 @@
 planck_cljs/script/clojure
 planck-cljs/script/deps.edn
+planck-cljs/script/example-deps.edn
 planck-cljs/script/libexec/clojure-tools-1.9.0.358.jar

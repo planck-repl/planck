@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 export VERBOSE_BUILD=1
 export SANDBOX_BUILD=1
+export CLJ_CONFIG=clj-config
 script/build -Sdeps "{:mvn/local-repo \"sandbox-m2\"}"
