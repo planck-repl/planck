@@ -63,7 +63,9 @@
   (try
     (planck.shell/sh "env" "abc")
     (catch :default e
-      (is (= {:exit 127, :out "", :err "env: abc: No such file or directory\n"}
-            (ex-data e)))
-      (is (= "env: abc: No such file or directory"
-            (ex-message e))))))
+      (let [expected-errors #{"env: abc: No such file or directory"
+                              "env: ‘abc’: No such file or directory"}]
+        (is (= 127 (:exit (ex-data e))))
+        (is (= "" (:out (ex-data e))))
+        (is (contains? expected-errors (string/trim (:err (ex-data e)))))
+        (is (contains? expected-errors (ex-message e)))))))
