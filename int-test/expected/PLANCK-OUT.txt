@@ -577,6 +577,12 @@ Test chained timer and sh-async keeps script going
 2
 {:exit 0, :out "", :err ""}
 1
+Test clear timeout lets script stop
+:done
+Test clear interval lets script stop
+:tick
+:tick
+:done
 Disable asserts
 nil
 Testing console logging

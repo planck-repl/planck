@@ -34,20 +34,10 @@ void *timer_thread(void *data) {
 
     free(data);
 
-    err = signal_task_complete();
-    if (err) {
-        engine_print_err_message("timer signal_task_complete", err);
-    }
-
     return NULL;
 }
 
 int start_timer(long millis, timer_callback_t timer_callback, void *data) {
-
-    int err = signal_task_started();
-    if (err) {
-        return err;
-    }
 
     struct timer_data_t *timer_data = malloc(sizeof(struct timer_data_t));
     if (!timer_data) return -1;
@@ -57,7 +47,7 @@ int start_timer(long millis, timer_callback_t timer_callback, void *data) {
     timer_data->data = data;
 
     pthread_attr_t attr;
-    err = pthread_attr_init(&attr);
+    int err = pthread_attr_init(&attr);
     if (err) {
         free(timer_data);
         return err;

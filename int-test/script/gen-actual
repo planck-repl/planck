@@ -725,6 +725,18 @@ $PLANCK - << SCRIPT_INPUT
 (wait-more)
 SCRIPT_INPUT
 
+echo "Test clear timeout lets script stop"
+$PLANCK - << SCRIPT_INPUT
+(def t (js/setTimeout #(prn :hello) 1000000))
+(js/setTimeout #(do (prn :done) (js/clearTimeout t)) 100)
+SCRIPT_INPUT
+
+echo "Test clear interval lets script stop"
+$PLANCK - << SCRIPT_INPUT
+(def t (js/setInterval #(prn :tick) 100))
+(js/setTimeout #(do (prn :done) (js/clearTimeout t)) 250)
+SCRIPT_INPUT
+
 echo "Disable asserts"
 $PLANCK -a << REPL_INPUT
 (assert false)
