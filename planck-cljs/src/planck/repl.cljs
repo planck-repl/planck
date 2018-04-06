@@ -17,7 +17,6 @@
    [cljs.tools.reader.reader-types :as rt]
    [cljsjs.parinfer]
    [clojure.string :as string]
-   [clojure.walk :as walk]
    [cognitect.transit :as transit]
    [goog.string :as gstring]
    [lazy-map.core :refer-macros [lazy-map]]
@@ -186,11 +185,7 @@
 (defn- cljs->transit-json
   [x]
   (let [wtr (transit/writer :json)]
-    ; postwalk identity converts map entries to work around
-    ; https://github.com/cognitect/transit-cljs/issues/33
-    (->> x
-      (walk/postwalk identity)
-      (transit/write wtr))))
+    (transit/write wtr x)))
 
 (defn- read-transit
   [json-file]

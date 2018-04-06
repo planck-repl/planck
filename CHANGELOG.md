@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Update to `transit-cljs` 0.8.248 and remove workaround introduced with [#647](https://github.com/mfikes/planck/issues/647)
 
 ## [2.12.6] - 2018-03-26
 ### Fixed
