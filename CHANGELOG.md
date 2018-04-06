@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - `js/clearTimeout` should allow shutdown ([#698](https://github.com/mfikes/planck/issues/698))
 
+### Changed
+- Update to `transit-cljs` 0.8.248 and remove workaround introduced with [#647](https://github.com/mfikes/planck/issues/647)
+- Update to Closure v20180319
+
 ## [2.12.6] - 2018-03-26
 ### Fixed
 - Fixed issues with building Ubuntu PPA in sandbox environment
