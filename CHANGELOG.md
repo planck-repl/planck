@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Update to Closure v20180319
 
 ## [2.12.6] - 2018-03-26
 ### Fixed
