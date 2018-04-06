@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- `js/clearTimeout` should allow shutdown ([#698](https://github.com/mfikes/planck/issues/698))
+
 ### Changed
 - Update to `transit-cljs` 0.8.248 and remove workaround introduced with [#647](https://github.com/mfikes/planck/issues/647)
 - Update to Closure v20180319

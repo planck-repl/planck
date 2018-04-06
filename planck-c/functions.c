@@ -27,6 +27,7 @@
 #include "repl.h"
 #include "clock.h"
 #include "sockets.h"
+#include "tasks.h"
 
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
@@ -1166,6 +1167,11 @@ JSValueRef function_set_timeout(JSContextRef ctx, JSObjectRef function, JSObject
         unsigned long *timeout_data = malloc(sizeof(unsigned long));
         *timeout_data = timeout_id;
 
+        int err = signal_task_started();
+        if (err) {
+            engine_print_err_message("signal_task_started", err);
+        }
+
         start_timer(millis, do_run_timeout, (void *) timeout_data);
 
         return rv;
@@ -1209,6 +1215,11 @@ JSValueRef function_set_interval(JSContextRef ctx, JSObjectRef function, JSObjec
                 ++interval_id;
             }
             curr_interval_id = interval_id;
+
+            int err = signal_task_started();
+            if (err) {
+                engine_print_err_message("signal_task_started", err);
+            }
         } else {
             curr_interval_id = (unsigned long) JSValueToNumber(ctx, args[1], NULL);
         }
@@ -1407,6 +1418,15 @@ JSValueRef function_sleep(JSContextRef ctx, JSObjectRef function, JSObjectRef th
                 engine_perror("sleep");
             }
         }
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_signal_task_complete(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                         size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    int err = signal_task_complete();
+    if (err) {
+        engine_print_err_message("signal_task_complete", err);
     }
     return JSValueMakeNull(ctx);
 }

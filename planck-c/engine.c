@@ -495,6 +495,8 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_SLEEP", function_sleep);
 
+    register_global_function(ctx, "PLANCK_SIGNAL_TASK_COMPLETE", function_signal_task_complete);
+
     display_launch_timing("register fns");
 
     // Monkey patch cljs.core/system-time to use Planck's high-res timer
@@ -524,18 +526,29 @@ void *do_engine_init(void *data) {
     evaluate_script(ctx,
                     "var PLANCK_TIMEOUT_CALLBACK_STORE = {};\
                      var setTimeout = function( fn, ms ) {\
-                       var id = PLANCK_SET_TIMEOUT(ms);\
-                       PLANCK_TIMEOUT_CALLBACK_STORE[id] = fn;\
-                       return id;\
+                       if ( fn ) {\
+                         var id = PLANCK_SET_TIMEOUT(ms);\
+                         PLANCK_TIMEOUT_CALLBACK_STORE[id] = fn;\
+                         return id;\
+                       } else {\
+                         throw new Error(\"Callback must be a function\");\
+                       }\
                      };\
                      var PLANCK_RUN_TIMEOUT = function( id ) {\
                        if( PLANCK_TIMEOUT_CALLBACK_STORE[id] ) {\
-                         PLANCK_TIMEOUT_CALLBACK_STORE[id]();\
-                         delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
+                         try {\
+                           PLANCK_TIMEOUT_CALLBACK_STORE[id]();\
+                         } finally {\
+                           delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
+                           PLANCK_SIGNAL_TASK_COMPLETE();\
+                         }\
                        }\
                      };\
                      var clearTimeout = function( id ) {\
-                        delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
+                       if ( PLANCK_TIMEOUT_CALLBACK_STORE[id] ) {\
+                         delete PLANCK_TIMEOUT_CALLBACK_STORE[id];\
+                         PLANCK_SIGNAL_TASK_COMPLETE();\
+                       }\
                      };\
                      var PLANCK_INTERVAL_CALLBACK_STORE = {};\
                      var setInterval = function( fn, ms ) {\
@@ -550,7 +563,10 @@ void *do_engine_init(void *data) {
                         }\
                      };\
                      var clearInterval = function( id ) {\
-                        delete PLANCK_INTERVAL_CALLBACK_STORE[id];\
+                       if ( PLANCK_INTERVAL_CALLBACK_STORE[id] ) {\
+                         delete PLANCK_INTERVAL_CALLBACK_STORE[id];\
+                         PLANCK_SIGNAL_TASK_COMPLETE();\
+                       }\
                      };",
                     "<init>");
 
