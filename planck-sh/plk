@@ -183,21 +183,30 @@ fi
 if "$force"; then
   clojure_args+=("-Sforce")
 fi
-if "$verbose"; then
-  clojure_args+=("-Sverbose")
-fi
 
 if "$pom"; then
+  if "$verbose"; then
+    clojure_args+=("-Sverbose")
+  fi
   "$CLOJURE_CMD" "${clojure_args[@]}" -Spom
 elif "$describe"; then
+  if "$verbose"; then
+    clojure_args+=("-Sverbose")
+  fi
   "$CLOJURE_CMD" "${clojure_args[@]}" -Sdescribe
 elif "$tree"; then
+  if "$verbose"; then
+    clojure_args+=("-Sverbose")
+  fi
   "$CLOJURE_CMD" "${clojure_args[@]}" -Stree
 else
   set -f
   if [[ -n "$force_cp" ]]; then
     cp="$force_cp"
   else
+    if "$verbose"; then
+      "$CLOJURE_CMD" "${clojure_args[@]}" -Sverbose -e nil
+    fi
     cp=`"$CLOJURE_CMD" "${clojure_args[@]}" -Spath`
   fi
   if "$print_classpath"; then
