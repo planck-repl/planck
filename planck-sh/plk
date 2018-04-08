@@ -124,7 +124,7 @@ if "$help"; then
 	planck --classpath classpath [init-opt*] [main-opt] [arg*]
 
 	The dep-opts are used to build the classpath using the clojure tool:
-         -Oalias...     Concatenated jvm option aliases, ex: -O:mem
+	 -Oalias...     Concatenated jvm option aliases, ex: -O:mem
 	 -Ralias...     Concatenated resolve-deps aliases, ex: -R:bench:1.9
 	 -Calias...     Concatenated make-classpath aliases, ex: -C:dev
 	 -Malias...     Concatenated main option aliases, ex: -M:test
