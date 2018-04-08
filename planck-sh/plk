@@ -116,42 +116,31 @@ fi
 
 if "$help"; then
   cat <<-END
-	Usage: plk [dep-opt*] [init-opt*] [main-opt] [arg*]
+Usage: plk [dep-opt*] [init-opt*] [main-opt] [arg*]
 
-	The plk script is a runner for Planck which ultimately constructs and
-	invokes a command-line of the form:
+The plk script is a runner for Planck which ultimately constructs and
+invokes a command-line of the form:
 
-	planck --classpath classpath [init-opt*] [main-opt] [arg*]
+planck --classpath classpath [init-opt*] [main-opt] [arg*]
 
-	The dep-opts are used to build the classpath using the clojure tool:
-	 -Oalias...     Concatenated jvm option aliases, ex: -O:mem
-	 -Ralias...     Concatenated resolve-deps aliases, ex: -R:bench:1.9
-	 -Calias...     Concatenated make-classpath aliases, ex: -C:dev
-	 -Malias...     Concatenated main option aliases, ex: -M:test
-	 -Aalias...     Concatenated aliases of any kind, ex: -A:dev:mem
-	 -Sdeps EDN     Deps data to use as the final deps file
-	 -Spath         Compute classpath and echo to stdout only
-	 -Scp CP        Do NOT compute or cache classpath, use this one instead
-	 -Srepro        Ignore the ~/.clojure/deps.edn config file
-	 -Sforce        Force recomputation of the classpath (don't use the cache)
-	 -Spom          Generate (or update existing) pom.xml with deps and paths
-	 -Stree         Print dependency tree
-	 -Sresolve-tags Resolve git coordinate tags to shas and update deps.edn
-	 -Sverbose      Print important path info to console
-	 -Sdescribe     Print environment and command parsing info as data
-
-	init-opt:
-	 -i, --init path     Load a file or resource
-	 -e, --eval string   Eval exprs in string; print non-nil values
-
-	main-opt:
-	 -m, --main ns-name  Call the -main function from namespace w/args
-	 -r, --repl          Run a repl
-	 path                Run a script from a file or resource
-	 -                   Run a script from standard input
-	 -h, -?, --help      Print this help message and exit
-
+  The dep-opts are used to build the classpath using the clojure tool:
+    -Oalias...     Concatenated jvm option aliases, ex: -O:mem
+    -Ralias...     Concatenated resolve-deps aliases, ex: -R:bench:1.9
+    -Calias...     Concatenated make-classpath aliases, ex: -C:dev
+    -Malias...     Concatenated main option aliases, ex: -M:test
+    -Aalias...     Concatenated aliases of any kind, ex: -A:dev:mem
+    -Sdeps EDN     Deps data to use as the final deps file
+    -Spath         Compute classpath and echo to stdout only
+    -Scp CP        Do NOT compute or cache classpath, use this one instead
+    -Srepro        Ignore the ~/.clojure/deps.edn config file
+    -Sforce        Force recomputation of the classpath (don't use the cache)
+    -Spom          Generate (or update existing) pom.xml with deps and paths
+    -Stree         Print dependency tree
+    -Sresolve-tags Resolve git coordinate tags to shas and update deps.edn
+    -Sverbose      Print important path info to console
+    -Sdescribe     Print environment and command parsing info as data
 END
+  planck -h | tail -n +6
   exit 0
 fi
 
