@@ -209,6 +209,6 @@ else
     if [[ -e "$main_file" ]]; then
       main_cache_opts=($(cat "$main_file"))
     fi
-    "$PLANCK_CMD" --classpath "$cp" "${main_cache_opts[@]}" "$@"
+    exec "$PLANCK_CMD" --classpath "$cp" "${main_cache_opts[@]}" "$@"
   fi
 fi
