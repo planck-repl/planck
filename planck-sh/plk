@@ -203,6 +203,14 @@ else
   if "$print_classpath"; then
     echo $cp
   else
-    "$PLANCK_CMD" --classpath "$cp" "$@"
+    if [[ ${#main_aliases[@]} -gt 0 ]] || [[ ${#all_aliases[@]} -gt 0 ]]; then
+      # Attempt to extract the main cache filename by parsing the output of -Sverbose
+      cp_file=`"$CLOJURE_CMD" "${clojure_args[@]}" -Sverbose -Spath | grep cp_file | cut -d = -f 2 | sed 's/^ *//g'`
+      main_file="${cp_file%.cp}.main"
+    fi
+    if [[ -e "$main_file" ]]; then
+      main_cache_opts=($(cat "$main_file"))
+    fi
+    "$PLANCK_CMD" --classpath "$cp" "${main_cache_opts[@]}" "$@"
   fi
 fi
