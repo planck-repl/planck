@@ -103,9 +103,12 @@ do
 done
 
 # Find clojure executable
+set +e
 CLOJURE_CMD=$(type -p clojure)
+set -e
 if [[ ! -n "$CLOJURE_CMD" ]]; then
   >&2 echo "Couldn't find 'clojure'."
+  exit 1
 fi
 
 if "$help"; then
