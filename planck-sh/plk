@@ -102,12 +102,6 @@ do
   esac
 done
 
-# Find planck executable
-PLANCK_CMD=$(type -p planck)
-if [[ ! -n "$PLANCK_CMD" ]]; then
-  >&2 echo "Couldn't find 'planck'."
-fi
-
 # Find clojure executable
 CLOJURE_CMD=$(type -p clojure)
 if [[ ! -n "$CLOJURE_CMD" ]]; then
@@ -209,6 +203,6 @@ else
     if [[ -e "$main_file" ]]; then
       main_cache_opts=($(cat "$main_file"))
     fi
-    exec "$PLANCK_CMD" --classpath "$cp" "${main_cache_opts[@]}" "$@"
+    exec planck --classpath "$cp" "${main_cache_opts[@]}" "$@"
   fi
 fi
