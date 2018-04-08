@@ -180,6 +180,9 @@ fi
 if "$repro"; then
   clojure_args+=("-Srepro")
 fi
+if "$force"; then
+  clojure_args+=("-Sforce")
+fi
 if "$verbose"; then
   clojure_args+=("-Sverbose")
 fi
