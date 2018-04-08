@@ -188,11 +188,11 @@ if "$verbose"; then
 fi
 
 if "$pom"; then
-  "$CLOJURE_CMD" -Spom
+  "$CLOJURE_CMD" "${clojure_args[@]}" -Spom
 elif "$describe"; then
-  "$CLOJURE_CMD" -Sdescribe
+  "$CLOJURE_CMD" "${clojure_args[@]}" -Sdescribe
 elif "$tree"; then
-  "$CLOJURE_CMD" -Stree
+  "$CLOJURE_CMD" "${clojure_args[@]}" -Stree
 else
   set -f
   if [[ -n "$force_cp" ]]; then
