@@ -10,6 +10,8 @@
 #ifdef __APPLE__
 #include <sys/attr.h>
 #include <sys/clonefile.h>
+#include "engine.h"
+
 #endif
 
 #define CHUNK_SIZE 1024
@@ -198,11 +200,15 @@ int copy_file_loop(const char *from, const char *to) {
 }
 
 int copy_file(const char *from, const char *to) {
+    //engine_print("trying copyfile");
 #ifdef __APPLE__
     // TODO determine if clonefile vailable
+    //engine_print("trying clonefile");
     if (-1 == clonefile(from, to, 0)) {
+        //engine_print("trying copyfile loop");
         return copy_file_loop(from, to);
     } else {
+        //fprintf(stderr, "clonefile\n");
         return 0;
     }
     

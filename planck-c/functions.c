@@ -916,7 +916,7 @@ JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObject
 
 JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                               size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    if (argc == 1
+    if (argc == 2
         && JSValueGetType(ctx, args[0]) == kJSTypeString
         && JSValueGetType(ctx, args[1]) == kJSTypeString) {
 

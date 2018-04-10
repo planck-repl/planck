@@ -437,7 +437,7 @@
     (do-copy in output nil)))
 
 (defmethod do-copy [File File] [input output opts]
-  (prn '[File File])
+  #_(prn '[File File])
   (js/PLANCK_COPY (:path input) (:path output)))
 
 (defmethod do-copy [js/String planck.core/OutputStream] [input output opts]
