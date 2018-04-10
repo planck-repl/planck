@@ -67,64 +67,62 @@
         new-out
         (recur)))))
 
-(defn- make-raw-pushback-reader
-  [raw-read raw-close buffer pos]
-  (reify
-    IReader
-    (-read [_]
-      (if-some [buffered @buffer]
-        (do
-          (reset! buffer nil)
-          (subs buffered @pos))
-        (raw-read)))
+(deftype ^:private Reader [raw-read raw-close buffer pos]
 
-    IBufferedReader
-    (-read-line [this]
-      (loop []
-        (if-some [buffered @buffer]
-          (if-some [n (string/index-of buffered "\n" @pos)]
-            (let [rv (subs buffered @pos n)]
-              (reset! pos (inc n))
-              rv)
-            (if-some [new-chars (raw-read)]
-              (do
-                (reset! buffer (str (subs buffered @pos) new-chars))
-                (reset! pos 0)
-                (recur))
-              (do
-                (reset! buffer nil)
-                (let [rv (subs buffered @pos)]
-                  (if (= rv "")
-                    nil
-                    rv)))))
+  IReader
+  (-read [_]
+    (if-some [buffered @buffer]
+      (do
+        (reset! buffer nil)
+        (subs buffered @pos))
+      (raw-read)))
+
+  IBufferedReader
+  (-read-line [this]
+    (loop []
+      (if-some [buffered @buffer]
+        (if-some [n (string/index-of buffered "\n" @pos)]
+          (let [rv (subs buffered @pos n)]
+            (reset! pos (inc n))
+            rv)
           (if-some [new-chars (raw-read)]
             (do
-              (reset! buffer new-chars)
+              (reset! buffer (str (subs buffered @pos) new-chars))
               (reset! pos 0)
               (recur))
-            nil))))
+            (do
+              (reset! buffer nil)
+              (let [rv (subs buffered @pos)]
+                (if (= rv "")
+                  nil
+                  rv)))))
+        (if-some [new-chars (raw-read)]
+          (do
+            (reset! buffer new-chars)
+            (reset! pos 0)
+            (recur))
+          nil))))
 
-    IPushbackReader
-    (-unread [_ s]
-      (swap! buffer #(str s %))
-      (reset! pos 0))
+  IPushbackReader
+  (-unread [_ s]
+    (swap! buffer #(str s %))
+    (reset! pos 0))
 
-    IClosable
-    (-close [_]
-      (raw-close))))
+  IClosable
+  (-close [_]
+    (raw-close)))
 
-(defn- make-raw-writer
-  [raw-write raw-flush raw-close]
-  (reify
-    IWriter
-    (-write [_ s]
-      (raw-write s))
-    (-flush [_]
-      (raw-flush))
 
-    IClosable
-    (-close [_]
-      (raw-close))))
+(deftype ^:private Writer [raw-write raw-flush raw-close]
+  IWriter
+  (-write [_ s]
+    (raw-write s))
+  (-flush [_]
+    (raw-flush))
+
+  IClosable
+  (-close [_]
+    (raw-close)))
 
 (defprotocol IInputStream
   "Protocol for reading binary data."
@@ -135,36 +133,33 @@
   (-write-bytes [this byte-array] "Writes byte array.")
   (-flush-bytes [this] "Flushes output."))
 
-(defn- make-raw-input-stream
-  [raw-read-bytes raw-close]
-  (reify
-    IInputStream
-    (-read-bytes [_]
-      (raw-read-bytes))
+(deftype ^:private InputStream [raw-read-bytes raw-close]
 
-    IClosable
-    (-close [_]
-      (raw-close))))
+  IInputStream
+  (-read-bytes [_]
+    (raw-read-bytes))
 
-(defn- make-raw-output-stream
-  [raw-write-bytes raw-flush-bytes raw-close]
-  (reify
-    IOutputStream
-    (-write-bytes [_ byte-array]
-      (raw-write-bytes byte-array))
-    (-flush-bytes [_]
-      (raw-flush-bytes))
+  IClosable
+  (-close [_]
+    (raw-close)))
 
-    IClosable
-    (-close [_]
-      (raw-close))))
+(deftype ^:private OutputStream [raw-write-bytes raw-flush-bytes raw-close]
+  IOutputStream
+  (-write-bytes [_ byte-array]
+    (raw-write-bytes byte-array))
+  (-flush-bytes [_]
+    (raw-flush-bytes))
+
+  IClosable
+  (-close [_]
+    (raw-close)))
 
 (defonce
   ^{:doc     "An IPushbackReader representing standard input for read operations."
     :dynamic true}
   *in*
   (let [closed (atom false)]
-    (make-raw-pushback-reader
+    (->Reader
       (fn []
         (when-not @closed
           (js/PLANCK_RAW_READ_STDIN)))
@@ -175,7 +170,7 @@
 (defn- make-closeable-raw-writer
   [raw-write raw-flush]
   (let [closed (atom false)]
-    (make-raw-writer
+    (->Writer
       (fn [s]
         (when-not @closed
           (raw-write s)))
@@ -252,7 +247,7 @@
 (defn- make-string-reader
   [s]
   (let [content (volatile! s)]
-    (make-raw-pushback-reader
+    (->Reader
       (fn [] (let [return @content]
                (vreset! content nil)
                return))
