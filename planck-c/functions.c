@@ -914,6 +914,24 @@ JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObject
     return JSValueMakeNull(ctx);
 }
 
+JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                              size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeString) {
+
+        char *src = value_to_c_string(ctx, args[0]);
+        char *dst = value_to_c_string(ctx, args[1]);
+
+        int rv = copy_file(src, dst);
+        // TODO check rv and throw
+
+        free(src);
+        free(dst);
+    }
+    return JSValueMakeNull(ctx);
+}
+
 JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1

@@ -393,6 +393,7 @@
   (fn [input output opts] [(type input) (type output)]))
 
 (defmethod do-copy [planck.core/InputStream planck.core/OutputStream] [input output opts]
+  (prn '[planck.core/InputStream planck.core/OutputStream])
   (loop []
     (when-some [byte-array (planck.core/-read-bytes input)]
       (do
@@ -400,15 +401,20 @@
         (recur)))))
 
 (defmethod do-copy [planck.core/InputStream planck.core/Writer] [input output opts]
-  (do-copy (make-reader input opts) output) opts)
+  (prn '[planck.core/InputStream planck.core/Writer])
+  (do-copy (make-reader input opts) output) nil)
 
 (defmethod do-copy [planck.core/InputStream File] [input output opts]
-  (planck.core/spit output input opts))
+  (prn '[planck.core/InputStream File])
+  (with-open [out (make-output-stream output nil)]
+    (do-copy input output opts)))
 
 (defmethod do-copy [planck.core/Reader planck.core/OutputStream] [input output opts]
-  (do-copy input (make-writer output opts) opts))
+  (prn '[planck.core/Reader planck.core/OutputStream])
+  (do-copy input (make-writer output opts) nil))
 
 (defmethod do-copy [planck.core/Reader planck.core/Writer] [input output opts]
+  (prn '[planck.core/Reader planck.core/Writer])
   (loop []
     (when-some [s (planck.core/-read input)]
       (do
@@ -416,42 +422,51 @@
         (recur)))))
 
 (defmethod do-copy [planck.core/Reader File] [input output opts]
-  (planck.core/spit output input opts))
+  (prn '[planck.core/Reader File])
+  (with-open [out (writer file opts)]
+    (do-copy input out nil)))
 
 (defmethod do-copy [File planck.core/OutputStream] [input output opts]
-  (with-open [in (reader input)]
+  (prn '[File planck.core/OutputStream])
+  (with-open [in (make-input-stream input nil)]
     (do-copy in output)))
 
 (defmethod do-copy [File planck.core/Writer] [input output opts]
-  (with-open [in (reader input)]
-    (do-copy in output opts)))
+  (prn '[File planck.core/Writer])
+  (with-open [in (reader input opts)]
+    (do-copy in output nil)))
 
-(defmethod do-copy [File File] [^File input ^File output opts]
-  (with-open [in (reader input)
-              out (writer output)]
-    (do-copy in out)))
+(defmethod do-copy [File File] [input output opts]
+  (prn '[File File])
+  (js/PLANCK_COPY (:path input) (:path output)))
 
 (defmethod do-copy [js/String planck.core/OutputStream] [input output opts]
+  (prn '[js/String planck.core/OutputStream])
   (do-copy (planck.core/make-string-reader input) output opts))
 
-(defmethod do-copy [js/String planck.core/Writer] [^String input ^Writer output opts]
-  (do-copy (planck.core/make-string-reader input) output opts))
+(defmethod do-copy [js/String planck.core/Writer] [input output opts]
+  (prn '[js/String planck.core/Writer])
+  (do-copy (planck.core/make-string-reader input) output nil))
 
 (defmethod do-copy [js/String File] [input output opts]
-  (do-copy (planck.core/make-string-reader input) output opts))
+  (prn '[js/String File])
+  (with-open [out (writer output opts)]
+    (-write out input)))
 
 (defn copy
-  "Copies input to output.  Returns nil or throws an exception.
-  Input may be an IInputStream or IReader created using planck.io, File, or String.
+  "Copies input to output. Returns nil or throws an exception.
+
+  Input may be an IInputStream or IReader created using planck.io, File, or
+  String.
+
   Output may be an IOutputStream or IWriter created using planck.io, or File.
 
-  Options are key/value pairs and may be one of
+  Options may include
 
     :encoding     encoding to use if converting between
                   byte and char streams.
 
-  Does not close any streams except those it opens itself
-  (on a File)."
+  Does not close any streams except those it opens itself (on a File)."
   [input output & opts]
   (do-copy input output (when opts (apply hash-map opts))))
 
