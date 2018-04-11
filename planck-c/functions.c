@@ -782,14 +782,17 @@ JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef functio
 
         free(descriptor);
 
-        JSValueRef arguments[read];
-        int num_arguments = (int) read;
-        int i;
-        for (i = 0; i < num_arguments; i++) {
-            arguments[i] = JSValueMakeNumber(ctx, buf[i]);
-        }
+        if (read) {
+            // TODO distinguish between eof and error down in fread call and throw if errro
+            JSValueRef arguments[read];
+            int num_arguments = (int) read;
+            int i;
+            for (i = 0; i < num_arguments; i++) {
+                arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+            }
 
-        return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+            return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+        }
     }
 
     return JSValueMakeNull(ctx);

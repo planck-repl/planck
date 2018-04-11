@@ -397,6 +397,7 @@
   (loop []
     (when-some [byte-array (planck.core/-read-bytes input)]
       (do
+        (prn byte-array)
         (planck.core/-write-bytes output byte-array)
         (recur)))))
 

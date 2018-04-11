@@ -2,8 +2,9 @@
   (:require
    [clojure.test :refer [deftest is testing]]
    [clojure.string :as string]
-   [planck.core]
-   [planck.io])
+   [planck.core :refer [spit slurp]]
+   [planck.io :as io]
+   [planck.shell :as shell])
   (:import
    (goog Uri)))
 
@@ -93,3 +94,22 @@
   (is (= (planck.io/file "/a/b") (planck.io/file "/a" (planck.io/file "b"))))
   (is (= (planck.io/file "/a/b") (planck.io/file (planck.io/file "/a") "b")))
   (is (= (planck.io/file "/a/b/c") (planck.io/file "/a" "b" "c"))))
+
+(deftest copy-test
+  (let [content       "abcdef\nafsdadsf\nasdfd\u1234fdsa"
+        src           "/tmp/plk-copy-src.txt"
+        dst           "/tmp/plk-copy-dst.txt"
+        string-reader #'planck.core/make-string-reader
+        no-diff       (fn [src dst]
+                        (zero? (:exit (shell/sh "diff" src dst))))]
+    (testing "InputStream -> OutputStream"
+      (spit src content)
+      (io/copy (io/input-stream src) (io/output-stream dst))
+      (is (no-diff src dst)))
+    (testing "Reader -> File"
+      (io/copy (string-reader content) (io/file dst))
+      (is (= content (slurp dst))))
+    (testing "InputStream -> Writer"
+      (spit src content)
+      (io/copy (io/input-stream src) (io/writer dst))
+      (is (no-diff src dst)))))
