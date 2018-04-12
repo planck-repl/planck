@@ -406,8 +406,8 @@
 
 (defmethod do-copy [planck.core/InputStream File] [input output opts]
   (prn '[planck.core/InputStream File])
-  (with-open [out (make-output-stream output nil)]
-    (do-copy input output opts)))
+  (with-open [out (output-stream output)]
+    (do-copy input out nil)))
 
 (defmethod do-copy [planck.core/Reader planck.core/OutputStream] [input output opts]
   (prn '[planck.core/Reader planck.core/OutputStream])
@@ -423,17 +423,17 @@
 
 (defmethod do-copy [planck.core/Reader File] [input output opts]
   (prn '[planck.core/Reader File])
-  (with-open [out (writer file opts)]
+  (with-open [out (writer output)]
     (do-copy input out nil)))
 
 (defmethod do-copy [File planck.core/OutputStream] [input output opts]
   (prn '[File planck.core/OutputStream])
-  (with-open [in (make-input-stream input nil)]
+  (with-open [in (input-stream input)]
     (do-copy in output)))
 
 (defmethod do-copy [File planck.core/Writer] [input output opts]
   (prn '[File planck.core/Writer])
-  (with-open [in (reader input opts)]
+  (with-open [in (reader input)]
     (do-copy in output nil)))
 
 (defmethod do-copy [File File] [input output opts]
@@ -450,8 +450,8 @@
 
 (defmethod do-copy [js/String File] [input output opts]
   (prn '[js/String File])
-  (with-open [out (writer output opts)]
-    (-write out input)))
+  (with-open [out (writer output)]
+    (do-copy (planck.core/make-string-reader input) out)))
 
 (defn copy
   "Copies input to output. Returns nil or throws an exception.
