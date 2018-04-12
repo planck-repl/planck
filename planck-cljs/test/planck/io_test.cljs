@@ -96,10 +96,9 @@
   (is (= (planck.io/file "/a/b/c") (planck.io/file "/a" "b" "c"))))
 
 (deftest copy-test
-  (let [content       "abcdef\nafsdadsf\nasdfd\u1234fdsa"
+  (let [content       (apply str (repeat 6754 "abcñdef\nafÈ§sdadsf\nταБЬℓσ\u1234fdsa\n"))
         src           "/tmp/plk-copy-src.txt"
         dst           "/tmp/plk-copy-dst.txt"
-        string-reader #'planck.core/make-string-reader
         no-diff       (fn [src dst]
                         (zero? (:exit (shell/sh "diff" src dst))))]
     (spit src content)
@@ -108,7 +107,7 @@
                   out (io/output-stream dst)]
         (io/copy in out))
       (is (no-diff src dst)))
-    #_(testing "InputStream -> Writer"
+    (testing "InputStream -> Writer"
       (with-open [in (io/input-stream src)
                   out (io/writer dst)]
         (io/copy in out))
@@ -117,7 +116,7 @@
       (with-open [in (io/input-stream src)]
         (io/copy in (io/file dst)))
       (is (no-diff src dst)))
-    #_(testing "Reader -> OutputStream"
+    (testing "Reader -> OutputStream"
       (with-open [in (io/reader src)
                   out (io/output-stream dst)]
         (io/copy in out))
@@ -142,7 +141,7 @@
     (testing "File -> File"
       (io/copy (io/file src) (io/file dst))
       (is (no-diff src dst)))
-    #_(testing "String -> OutputStream"
+    (testing "String -> OutputStream"
       (with-open [out (io/output-stream dst)]
         (io/copy content out))
       (is (no-diff src dst)))
