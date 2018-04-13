@@ -1,3 +1,10 @@
+#ifdef __MAC_OS_X_VERSION_MIN_REQUIRED
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#define PLANCK_USE_CLONEFILE
+#endif
+#endif
+
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,11 +14,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifdef __APPLE__
+
+#ifdef PLANCK_USE_CLONEFILE
 #include <sys/attr.h>
 #include <sys/clonefile.h>
 #include "engine.h"
-
 #endif
 
 #define CHUNK_SIZE 1024
@@ -200,19 +207,15 @@ int copy_file_loop(const char *from, const char *to) {
 }
 
 int copy_file(const char *from, const char *to) {
-    //engine_print("trying copyfile");
-#ifdef __APPLE__
-    // TODO determine if clonefile vailable
-    //engine_print("trying clonefile");
+
+#ifdef PLANCK_USE_CLONEFILE
     if (-1 == clonefile(from, to, 0)) {
-        //engine_print("trying copyfile loop");
         return copy_file_loop(from, to);
     } else {
-        //fprintf(stderr, "clonefile\n");
         return 0;
     }
-    
 #else
     return copy_file_loop(from, to);
 #endif
+
 }
