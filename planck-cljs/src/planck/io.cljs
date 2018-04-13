@@ -465,6 +465,10 @@
   [input output & opts]
   (do-copy input output (when opts (apply hash-map opts))))
 
+(s/fdef copy
+  :args (s/cat :input any? :output any? :opts (s/* any?))
+  :ret nil?)
+
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
 (def ^:deprecated slurp planck.core/slurp)
