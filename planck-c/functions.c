@@ -927,7 +927,11 @@ JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRe
         char *dst = value_to_c_string(ctx, args[1]);
 
         int rv = copy_file(src, dst);
-        // TODO check rv and throw
+        if (rv) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
 
         free(src);
         free(dst);
