@@ -139,6 +139,9 @@
         (io/copy (io/file src) out))
       (is (no-diff src dst)))
     (testing "File -> File"
+      (io/delete-file dst)
+      (io/copy (io/file src) (io/file dst))
+      (is (no-diff src dst))
       (io/copy (io/file src) (io/file dst))
       (is (no-diff src dst)))
     (testing "String -> OutputStream"

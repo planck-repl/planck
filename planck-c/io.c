@@ -1,6 +1,9 @@
+#ifdef __APPLE__
+#include "availability.h"
 #ifdef __MAC_OS_X_VERSION_MIN_REQUIRED
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
-#define PLANCK_USE_CLONEFILE
+#define PLANCK_USE_CLONEFILE 1
+#endif
 #endif
 #endif
 
@@ -164,7 +167,7 @@ int copy_file_loop(const char *from, const char *to) {
     if (fd_from < 0)
         return -1;
 
-    fd_to = open(to, O_WRONLY | O_CREAT, 0666);
+    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
     if (fd_to < 0)
         goto out_error;
 
@@ -206,16 +209,45 @@ int copy_file_loop(const char *from, const char *to) {
     return -1;
 }
 
+int copy_file_loop_unlinking(const char *from, const char *to) {
+    if (-1 == copy_file_loop(from, to)) {
+        if (EEXIST == errno) {
+            fprintf(stderr, "unlinking\n");
+            if (-1 == unlink(to)) {
+                return -1;
+            } else {
+                return copy_file_loop(from, to);
+            }
+        } else {
+            return -1;
+        }
+    } else {
+        return 0;
+    }
+}
+
 int copy_file(const char *from, const char *to) {
 
 #ifdef PLANCK_USE_CLONEFILE
     if (-1 == clonefile(from, to, 0)) {
-        return copy_file_loop(from, to);
+        if (EEXIST == errno) {
+            if (-1 == unlink(to)) {
+                return -1;
+            } else {
+                if (-1 == clonefile(from, to, 0)) {
+                    return copy_file_loop_unlinking(from, to);
+                } else {
+                    return 0;
+                }
+            }
+        } else {
+            return copy_file_loop_unlinking(from, to);
+        }
     } else {
         return 0;
     }
 #else
-    return copy_file_loop(from, to);
+    return copy_file_loop_unlinking(from, to);
 #endif
 
 }
