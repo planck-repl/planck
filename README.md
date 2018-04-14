@@ -22,9 +22,11 @@ For other Linux distros, see Building below.
 
 # Using
 
-Launch Planck by entering `planck` at the terminal.
+Launch Planck by entering `planck` or `plk` at the terminal. 
 
-Get help on command-line options by issuing `planck -h`.
+> The `plk` script executes `planck`, while integrating with the [`clojure`](https://clojure.org/guides/getting_started) CLI tool to add support for `deps.edn` and classpath-affecting options such as `-Aalias`.
+
+Get help on command-line options by issuing `planck -h` or `plk -h`.
 
 For more details, see the [Planck User Guide](http://planck-repl.org/guide.html).
 
