@@ -1,9 +1,13 @@
 ## Source Dev
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/source-dev.jpg">
-When launching Planck, you can use the `-c` or `-​-​classpath` option, or the `PLANCK_CLASSPATH` environment variable, to specify a colon-delimited list of source directories and JARs to search in when loading code using `require` and `require-macros`. You can also use `-D` or `-​-​dependencies` provide a comma separated list of `SYM:VERSION`, indicating libraries to be loaded from the local Maven repository. (See the Dependencies section of this guide.)
+When launching Planck using `plk`, you can specify a vector of source directories in `deps.edn`:
 
-For example, you can put this code in `src/foo/core.cljs`:
+```
+{:paths ["src" "test"]}
+```
+
+With this, you can put this code in `src/foo/core.cljs`:
 
 ```clojure
 (ns foo.core)
@@ -13,10 +17,10 @@ For example, you can put this code in `src/foo/core.cljs`:
   (* x x))
 ```
 
-Then, if you launch Planck specfying the `src` directory:
+Then, if you launch Planck via `plk`
 
 ```
-$ planck -c src
+$ plk
 ```
 
 you can then load the code in `foo.core` by doing
@@ -29,6 +33,14 @@ If you subsequently edit `src/foo/core.cljs`, say, to define a new function, or 
 
 ```
 cljs.user=> (require 'foo.core :reload)
+```
+
+Alternatively, when launching Planck you can use the `-c` or `-​-​classpath` option, or the `PLANCK_CLASSPATH` environment variable, to specify a colon-delimited list of source directories and JARs to search in when loading code using `require` and `require-macros`. You can also use `-D` or `-​-​dependencies` provide a comma separated list of `SYM:VERSION`, indicating libraries to be loaded from the local Maven repository. (See the Dependencies section of this guide.)
+
+Using `-c`, you can specify `"src"` and `"test"` as source directories via
+
+```
+planck -c src:test
 ```
 
 ### Macros
