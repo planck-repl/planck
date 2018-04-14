@@ -16,6 +16,7 @@ _Vars_
 [as-file](#as-file)<br/>
 [as-relative-path](#as-relative-path)<br/>
 [as-url](#as-url)<br/>
+[copy](#copy)<br/>
 [delete-file](#delete-file)<br/>
 [directory?](#directory?)<br/>
 [file](#file)<br/>
@@ -104,6 +105,26 @@ a relative path, else throws an exception.
 `([x])`
 
 Coerce argument to a `goog.Uri`.
+
+### <a name="copy"></a>copy
+`([input output & opts])`
+
+Copies input to output. Returns nil or throws an exception.
+
+Input may be an [`IInputStream`](planck-core.html#IInputStream) or [`IReader`](planck-core.html#IReader) created using `planck.io`, `File`, or
+string.
+
+Output may be an [`IOutputStram`](planck-core.html#IOutputStream) or `IWriter` created using `planck.io`, or [`File`](#File).
+
+The `opts` arg is included for compatibility with `clojure.java.io/copy`
+but ignored. If translating between char and byte representations, UTF-8
+encoding is assumed.
+
+Does not close any streams except those it opens itself (on a [`File`](#File)).
+
+Spec<br/>
+ _args_: `(cat :input any? :output any? :opts (* any?))`<br/>
+ _ret_: `nil?`
 
 ### <a name="delete-file"></a>delete-file
 `([f])`

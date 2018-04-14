@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Add a new `plk` script which delegates to `clojure` for `deps.edn`, _etc._ ([#710](https://github.com/mfikes/planck/issues/710))
+- Port `clojure.java.io/copy` ([#677](https://github.com/mfikes/planck/issues/677))
 
 ### Fixed
 - `js/clearTimeout` should allow shutdown ([#698](https://github.com/mfikes/planck/issues/698))

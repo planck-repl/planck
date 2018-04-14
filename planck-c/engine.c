@@ -475,6 +475,7 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_MKDIRS", function_mkdirs);
     register_global_function(ctx, "PLANCK_DELETE", function_delete_file);
+    register_global_function(ctx, "PLANCK_COPY", function_copy_file);
 
     register_global_function(ctx, "PLANCK_LIST_FILES", function_list_files);
 

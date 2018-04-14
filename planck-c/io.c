@@ -1,3 +1,13 @@
+#ifdef __APPLE__
+#include "availability.h"
+#ifdef __MAC_OS_X_VERSION_MIN_REQUIRED
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101200
+#define PLANCK_USE_CLONEFILE 1
+#endif
+#endif
+#endif
+
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,6 +15,14 @@
 #include <limits.h>
 #include <time.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#ifdef PLANCK_USE_CLONEFILE
+#include <sys/attr.h>
+#include <sys/clonefile.h>
+#include "engine.h"
+#endif
 
 #define CHUNK_SIZE 1024
 
@@ -101,8 +119,7 @@ int mkdir_p(char *path) {
     return res;
 }
 
-int mkdir_parents(const char *path)
-{
+int mkdir_parents(const char *path) {
     /* Adapted from http://stackoverflow.com/a/2336245/119527 */
     const size_t len = strlen(path);
     char _path[PATH_MAX];
@@ -111,7 +128,7 @@ int mkdir_parents(const char *path)
     errno = 0;
 
     /* Copy string so its mutable */
-    if (len > sizeof(_path)-1) {
+    if (len > sizeof(_path) - 1) {
         errno = ENAMETOOLONG;
         return -1;
     }
@@ -138,4 +155,99 @@ int mkdir_parents(const char *path)
     }
 
     return 0;
+}
+
+int copy_file_loop(const char *from, const char *to) {
+    int fd_to, fd_from;
+    char buf[4096];
+    ssize_t nread;
+    int saved_errno;
+
+    fd_from = open(from, O_RDONLY);
+    if (fd_from < 0)
+        return -1;
+
+    fd_to = open(to, O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd_to < 0)
+        goto out_error;
+
+    while (nread = read(fd_from, buf, sizeof buf), nread > 0) {
+        char *out_ptr = buf;
+        ssize_t nwritten;
+
+        do {
+            nwritten = write(fd_to, out_ptr, (size_t) nread);
+
+            if (nwritten >= 0) {
+                nread -= nwritten;
+                out_ptr += nwritten;
+            } else if (errno != EINTR) {
+                goto out_error;
+            }
+        } while (nread > 0);
+    }
+
+    if (nread == 0) {
+        if (close(fd_to) < 0) {
+            fd_to = -1;
+            goto out_error;
+        }
+        close(fd_from);
+
+        /* Success! */
+        return 0;
+    }
+
+    out_error:
+    saved_errno = errno;
+
+    close(fd_from);
+    if (fd_to >= 0)
+        close(fd_to);
+
+    errno = saved_errno;
+    return -1;
+}
+
+int copy_file_loop_unlinking(const char *from, const char *to) {
+    if (-1 == copy_file_loop(from, to)) {
+        if (EEXIST == errno) {
+            fprintf(stderr, "unlinking\n");
+            if (-1 == unlink(to)) {
+                return -1;
+            } else {
+                return copy_file_loop(from, to);
+            }
+        } else {
+            return -1;
+        }
+    } else {
+        return 0;
+    }
+}
+
+int copy_file(const char *from, const char *to) {
+
+#ifdef PLANCK_USE_CLONEFILE
+    if (-1 == clonefile(from, to, 0)) {
+        if (EEXIST == errno) {
+            if (-1 == unlink(to)) {
+                return -1;
+            } else {
+                if (-1 == clonefile(from, to, 0)) {
+                    return copy_file_loop_unlinking(from, to);
+                } else {
+                    return 0;
+                }
+            }
+        } else {
+            return copy_file_loop_unlinking(from, to);
+        }
+    } else {
+        return 0;
+    }
+#else
+    return copy_file_loop_unlinking(from, to);
+#endif
+
 }

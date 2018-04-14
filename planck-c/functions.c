@@ -782,14 +782,17 @@ JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef functio
 
         free(descriptor);
 
-        JSValueRef arguments[read];
-        int num_arguments = (int) read;
-        int i;
-        for (i = 0; i < num_arguments; i++) {
-            arguments[i] = JSValueMakeNumber(ctx, buf[i]);
-        }
+        if (read) {
+            // TODO distinguish between eof and error down in fread call and throw if errro
+            JSValueRef arguments[read];
+            int num_arguments = (int) read;
+            int i;
+            for (i = 0; i < num_arguments; i++) {
+                arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+            }
 
-        return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+            return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
+        }
     }
 
     return JSValueMakeNull(ctx);
@@ -910,6 +913,28 @@ JSValueRef function_delete_file(JSContextRef ctx, JSObjectRef function, JSObject
         char *path = value_to_c_string(ctx, args[0]);
         remove(path);
         free(path);
+    }
+    return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                              size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 2
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeString) {
+
+        char *src = value_to_c_string(ctx, args[0]);
+        char *dst = value_to_c_string(ctx, args[1]);
+
+        int rv = copy_file(src, dst);
+        if (rv) {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
+
+        free(src);
+        free(dst);
     }
     return JSValueMakeNull(ctx);
 }
