@@ -453,11 +453,11 @@
   "Copies input to output. Returns nil or throws an exception.
 
   Input may be an IInputStream or IReader created using planck.io, File, or
-  String.
+  string.
 
   Output may be an IOutputStream or IWriter created using planck.io, or File.
 
-  The `opts` arg is included for compatibility with clojure.java.io/copy
+  The opts arg is included for compatibility with clojure.java.io/copy
   but ignored. If translating between char and byte representations, UTF-8
   encoding is assumed.
 
