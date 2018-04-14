@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Port `clojure.java.io/copy` ([#677](https://github.com/mfikes/planck/issues/677))
+
 ### Fixed
 - `js/clearTimeout` should allow shutdown ([#698](https://github.com/mfikes/planck/issues/698))
 

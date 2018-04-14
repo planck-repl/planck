@@ -2,8 +2,9 @@
   (:require
    [clojure.test :refer [deftest is testing]]
    [clojure.string :as string]
-   [planck.core]
-   [planck.io])
+   [planck.core :refer [spit slurp with-open]]
+   [planck.io :as io]
+   [planck.shell :as shell])
   (:import
    (goog Uri)))
 
@@ -93,3 +94,64 @@
   (is (= (planck.io/file "/a/b") (planck.io/file "/a" (planck.io/file "b"))))
   (is (= (planck.io/file "/a/b") (planck.io/file (planck.io/file "/a") "b")))
   (is (= (planck.io/file "/a/b/c") (planck.io/file "/a" "b" "c"))))
+
+(deftest copy-test
+  (let [content       (apply str (repeat 6754 "abcñdef\nafÈ§sdadsf\nταБЬℓσ\u1234fdsa\n"))
+        src           "/tmp/plk-copy-src.txt"
+        dst           "/tmp/plk-copy-dst.txt"
+        no-diff       (fn [src dst]
+                        (zero? (:exit (shell/sh "diff" src dst))))]
+    (spit src content)
+    (testing "InputStream -> OutputStream"
+      (with-open [in (io/input-stream src)
+                  out (io/output-stream dst)]
+        (io/copy in out))
+      (is (no-diff src dst)))
+    (testing "InputStream -> Writer"
+      (with-open [in (io/input-stream src)
+                  out (io/writer dst)]
+        (io/copy in out))
+      (is (no-diff src dst)))
+    (testing "InputStream -> File"
+      (with-open [in (io/input-stream src)]
+        (io/copy in (io/file dst)))
+      (is (no-diff src dst)))
+    (testing "Reader -> OutputStream"
+      (with-open [in (io/reader src)
+                  out (io/output-stream dst)]
+        (io/copy in out))
+      (is (no-diff src dst)))
+    (testing "Reader -> Writer"
+      (with-open [in (io/reader src)
+                  out (io/writer dst)]
+        (io/copy in out))
+      (is (no-diff src dst)))
+    (testing "Reader -> File"
+      (with-open [in (io/reader src)]
+        (io/copy in (io/file dst)))
+      (is (no-diff src dst)))
+    (testing "File -> OutputStream"
+      (with-open [out (io/output-stream dst)]
+        (io/copy (io/file src) out))
+      (is (no-diff src dst)))
+    (testing "File -> Writer"
+      (with-open [out (io/writer dst)]
+        (io/copy (io/file src) out))
+      (is (no-diff src dst)))
+    (testing "File -> File"
+      (io/delete-file dst)
+      (io/copy (io/file src) (io/file dst))
+      (is (no-diff src dst))
+      (io/copy (io/file src) (io/file dst))
+      (is (no-diff src dst)))
+    (testing "String -> OutputStream"
+      (with-open [out (io/output-stream dst)]
+        (io/copy content out))
+      (is (no-diff src dst)))
+    (testing "String -> Writer"
+      (with-open [out (io/writer dst)]
+        (io/copy content out))
+      (is (no-diff src dst)))
+    (testing "String -> File"
+      (io/copy content (io/file dst))
+      (is (no-diff src dst)))))

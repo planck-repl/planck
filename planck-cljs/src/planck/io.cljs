@@ -3,7 +3,7 @@
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
-   [planck.core]
+   [planck.core :refer [with-open]]
    [planck.http :as http]
    [planck.repl :as repl])
   (:import
@@ -137,7 +137,7 @@
 
 (defn- make-http-uri-writer
   [uri opts]
-  (planck.core/make-raw-writer
+  (planck.core/->Writer
     (fn [content]
       (let [name     (or (:param-name opts) "file")
             filename (or (:filename opts) "file.pnk")]
@@ -162,7 +162,7 @@
     (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-reader-descriptors conj file-descriptor)
-      (planck.core/make-raw-pushback-reader
+      (planck.core/->Reader
         (fn []
           (if (contains? @open-file-reader-descriptors file-descriptor)
             (let [[result err] (js/PLANCK_FILE_READER_READ file-descriptor)]
@@ -180,7 +180,7 @@
     (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-writer-descriptors conj file-descriptor)
-      (planck.core/make-raw-writer
+      (planck.core/->Writer
         (fn [s]
           (if (contains? @open-file-writer-descriptors file-descriptor)
             (if-let [err (js/PLANCK_FILE_WRITER_WRITE file-descriptor s)]
@@ -201,7 +201,7 @@
     (let [file-descriptor (js/PLANCK_FILE_INPUT_STREAM_OPEN (:path file))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-input-stream-descriptors conj file-descriptor)
-      (planck.core/make-raw-input-stream
+      (planck.core/->InputStream
         (fn []
           (if (contains? @open-file-input-stream-descriptors file-descriptor)
             (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor))
@@ -214,7 +214,7 @@
     (let [file-descriptor (js/PLANCK_FILE_OUTPUT_STREAM_OPEN (:path file) (boolean (:append opts)))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-output-stream-descriptors conj file-descriptor)
-      (planck.core/make-raw-output-stream
+      (planck.core/->OutputStream
         (fn [byte-array]
           (if (contains? @open-file-output-stream-descriptors file-descriptor)
             (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (clj->js byte-array))
@@ -384,6 +384,90 @@
 (s/fdef make-parents
   :args (s/cat :path-or-parent any? :more (s/* any?))
   :ret boolean?)
+
+(defmulti
+  ^{:doc "Internal helper for copy"
+    :private true
+    :arglists '([input output opts])}
+  do-copy
+  (fn [input output opts] [(type input) (type output)]))
+
+(defmethod do-copy [planck.core/InputStream planck.core/OutputStream] [input output opts]
+  (loop []
+    (when-some [byte-array (planck.core/-read-bytes input)]
+      (do
+        (planck.core/-write-bytes output byte-array)
+        (recur)))))
+
+(defmethod do-copy [planck.core/InputStream planck.core/Writer] [input output opts]
+  (let [bytes      (->> (repeatedly #(planck.core/-read-bytes input))
+                     (take-while some?)
+                     (map vec)
+                     (apply concat))
+        utf8->str  (comp js/decodeURIComponent js/escape)
+        codes->str (fn [coll] (apply str (map char coll)))]
+    (do-copy (-> bytes codes->str utf8->str) output)) nil)
+
+(defmethod do-copy [planck.core/InputStream File] [input output opts]
+  (with-open [out (output-stream output)]
+    (do-copy input out nil)))
+
+(defmethod do-copy [planck.core/Reader planck.core/OutputStream] [input output opts]
+  (do-copy (planck.core/slurp input) output))
+
+(defmethod do-copy [planck.core/Reader planck.core/Writer] [input output opts]
+  (loop []
+    (when-some [s (planck.core/-read input)]
+      (do
+        (-write output s)
+        (recur)))))
+
+(defmethod do-copy [planck.core/Reader File] [input output opts]
+  (with-open [out (writer output)]
+    (do-copy input out nil)))
+
+(defmethod do-copy [File planck.core/OutputStream] [input output opts]
+  (with-open [in (input-stream input)]
+    (do-copy in output)))
+
+(defmethod do-copy [File planck.core/Writer] [input output opts]
+  (with-open [in (reader input)]
+    (do-copy in output nil)))
+
+(defmethod do-copy [File File] [input output opts]
+  (js/PLANCK_COPY (:path input) (:path output)))
+
+(defmethod do-copy [js/String planck.core/OutputStream] [input output opts]
+  (let [str->utf8 (comp js/unescape js/encodeURIComponent)
+        str->chars (fn [s] (map #(.charCodeAt %) s))]
+    (planck.core/-write-bytes output (-> input str->utf8 str->chars to-array))))
+
+(defmethod do-copy [js/String planck.core/Writer] [input output opts]
+  (do-copy (planck.core/make-string-reader input) output nil))
+
+(defmethod do-copy [js/String File] [input output opts]
+  (with-open [out (writer output)]
+    (do-copy (planck.core/make-string-reader input) out)))
+
+(defn copy
+  "Copies input to output. Returns nil or throws an exception.
+
+  Input may be an IInputStream or IReader created using planck.io, File, or
+  string.
+
+  Output may be an IOutputStream or IWriter created using planck.io, or File.
+
+  The opts arg is included for compatibility with clojure.java.io/copy
+  but ignored. If translating between char and byte representations, UTF-8
+  encoding is assumed.
+
+  Does not close any streams except those it opens itself (on a File)."
+  [input output & opts]
+  (do-copy input output (when opts (apply hash-map opts))))
+
+(s/fdef copy
+  :args (s/cat :input any? :output any? :opts (s/* any?))
+  :ret nil?)
 
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)

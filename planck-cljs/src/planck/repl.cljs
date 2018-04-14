@@ -1338,6 +1338,7 @@
                                          (.-stack error)
                                          {:ua-product :safari}
                                          {:output-dir "file://(/goog/..)?"})
+                                    (drop-while #(string/starts-with? (:function %) "PLANCK_"))
                                     (take-while #(not (stack-truncation-functions (:function %)))))]
          (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
          (println
