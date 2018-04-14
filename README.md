@@ -87,13 +87,13 @@ resource,
 
 # Building 
 
-[![Build Status](https://travis-ci.org/mfikes/planck.svg?branch=master)](https://travis-ci.org/mfikes/planck)
+[![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck)
 
 ## Prerequisites 
 
-See [Building Wiki](https://github.com/mfikes/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
+See [Building Wiki](https://github.com/planck-repl/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
 
-Pre-made build environments for various environments are available in [build-envs](https://github.com/mfikes/planck/tree/master/build-envs).
+Pre-made build environments for various environments are available in [build-envs](https://github.com/planck-repl/planck/tree/master/build-envs).
 
 ## Compiling
 
