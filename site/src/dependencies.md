@@ -9,7 +9,7 @@ Note that, since Planck employs _bootstrapped_ ClojureScript, not all regular Cl
 
 ### Using deps.edn
 
-If you use the `plk` script, it will delegate to the [`clojure`](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools) tool for dependency management. This means you can use `deps.edn` to specify source paths, dependency JARS, aliases, _etc_. just as you can with `clj` or `clojure`.
+If you use the `plk` script (instead of launching `planck` directly), it will delegate to the [`clojure`](https://clojure.org/guides/getting_started#_clojure_installer_and_cli_tools) tool for dependency management. This means you can use `deps.edn` to specify source paths, dependency JARS, aliases, _etc_. just as you can with `clj` or `clojure`.
 
 If you do
 
@@ -17,7 +17,7 @@ If you do
 plk -h
 ```
 
-you will see that the `plk` script accepts the same arguments as the `clj` / `clojure` tools, along with the additional aruments supported by `planck`.
+you will see that the `plk` script accepts the same arguments as the `clj` / `clojure` tools, along with the additional arguments supported by `planck`.
 
 So for example, to put Andare 0.7.0 and `test.check` 0.10.0-alpha2 on your classpath (automatically downloading them if necessary), just place a  `deps.edn` like the following in the directory where you launch `plk`:
 
@@ -53,7 +53,9 @@ In order to use an explicitly-specified path to a Maven repository, you can addi
 
 ### Downloading Deps
 
-While using `planck` directly (as opposed to using the `plk` wrapper script) Planck can consume JARs from your local `.m2` repo, it doesn't take care of downloading them. An easy way to quickly download dependencies is to use [`boot`](https://github.com/boot-clj/boot) with its `-d` option. For example, executing this will ensure the dependencies specified above are installed:
+While `planck` can consume JARs from your local `.m2` repo, it doesn't take care of downloading them. (An alternative is to use `plk` and `deps.edn`, which delegates to `clojure` for deps download.) 
+
+An easy way to quickly download dependencies is to use [`boot`](https://github.com/boot-clj/boot) with its `-d` option. For example, executing this will ensure the dependencies specified above are installed:
 
 ```
 boot -d andare:0.7.0 -d org.clojure/test.check:0.10.0-alpha2
