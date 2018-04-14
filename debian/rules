@@ -16,6 +16,7 @@ binary-indep: binary-arch
 binary-arch:
 	mkdir -p debian/tmp/usr/bin
 	cp planck-c/build/planck debian/tmp/usr/bin
+	cp planck-sh/plk debian/tmp/usr/bin
 	mkdir debian/tmp/DEBIAN
 	dpkg-gencontrol -pplanck
 	dpkg --build debian/tmp ..
