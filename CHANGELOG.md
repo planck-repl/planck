@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Add a new `plk` script which delegates to `clojure` for `deps.edn`, _etc._ ([#710](https://github.com/mfikes/planck/issues/710))
+
 ### Fixed
 - `js/clearTimeout` should allow shutdown ([#698](https://github.com/mfikes/planck/issues/698))
 
