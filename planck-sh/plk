@@ -16,12 +16,14 @@ resolve_tags=false
 help=false
 resolve_aliases=()
 classpath_aliases=()
-jvm_aliases=()
 main_aliases=()
 all_aliases=()
 while [ $# -gt 0 ]
 do
   case "$1" in
+    -J*)
+      shift
+      ;;
     -R*)
       resolve_aliases+=("${1:2}")
       shift
@@ -31,7 +33,6 @@ do
       shift
       ;;
     -O*)
-      jvm_aliases+=("${1:2}")
       shift
       ;;
     -M*)
@@ -124,7 +125,6 @@ invokes a command-line of the form:
 planck --classpath classpath [init-opt*] [main-opt] [arg*]
 
   The dep-opts are used to build the classpath using the clojure tool:
-    -Oalias...     Concatenated jvm option aliases, ex: -O:mem
     -Ralias...     Concatenated resolve-deps aliases, ex: -R:bench:1.9
     -Calias...     Concatenated make-classpath aliases, ex: -C:dev
     -Malias...     Concatenated main option aliases, ex: -M:test
@@ -139,6 +139,9 @@ planck --classpath classpath [init-opt*] [main-opt] [arg*]
     -Sresolve-tags Resolve git coordinate tags to shas and update deps.edn
     -Sverbose      Print important path info to console
     -Sdescribe     Print environment and command parsing info as data
+
+    Additionally, for compatibility with clojure, -Jopt and -Oalias... dep-opts
+    are accepted but ignored.
 END
   planck -h | tail -n +6
   exit 0
