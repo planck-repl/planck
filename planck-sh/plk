@@ -108,6 +108,9 @@ CLOJURE_CMD=$(type -p clojure)
 set -e
 if [[ ! -n "$CLOJURE_CMD" ]]; then
   >&2 echo "Couldn't find 'clojure'."
+  >&2 echo "You can launch Planck directly using 'planck'."
+  >&2 echo "To use 'plk', please ensure 'clojure' is installed and on"
+  >&2 echo "your path. See https://clojure.org/guides/getting_started"
   exit 1
 fi
 
