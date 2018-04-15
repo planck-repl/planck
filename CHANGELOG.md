@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Update to `transit-cljs` 0.8.248 and remove workaround introduced with [#647](https://github.com/mfikes/planck/issues/647)
 - Update to Closure v20180319
+- Update help for `*command-line-args*` ([#615](https://github.com/mfikes/planck/issues/615))
 
 ## [2.12.6] - 2018-03-26
 ### Fixed
