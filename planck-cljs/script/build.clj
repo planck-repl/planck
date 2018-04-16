@@ -19,7 +19,9 @@
                       (System/getenv "CLJS_CHECKED_ARRAYS") (keyword (System/getenv "CLJS_CHECKED_ARRAYS"))
                       :else false))
 
-(def non-fatal-warnings #{:redef})
+(def experimental-warnings #{:recur-type-mismatch :private-var-access})
+
+(def non-fatal-warnings (into #{:redef} experimental-warnings))
 
 (defn delete-recursively [fname]
   (doseq [f (reverse (file-seq (io/file fname)))]
