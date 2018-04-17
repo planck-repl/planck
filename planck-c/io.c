@@ -212,7 +212,6 @@ int copy_file_loop(const char *from, const char *to) {
 int copy_file_loop_unlinking(const char *from, const char *to) {
     if (-1 == copy_file_loop(from, to)) {
         if (EEXIST == errno) {
-            fprintf(stderr, "unlinking\n");
             if (-1 == unlink(to)) {
                 return -1;
             } else {
