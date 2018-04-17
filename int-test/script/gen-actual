@@ -734,7 +734,7 @@ SCRIPT_INPUT
 echo "Test clear interval lets script stop"
 $PLANCK - << SCRIPT_INPUT
 (def t (js/setInterval #(prn :tick) 1000))
-(js/setTimeout #(do (prn :done) (js/clearTimeout t)) 2500)
+(js/setTimeout #(do (prn :done) (js/clearInterval t)) 2500)
 SCRIPT_INPUT
 
 echo "Disable asserts"
