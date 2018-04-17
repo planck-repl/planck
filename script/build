@@ -95,7 +95,7 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   
   echo "### AOT compiling macro namespaces"
   mkdir -p planck-cljs/out/macros-tmp
-  JSC_useFTLJIT=false planck-c/build/planck -sk planck-cljs/out/macros-tmp -e"(require 'cljs.analyzer)" -e"(do (set! cljs.analyzer/*cljs-warnings* (assoc cljs.analyzer/*cljs-warnings* :undeclared-var false)) nil)" -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec.alpha 'cljs.spec.test.alpha 'cljs.spec.gen.alpha 'cljs.test)"
+  planck-c/build/planck -sk planck-cljs/out/macros-tmp -e"(require 'cljs.analyzer)" -e"(do (set! cljs.analyzer/*cljs-warnings* (assoc cljs.analyzer/*cljs-warnings* :undeclared-var false)) nil)" -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec.alpha 'cljs.spec.test.alpha 'cljs.spec.gen.alpha 'cljs.test)"
   checkCmdSuccess
   
   mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
