@@ -116,7 +116,7 @@ fi
 if [ $AOT_DECODE_SOURCE_MAPS == "1" ] && [ ${file: -4} == ".map" ] && [ -f ../../planck-c/build/planck ]
 then
   echo -n "."
-  JSC_useFTLJIT=false ../../planck-c/build/planck ../script/decode.cljs $file
+  ../../planck-c/build/planck ../script/decode.cljs $file
 fi
 uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
