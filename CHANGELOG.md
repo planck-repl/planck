@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.13.0] - 2018-04-17
 ### Added
 - Add a new `plk` script which delegates to `clojure` for `deps.edn`, _etc._ ([#710](https://github.com/mfikes/planck/issues/710))
 - Port `clojure.java.io/copy` ([#677](https://github.com/mfikes/planck/issues/677))
@@ -661,7 +663,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.12.6...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.13.0...HEAD
+[2.13.0]: https://github.com/mfikes/planck/compare/2.12.6...2.13.0
 [2.12.6]: https://github.com/mfikes/planck/compare/2.12.0...2.12.6
 [2.12.0]: https://github.com/mfikes/planck/compare/2.11.0...2.12.0
 [2.11.0]: https://github.com/mfikes/planck/compare/2.10.0...2.11.0
