@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- Avoid FTL JIT crashes by limiting candidate fn size ([#722](https://github.com/mfikes/planck/issues/722))
 
 ## [2.13.0] - 2018-04-17
 ### Added
