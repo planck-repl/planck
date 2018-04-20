@@ -26,6 +26,24 @@ So for example, to put Andare 0.7.0 and `test.check` 0.10.0-alpha2 on your class
         org.clojure/test.check {:mvn/version "0.10.0-alpha2"}}}
 ```
 
+#### Shebang Deps
+
+If you'd like to specify `deps.edn` dependencies directly within a `#!` script, this is possible by making use of `bash` and `exec`, as is done in the following example:
+
+```clojure
+#!/usr/bin/env bash
+"exec" "plk" "-Sdeps" "{:deps {andare {mvn/version \"0.7.0\"}}}" "-Ksf" "$0" "$@"
+(require '[clojure.core.async :refer [chan go <! >!]])
+
+(def c (chan))
+(go (prn (<! c)))
+(go (>! c *command-line-args*))
+```
+
+This stand-alone script specifies its own dependencies (via the `-Sdeps` _dep-opt_), while also passing _init-opts_ to `plk` (prior to `"$0"`, which is the path to the script, and thus the _main-opt_), along with , any command-line args following the _main-opt_ via `"$@"`.
+
+> Also note that the script both a valid Bash script (as the `exec` causes the script to terminate prior to any ClojureScript text being parsed), and a valid ClojureScript file (all of the values on `"exec"` line are ClojureScript strings and thus harmless values preceding the `require` form).
+
 ### Classpath Specification
 
 Planck's classpath can be directly specified by providing a colon-separated list of directories and/or JARs via the `-c` / `-​-​classpath` argument, or by the `PLANCK_CLASSPATH` environment variable.
