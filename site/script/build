@@ -1,15 +1,81 @@
-#!/usr/bin/env bash
+#!/usr/bin/env plk -Sdeps {:deps,{markdown-clj,{:mvn/version,"0.9.85"}}} -K
+(ns build.core
+  (:require [markdown.core :refer [md->html]]
+            [planck.core :refer [slurp spit]]
+            [planck.shell :refer [sh]]))
 
-MARKDOWN_CLJ_VER="0.9.85"
+(def src "src/")
+(def target "target/")
+(def public (str target "public/"))
 
-MARKDOWN_CLJ_JAR=~/.m2/repository/markdown-clj/markdown-clj/$MARKDOWN_CLJ_VER/markdown-clj-$MARKDOWN_CLJ_VER.jar
+(def preamble (slurp (str src "preamble.html")))
+(def postamble (slurp (str src "postamble.html")))
 
-if [ ! -f $MARKDOWN_CLJ_JAR ]; then
-    pushd script
-    lein deps
-    popd
-    # Shouldn't have to blow away cache. Perhaps this is a bug in Planck.
-    rm -rf script/cache/*
-fi
+(defn wrap-html
+  [body]
+  (str preamble body postamble))
 
-planck -c $MARKDOWN_CLJ_JAR -k script/cache script/build.cljs
+(defn md-to-html
+  [in out]
+  (spit out
+    (wrap-html
+      (md->html (slurp in)))))
+
+(defn process-md
+  [in]
+  (md-to-html
+    (str src in) (str public (subs in 0 (- (count in) 2)) "html")))
+
+(sh "mkdir" target)
+(sh "rm" "-rf" public)
+(sh "mkdir" public)
+
+(process-md "sdk.md")
+(process-md "planck-core.md")
+(process-md "planck-repl.md")
+(process-md "planck-io.md")
+(process-md "planck-shell.md")
+(process-md "planck-http.md")
+(process-md "gcl.md")
+
+(process-md "index.md")
+(process-md "guide.md")
+
+(def doc-sections ["intro"
+                   "setup"
+                   "running"
+                   "repl"
+                   "one-liners"
+                   "scripts"
+                   "planck-namespaces"
+                   "source-dev"
+                   "testing"
+                   "dependencies"
+                   "performance"
+                   "socket-repl"
+                   "ides"
+                   "internals"
+                   "contributing"
+                   "legal"])
+
+(defn doc-section->md-file
+  [doc-section]
+  (str doc-section ".md"))
+
+(run! (fn [doc-section]
+        (process-md (doc-section->md-file doc-section)))
+  doc-sections)
+
+(spit (str public "guide-all.html")
+  (wrap-html (apply str
+               (map (fn [doc-section]
+                      (->> doc-section
+                        doc-section->md-file
+                        (str src)
+                        slurp
+                        md->html))
+                 doc-sections))))
+
+(sh "cp" "-r" (str src "img") public)
+(sh "cp" "-r" (str src "css") public)
+(sh "cp" "-r" (str src "js") public)

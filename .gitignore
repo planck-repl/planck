@@ -22,3 +22,4 @@ build-envs/*/*-cloudimg-console.log
 /planck-cljs/bundle.c
 /planck-cljs/bundle_dict.c
 .cpcache
+.planck_cache
