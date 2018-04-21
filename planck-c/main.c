@@ -300,13 +300,36 @@ bool should_ignore_arg(const char *opt) {
 
 void control_FTL_JIT() {
 
-    /* Recent versions of JavaScriptCore are crashing in FTL JIT. Emperically,
-     * we seem to be able to avoid this if we limit the size of the functions
-     * that we allow FTL JIT to compile. */
+    /* Recent versions of JavaScriptCore are crashing in FTL JIT. At least try
+     * to avoid this on macOS for now: If on macOS 10.13.4 (or a later 10.13 version)
+     * and JSC_useFTLJIT env var not set, disable FTL JIT. If not on macOS,
+     * disable FTL JIT if JSC_useFTLJIT env var not set. */
 
-    if (getenv("JSC_bytecodeRangeToJITCompile") == NULL) {
-        putenv("JSC_bytecodeRangeToJITCompile=1:255");
+
+    if (getenv("JSC_useFTLJIT") == NULL) {
+
+#ifdef __APPLE__
+        FILE *fp = fopen("/System/Library/CoreServices/SystemVersion.plist", "r");
+        char *version_info = read_all(fp);
+        fclose(fp);
+
+        char *version_str = strstr(version_info, "<string>10.13");
+        if (version_str) {
+            version_str += 14;
+
+            int version = atoi(version_str);
+
+            if (version >= 4) {
+                putenv("JSC_useFTLJIT=false");
+            }
+        }
+
+        free(version_info);
+#else
+        putenv("JSC_useFTLJIT=false");
+#endif
     }
+
 }
 
 int main(int argc, char **argv) {
