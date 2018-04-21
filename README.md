@@ -95,7 +95,7 @@ resource,
 
 See [Building Wiki](https://github.com/planck-repl/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
 
-Pre-made build environments for various environments are available in [build-envs](https://github.com/planck-repl/planck/tree/master/build-envs).
+Pre-made build environments for various environments are available in [build-envs](https://github.com/planck-repl/build-envs).
 
 ## Compiling
 
