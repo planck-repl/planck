@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Document how to use `-Sdeps` in shebang on macOS ([#720](https://github.com/mfikes/planck/issues/720))
 
+### Fixed
+- Avoid FTL JIT crashes by limiting candidate fn size ([#722](https://github.com/mfikes/planck/issues/722))
+
 ## [2.13.0] - 2018-04-17
 ### Added
 - Add a new `plk` script which delegates to `clojure` for `deps.edn`, _etc._ ([#710](https://github.com/mfikes/planck/issues/710))
