@@ -1,4 +1,5 @@
-#!/usr/bin/env plk -Sdeps {:deps,{markdown-clj,{:mvn/version,"0.9.85"}}} -K
+#!/bin/sh
+"exec" "plk" "-Sdeps" "{:deps {markdown-clj {:mvn/version \"0.9.85\"}}}" "$0"
 (ns build.core
   (:require [markdown.core :refer [md->html]]
             [planck.core :refer [slurp spit]]
