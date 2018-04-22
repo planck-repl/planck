@@ -15,6 +15,8 @@ cd ..
 # CMake
 rm -rf planck-c/build
 
+rm planck-man/plk.1
+
 # Site
 cd site
 script/clean
