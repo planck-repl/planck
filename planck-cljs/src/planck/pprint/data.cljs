@@ -151,7 +151,7 @@
                           :print-level          *print-level*
                           :print-meta           *print-meta*
                           :print-namespace-maps *print-namespace-maps*
-                          :theme                planck.themes/dumb
+                          :theme                ^:private-var-access-nowarn planck.themes/dumb
                           :pprint-document      fipp.engine/pprint-document}
          full-opts       (merge defaults options)
          pprint-document (:pprint-document full-opts)

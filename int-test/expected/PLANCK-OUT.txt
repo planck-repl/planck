@@ -268,16 +268,6 @@ nil
 nil
 Source not found
 nil
-(defmacro doc
-  "Prints documentation for a var or special form given its name"
-  [sym]
-  `(planck.repl/doc* '~sym))
-nil
-(defmacro doc
-  "Prints documentation for a var or special form given its name"
-  [sym]
-  `(planck.repl/doc* '~sym))
-nil
 nil
 (defn my-function
   "This is a cool

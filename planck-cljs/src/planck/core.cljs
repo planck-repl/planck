@@ -377,7 +377,7 @@
   "Returns the var to which a symbol will be resolved in the namespace, else
   nil."
   [ns sym]
-  (repl/ns-resolve ns sym))
+  (^:private-var-access-nowarn repl/ns-resolve ns sym))
 
 (s/fdef ns-resolve
   :args (s/cat :ns symbol? :sym symbol?)
@@ -387,7 +387,7 @@
   "Returns the var to which a symbol will be resolved in the current
   namespace, else nil."
   [sym]
-  (repl/resolve sym))
+  (^:private-var-access-nowarn repl/resolve sym))
 
 (s/fdef resolve
   :args (s/cat :sym symbol?)
@@ -399,9 +399,9 @@
   The namespace must exist. The var will adopt any metadata from the name
   symbol. Returns the var."
   ([ns name]
-   (repl/intern ns name))
+   (^:private-var-access-nowarn repl/intern ns name))
   ([ns name val]
-   (repl/intern ns name val)))
+   (^:private-var-access-nowarn repl/intern ns name val)))
 
 (s/fdef intern
   :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %))
@@ -412,7 +412,7 @@
   [state ns]
   (-> state
     (assoc-in [:cljs.analyzer/namespaces ns]
-      (get-in @repl/st [:cljs.analyzer/namespaces ns]))))
+      (get-in (deref ^:private-var-access-nowarn repl/st) [:cljs.analyzer/namespaces ns]))))
 
 (defn init-empty-state
   "An init function for use with cljs.js/empty-state which initializes the
@@ -444,5 +444,5 @@
 
 ;; Ensure planck.io and planck.http are loaded so that their
 ;; facilities are available
-(repl/side-load-ns 'planck.http)
-(repl/side-load-ns 'planck.io)
+(^:private-var-access-nowarn repl/side-load-ns 'planck.http)
+(^:private-var-access-nowarn repl/side-load-ns 'planck.io)

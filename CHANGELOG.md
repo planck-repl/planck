@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Default FTL JIT to off ([#722](https://github.com/mfikes/planck/issues/722))
+- Avoid private var use within Planck code to prepare for [CLJS-1702](https://dev.clojure.org/jira/browse/CLJS-1702)
 
 ## [2.13.0] - 2018-04-17
 ### Added
