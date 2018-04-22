@@ -134,21 +134,90 @@ are accepted but ignored.
 
 .SS init-opts
 
-
 .TP
 .BR \-i ", " \-\-init\  \fIpath\fR
-Load a file or resource located at \fIpath\fR
+Load a file or resource
 
 .TP
 .BR \-e ", " \-\-eval\  \fIstring\fR
 Eval exprs in \fIstring\fR; print non-nil values
 
-.SS main-opts
+.TP
+.BR \-c ", " \-\-classpath\  \fIcp\fR
+Use colon-delimited \fIcp\fR for source directories
+and JARs. PLANCK_CLASSPATH env var may be used
+instead.
 
+.TP
+.BR \-D ", " \-\-dependencies\  \fIdep\fR
+Use comma-separated list of dependencies to
+look for in the local Maven repository.
+Dependencies should be specified in the form
+SYM:VERSION (e.g.: foo/bar:1.2.3).
+
+.TP
+.BR \-L ", " \-\-local-repo\  \fIpath\fR
+Path to the local Maven repository where Planck
+will look for dependencies. Defaults to
+~/.m2/repository.
+
+.TP
+.BR \-K ", " \-\-auto-cache\ 
+Create and use .planck_cache dir for cache
+
+.TP
+.BR \-k ", " \-\-cache\  \fIpath\fR
+If dir exists at \fIpath\fR, use it for cache
+
+.TP
+.BR \-q ", " \-\-quiet\ 
+Quiet mode
+
+.TP
+.BR \-v ", " \-\-verbose\ 
+Emit verbose diagnostic output
+
+.TP
+.BR \-d ", " \-\-dumb-terminal\ 
+Disable line editing / VT100 terminal control
+
+.TP
+.BR \-t ", " \-\-theme\  \fItheme\fR
+Set the color theme
+
+.TP
+.BR \-n ", " \-\-socketrepl\  \fIx\fR
+Enable socket REPL where \fIx\fR is port or IP:port
+
+.TP
+.BR \-s ", " \-\-static-fns\ 
+Generate static dispatch function calls
+
+.TP
+.BR \-f ", " \-\-fn-invoke-direct\ 
+Do not not generate .call(null...) calls
+for unknown functions, but instead direct
+invokes via f(a0,a1...)
+
+.TP
+.BR \-O ", " \-\-optimizations\  \fIlevel\fR
+Closure compiler \fIlevel\fR applied to source loaded
+from namespaces: none, whitespace, or simple
+
+.TP
+.BR \-A ", " \-\-checked-arrays\  \fIx\fR
+Enables checked arrays where \fIx\fR is either warn
+or error
+
+.TP
+.BR \-a ", " \-\-elide-asserts\ 
+Set *assert* to false to remove asserts
+
+.SS main-opts
 
 .TP
 .BR \-m ", " \-\-main\  \fIns-name \fR
-Call the -main function from namespace w/args
+Call the -main function from namespace with args
 
 .TP
 .BR \-r ", " \-\-repl
@@ -163,12 +232,22 @@ Run a script from a file or resource located at \fIpath\fR
 Run a script from standard input
 
 .TP
-.BR \-h ", " \-? ",  " \-\-help
+.BR \-h ", " \-? ", " \-\-help
 Print this help message and exit
+
+.TP
+.BR \-l ", " \-\-legal
+Show legal info (licenses and copyrights)
+
+.TP
+.BR \-V ", " \-\-version
+Show version and exit
 
 .SH CONFIGURATION
 
-This script reads configuration from
+The
+.B plk
+script reads configuration from
 .B deps.edn
 files. It will check against
 .B deps.edn
@@ -187,20 +266,26 @@ priority).
 Planck
 .IP http://planck-repl.org/guide.html
 Planck User Guide
+.IP https://clojure.org/guides/deps_and_cli
+Deps and CLI Guide
+.IP https://clojure.org/reference/deps_and_cli
+Deps and CLI Reference
 
 .SH BUGS
 
 Visit the bug tracker at
-https://dev.clojure.org/jira/browse/INST to file an issue.
+https://github.com/planck-repl/planck/issues to file an issue.
 
 .SH AUTHORS
 
-clojure and clj are maintained by Alex Miller <alex.miller@cognitect.com>.
-This man page was written by Elana Hashman <ehashman@debian.org>.
+.B planck
+and 
+.B plk
+are maintained by Mike Fikes <mike@fikesfarm.com>.
 
 .SH COPYRIGHT
 
-Copyright \(co 2018 Rich Hickey, Alex Miller and contributors.
+Copyright \(co 2015-2018 Mike Fikes and Contributors.
 
-Distributed under the Eclipse Public License 1.0, the same as
-Clojure.
+Distributed under the Eclipse Public License either 
+version 1.0 or (at your option) any later version.
