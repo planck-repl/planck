@@ -143,4 +143,6 @@ make > /dev/null
 checkCmdSuccess
 cd ../..
 
+cp planck-man/planck.1 planck-man/plk.1
+
 echo "Binary located at $(pwd)/planck-c/build/planck"
