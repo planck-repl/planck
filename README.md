@@ -89,6 +89,8 @@ resource,
 
 # Building 
 
+If using macOS or Ubuntu, you can install pre-built binaries as described above under "Installing". The instructions here can be used to build, test, and optionally install Planck on your machine.
+
 [![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck)
 
 ## Prerequisites 
@@ -119,6 +121,20 @@ If you specify `-Sdeps` or `-R<alias>`, it will be passed through to the underly
 $ script/test
 ```
 
+## Installing
+
+The following will install Planck under the prefix `/usr/local`:
+
+```
+$ sudo script/install
+```
+
+If you'd like to install Planck under a different prefix, you may pass `-p`. For example:
+
+
+```
+$ sudo script/install -p /usr
+```
 
 # License
 

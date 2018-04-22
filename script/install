@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Start
+do_usage() {
+  echo "Installs Planck."
+  echo -e
+  echo "Usage:"
+  echo "script/install [-p|--prefix <dir>]"
+  exit 1
+}
+
+default_prefix_dir="/usr/local"
+
+prefix_dir=$default_prefix_dir
+prefix_param=${1:-}
+prefix_value=${2:-}
+if [[ "$prefix_param" = "-p" || "$prefix_param" = "--prefix" ]]; then
+  if [[ -z "$prefix_value" ]]; then
+    do_usage
+  else
+    prefix_dir="$prefix_value"
+  fi
+fi
+
+bin_dir="$prefix_dir/bin"
+man_dir="$prefix_dir/share/man/man1"
+
+echo "Installing planck and plk into $bin_dir"
+install -Dm755 planck-c/build/planck "$bin_dir/planck"
+install -Dm755 planck-sh/plk "$bin_dir/plk"
+
+echo "Installing man pages into $man_dir"
+install -Dm644 planck-man/planck.1 "$man_dir/planck.1"
+install -Dm644 planck-man/plk.1 "$man_dir/plk.1"
+
+echo "Use plk -h for help."
