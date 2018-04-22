@@ -282,7 +282,7 @@
                                     {:fn-invoke-direct true})))
     (deps/index-foreign-libs opts)
     (deps/index-js-libs)
-    (let [index @@#'deps/js-lib-index]
+    (let [index (deref ^:private-var-access-nowarn deps/js-lib-index)]
       (swap! st assoc :js-dependency-index (into index
                                              (map (fn [[k v]] [(str k) v]))
                                              index))))
