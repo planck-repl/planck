@@ -44,6 +44,12 @@ script/build
 
 This results in a binary being placed in `planck-c/build`.
 
+You can then optionally install Planck, the `plk` script, and associated man pages via
+
+```sh
+script/install
+```
+
 ### Bug Reporting
 
 If you happen to encounter any issues with Planck, issues are tracked on GitHub at [https://github.com/mfikes/planck/issues](https://github.com/mfikes/planck/issues).
