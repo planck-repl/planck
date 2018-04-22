@@ -282,7 +282,7 @@
                                     {:fn-invoke-direct true})))
     (deps/index-foreign-libs opts)
     (deps/index-js-libs)
-    (let [index @deps/js-lib-index]
+    (let [index @@#'deps/js-lib-index]
       (swap! st assoc :js-dependency-index (into index
                                              (map (fn [[k v]] [(str k) v]))
                                              index))))
@@ -1415,7 +1415,7 @@
       (cb nil))))
 
 ; Monkey-patch cljs.js/run-async! to instead be our more stack-efficient run-sync!
-(set! cljs/run-async! run-sync!)
+(set! ^:private-var-access-nowarn cljs/run-async! run-sync!)
 
 (defn- process-deps
   [names opts cb]

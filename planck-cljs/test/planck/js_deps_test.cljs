@@ -35,7 +35,7 @@
                               :requires ["react" "react.dom"]}}))))
 
 (deftest js-libs-to-load-test
-  (with-redefs [deps/js-lib-index
+  (with-redefs [^:private-var-access-nowarn deps/js-lib-index
                 (volatile! '{react            {:provides ["react"]
                                                :file "react file"}
                              react.dom        {:provides ["react.dom"]

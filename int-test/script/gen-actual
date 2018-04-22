@@ -292,8 +292,6 @@ $PLANCK -c $SRC <<REPL_INPUT
 (source inc)
 (source when)
 (source ns-resolve)
-(source doc)
-(source planck.repl/doc)
 (require '[test-doc-source.core :as tds])
 (source test-doc-source.core/my-function)
 (source tds/my-function)
@@ -304,7 +302,7 @@ REPL_INPUT
 echo "Test pst special"
 $PLANCK <<REPL_INPUT
 (require 'planck.repl)
-(set! planck.repl/*planck-integration-tests* true)
+(set! ^:private-var-access-nowarn planck.repl/*planck-integration-tests* true)
 (defn f [] (throw (js/Error. "whoah")))
 (defn g [] (throw (js/Error. "ouch")))
 (f)

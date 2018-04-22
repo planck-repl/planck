@@ -25,7 +25,7 @@
                                (get-in [:headers :Content-length]))))
     (let [params        [["foo" "bar"]]
           expected-body (#'http/generate-multipart-body
-                         (#'http/boundary http/boundary-constant)
+                         (#'http/boundary @#'http/boundary-constant)
                          (#'http/generate-form-data params))]
       (is (= (count expected-body) (-> (#'http/request identity :get "url"
                                         {:multipart-params params})
@@ -89,10 +89,10 @@
 
 (deftest generate-form-data-test
   (testing "fileupload-stuff"
-    (let [expected (str http/content-disposition "foo\"\n\nbar")]
+    (let [expected (str @#'http/content-disposition "foo\"\n\nbar")]
       (is (= [expected "--\n"]
             (#'http/generate-form-data [["foo" "bar"]]))))
-    (is (= [(str http/content-disposition "foo\"; filename=\"bar\"\n"
+    (is (= [(str @#'http/content-disposition "foo\"; filename=\"bar\"\n"
               "Content-Type: application/octet-stream\n\n" "baz") "--\n"]
           (#'http/generate-form-data [["foo" ["baz" "bar"]]])))))
 
@@ -103,25 +103,25 @@
 
 (deftest boundary-test
   (testing "boundary"
-    (is (not= nil (re-matches #"u\d{10}" (http/boundary "u"))))
-    (is (not= (http/boundary "u") (http/boundary "u")))))
+    (is (not= nil (re-matches #"u\d{10}" (#'http/boundary "u"))))
+    (is (not= (#'http/boundary "u") (#'http/boundary "u")))))
 
 (deftest wrap-multipart-params-test
   (testing "wrap-multipart-params"
     (is (nil? (-> {:multipart-params [["foo" "bar"]]}
-                ((http/wrap-multipart-params identity))
+                ((#'http/wrap-multipart-params identity))
                 :multipart-params)))
     (is ((not nil?) (-> {:multipart-params [["foo" "bar"]]}
-                      ((http/wrap-multipart-params identity))
+                      ((#'http/wrap-multipart-params identity))
                       :body)))
     (is ((not nil?) (-> {:multipart-params [["foo" "bar"]]}
-                      ((http/wrap-multipart-params identity))
+                      ((#'http/wrap-multipart-params identity))
                       :content-type)))))
 
 (deftest wrap-throw-on-error-test
   (testing "wrap-throw-on-error"
     (is (= "Error: foo" (try (-> {:error "foo"}
-                               ((http/wrap-throw-on-error identity)))
+                               ((#'http/wrap-throw-on-error identity)))
                              (catch js/Object e
                                (.toString e)))))))
 

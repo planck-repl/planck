@@ -111,7 +111,7 @@
                                     4 nil)]
                            (vswap! read-count inc)
                            rv)
-        buffered-reader (planck.core/->Reader raw-read #() (atom nil) (atom 0))]
+        buffered-reader (#'planck.core/->Reader raw-read #() (atom nil) (atom 0))]
     (is (= "abc" (planck.core/-read-line buffered-reader)))
     (is (= "def" (planck.core/-read-line buffered-reader)))
     (is (nil? (planck.core/-read-line buffered-reader)))))
