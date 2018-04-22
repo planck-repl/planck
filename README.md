@@ -131,7 +131,6 @@ $ sudo script/install
 
 If you'd like to install Planck under a different prefix, you may pass `-p`. For example:
 
-
 ```
 $ sudo script/install -p /usr
 ```
