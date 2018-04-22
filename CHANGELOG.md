@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Document how to use `-Sdeps` in shebang on macOS ([#720](https://github.com/mfikes/planck/issues/720))
 - Man pages for `planck` and `plk` ([#727](https://github.com/mfikes/planck/issues/727))
+- A `script/install` that will install `planck`, `plk`, and man pages ([#728](https://github.com/mfikes/planck/issues/728))
 
 ### Changed
 - Default FTL JIT to off ([#722](https://github.com/mfikes/planck/issues/722))
