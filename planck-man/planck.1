@@ -1,0 +1,206 @@
+.\"to render: groff -Tascii -man planck-man/planck.1 > planck.man"
+.TH PLANCK 1 "2018 April 22"
+.SH NAME
+plk, planck \- Planck REPL
+
+.SH SYNOPSIS
+
+.B plk
+[\fBdep-opts...\fR] [\fBinit-opts...\fR] [\fBmain-opt\fR]
+[\fBargs...\fR]
+.br
+.B planck
+[\fBinit-opts...\fR] [\fBmain-opt\fR]
+[\fBargs...\fR]
+
+.SH DESCRIPTION
+
+The
+.B planck
+binary is a self-hosted ClojureScript REPL and script runner.
+The
+.B plk
+script is a wrapper around
+.B planck
+that delegates to 
+.B clojure(1)
+to provide support for dependency management via
+.B dep-opts
+processing.
+
+The
+.B plk
+script ultimately constructs and invokes a command-line of the form:
+
+.B planck
+--classpath classpath [\fBinit-opt*\fR]
+[\fBmain-opt\fR] [\fBarg*\fR]
+
+.SH EXAMPLES
+
+You can launch a ClojureScript REPL by running
+.BR plk .
+
+See the Planck User Guide below for more complex usage.
+
+.SH OPTIONS
+
+The
+.B plk
+script can take three types of options, as shown in the
+synopsis.
+.B dep-opts
+are used to build the 
+classpath.
+.B init-opts
+specify configuration options or refer to ClojureScript 
+code to execute.
+.B main-opt
+identifies the main ClojureScript code to execute or
+indicates that a REPL should be launched.
+
+The
+.B planck
+binary supports the same except for
+.B dep-opts
+.
+
+.SS dep-opts
+
+.TP
+.BI \-R: alias
+Concatenated resolve-deps aliases, ex: -R:bench:1.9
+
+.TP
+.BI \-C: alias
+Concatenated make-classpath aliases, ex: -C:dev
+
+.TP
+.BI \-M: alias
+Concatenated main option aliases, ex: -M:test
+
+.TP
+.BI \-A: alias
+Concatenated aliases of any kind, ex: -A:dev:mem
+
+.TP
+.BI \-Sdeps\  EDN
+Deps data to use as the final deps file
+
+.TP
+.BI \-Spath
+Compute classpath and echo to stdout only
+
+.TP
+.BI \-Scp\  CP
+Do NOT compute or cache classpath, use this one instead
+
+.TP
+.BI \-Srepro
+Ignore the ~/.clojure/deps.edn config file
+
+.TP
+.BI \-Sforce
+Force recomputation of the classpath (don't use the cache)
+
+.TP
+.BI \-Spom
+Generate (or update existing) pom.xml with deps and paths
+
+.TP
+.BI \-Stree
+Print dependency tree
+
+.TP
+.BI \-Sresolve-tags
+Resolve git coordinate tags to shas and update deps.edn
+
+.TP
+.BI \-Sverbose
+Print important path info to console
+
+.TP
+.BI \-Sdescribe
+Print environment and command parsing info as data
+
+Additionally, for compatibility with 
+.B clojure
+, 
+.B -Jopt
+and 
+.B -Oalias...
+.B dep-opts
+are accepted but ignored.
+
+.SS init-opts
+
+
+.TP
+.BR \-i ", " \-\-init\  \fIpath\fR
+Load a file or resource located at \fIpath\fR
+
+.TP
+.BR \-e ", " \-\-eval\  \fIstring\fR
+Eval exprs in \fIstring\fR; print non-nil values
+
+.SS main-opts
+
+
+.TP
+.BR \-m ", " \-\-main\  \fIns-name \fR
+Call the -main function from namespace w/args
+
+.TP
+.BR \-r ", " \-\-repl
+Run a repl
+
+.TP
+.I path
+Run a script from a file or resource located at \fIpath\fR
+
+.TP
+.B \-
+Run a script from standard input
+
+.TP
+.BR \-h ", " \-? ",  " \-\-help
+Print this help message and exit
+
+.SH CONFIGURATION
+
+This script reads configuration from
+.B deps.edn
+files. It will check against
+.B deps.edn
+files in the system default location, the configuration
+directory (usually
+.BR ~/.clojure ),
+and the local directory. Files in each of these locations, if
+they exist, are merged to form one combined configuration
+file. The last specified configuration file's options
+overwrites any earlier files (e.g. local configs take
+priority).
+
+.SH SEE ALSO
+
+.IP http://planck-repl.org
+Planck
+.IP http://planck-repl.org/guide.html
+Planck User Guide
+
+.SH BUGS
+
+Visit the bug tracker at
+https://dev.clojure.org/jira/browse/INST to file an issue.
+
+.SH AUTHORS
+
+clojure and clj are maintained by Alex Miller <alex.miller@cognitect.com>.
+This man page was written by Elana Hashman <ehashman@debian.org>.
+
+.SH COPYRIGHT
+
+Copyright \(co 2018 Rich Hickey, Alex Miller and contributors.
+
+Distributed under the Eclipse Public License 1.0, the same as
+Clojure.
