@@ -7,7 +7,6 @@ All notable changes to this project will be documented in this file. This change
 - Man pages for `planck` and `plk` ([#727](https://github.com/mfikes/planck/issues/727))
 - A `script/install` that will install `planck`, `plk`, and man pages ([#728](https://github.com/mfikes/planck/issues/728))
 
-
 ### Changed
 - Default FTL JIT to off ([#722](https://github.com/mfikes/planck/issues/722))
 - Avoid private var use within Planck code to prepare for [CLJS-1702](https://dev.clojure.org/jira/browse/CLJS-1702)
