@@ -36,7 +36,7 @@ brew install --HEAD planck
 
 #### Building
 
-To build Planck on Linux or macOS, get a copy of the source tree, install the [needed dependencies](https://github.com/mfikes/planck/wiki/Building) and run
+To build Planck on Linux or macOS, get a copy of the source tree, install the [needed dependencies](https://github.com/planck-repl/planck/wiki/Building) and run
 
 ```sh
 script/build
@@ -52,4 +52,4 @@ script/install
 
 ### Bug Reporting
 
-If you happen to encounter any issues with Planck, issues are tracked on GitHub at [https://github.com/mfikes/planck/issues](https://github.com/mfikes/planck/issues).
+If you happen to encounter any issues with Planck, issues are tracked on GitHub at [https://github.com/planck-repl/planck/issues](https://github.com/planck-repl/planck/issues).
