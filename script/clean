@@ -15,7 +15,9 @@ cd ..
 # CMake
 rm -rf planck-c/build
 
-rm planck-man/plk.1
+if [ -z "$BUILD_PPA" ]; then
+  rm -f planck-man/plk.1
+fi
 
 # Site
 cd site
