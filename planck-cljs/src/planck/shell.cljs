@@ -28,7 +28,13 @@
     {:exit exit :out out :err err}))
 (gobj/set js/global "translate_async_result" translate-result)
 
-(def ^:private launch-fail "launch path not accessible")
+(defn- launch-fail-msg [executable-path]
+  (str "Launch path \"" executable-path "\" not accessible."
+    (when (string/includes? executable-path " ")
+      (let [tokens (string/split executable-path #" ")]
+        (str " Did you perhaps mean to launch using "
+          (pr-str (first tokens)) ", with " (pr-str (rest tokens))
+          " as arguments?")))))
 
 (def ^:private nil-func (fn [_] nil))
 (defn- sh-internal
@@ -50,13 +56,9 @@
         (or (== 126 exit)
             (== 127 exit))
         (throw (ex-info (if (empty? err)
-                          launch-fail
+                          (launch-fail-msg (first args))
                           (string/trimr err))
                  translated))
-
-        (and (== -1 exit)
-             (= launch-fail err))
-        (throw (ex-info launch-fail translated))
 
         :else
         (if async? nil translated)))))

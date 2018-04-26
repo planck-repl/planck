@@ -11,7 +11,7 @@
 
 (deftest shell-throws
   (is (thrown-with-msg? js/Error
-        #"launch path not accessible"
+        #"Launch path \"bogus\" not accessible."
         (planck.shell/sh "bogus"))))
 
 (deftest capture-exit-value
@@ -69,3 +69,7 @@
         (is (= "" (:out (ex-data e))))
         (is (contains? expected-errors (string/trim (:err (ex-data e)))))
         (is (contains? expected-errors (ex-message e)))))))
+
+(deftest launch-fail-msg-test
+  (is (= "Launch path \"ls -l\" not accessible. Did you perhaps mean to launch using \"ls\", with (\"-l\") as arguments?"
+        (#'planck.shell/launch-fail-msg "ls -l"))))
