@@ -178,3 +178,29 @@ Commands can be executed by running the `sh` function as seen in the following e
 
 (list-files (first *command-line-args*))
 ```
+
+### Script Termination Delay
+
+If you run a script that starts a timer, or launches an asynchronous shell interaction, the script will continue running so long as there are pending timers or shell activities.
+
+For example, this script will run for 5 seconds, print "done" and then terminate:
+
+```
+(def x (js/setTimeout #(println "hi") 1e6))
+
+(js/setTimeout #(println "done") 5000)
+
+(js/clearTimeout x)
+```
+
+Similarly, this script will wait for 3 seconds, print `:done` and terminate:
+
+```
+(require '[planck.shell :refer [sh-async]])
+
+(sh-async "sleep" "3" #(prn :done))
+```
+
+
+
+
