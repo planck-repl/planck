@@ -613,6 +613,10 @@ void *do_engine_init(void *data) {
         evaluate_source("text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])",
                         true, false, "cljs.user", "dumb", false, 0);
         display_launch_timing("repl requires");
+    } else {
+        evaluate_source("text", "(require 'planck.repl)",
+                        true, false, "cljs.user", "dumb", false, 0);
+        display_launch_timing("repl code");
     }
 
     evaluate_script(ctx, "goog.provide('cljs.user');", "<init>");
