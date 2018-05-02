@@ -36,8 +36,8 @@ function_print_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject
 JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                  const JSValueRef args[], JSValueRef *exception);
 
-JSValueRef function_set_exit_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
-                                   const JSValueRef args[], JSValueRef *exception);
+JSValueRef function_exit_with_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
+                                    const JSValueRef args[], JSValueRef *exception);
 
 JSValueRef function_raw_read_stdin(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                    const JSValueRef args[], JSValueRef *exception);

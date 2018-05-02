@@ -31,8 +31,7 @@
 (defn exit
   "Causes Planck to terminate with the supplied exit-value."
   [exit-value]
-  (js/PLANCK_SET_EXIT_VALUE exit-value)
-  (throw (js/Error. "PLANCK_EXIT")))
+  (js/PLANCK_EXIT_WITH_VALUE exit-value))
 
 (s/fdef exit
   :args (s/cat :exit-value integer?))

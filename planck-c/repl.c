@@ -140,7 +140,7 @@ bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
 
     if (is_exit_command(repl->input, repl->session_id != 0)) {
         if (repl->session_id == 0) {
-            exit_value = EXIT_SUCCESS_INTERNAL;
+            exit(0);
         }
         return true;
     }
@@ -316,7 +316,7 @@ void run_cmdline_loop(repl_t *repl) {
                     pthread_mutex_unlock(&repl_print_mutex);
                     continue;
                 } else { // Ctrl-D
-                    exit_value = EXIT_SUCCESS_INTERNAL;
+                    exit_value = 0;
                     pthread_mutex_unlock(&repl_print_mutex);
                     break;
                 }
