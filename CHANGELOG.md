@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - If `exit` called, exit immediately ([#735](https://github.com/mfikes/planck/issues/735))
+- Need to load REPL code when initializing engine ([#737](https://github.com/mfikes/planck/issues/737))
 
 ## [2.13.0] - 2018-04-17
 ### Added
