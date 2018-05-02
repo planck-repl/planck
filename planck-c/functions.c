@@ -477,13 +477,11 @@ JSValueRef function_print_err_fn(JSContextRef ctx, JSObjectRef function, JSObjec
     return JSValueMakeNull(ctx);
 }
 
-JSValueRef function_set_exit_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
-                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
+JSValueRef function_exit_with_value(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                    size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
         exit_value = (int) JSValueToNumber(ctx, args[0], NULL);
-        if (exit_value == 0) {
-            exit_value = EXIT_SUCCESS_INTERNAL;
-        }
+        exit(exit_value);
     }
     return JSValueMakeNull(ctx);
 }

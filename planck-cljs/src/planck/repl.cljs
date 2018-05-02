@@ -1030,12 +1030,10 @@
 
 (defn- handle-error
   [e include-stacktrace?]
-  (let [cause                     (or (.-cause e) e)
-        is-planck-exit-exception? (= "PLANCK_EXIT" (.-message cause))]
-    (when-not is-planck-exit-exception?
-      (print-error e include-stacktrace?))
-    (if (and (not is-planck-exit-exception?) (not (:repl @app-env)))
-      (js/PLANCK_SET_EXIT_VALUE 1)
+  (let [cause                     (or (.-cause e) e)]
+    (print-error e include-stacktrace?)
+    (if (not (:repl @app-env))
+      (js/PLANCK_EXIT_WITH_VALUE 1)
       (set! *e (skip-cljsjs-eval-error e)))))
 
 (defn- get-eval-fn []

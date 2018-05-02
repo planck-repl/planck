@@ -445,7 +445,7 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_GET_TERM_SIZE", function_get_term_size);
 
-    register_global_function(ctx, "PLANCK_SET_EXIT_VALUE", function_set_exit_value);
+    register_global_function(ctx, "PLANCK_EXIT_WITH_VALUE", function_exit_with_value);
 
     register_global_function(ctx, "PLANCK_SHELL_SH", function_shellexec);
 

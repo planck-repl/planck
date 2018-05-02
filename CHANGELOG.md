@@ -13,6 +13,9 @@ All notable changes to this project will be documented in this file. This change
 - Avoid private var use within Planck code to prepare for [CLJS-1702](https://dev.clojure.org/jira/browse/CLJS-1702)
 - Improve "launch path not accessible" message from `planck.shell/sh` ([#721](https://github.com/mfikes/planck/issues/721))
 
+### Fixed
+- If `exit` called, exit immediately ([#735](https://github.com/mfikes/planck/issues/735))
+
 ## [2.13.0] - 2018-04-17
 ### Added
 - Add a new `plk` script which delegates to `clojure` for `deps.edn`, _etc._ ([#710](https://github.com/mfikes/planck/issues/710))

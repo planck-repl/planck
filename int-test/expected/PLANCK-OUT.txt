@@ -329,7 +329,6 @@ nil
 Test load-file REPL error in file
 nil
 Test load-file REPL exit in file
-nil
 132
 Shell with-sh-dir
 nil

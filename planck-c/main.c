@@ -682,10 +682,6 @@ int main(int argc, char **argv) {
         block_until_tasks_complete();
     }
 
-    if (exit_value == EXIT_SUCCESS_INTERNAL) {
-        exit_value = EXIT_SUCCESS;
-    }
-
     engine_shutdown();
 
     return exit_value;
