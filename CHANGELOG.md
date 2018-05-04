@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- If you pass a non-fn to setTimeout it should throw ([#702](https://github.com/mfikes/planck/issues/702))
 
 ## [2.14.0] - 2018-05-02
 ### Added
