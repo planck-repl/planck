@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
 
 ## [2.14.0] - 2018-05-02
 ### Added
