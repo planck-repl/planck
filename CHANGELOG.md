@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
+
 ### Fixed
 - If you pass a non-fn to setTimeout it should throw ([#702](https://github.com/mfikes/planck/issues/702))
 
