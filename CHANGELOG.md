@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Changed
 - No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
+- Accommodate new Closure Library deps management.
 
 ## [2.14.0] - 2018-05-02
 ### Added
