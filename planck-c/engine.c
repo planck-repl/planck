@@ -275,7 +275,10 @@ void bootstrap(char *out_path) {
     evaluate_script(ctx, "goog.isProvided_ = function(x) { return false; };", source);
 
     evaluate_script(ctx,
-                    "goog.require = function (name) { return CLOSURE_IMPORT_SCRIPT(goog.dependencies_.nameToPath[name]); };",
+                    "goog.require = function (name) {\n"
+                    "  return CLOSURE_IMPORT_SCRIPT(goog.debugLoader_ ? \n"
+                    "                                goog.debugLoader_.getPathFromDeps_(name) :\n"
+                    "                                goog.dependencies_.nameToPath[name]); };",
                     source);
 
     evaluate_script(ctx, "goog.require('cljs.core');", source);
@@ -290,7 +293,9 @@ void bootstrap(char *out_path) {
                             "            AMBLY_TMP = cljs.core._STAR_loaded_libs_STAR_;\n"
                             "        }\n"
                             "        cljs.core._STAR_loaded_libs_STAR_ = cljs.core.into.call(null, AMBLY_TMP, [name]);\n"
-                            "        CLOSURE_IMPORT_SCRIPT(goog.dependencies_.nameToPath[name]);\n"
+                            "        CLOSURE_IMPORT_SCRIPT(goog.debugLoader_ ? \n"
+                            "                               goog.debugLoader_.getPathFromDeps_(name) :\n"
+                            "                               goog.dependencies_.nameToPath[name]);\n"
                             "    }\n"
                             "};", source);
 }
