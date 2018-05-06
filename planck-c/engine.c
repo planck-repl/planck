@@ -532,7 +532,7 @@ void *do_engine_init(void *data) {
     evaluate_script(ctx,
                     "var PLANCK_TIMEOUT_CALLBACK_STORE = {};\
                      var setTimeout = function( fn, ms ) {\
-                       if ( fn ) {\
+                       if ( cljs.core.fn_QMARK_(fn) ) {\
                          var id = PLANCK_SET_TIMEOUT(ms);\
                          PLANCK_TIMEOUT_CALLBACK_STORE[id] = fn;\
                          return id;\
@@ -558,10 +558,14 @@ void *do_engine_init(void *data) {
                      };\
                      var PLANCK_INTERVAL_CALLBACK_STORE = {};\
                      var setInterval = function( fn, ms ) {\
-                        var id = PLANCK_SET_INTERVAL(ms, null);\
-                        PLANCK_INTERVAL_CALLBACK_STORE[id] = \
-                          function(){ fn(); PLANCK_SET_INTERVAL(ms, id); };\
-                        return id;\
+                        if ( cljs.core.fn_QMARK_(fn) ) {\
+                          var id = PLANCK_SET_INTERVAL(ms, null);\
+                          PLANCK_INTERVAL_CALLBACK_STORE[id] = \
+                            function(){ fn(); PLANCK_SET_INTERVAL(ms, id); };\
+                          return id;\
+                        } else {\
+                          throw new Error(\"Callback must be a function\");\
+                        }\
                      };\
                      var PLANCK_RUN_INTERVAL = function( id ) {\
                         if( PLANCK_INTERVAL_CALLBACK_STORE[id] ) {\

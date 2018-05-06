@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. This change
 - No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
 - Accommodate new Closure Library deps management.
 
+### Fixed
+- If you pass a non-fn to setTimeout it should throw ([#702](https://github.com/mfikes/planck/issues/702))
+
 ## [2.14.0] - 2018-05-02
 ### Added
 - Document how to use `-Sdeps` in shebang on macOS ([#720](https://github.com/mfikes/planck/issues/720))
