@@ -19,7 +19,7 @@ instructions [here](https://github.com/clojure-emacs/inf-clojure) and
 add
 
 ```
-(setq inf-clojure-program "planck")
+(setq inf-clojure-generic-cmd "planck -d")
 ```
 
 to your `.emacs` file, given `planck` is on your path. I would be
