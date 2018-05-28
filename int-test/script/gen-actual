@@ -47,7 +47,7 @@ exit
 REPL_INPUT
 
 echo "Exit on first error"
-$PLANCK -e"(require 'planck.repl)" -e'(set! planck.repl/*planck-integration-tests* true)' -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
+$PLANCK -e"(require 'planck.repl)" -e'(set! ^:private-var-access-nowarn planck.repl/*planck-integration-tests* true)' -e'(println "ok")' -e'(throw (js/Error. "x"))' -e'(println "unreachable")'
 
 echo "Multi-line data"
 $PLANCK <<REPL_INPUT
