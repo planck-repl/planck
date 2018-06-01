@@ -32,6 +32,8 @@
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
 
+extern char **environ;
+
 JSValueRef function_console_stdout(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                                    size_t argc, JSValueRef const *args, JSValueRef *exception) {
     int i;
@@ -1452,4 +1454,36 @@ JSValueRef function_signal_task_complete(JSContextRef ctx, JSObjectRef function,
         engine_print_err_message("signal_task_complete", err);
     }
     return JSValueMakeNull(ctx);
+}
+
+JSValueRef function_getenv(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception) {
+  if (argc == 0) {
+      int i = 0;
+      JSObjectRef env = JSObjectMake(ctx, NULL, NULL);
+      while(environ[i]) {
+          char* entry = strdup(environ[i++]);
+          char* name = strsep(&entry, "=");
+          JSObjectSetProperty(ctx, env, JSStringCreateWithUTF8CString(name), c_string_to_value(ctx, entry),
+                              kJSPropertyAttributeReadOnly, NULL);
+      }
+
+      return env;
+  } else if (argc == 1) {
+      JSValueRef arg = args[0];
+      char* name = value_to_c_string(ctx, arg);
+      char* entry = getenv(name);
+      JSValueRef value;
+      if(entry == NULL || strlen(entry) == 0) {
+          value = JSValueMakeNull(ctx);
+      } else {
+          value = c_string_to_value(ctx, entry);
+      }
+      return value;
+  } else {
+      JSValueRef arguments[1];
+      arguments[0] = c_string_to_value(ctx, strerror(7)); // Argument list too long
+      *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+  }
+  return JSValueMakeNull(ctx);
 }

@@ -150,3 +150,6 @@ JSValueRef function_sleep(JSContextRef ctx, JSObjectRef function, JSObjectRef th
 
 JSValueRef function_signal_task_complete(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                          size_t argc, const JSValueRef args[], JSValueRef *exception);
+
+JSValueRef function_getenv(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception);
