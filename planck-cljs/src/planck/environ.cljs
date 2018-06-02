@@ -1,3 +1,6 @@
-(ns planck.environ)
+(ns planck.environ
+  "Facilities for working with environment variables.")
 
-(defonce env (js->clj (js/PLANCK_GETENV)))
+(defonce
+  ^{:doc "A map containing environment variables."}
+  env (js->clj (js/PLANCK_GETENV)))
