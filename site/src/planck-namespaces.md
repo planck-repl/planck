@@ -11,6 +11,7 @@ These namespaces comprise
 * `planck.io`
 * `planck.shell`
 * `planck.http`
+* `planck.environ`
 
 To explore these namespaces, you can evaluate `(dir planck.core)`, for example, to see the symbols in `planck.core`, and then use the `doc` macro to see the docs for any of the symbols.
 
@@ -65,3 +66,15 @@ This namespace provides facilities for interacting with HTTP servers. For exampl
 ```
 
 will fetch the main page of the Planck website, returning the status code, headers, and body in a map structure.
+
+### planck.environ
+
+([Online docs](planck-environ.html))
+
+This namespace provided access to environment variables, modeled after [Environ](https://github.com/weavejester/environ). For example
+
+```
+(:home planck.environ/env)
+```
+
+will access the `HOME` environment variable.
