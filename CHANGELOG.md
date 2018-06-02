@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Read the environment variables into `planck.environ/env` ([#751](https://github.com/mfikes/planck/issues/751))
 ### Changed
 - No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
 - Accommodate new Closure Library deps management.
