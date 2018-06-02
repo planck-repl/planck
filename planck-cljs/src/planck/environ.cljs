@@ -15,6 +15,8 @@
     (into {} (for [k (js-keys env-obj)]
                [(keywordize k) (gobj/get env-obj k)]))))
 
-(defonce ^{:doc "A map of environment variables."}
+(defonce ^{:doc
+  "A map of environment variables. Note that keys are lowercased, with
+  characters \"_\" and \".\" additionally replaced with \"-\"."}
   env
   (read-system-env))
