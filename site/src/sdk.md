@@ -10,5 +10,6 @@ full documentation is enumerated in the sections here:
 * [planck.io](planck-io.html)
 * [planck.shell](planck-shell.html)
 * [planck.http](planck-http.html)
+* [planck.environ](planck-environ.html)
 
 Additionally, Planck bundles [most of the Google Closure Library](gcl.html).

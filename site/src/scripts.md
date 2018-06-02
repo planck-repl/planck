@@ -162,6 +162,17 @@ where `src/my/program.cljs` contains:
   (pprint (parse-opts args cli-options)))
 ```
 
+### Environment Variables
+
+Environment variables are accessible via `planck.environ/env`. For example, the following script will print the `HOME` environment variable:
+
+```
+(ns baz.core 
+  (:require [planck.environ :refer [env]]))
+  
+(println (:home env)) 
+```
+
 ### Shell Interaction
 
 The `planck.shell` namespace provides functions for interacting with the shell.
