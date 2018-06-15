@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Read the environment variables into `planck.environ/env` ([#751](https://github.com/mfikes/planck/issues/751))
 ### Changed
+- Update to ClojureScript 1.10.312
+- Update to Closure Compiler v20180610
 - No longer bundle `goog.json.EvalJsonProcessor` in order to support latest Closure Library.
 - Accommodate new Closure Library deps management.
 
