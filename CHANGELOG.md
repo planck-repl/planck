@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.15.0] - 2018-06-15
 ### Added
 - Read the environment variables into `planck.environ/env` ([#751](https://github.com/mfikes/planck/issues/751))
 ### Changed
@@ -689,7 +691,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.14.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.15.0...HEAD
+[2.15.0]: https://github.com/mfikes/planck/compare/2.14.0...2.15.0
 [2.14.0]: https://github.com/mfikes/planck/compare/2.13.0...2.14.0
 [2.13.0]: https://github.com/mfikes/planck/compare/2.12.6...2.13.0
 [2.12.6]: https://github.com/mfikes/planck/compare/2.12.0...2.12.6
