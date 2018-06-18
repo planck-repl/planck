@@ -19,10 +19,10 @@ plk -h
 
 you will see that the `plk` script accepts the same arguments as the `clj` / `clojure` tools, along with the additional arguments supported by `planck`.
 
-So for example, to put Andare 0.7.0 and `test.check` 0.10.0-alpha2 on your classpath (automatically downloading them if necessary), just place a  `deps.edn` like the following in the directory where you launch `plk`:
+So for example, to put Andare 0.9.0 and `test.check` 0.10.0-alpha2 on your classpath (automatically downloading them if necessary), just place a  `deps.edn` like the following in the directory where you launch `plk`:
 
 ```clojure
-{:deps {andare {:mvn/version "0.7.0"}
+{:deps {andare {:mvn/version "0.9.0"}
         org.clojure/test.check {:mvn/version "0.10.0-alpha2"}}}
 ```
 
@@ -62,7 +62,7 @@ The `-D` / `-​-​dependencies` option can be used to specify coordinates for 
 For example,
 
 ```sh
-planck -c src -D andare:0.7.0,org.clojure/test.check:0.10.0-alpha2
+planck -c src -D andare:0.9.0,org.clojure/test.check:0.10.0-alpha2
 ```
 
 will expand to a classpath that specifies `src` followed by the paths to the Andare and `test.check` dependencies in your local `.m2` repository.
@@ -76,7 +76,7 @@ While `planck` can consume JARs from your local `.m2` repo, it doesn't take care
 An easy way to quickly download dependencies is to use [`boot`](https://github.com/boot-clj/boot) with its `-d` option. For example, executing this will ensure the dependencies specified above are installed:
 
 ```
-boot -d andare:0.7.0 -d org.clojure/test.check:0.10.0-alpha2
+boot -d andare:0.9.0 -d org.clojure/test.check:0.10.0-alpha2
 ```
 
 
