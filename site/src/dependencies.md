@@ -32,7 +32,7 @@ If you'd like to specify `deps.edn` dependencies directly within a `#!` script, 
 
 ```clojure
 #!/usr/bin/env bash
-"exec" "plk" "-Sdeps" "{:deps {andare {mvn/version \"0.7.0\"}}}" "-Ksf" "$0" "$@"
+"exec" "plk" "-Sdeps" "{:deps {andare {:mvn/version \"0.9.0\"}}}" "-Ksf" "$0" "$@"
 (require '[clojure.core.async :refer [chan go <! >!]])
 
 (def c (chan))
