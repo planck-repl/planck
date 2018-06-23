@@ -40,7 +40,7 @@ pressing `C-x C-e` after the form you want to execute.
 It is possible to integrate Cursive with Planck using Planck's Socket REPL capability. To do this, set up a conventional ClojureScript project using, say Leiningen. Then add [Tubular](https://github.com/mfikes/tubular) as a dependency to the project via
 
 ```
-[tubular "1.0.0"]
+[tubular "1.2.0"]
 ```
 
 With this in place, first start up Planck in a regular terminal specifying the `src` directory of your project as Planck's `-c` classpath directive and use `-n` to have Planck listen on a port for Socket REPL sessions. For example:
