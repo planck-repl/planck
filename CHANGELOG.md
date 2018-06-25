@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Update to ClojureScript 1.10.339
+- Delegate to ClojureScript `deps.edn` for `transit-clj`
 
 ## [2.16.0] - 2018-06-22
 ### Changed
