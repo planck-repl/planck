@@ -227,7 +227,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         // printf("%d bytes, %x\n", body_state.offset, body_state.data);
         if (body_state.data != NULL) {
             if (binary_response) {
-                JSValueRef bytes[body_state.length];
+                JSValueRef* bytes = malloc(sizeof(JSValueRef)*body_state.length);
                 int i;
                 for (i = 0; i < body_state.length; i++) {
                     bytes[i] = JSValueMakeNumber(ctx, (uint8_t )body_state.data[i]);
@@ -235,6 +235,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
                 JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"),
                                     JSObjectMakeArray(ctx, body_state.length, bytes, NULL),
                                     kJSPropertyAttributeReadOnly, NULL);
+                free(bytes);
             } else {
                 JSStringRef body_str = JSStringCreateWithUTF8CString(body_state.data);
                 JSObjectSetProperty(ctx, result, JSStringCreateWithUTF8CString("body"),
