@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. This change
 - Update to ClojureScript 1.10.339
 - Delegate to ClojureScript `deps.edn` for `transit-clj`
 
+### Fixed
+- Crash getting http response via socket REPL ([#760](https://github.com/mfikes/planck/issues/760))
+
 ## [2.16.0] - 2018-06-22
 ### Changed
 - Update to ClojureScript 1.10.329
