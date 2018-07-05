@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Updates for private var use in Planck namespaces
 
 ## [2.17.0] - 2018-07-02
 ### Changed

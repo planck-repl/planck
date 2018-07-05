@@ -3,7 +3,7 @@
    [cljs.tools.reader :as r]
    [clojure.string :as string]))
 
-(defonce ^:private js-lib-index (volatile! {}))
+(defonce js-lib-index (volatile! {}))
 
 (defn add-js-lib
   "Adds a js lib to the index."

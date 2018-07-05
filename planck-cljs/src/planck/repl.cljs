@@ -282,7 +282,7 @@
                                     {:fn-invoke-direct true})))
     (deps/index-foreign-libs opts)
     (deps/index-js-libs)
-    (let [index (deref ^:private-var-access-nowarn deps/js-lib-index)]
+    (let [index @deps/js-lib-index]
       (swap! st assoc :js-dependency-index (into index
                                              (map (fn [[k v]] [(str k) v]))
                                              index))))
@@ -1475,7 +1475,7 @@
       (get-in @st [::ana/namespaces ana/*cljs-ns* :require-macros ns-sym])
       ns-sym))
 
-(defn- dir*
+(defn dir*
   [nsname]
   (let [ns (resolve-ns nsname)]
     (run! prn
@@ -1483,7 +1483,7 @@
                         (public-syms ns)
                         (public-syms (add-macros-suffix ns))))))))
 
-(defn- apropos*
+(defn apropos*
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
@@ -1571,7 +1571,7 @@
                 (print (str "\n " (name role) ":") (format-spec spec (+ 3 (count (name role))) n))))
             (println)))))))
 
-(defn- doc*
+(defn doc*
   [sym]
   (if-let [special-sym ('{&       fn
                           catch   try
@@ -1612,7 +1612,7 @@
 (defn- namespace-doc [nspace]
   (select-keys (get-in @st [::ana/namespaces nspace]) [:name :doc]))
 
-(defn- find-doc*
+(defn find-doc*
   [re-string-or-pattern]
   (let [re (re-pattern re-string-or-pattern)
         ms (concat (mapcat #(sort-by :name
@@ -1628,12 +1628,12 @@
                            (re-find re (str (:name m)))))]
       (doc* (:name m)))))
 
-(defn- source*
+(defn source*
   [sym]
   (println (or (fetch-source (get-var (get-aenv) sym))
                "Source not found")))
 
-(defn- pst*
+(defn pst*
   ([]
    (pst* '*e))
   ([expr]
