@@ -29,7 +29,8 @@
   (is (= '(cljs.core/aget) (planck.repl/apropos "aget"))))
 
 (deftest test-dir-planck-repl
-  (is (= "*pprint-results*\napropos\ndir\ndoc\nfind-doc\nget-arglists\npst\nsource\n" (with-out-str (planck.repl/dir planck.repl)))))
+  (is (= "*pprint-results*\napropos\napropos*\ndir\ndir*\ndoc\ndoc*\nfind-doc\nfind-doc*\nget-arglists\npst\npst*\nsource\nsource*\n"
+        (with-out-str (planck.repl/dir planck.repl)))))
 
 (deftest get-error-indicator-test
   (is (= "             ^"
