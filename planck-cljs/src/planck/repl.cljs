@@ -111,8 +111,10 @@
             theme      (assoc theme :err-font (:verbose-font theme))]
     (apply println args)))
 
-(declare print-error)
-(declare handle-error)
+(declare ^{:arglists '([error]
+                       [error include-stacktrace?]
+                       [error include-stacktrace? printed-message])} print-error)
+(declare ^{:arglists '([e include-stacktrace?])} handle-error)
 
 (defonce ^:private st (cljs/empty-state))
 
@@ -717,7 +719,7 @@
 ;; Hack to remember which file path each namespace was loaded from
 (defonce ^:private name-path (atom {}))
 
-(declare add-suffix)
+(declare ^{:arglists '([file suffix])} add-suffix)
 
 (defn- js-path-for-name
   [name]
@@ -741,7 +743,7 @@
         (when sourcemap-json "and source map ")
         "for " path))))
 
-(declare strip-source-map)
+(declare ^{:arglists '([sm])} strip-source-map)
 
 (defn- write-cache
   [path name source cache]
@@ -934,7 +936,7 @@
   (when-not (load-and-callback! nil file load-domain false :clj :calculate-cache-prefix cb)
     (cb nil)))
 
-(declare goog-dep-source)
+(declare ^{:arglists '([name])} goog-dep-source)
 
 (defn- load-minified-libs?
   [opts]
@@ -1026,7 +1028,7 @@
   [m cb]
   (load m (load-opts) cb))
 
-(declare skip-cljsjs-eval-error)
+(declare ^{:arglists '([error])} skip-cljsjs-eval-error)
 
 (defn- handle-error
   [e include-stacktrace?]
@@ -1281,7 +1283,7 @@
                (show-indicator?))
       (println ((:rdr-ann-err-fn theme) indicator)))))
 
-(declare print-value)
+(declare ^{:arglists '([value opts])} print-value)
 
 (defn- file-path
   [name]
@@ -1431,7 +1433,7 @@
   [cache cb]
   (process-deps (distinct (concat (vals (:requires cache)) (vals (:imports cache)))) {} cb))
 
-(declare execute-source)
+(declare ^{:arglists '([source opts])} execute-source)
 
 (defn- with-load-domain
   [file]
@@ -1871,21 +1873,23 @@
     (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
-  [[source-type source-value] {:keys [expression?] :as opts}]
-  (binding [ana/*cljs-ns*    @current-ns
-            *ns*             (create-ns @current-ns)
-            cljs/*load-fn*   load-fn
-            cljs/*eval-fn*   (get-eval-fn)
-            r/*data-readers* tags/*cljs-data-readers*]
-    (if-not (= "text" source-type)
-      (process-execute-path source-value (assoc opts :source-path source-value))
-      (let [source-text source-value
-            first-form  (eof-guarded-read source-text)]
-        (when (not= eof first-form)
-          (let [expression-form (and expression? first-form)]
-            (if (repl-special? expression-form)
-              (process-repl-special expression-form opts)
-              (process-execute-source source-text expression-form opts))))))))
+  [source opts]
+  (let [[source-type source-value] source
+        {:keys [expression?]} opts]
+    (binding [ana/*cljs-ns*    @current-ns
+              *ns*             (create-ns @current-ns)
+              cljs/*load-fn*   load-fn
+              cljs/*eval-fn*   (get-eval-fn)
+              r/*data-readers* tags/*cljs-data-readers*]
+      (if-not (= "text" source-type)
+        (process-execute-path source-value (assoc opts :source-path source-value))
+        (let [source-text source-value
+              first-form  (eof-guarded-read source-text)]
+          (when (not= eof first-form)
+            (let [expression-form (and expression? first-form)]
+              (if (repl-special? expression-form)
+                (process-repl-special expression-form opts)
+                (process-execute-source source-text expression-form opts)))))))))
 
 (defn- ^:export execute
   [source expression? print-nil-expression? set-ns theme-id session-id]
