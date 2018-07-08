@@ -348,18 +348,38 @@
         (eof-while-reading? e) nil
         :else ""))))
 
+(defn- seq-form-starting-with-sym?
+  [form sym]
+  (and (seq? form) (= sym (first form))))
+
 (defn- ns-form?
   [form]
-  (and (seq? form) (= 'ns (first form))))
+  (seq-form-starting-with-sym? form 'ns))
+
+(defn- require-form?
+  [form]
+  (seq-form-starting-with-sym? form 'require))
 
 (defn- extract-namespace
   [source]
-  (try
-    (let [first-form (first (repl-read-string source))]
-      (when (ns-form? first-form)
-        (second first-form)))
-    (catch :default _
-      nil)))
+  "Extracts the namespace for source text, scanning for the first ns or
+  require form."
+  (let [[first-form rest-source] (try
+                                   (repl-read-string source)
+                                   (catch :default _
+                                     nil))]
+    (cond
+      (ns-form? first-form)
+      (second first-form)
+
+      (require-form? first-form)
+      'cljs.user
+
+      (string/blank? rest-source)
+      'cljs.user
+
+      :else
+      (recur rest-source))))
 
 (defn- repl-special?
   [form]
