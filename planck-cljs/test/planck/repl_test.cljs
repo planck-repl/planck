@@ -94,3 +94,11 @@
 (deftest require-goog-test
   (is (false? (g/isArrayLike nil)))
   (is (true? (g/isArray #js []))))
+
+(deftest issue-749-test
+  (let [source "#!/usr/bin/env bash\n\"exec\" \"plk\" \"-Sdeps\" \"{:deps {org.clojure/tools.cli {:mvn/version \\\"0.3.7\\\"}}}\" \"-Ksf\" \"$0\" \"$@\"\n\n(ns repro.core\n  (:require [clojure.tools.cli :refer [parse-opts]]))"]
+    (is (= 'repro.core (#'planck.repl/extract-namespace source))))
+  (let [source "#!/usr/bin/env bash\n\"exec\" \"plk\" \"-Sdeps\" \"{:deps {org.clojure/tools.cli {:mvn/version \\\"0.3.7\\\"}}}\" \"-Ksf\" \"$0\" \"$@\"\n\n(require '[clojure.tools.cli :refer [parse-opts]])"]
+    (is (= 'cljs.user (#'planck.repl/extract-namespace source))))
+  (let [source ":hello"]
+    (is (= 'cljs.user (#'planck.repl/extract-namespace source)))))

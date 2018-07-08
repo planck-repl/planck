@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Updates for private var use in Planck namespaces
 
+### Fixed
+- Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
+
 ## [2.17.0] - 2018-07-02
 ### Changed
 - Update to ClojureScript 1.10.339
