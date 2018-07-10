@@ -13,6 +13,6 @@
 (let [file (first *command-line-args*)
       sm-json (slurp file)
       decoded (sm/decode (.parse js/JSON sm-json))
-      stripped (^:private-var-access-nowarn strip-source-map decoded)
+      stripped (#'strip-source-map decoded)
       transit-json (cljs->transit-json stripped)]
   (spit file transit-json))
