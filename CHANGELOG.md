@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Changed
 - Updates for private var use in Planck namespaces
+- Ensure all earmuffed vars defined in Planck namespaces are dynamic
 
 ### Fixed
 - Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
