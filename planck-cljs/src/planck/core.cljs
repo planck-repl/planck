@@ -24,7 +24,7 @@
 #_(s/fdef planck.core$macros/with-open
     :args (s/cat :bindings ::bindings :body (s/* any?)))
 
-(def *planck-version*
+(def ^:dynamic *planck-version*
   "A string containing the version of the Planck executable."
   js/PLANCK_VERSION)
 
@@ -188,7 +188,8 @@
 
 (defonce
   ^{:doc "A sequence of the supplied command line arguments, or nil if
-  none were supplied"}
+  none were supplied"
+    :dynamic true}
   *command-line-args*
   (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
 
