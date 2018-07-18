@@ -123,7 +123,10 @@ gzip -9 $file
 mv $file.bak $file
 filegz=$file.gz
 filegz_clean=${filegz//\$/_}
-mv $filegz $filegz_clean
+if [ "$filegz" != "$filegz_clean" ]
+then
+  mv $filegz $filegz_clean
+fi
 filegz=$filegz_clean
 ${XXDI} $filegz >> ../bundle.c
 rm $filegz
