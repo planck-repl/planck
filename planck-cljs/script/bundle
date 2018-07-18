@@ -122,11 +122,16 @@ uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
 mv $file.bak $file
 filegz=$file.gz
+filegz_clean=${filegz//\$/_}
+if [ "$filegz" != "$filegz_clean" ]
+then
+  mv $filegz $filegz_clean
+fi
+filegz=$filegz_clean
 ${XXDI} $filegz >> ../bundle.c
 rm $filegz
 data_ref=${filegz//\//_}
 data_ref=${data_ref//\./_}
-data_ref=${data_ref//\$/_}
 echo "unsigned int ${data_ref}_len_uncompressed = ${uncompressed_file_size};" >> ../bundle.c
 cat <<EOF >> ../bundle_dict.c
 	else if (strcmp("${file}", path) == 0) {
