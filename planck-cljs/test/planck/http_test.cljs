@@ -111,12 +111,12 @@
     (is (nil? (-> {:multipart-params [["foo" "bar"]]}
                 ((#'http/wrap-multipart-params identity))
                 :multipart-params)))
-    (is ((not nil?) (-> {:multipart-params [["foo" "bar"]]}
-                      ((#'http/wrap-multipart-params identity))
-                      :body)))
-    (is ((not nil?) (-> {:multipart-params [["foo" "bar"]]}
-                      ((#'http/wrap-multipart-params identity))
-                      :content-type)))))
+    (is (some? (-> {:multipart-params [["foo" "bar"]]}
+                 ((#'http/wrap-multipart-params identity))
+                 :body)))
+    (is (some? (-> {:multipart-params [["foo" "bar"]]}
+                 ((#'http/wrap-multipart-params identity))
+                 :content-type)))))
 
 (deftest wrap-throw-on-error-test
   (testing "wrap-throw-on-error"
