@@ -443,6 +443,7 @@ void *do_engine_init(void *data) {
     register_global_function(ctx, "PLANCK_READ_FILE", function_read_file);
     register_global_function(ctx, "PLANCK_LOAD", function_load);
     register_global_function(ctx, "PLANCK_LOAD_DEPS_CLJS_FILES", function_load_deps_cljs_files);
+    register_global_function(ctx, "PLANCK_LOAD_DATA_READERS_FILES", function_load_data_readers_files);
     register_global_function(ctx, "PLANCK_LOAD_FROM_JAR", function_load_from_jar);
     register_global_function(ctx, "PLANCK_CACHE", function_cache);
 
@@ -634,6 +635,11 @@ void *do_engine_init(void *data) {
     evaluate_script(ctx, "goog.require('cljs.core');", "<init>");
 
     set_print_sender(NULL);
+
+    JSValueRef arguments[0];
+    JSValueRef ex = NULL;
+    JSObjectCallAsFunction(ctx, get_function("planck.repl", "init-data-readers"), JSContextGetGlobalObject(ctx), 0,
+                           arguments, &ex);
 
     display_launch_timing("engine ready");
 

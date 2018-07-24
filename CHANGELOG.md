@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Add support for tagged literals ([#517](https://github.com/mfikes/planck/issues/517))
+
 ### Changed
 - Updates for private var use in Planck namespaces
 - Ensure all earmuffed vars defined in Planck namespaces are dynamic

@@ -220,12 +220,11 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
     return JSValueMakeNull(ctx);
 }
 
-JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+JSValueRef function_load_all_files(const char* filename, JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                          size_t argc, const JSValueRef args[], JSValueRef *exception) {
     size_t num_files = 0;
-    char **deps_cljs_files = NULL;
-
-    const char* deps_cljs_filename = "deps.cljs";
+    char **paths = NULL;
+    char **sources = NULL;
 
     if (argc == 0) {
         int i;
@@ -249,12 +248,16 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                         }
                     }
                     if (config.src_paths[i].archive) {
-                        char *source = get_contents_zip(config.src_paths[i].archive, deps_cljs_filename,
+                        char *source = get_contents_zip(config.src_paths[i].archive, filename,
                                                         NULL, &error_msg);
                         if (source != NULL) {
                             num_files += 1;
-                            deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
-                            deps_cljs_files[num_files - 1] = source;
+                            paths = realloc(paths, num_files * sizeof(char *));
+                            sources = realloc(sources, num_files * sizeof(char *));
+                            char buffer[1024];
+                            snprintf(buffer, 1024, "jar:file://%s!/%s", location, filename);
+                            paths[num_files - 1] = strdup(buffer);
+                            sources[num_files - 1] = source;
                         } else {
                             if (error_msg) {
                                 engine_print(error_msg);
@@ -268,12 +271,16 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
                     config.src_paths[i].blacklisted = true;
                 }
             } else {
-                char *full_path = str_concat(location, deps_cljs_filename);
+                char *full_path = str_concat(location, filename);
                 char *source = get_contents(full_path, NULL);
                 if (source != NULL) {
                     num_files += 1;
-                    deps_cljs_files = realloc(deps_cljs_files, num_files * sizeof(char *));
-                    deps_cljs_files[num_files - 1] = source;
+                    paths = realloc(paths, num_files * sizeof(char *));
+                    sources = realloc(sources, num_files * sizeof(char *));
+                    char buffer[1024];
+                    snprintf(buffer, 1024, "file://%s%s", location, filename);
+                    paths[num_files - 1] = strdup(buffer);
+                    sources[num_files - 1] = source;
                 }
                 free(full_path);
             }
@@ -283,13 +290,29 @@ JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function,
     JSValueRef files[num_files];
     int i;
     for (i = 0; i < num_files; i++) {
-        JSStringRef file = JSStringCreateWithUTF8CString(deps_cljs_files[i]);
-        files[i] = JSValueMakeString(ctx, file);
-        free(deps_cljs_files[i]);
+        JSValueRef res[2];
+        JSStringRef path = JSStringCreateWithUTF8CString(paths[i]);
+        res[0] = JSValueMakeString(ctx, path);
+        JSStringRef source = JSStringCreateWithUTF8CString(sources[i]);
+        res[1] = JSValueMakeString(ctx, source);
+        files[i] = JSObjectMakeArray(ctx, 2, res, NULL);
+        free(paths[i]);
+        free(sources[i]);
     }
-    free(deps_cljs_files);
+    free(paths);
+    free(sources);
 
     return JSObjectMakeArray(ctx, num_files, files, NULL);
+}
+
+JSValueRef function_load_deps_cljs_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                         size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    return function_load_all_files("deps.cljs", ctx, function, thisObject, argc, args, exception);
+}
+
+JSValueRef function_load_data_readers_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                                         size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    return function_load_all_files("data_readers.cljc", ctx, function, thisObject, argc, args, exception);
 }
 
 JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
