@@ -4,6 +4,7 @@
    [clojure.test :refer [run-tests]]
    [fipp.edn]
    [general.core-test]
+   [general.data-readers-test]
    [general.fipp-test]
    [planck.closure-test]
    [planck.core :refer [exit]]
@@ -28,4 +29,5 @@
     'planck.http-test
     'planck.closure-test
     'general.core-test
+    'general.data-readers-test
     'general.fipp-test))

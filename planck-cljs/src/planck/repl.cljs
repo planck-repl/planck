@@ -306,6 +306,60 @@
     (ex-info (str (ex-message e) ".") (ex-data e) e)
     e))
 
+(declare ^{:arglists '([])} make-base-eval-opts)
+
+(defn- ensure-ns [ns-name]
+  (when (not-any? #{ns-name} (all-ns))
+    (let [ns-form `(~'ns ~ns-name)]
+      (cljs/eval
+        st
+        ns-form
+        (make-base-eval-opts)
+        (fn [{e :error}]
+          (when e
+            (print-error e false))))))
+  ns-name)
+
+(declare ^{:arglists '([ns name] [ns name val])} intern)
+
+(defn- data-reader-var [sym]
+  (intern (ensure-ns (symbol (namespace sym)))
+    (symbol (name sym))))
+
+(defn- get-data-readers
+  "Returns the merged data reader mappings."
+  []
+  (try
+    (reduce (fn [data-readers [url source]]
+              (let [mappings (r/read-string source)]
+                (when-not (map? mappings)
+                  (throw (ex-info (str "Not a valid data-reader map")
+                           {:url url})))
+                (reduce-kv (fn [data-readers tag fn-sym]
+                             (when-not (symbol? tag)
+                               (throw (ex-info (str "Invalid form in data-reader file")
+                                        {:url  url
+                                         :form tag})))
+                             (let [fn-var (data-reader-var fn-sym)]
+                               (when (and (get data-readers tag)
+                                          (not= (get mappings tag) fn-var))
+                                 (throw (ex-info "Conflicting data-reader mapping"
+                                          {:url      url
+                                           :conflict tag
+                                           :mappings data-readers})))
+                               (assoc data-readers tag fn-var)))
+                  data-readers
+                  mappings)))
+      {}
+      (js/PLANCK_LOAD_DATA_READERS_FILES))
+    (catch :default e
+      (print-error e :pst))))
+
+(def ^:private ^:dynamic *data-readers* nil)
+
+(defn- data-readers []
+  (merge tags/*cljs-data-readers* *data-readers*))
+
 (defn- repl-read-string
   "Returns a vector of the first read form, and any balance text."
   [source]
@@ -313,7 +367,7 @@
     (binding [ana/*cljs-ns*    @current-ns
               *ns*             (create-ns @current-ns)
               env/*compiler*   st
-              r/*data-readers* tags/*cljs-data-readers*
+              r/*data-readers* (data-readers)
               r/resolve-symbol ana/resolve-symbol
               r/*alias-map*    (current-alias-map)]
       (let [reader (rt/string-push-back-reader source)]
@@ -633,7 +687,7 @@
     (binding [ana/*cljs-ns*    @current-ns
               *ns*             (create-ns @current-ns)
               env/*compiler*   st
-              r/*data-readers* tags/*cljs-data-readers*
+              r/*data-readers* (data-readers)
               r/resolve-symbol ana/resolve-symbol
               r/*alias-map*    (current-alias-map)]
       (try
@@ -709,7 +763,7 @@
 (defn- read-build-affecting-options
   [source]
   (let [rdr (rt/indexing-push-back-reader source 1 "noname")]
-    (binding [r/*data-readers* tags/*cljs-data-readers*]
+    (binding [r/*data-readers* (data-readers)]
       (try
         (r/read {:eof (js-obj)} rdr)
         (catch :default _
@@ -1900,7 +1954,7 @@
               *ns*             (create-ns @current-ns)
               cljs/*load-fn*   load-fn
               cljs/*eval-fn*   (get-eval-fn)
-              r/*data-readers* tags/*cljs-data-readers*]
+              tags/*cljs-data-readers* (data-readers)]
       (if-not (= "text" source-type)
         (process-execute-path source-value (assoc opts :source-path source-value))
         (let [source-text source-value
@@ -1979,3 +2033,8 @@
         (orig-print-err-fn (:err-font theme))
         (orig-print-err-fn msg)
         (orig-print-err-fn (:reset-font theme))))))
+
+(defn- ^:export init-data-readers []
+  (binding [cljs/*eval-fn* (fn [{:keys [source]}]
+                             (js-eval source nil))]
+    (set! *data-readers* (get-data-readers))))

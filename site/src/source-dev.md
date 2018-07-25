@@ -55,6 +55,28 @@ When writing macros for self-hosted ClojureScript, they must abide the same rule
 
 If an exception is thrown, you may see a stack trace. (If not, you can use `pst` to print the stack trace for an exception.) When trace lines correspond to code that originated from files, the line numbers are mapped from the executed JavaScript back to the original ClojureScript. 
 
+### Tagged Literals
+
+Planck supports tagged literals. For an overview of this feature see the [Tagged Literals](https://clojure.org/reference/reader#tagged_literals) documentation.
+
+Planck searches for `data_readers.cljc` files at the root of the classpath, and the values of the data reader maps are associated with vars that must defined in ClojureScript.
+
+For example, lets say a `data_readers.cljc` file contains:
+
+```
+{foo/bar my.project.foo/bar}
+```
+
+Then, in order to parse `#foo/bar [1 2 3]`, `#'my.project.foo/bar` must be defined in ClojureScript. (This differs from JVM ClojureScript, where this must be defined in Clojure.) This could be accomplished by defining a namespace like the following that is loaded into Planck before expressions involving `#foo/bar` are read.
+
+```
+(ns my.project.foo)
+
+(defn bar [x] ,,,)
+```
+
+Note that, in either case (JVM ClojureScript, or self-hosted ClojureScript), the reader function `bar` above must return code that is compilable in ClojureScript.
+
 ### Bootstrap ClojureScript
 
 It is possible to make use of the `cljs.js` namespace within Planck. But, since Planck is built with the `:dump-core` ClojureScript compiler option set to `false`, calls to the 0-arity version of `cljs.js/empty-state` will produce a state atom which lacks `cljs.core` analysis metadata. To produce a populated compiler state atom, you can make use of `planck.core/init-empty-state`:

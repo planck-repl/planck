@@ -61,7 +61,7 @@
   []
   (vswap! js-lib-index
     (fn [index]
-      (reduce (fn [index deps-cljs-str]
+      (reduce (fn [index [_ deps-cljs-str]]
                 (let [{:keys [libs foreign-libs]} (r/read-string deps-cljs-str)]
                   (add-js-libs index (concat foreign-libs (mapcat parse-libs libs)))))
         index
