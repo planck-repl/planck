@@ -1600,7 +1600,9 @@
 
 (defn- print-doc [{n :ns nm :name :as m}]
   (println "-------------------------")
-  (println (str (when-let [ns (:ns m)] (str ns "/")) (:name m)))
+  (if-let [spec (:spec m)]
+    (print-value spec {})
+    (println (str (when-let [ns (:ns m)] (str ns "/")) (:name m))))
   (when (:protocol m)
     (println "Protocol"))
   (cond
@@ -1626,6 +1628,8 @@
     (do
       (when (:macro m)
         (println "Macro"))
+      (when (:spec m)
+        (println "Spec"))
       (when (:repl-special-function m)
         (println "REPL Special Function"))
       (println " " (:doc m))
@@ -1648,32 +1652,35 @@
             (println)))))))
 
 (defn doc*
-  [sym]
-  (if-let [special-sym ('{&       fn
-                          catch   try
-                          finally try} sym)]
-    (doc* special-sym)
+  [name]
+  (if-let [special-name ('{&       fn
+                           catch   try
+                           finally try} name)]
+    (doc* special-name)
     (cond
 
-      (special-doc-map sym)
-      (print-doc (special-doc sym))
+      (special-doc-map name)
+      (print-doc (special-doc name))
 
-      (repl-special-doc-map sym)
-      (print-doc (repl-special-doc sym))
+      (repl-special-doc-map name)
+      (print-doc (repl-special-doc name))
 
-      (get-namespace sym)
+      (qualified-keyword? name)
+      (print-doc {:spec name :doc (format-spec (s/get-spec name) 3 (symbol (namespace name)))})
+
+      (get-namespace name)
       (print-doc
-        (select-keys (get-namespace sym) [:name :doc]))
+        (select-keys (get-namespace name) [:name :doc]))
 
-      (get-var (get-aenv) sym)
+      (get-var (get-aenv) name)
       (print-doc
-        (let [var (get-var (get-aenv) sym)
+        (let [var (get-var (get-aenv) name)
               var (assoc var :forms (-> var :meta :forms second)
                              :arglists (-> var :meta :arglists second))
               m   (select-keys var
                     [:ns :name :doc :forms :arglists :macro :url])
               m   (update m :doc undo-reader-conditional-whitespace-docstring)]
-          (cond-> (update-in m [:name] name)
+          (cond-> (update-in m [:name] cljs.core/name)
             (:protocol-symbol var)
             (assoc :protocol true
                    :methods
