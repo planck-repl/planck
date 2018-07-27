@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Add support for tagged literals ([#517](https://github.com/mfikes/planck/issues/517))
+- `doc` for spec-registered keywords
 
 ### Changed
 - Updates for private var use in Planck namespaces
