@@ -263,23 +263,50 @@
   []
   (some? (:optimizations @app-env)))
 
+(defonce co (atom nil))
+
+(defn- compile-opts->edn [compile-opts]
+  (cond
+    (string/starts-with? compile-opts "{")
+    compile-opts
+
+    (string/starts-with? compile-opts "@")
+    (first (js/PLANCK_LOAD (subs compile-opts 1)))
+
+    (string/starts-with? compile-opts "@/")
+    (first (js/PLANCK_LOAD (subs compile-opts 2)))
+
+    :else
+    (first (js/PLANCK_READ_FILE compile-opts))))
+
+(defn- read-compile-opts [compile-opts]
+  (r/read-string (compile-opts->edn compile-opts)))
+
 (defn- ^:export init
-  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-opts]
   (when (exists? *command-line-args*)
     (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
-  (let [opts (or (read-opts-from-file "opts.clj")
-                 {})]
+  (let [opts (merge {}
+               (apply merge (map read-compile-opts compile-opts))
+               (read-opts-from-file "opts.clj"))]
     (reset! planck.repl/app-env (merge {:repl       repl
                                         :verbose    verbose
                                         :cache-path cache-path
                                         :opts       opts}
+                                  (when (:checked-arrays opts)
+                                    {:checked-arrays (:checked-arrays opts)})
                                   (when checked-arrays
                                     {:checked-arrays (keyword checked-arrays)})
+                                  (when (:static-fns opts)
+                                    {:static-fns (:static-fns opts)})
                                   (when static-fns
                                     {:static-fns true})
+                                  ;; Note: We don't take optimizations from opts because it has slightly different semantics
                                   (when (not= optimizations "none")
                                     {:optimizations (keyword optimizations)})
+                                  (when (:fn-invoke-direct opts)
+                                    {:fn-invoke-direct opts})
                                   (when fn-invoke-direct
                                     {:fn-invoke-direct true})))
     (deps/index-foreign-libs opts)

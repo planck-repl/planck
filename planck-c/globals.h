@@ -47,6 +47,9 @@ struct config {
     int socket_repl_port;
 
     char *clojurescript_version;
+
+    size_t num_compile_opts;
+    char **compile_opts;
 };
 
 extern struct config config;
