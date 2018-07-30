@@ -32,68 +32,69 @@ void ignore_sigpipe() {
 }
 
 void usage(char *program_name) {
-    printf("\n");
-    printf("Usage:  %s [init-opt*] [main-opt] [arg*]\n", program_name);
-    printf("\n");
-    printf("  With no options or args, runs an interactive Read-Eval-Print Loop\n");
-    printf("\n");
-    printf("  init options:\n");
-    printf("    -i path, --init path        Load a file or resource\n");
-    printf("    -e string, --eval string    Evaluate expressions in string; print non-nil\n");
-    printf("                                values\n");
-    printf("    -c cp, --classpath cp       Use colon-delimited cp for source directories\n");
-    printf("                                and JARs. PLANCK_CLASSPATH env var may be used\n");
-    printf("                                instead.\n");
-    printf("    -D dep, --dependencies dep  Use comma-separated list of dependencies to\n");
-    printf("                                look for in the local Maven repository.\n");
-    printf("                                Dependencies should be specified in the form\n");
-    printf("                                SYM:VERSION (e.g.: foo/bar:1.2.3).\n");
-    printf("    -L path, --local-repo path  Path to the local Maven repository where Planck\n");
-    printf("                                will look for dependencies. Defaults to\n");
-    printf("                                ~/.m2/repository.\n");
-    printf("    -K, --auto-cache            Create and use .planck_cache dir for cache\n");
-    printf("    -k path, --cache path       If dir exists at path, use it for cache\n");
-    printf("    -q, --quiet                 Quiet mode\n");
-    printf("    -v, --verbose               Emit verbose diagnostic output\n");
-    printf("    -d, --dumb-terminal         Disable line editing / VT100 terminal control\n");
-    printf("    -t theme, --theme theme     Set the color theme\n");
-    printf("    -n x, --socket-repl x       Enable socket REPL where x is port or IP:port\n");
-    printf("    -s, --static-fns            Generate static dispatch function calls\n");
-    printf("    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n");
-    printf("                                for unknown functions, but instead direct\n");
-    printf("                                invokes via f(a0,a1...).\n");
-    printf("    -O x, --optimizations x     Closure compiler level applied to source loaded\n");
-    printf("                                from namespaces: none, whitespace, or simple.\n");
-    printf("    -A x, --checked-arrays x    Enables checked arrays where x is either warn\n");
-    printf("                                or error.\n");
-    printf("    -a, --elide-asserts         Set *assert* to false to remove asserts\n");
-    printf("\n");
-    printf("  main options:\n");
-    printf("    -m ns-name, --main ns-name Call the -main function from a namespace with\n");
-    printf("                               args\n");
-    printf("    -r, --repl                 Run a repl\n");
-    printf("    path                       Run a script from a file or resource\n");
-    printf("    -                          Run a script from standard input\n");
-    printf("    -h, -?, --help             Print this help message and exit\n");
-    printf("    -l, --legal                Show legal info (licenses and copyrights)\n");
-    printf("    -V, --version              Show version and exit\n");
-    printf("\n");
-    printf("  operation:\n");
-    printf("\n");
-    printf("    - Enters the cljs.user namespace\n");
-    printf("    - Binds *command-line-args* to a seq of strings containing command line\n");
-    printf("      args that appear after any main option\n");
-    printf("    - Runs all init options in order\n");
-    printf("    - Calls a -main function or runs a repl or script if requested\n");
-    printf("\n");
-    printf("  The init options may be repeated and mixed freely, but must appear before\n");
-    printf("  any main option.\n");
-    printf("\n");
-    printf("  Paths may be absolute or relative in the filesystem or relative to\n");
-    printf("  classpath. Classpath-relative paths have prefix of @ or @/\n");
-    printf("\n");
-    printf("  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n");
-    printf("\n");
+  printf(
+    "\n"
+    "Usage:  %s [init-opt*] [main-opt] [arg*]\n"
+    "\n"
+    "  With no options or args, runs an interactive Read-Eval-Print Loop\n"
+    "\n"
+    "  init options:\n"
+    "    -i path, --init path        Load a file or resource\n"
+    "    -e string, --eval string    Evaluate expressions in string; print non-nil\n"
+    "                                values\n"
+    "    -c cp, --classpath cp       Use colon-delimited cp for source directories\n"
+    "                                and JARs. PLANCK_CLASSPATH env var may be used\n"
+    "                                instead.\n"
+    "    -D dep, --dependencies dep  Use comma-separated list of dependencies to\n"
+    "                                look for in the local Maven repository.\n"
+    "                                Dependencies should be specified in the form\n"
+    "                                SYM:VERSION (e.g.: foo/bar:1.2.3).\n"
+    "    -L path, --local-repo path  Path to the local Maven repository where Planck\n"
+    "                                will look for dependencies. Defaults to\n"
+    "                                ~/.m2/repository.\n"
+    "    -K, --auto-cache            Create and use .planck_cache dir for cache\n"
+    "    -k path, --cache path       If dir exists at path, use it for cache\n"
+    "    -q, --quiet                 Quiet mode\n"
+    "    -v, --verbose               Emit verbose diagnostic output\n"
+    "    -d, --dumb-terminal         Disable line editing / VT100 terminal control\n"
+    "    -t theme, --theme theme     Set the color theme\n"
+    "    -n x, --socket-repl x       Enable socket REPL where x is port or IP:port\n"
+    "    -s, --static-fns            Generate static dispatch function calls\n"
+    "    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n"
+    "                                for unknown functions, but instead direct\n"
+    "                                invokes via f(a0,a1...).\n"
+    "    -O x, --optimizations x     Closure compiler level applied to source loaded\n"
+    "                                from namespaces: none, whitespace, or simple.\n"
+    "    -A x, --checked-arrays x    Enables checked arrays where x is either warn\n"
+    "                                or error.\n"
+    "    -a, --elide-asserts         Set *assert* to false to remove asserts\n"
+    "\n"
+    "  main options:\n"
+    "    -m ns-name, --main ns-name Call the -main function from a namespace with\n"
+    "                               args\n"
+    "    -r, --repl                 Run a repl\n"
+    "    path                       Run a script from a file or resource\n"
+    "    -                          Run a script from standard input\n"
+    "    -h, -?, --help             Print this help message and exit\n"
+    "    -l, --legal                Show legal info (licenses and copyrights)\n"
+    "    -V, --version              Show version and exit\n"
+    "\n"
+    "  operation:\n"
+    "\n"
+    "    - Enters the cljs.user namespace\n"
+    "    - Binds *command-line-args* to a seq of strings containing command line\n"
+    "      args that appear after any main option\n"
+    "    - Runs all init options in order\n"
+    "    - Calls a -main function or runs a repl or script if requested\n"
+    "\n"
+    "  The init options may be repeated and mixed freely, but must appear before\n"
+    "  any main option.\n"
+    "\n"
+    "  Paths may be absolute or relative in the filesystem or relative to\n"
+    "  classpath. Classpath-relative paths have prefix of @ or @/\n"
+    "\n"
+    "  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n"
+    "\n", program_name);
 }
 
 char *get_cljs_version() {
