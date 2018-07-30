@@ -1,242 +1,242 @@
 #include <stdio.h>
 
 void legal() {
-    printf("\n");
-    printf("Planck\n");
-    printf("------\n");
-    printf("\n");
-    printf("Copyright © 2015-2017 Mike Fikes and Contributors\n");
-    printf("Distributed under the Eclipse Public License either version 1.0 or (at your\n");
-    printf("option) any later version.\n");
-    printf("\n");
-    printf("\n");
-    printf("Portions of Planck may utilize the following copyrighted material, the use of\n");
-    printf("which is hereby acknowledged.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("ClojureScript\n");
-    printf("-------------\n");
-    printf("\n");
-    printf("Copyright (c) Rich Hickey. All rights reserved. The use and\n");
-    printf("distribution terms for this software are covered by the Eclipse\n");
-    printf("Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)\n");
-    printf("which can be found in the file epl-v10.html at the root of this\n");
-    printf("distribution. By using this software in any fashion, you are\n");
-    printf("agreeing to be bound by the terms of this license. You must\n");
-    printf("not remove this notice, or any other, from this software.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("Fipp\n");
-    printf("-----\n");
-    printf("\n");
-    printf("Copyright © 2015 Brandon Bloom\n");
-    printf("Distributed under the Eclipse Public License, the same as Clojure.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("ICU\n");
-    printf("---\n");
-    printf("\n");
-    printf("Copyright (c) 1995-2014 International Business Machines Corporation and others\n");
-    printf("All rights reserved.\n");
-    printf("\n");
-    printf("Permission is hereby granted, free of charge, to any person obtaining a copy of\n");
-    printf("this software and associated documentation files (the \"Software\"), to deal in\n");
-    printf("the Software without restriction, including without limitation the rights to\n");
-    printf("use, copy, modify, merge, publish, distribute, and/or sell copies of the\n");
-    printf("Software, and to permit persons to whom the Software is furnished to do so,\n");
-    printf("provided that the above copyright notice(s) and this permission notice appear in\n");
-    printf("all copies of the Software and that both the above copyright notice(s) and this\n");
-    printf("permission notice appear in supporting documentation.\n");
-    printf("\n");
-    printf("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n");
-    printf("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\n");
-    printf("FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT\n");
-    printf("SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY\n");
-    printf("CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES\n");
-    printf("WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF\n");
-    printf("CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION\n");
-    printf("WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n");
-    printf("\n");
-    printf("Except as contained in this notice, the name of a copyright holder shall not be\n");
-    printf("used in advertising or otherwise to promote the sale, use or other dealings in\n");
-    printf("this Software without prior written authorization of the copyright holder.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("JavaScriptCore\n");
-    printf("--------------\n");
-    printf("\n");
-    printf("GNU LGPL v2.1\n");
-    printf("\n");
-    printf("\n");
-
-    printf("lazy-map\n");
-    printf("--------\n");
-    printf("\n");
-    printf("Copyright © 2015 Artur Malabarba\n");
-    printf("Distributed under the Eclipse Public License either version 1.0 or (at your\n");
-    printf("option) any later version.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("libclj\n");
-    printf("------\n");
-    printf("\n");
-    printf("Copyright 2012 Brandon Bloom\n");
-    printf("MIT License\n");
-    printf("\n");
-    printf("\n");
-
-    printf("libzip\n");
-    printf("------\n");
-    printf("\n");
-    printf("Copyright (C) 1999-2014 Dieter Baron and Thomas Klausner\n");
-    printf("\n");
-    printf("The authors can be contacted at <libzip@nih.at>\n");
-    printf("\n");
-    printf("Redistribution and use in source and binary forms, with or without\n");
-    printf("modification, are permitted provided that the following conditions are met:\n");
-    printf("\n");
-    printf("1. Redistributions of source code must retain the above copyright\n");
-    printf("   notice, this list of conditions and the following disclaimer.\n");
-    printf("\n");
-    printf("2. Redistributions in binary form must reproduce the above copyright\n");
-    printf("   notice, this list of conditions and the following disclaimer in the\n");
-    printf("   documentation and/or other materials provided with the distribution.\n");
-    printf("\n");
-    printf("3. The names of the authors may not be used to endorse or promote\n");
-    printf("   products derived from this software without specific prior written\n");
-    printf("   permission.\n");
-    printf("\n");
-    printf("THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR\n");
-    printf("IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES\n");
-    printf("OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n");
-    printf("IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n");
-    printf("SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n");
-    printf("PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;\n");
-    printf("OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,\n");
-    printf("WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR\n");
-    printf("OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n");
-    printf("ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("transit-cljs\n");
-    printf("------------\n");
-    printf("\n");
-    printf("Copyright © 2014 Cognitect\n");
-    printf("\n");
-    printf("Licensed under the Apache License, Version 2.0 (the \"License\");\n");
-    printf("you may not use this file except in compliance with the License.\n");
-    printf("You may obtain a copy of the License at\n");
-    printf("http://www.apache.org/licenses/LICENSE-2.0\n");
-    printf("Unless required by applicable law or agreed to in writing, software\n");
-    printf("distributed under the License is distributed on an \"AS IS\" BASIS,\n");
-    printf("WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n");
-    printf("implied. See the License for the specific language governing\n");
-    printf("permissions and limitations under the License.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("libcurl\n");
-    printf("-------\n");
-    printf("\n");
-    printf("COPYRIGHT AND PERMISSION NOTICE\n");
-    printf("\n");
-    printf("Copyright (c) 1996 - 2016, Daniel Stenberg, daniel@haxx.se, and many\n");
-    printf("contributors, see the THANKS file.\n");
-    printf("\n");
-    printf("All rights reserved.\n");
-    printf("\n");
-    printf("Permission to use, copy, modify, and distribute this software for any purpose\n");
-    printf("with or without fee is hereby granted, provided that the above copyright notice;\n");
-    printf("and this permission notice appear in all copies.\n");
-    printf("\n");
-    printf("THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n");
-    printf("IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\n");
-    printf("FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT\n");
-    printf("SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n");
-    printf("LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n");
-    printf("OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n");
-    printf("SOFTWARE.\n");
-    printf("\n");
-    printf("Except as contained in this notice, the name of a copyright holder shall not be\n");
-    printf("used in advertising or otherwise to promote the sale, use or other dealings in\n");
-    printf("this Software without prior written authorization of the copyright holder.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("Linenoise\n");
-    printf("---------\n");
-    printf("\n");
-    printf("Copyright (c) 2010-2014, Salvatore Sanfilippo <antirez at gmail dot com>\n");
-    printf("Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>\n");
-    printf("\n");
-    printf("All rights reserved.\n");
-    printf("\n");
-    printf("Redistribution and use in source and binary forms, with or without\n");
-    printf("modification, are permitted provided that the following conditions are met:\n");
-    printf("\n");
-    printf("* Redistributions of source code must retain the above copyright notice,\n");
-    printf("  this list of conditions and the following disclaimer.\n");
-    printf("\n");
-    printf("* Redistributions in binary form must reproduce the above copyright notice,\n");
-    printf("  this list of conditions and the following disclaimer in the documentation\n");
-    printf("  and/or other materials provided with the distribution.\n");
-    printf("\n");
-    printf("THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n");
-    printf("ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n");
-    printf("WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n");
-    printf("DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR\n");
-    printf("ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n");
-    printf("(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n");
-    printf("LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\n");
-    printf("ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n");
-    printf("(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n");
-    printf("SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n");
-    printf("\n");
-    printf("\n");
-
-    printf("Parinfer\n");
-    printf("--------\n");
-    printf("\n");
-    printf("Copyright (c) 2015 Shaun Williams and contributors\n");
-    printf("MIT License\n");
-    printf("\n");
-    printf("\n");
-
-    printf("Pretty (ANSI portion, ported for ClojureScript)\n");
-    printf("-----------------------------------------------\n");
-    printf("\n");
-    printf("© Copyright 2013-2015, Aviso");
-    printf("\n");
-    printf("Apache Software License 2.0.\n");
-    printf("http://www.apache.org/licenses/LICENSE-2.0\n");
-    printf("\n");
-    printf("\n");
-
-    printf("zlib\n");
-    printf("----\n");
-    printf("\n");
-    printf("Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler\n");
-    printf("\n");
-    printf("This software is provided 'as-is', without any express or implied\n");
-    printf("warranty.  In no event will the authors be held liable for any damages\n");
-    printf("arising from the use of this software.\n");
-    printf("\n");
-    printf("     Permission is granted to anyone to use this software for any purpose,\n");
-    printf("including commercial applications, and to alter it and redistribute it\n");
-    printf("freely, subject to the following restrictions:\n");
-    printf("\n");
-    printf("1. The origin of this software must not be misrepresented; you must not\n");
-    printf("   claim that you wrote the original software. If you use this software\n");
-    printf("   in a product, an acknowledgment in the product documentation would be\n");
-    printf("   appreciated but is not required.\n");
-    printf("2. Altered source versions must be plainly marked as such, and must not be\n");
-    printf("   misrepresented as being the original software.\n");
-    printf("3. This notice may not be removed or altered from any source distribution.\n");
-    printf("\n");
+  printf("\n"
+    "Planck\n"
+    "------\n"
+    "\n"
+    "Copyright © 2015-2017 Mike Fikes and Contributors\n"
+    "Distributed under the Eclipse Public License either version 1.0 or (at your\n"
+    "option) any later version.\n"
+    "\n"
+    "\n"
+    "Portions of Planck may utilize the following copyrighted material, the use of\n"
+    "which is hereby acknowledged.\n"
+    "\n"
+    "\n"
+  
+    "ClojureScript\n"
+    "-------------\n"
+    "\n"
+    "Copyright (c) Rich Hickey. All rights reserved. The use and\n"
+    "distribution terms for this software are covered by the Eclipse\n"
+    "Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)\n"
+    "which can be found in the file epl-v10.html at the root of this\n"
+    "distribution. By using this software in any fashion, you are\n"
+    "agreeing to be bound by the terms of this license. You must\n"
+    "not remove this notice, or any other, from this software.\n"
+    "\n"
+    "\n"
+  
+    "Fipp\n"
+    "-----\n"
+    "\n"
+    "Copyright © 2015 Brandon Bloom\n"
+    "Distributed under the Eclipse Public License, the same as Clojure.\n"
+    "\n"
+    "\n"
+  
+    "ICU\n"
+    "---\n"
+    "\n"
+    "Copyright (c) 1995-2014 International Business Machines Corporation and others\n"
+    "All rights reserved.\n"
+    "\n"
+    "Permission is hereby granted, free of charge, to any person obtaining a copy of\n"
+    "this software and associated documentation files (the \"Software\"), to deal in\n"
+    "the Software without restriction, including without limitation the rights to\n"
+    "use, copy, modify, merge, publish, distribute, and/or sell copies of the\n"
+    "Software, and to permit persons to whom the Software is furnished to do so,\n"
+    "provided that the above copyright notice(s) and this permission notice appear in\n"
+    "all copies of the Software and that both the above copyright notice(s) and this\n"
+    "permission notice appear in supporting documentation.\n"
+    "\n"
+    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\n"
+    "FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT\n"
+    "SHALL THE COPYRIGHT HOLDER OR HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY\n"
+    "CLAIM, OR ANY SPECIAL INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES\n"
+    "WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF\n"
+    "CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION\n"
+    "WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n"
+    "\n"
+    "Except as contained in this notice, the name of a copyright holder shall not be\n"
+    "used in advertising or otherwise to promote the sale, use or other dealings in\n"
+    "this Software without prior written authorization of the copyright holder.\n"
+    "\n"
+    "\n"
+  
+    "JavaScriptCore\n"
+    "--------------\n"
+    "\n"
+    "GNU LGPL v2.1\n"
+    "\n"
+    "\n"
+  
+    "lazy-map\n"
+    "--------\n"
+    "\n"
+    "Copyright © 2015 Artur Malabarba\n"
+    "Distributed under the Eclipse Public License either version 1.0 or (at your\n"
+    "option) any later version.\n"
+    "\n"
+    "\n"
+  
+    "libclj\n"
+    "------\n"
+    "\n"
+    "Copyright 2012 Brandon Bloom\n"
+    "MIT License\n"
+    "\n"
+    "\n"
+  
+    "libzip\n"
+    "------\n"
+    "\n"
+    "Copyright (C) 1999-2014 Dieter Baron and Thomas Klausner\n"
+    "\n"
+    "The authors can be contacted at <libzip@nih.at>\n"
+    "\n"
+    "Redistribution and use in source and binary forms, with or without\n"
+    "modification, are permitted provided that the following conditions are met:\n"
+    "\n"
+    "1. Redistributions of source code must retain the above copyright\n"
+    "   notice, this list of conditions and the following disclaimer.\n"
+    "\n"
+    "2. Redistributions in binary form must reproduce the above copyright\n"
+    "   notice, this list of conditions and the following disclaimer in the\n"
+    "   documentation and/or other materials provided with the distribution.\n"
+    "\n"
+    "3. The names of the authors may not be used to endorse or promote\n"
+    "   products derived from this software without specific prior written\n"
+    "   permission.\n"
+    "\n"
+    "THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR\n"
+    "IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES\n"
+    "OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.\n"
+    "IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\n"
+    "SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n"
+    "PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;\n"
+    "OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,\n"
+    "WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR\n"
+    "OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
+    "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+    "\n"
+    "\n"
+  
+    "transit-cljs\n"
+    "------------\n"
+    "\n"
+    "Copyright © 2014 Cognitect\n"
+    "\n"
+    "Licensed under the Apache License, Version 2.0 (the \"License\");\n"
+    "you may not use this file except in compliance with the License.\n"
+    "You may obtain a copy of the License at\n"
+    "http://www.apache.org/licenses/LICENSE-2.0\n"
+    "Unless required by applicable law or agreed to in writing, software\n"
+    "distributed under the License is distributed on an \"AS IS\" BASIS,\n"
+    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n"
+    "implied. See the License for the specific language governing\n"
+    "permissions and limitations under the License.\n"
+    "\n"
+    "\n"
+  
+    "libcurl\n"
+    "-------\n"
+    "\n"
+    "COPYRIGHT AND PERMISSION NOTICE\n"
+    "\n"
+    "Copyright (c) 1996 - 2016, Daniel Stenberg, daniel@haxx.se, and many\n"
+    "contributors, see the THANKS file.\n"
+    "\n"
+    "All rights reserved.\n"
+    "\n"
+    "Permission to use, copy, modify, and distribute this software for any purpose\n"
+    "with or without fee is hereby granted, provided that the above copyright notice;\n"
+    "and this permission notice appear in all copies.\n"
+    "\n"
+    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\n"
+    "FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT OF THIRD PARTY RIGHTS. IN NO EVENT\n"
+    "SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+    "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+    "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+    "SOFTWARE.\n"
+    "\n"
+    "Except as contained in this notice, the name of a copyright holder shall not be\n"
+    "used in advertising or otherwise to promote the sale, use or other dealings in\n"
+    "this Software without prior written authorization of the copyright holder.\n"
+    "\n"
+    "\n"
+  
+    "Linenoise\n"
+    "---------\n"
+    "\n"
+    "Copyright (c) 2010-2014, Salvatore Sanfilippo <antirez at gmail dot com>\n"
+    "Copyright (c) 2010-2013, Pieter Noordhuis <pcnoordhuis at gmail dot com>\n"
+    "\n"
+    "All rights reserved.\n"
+    "\n"
+    "Redistribution and use in source and binary forms, with or without\n"
+    "modification, are permitted provided that the following conditions are met:\n"
+    "\n"
+    "* Redistributions of source code must retain the above copyright notice,\n"
+    "  this list of conditions and the following disclaimer.\n"
+    "\n"
+    "* Redistributions in binary form must reproduce the above copyright notice,\n"
+    "  this list of conditions and the following disclaimer in the documentation\n"
+    "  and/or other materials provided with the distribution.\n"
+    "\n"
+    "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n"
+    "ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n"
+    "WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n"
+    "DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR\n"
+    "ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
+    "(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n"
+    "LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\n"
+    "ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n"
+    "(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"
+    "SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+    "\n"
+    "\n"
+  
+    "Parinfer\n"
+    "--------\n"
+    "\n"
+    "Copyright (c) 2015 Shaun Williams and contributors\n"
+    "MIT License\n"
+    "\n"
+    "\n"
+  
+    "Pretty (ANSI portion, ported for ClojureScript)\n"
+    "-----------------------------------------------\n"
+    "\n"
+    "© Copyright 2013-2015, Aviso"
+    "\n"
+    "Apache Software License 2.0.\n"
+    "http://www.apache.org/licenses/LICENSE-2.0\n"
+    "\n"
+    "\n"
+  
+    "zlib\n"
+    "----\n"
+    "\n"
+    "Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler\n"
+    "\n"
+    "This software is provided 'as-is', without any express or implied\n"
+    "warranty.  In no event will the authors be held liable for any damages\n"
+    "arising from the use of this software.\n"
+    "\n"
+    "     Permission is granted to anyone to use this software for any purpose,\n"
+    "including commercial applications, and to alter it and redistribute it\n"
+    "freely, subject to the following restrictions:\n"
+    "\n"
+    "1. The origin of this software must not be misrepresented; you must not\n"
+    "   claim that you wrote the original software. If you use this software\n"
+    "   in a product, an acknowledgment in the product documentation would be\n"
+    "   appreciated but is not required.\n"
+    "2. Altered source versions must be plainly marked as such, and must not be\n"
+    "   misrepresented as being the original software.\n"
+    "3. This notice may not be removed or altered from any source distribution.\n"
+    "\n");
 }
