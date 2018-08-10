@@ -1,4 +1,4 @@
-#!planck-c/build/planck --classpath=lib/test.check-0.10.0-alpha2.jar:planck-cljs/test
+#!planck-c/build/planck --classpath=lib/test.check-0.10.0-alpha2.jar:planck-cljs/test --compile-opts @/compile-opts.edn
 (ns planck.unit-test
   (:require [cljs.test]
             [planck.test-runner]

@@ -5,6 +5,7 @@
    [fipp.edn]
    [general.closure-libs-test]
    [general.core-test]
+   [general.closure-defines-test]
    [general.data-readers-test]
    [general.fipp-test]
    [planck.closure-test]
@@ -31,5 +32,6 @@
     'planck.closure-test
     'general.closure-libs-test
     'general.core-test
+    'general.closure-defines-test
     'general.data-readers-test
     'general.fipp-test))

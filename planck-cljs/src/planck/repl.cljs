@@ -263,6 +263,18 @@
   []
   (some? (:optimizations @app-env)))
 
+(defn- normalize-closure-defines [defines]
+  (into {}
+    (map (fn [[k v]]
+           [(if (symbol? k) (str (comp/munge k)) k) v])
+      defines)))
+
+(defn- init-closure-defines
+  [defines]
+  (when defines
+    (set! (.. js/goog -global -CLOSURE_UNCOMPILED_DEFINES)
+      (clj->js (normalize-closure-defines defines)))))
+
 (defn- compile-opts->edn [compile-opts]
   (cond
     (string/starts-with? compile-opts "{")
@@ -307,6 +319,7 @@
                                     {:fn-invoke-direct opts})
                                   (when fn-invoke-direct
                                     {:fn-invoke-direct true})))
+    (init-closure-defines (:closure-defines opts))
     (deps/index-foreign-libs opts)
     (deps/index-js-libs)
     (let [index @deps/js-lib-index]
