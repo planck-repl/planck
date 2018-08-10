@@ -263,8 +263,6 @@
   []
   (some? (:optimizations @app-env)))
 
-(defonce co (atom nil))
-
 (defn- compile-opts->edn [compile-opts]
   (cond
     (string/starts-with? compile-opts "{")
