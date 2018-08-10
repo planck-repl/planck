@@ -284,7 +284,7 @@ bool should_ignore_arg(const char *opt) {
     }
 
     // opt is a short opt or clump of short opts. If the clump
-    // ends with i, e, m, c, n, k, t, S, A, O, D, L, or C
+    // ends with i, e, m, c, n, k, t, S, A, O, D, L, or \1
     // then this opt takes an argument.
     int idx = 0;
     char c = 0;
@@ -306,7 +306,7 @@ bool should_ignore_arg(const char *opt) {
             last_c == 'O' ||
             last_c == 'D' ||
             last_c == 'L' ||
-            last_c == 'C');
+            last_c == '\1');
 }
 
 void control_FTL_JIT() {
@@ -408,7 +408,7 @@ int main(int argc, char **argv) {
             {"compile",          no_argument,       NULL, 'Z'},
             {"init",             required_argument, NULL, 'i'},
             {"main",             required_argument, NULL, 'm'},
-            {"compile-opts",     required_argument, NULL, 'C'},
+            {"compile-opts",     required_argument, NULL, '\1'},
 
             // development options
             {"javascript",       no_argument,       NULL, 'j'},
@@ -422,9 +422,9 @@ int main(int argc, char **argv) {
     // pass index_of_script_path_or_hyphen instead of argc to guarantee that everything
     // after a bare dash "-" or a script path gets passed as *command-line-args*
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:C:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:\1:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
-            case 'C':
+            case '\1':
                 process_compile_opts(optarg);
                 break;
             case 'X':
