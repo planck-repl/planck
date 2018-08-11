@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This change
 ### Fixed
 - Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
 - Fix build issue when using `xxdi.pl` ([#770](https://github.com/mfikes/planck/issues/770))
+- Fix loading of Closure libs
 
 ## [2.17.0] - 2018-07-02
 ### Changed
