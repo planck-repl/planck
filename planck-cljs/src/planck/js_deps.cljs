@@ -56,24 +56,23 @@
                (throw (ex-info "The specified closure library does not exist" {:path file})))
              (assoc (parse-closure-ns source) :file file))))))
 
+(defn- add-libs
+  [index {:keys [libs foreign-libs]}]
+  (add-js-libs index (concat foreign-libs (mapcat parse-libs libs))))
+
 (defn index-js-libs
   "Indexes all js foreign and closure libs from each deps.cljs on the classpath."
   []
   (vswap! js-lib-index
     (fn [index]
       (reduce (fn [index [_ deps-cljs-str]]
-                (let [{:keys [libs foreign-libs]} (r/read-string deps-cljs-str)]
-                  (add-js-libs index (concat foreign-libs (mapcat parse-libs libs)))))
+                (add-libs index (r/read-string deps-cljs-str)))
         index
         (js/PLANCK_LOAD_DEPS_CLJS_FILES)))))
 
-(defn index-foreign-libs
-  "Indexes a compiler options map containing a :foreign-libs spec, swapping
-  the result into the foreign libs index."
-  [deps-map]
-  (->> deps-map
-    :foreign-libs
-    (vswap! js-lib-index add-js-libs)))
+(defn index-opts
+  [opts]
+  (vswap! js-lib-index add-libs opts))
 
 (defn js-lib?
   "Returns true if the argument is a js lib."

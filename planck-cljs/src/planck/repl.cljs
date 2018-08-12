@@ -306,33 +306,38 @@
   (let [opts (merge {}
                (read-compile-optss compile-optss)
                (read-opts-from-file "opts.clj"))]
-    (reset! planck.repl/app-env (merge {:repl       repl
-                                        :verbose    verbose
-                                        :cache-path cache-path
-                                        :opts       opts}
-                                  (when (:checked-arrays opts)
-                                    {:checked-arrays (:checked-arrays opts)})
+    (reset! planck.repl/app-env (merge {:repl          repl
+                                        :verbose       verbose
+                                        :cache-path    cache-path
+                                        :elide-asserts elide-asserts
+                                        :opts          opts}
+                                  (when (contains? opts :verbose)
+                                    {:verbose (:verbose opts)})
                                   (when checked-arrays
                                     {:checked-arrays (keyword checked-arrays)})
-                                  (when (:static-fns opts)
-                                    {:static-fns (:static-fns opts)})
+                                  (when (contains? opts :checked-arrays)
+                                    {:checked-arrays (:checked-arrays opts)})
                                   (when static-fns
                                     {:static-fns true})
+                                  (when (contains? opts :static-fns)
+                                    {:static-fns (:static-fns opts)})
+                                  (when fn-invoke-direct
+                                    {:fn-invoke-direct true})
+                                  (when (contains? opts :fn-invoke-direct)
+                                    {:fn-invoke-direct opts})
+                                  (when (contains? opts :elide-asserts)
+                                    {:elide-asserts (:elide-asserts opts)})
                                   ;; Note: We don't take optimizations from opts because it has slightly different semantics
                                   (when (not= optimizations "none")
-                                    {:optimizations (keyword optimizations)})
-                                  (when (:fn-invoke-direct opts)
-                                    {:fn-invoke-direct opts})
-                                  (when fn-invoke-direct
-                                    {:fn-invoke-direct true})))
+                                    {:optimizations (keyword optimizations)})))
     (init-closure-defines (:closure-defines opts))
-    (deps/index-foreign-libs opts)
+    (deps/index-opts opts)
     (deps/index-js-libs)
     (let [index @deps/js-lib-index]
       (swap! st assoc :js-dependency-index (into index
                                              (map (fn [[k v]] [(str k) v]))
                                              index))))
-  (setup-asserts elide-asserts)
+  (setup-asserts (:elide-asserts @planck.repl/app-env))
   (setup-print-namespace-maps repl))
 
 (defn- read-chars
