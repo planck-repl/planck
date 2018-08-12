@@ -1,0 +1,3 @@
+{:closure-defines {foo.closure-defines/bar   "symbol"
+                   "foo.closure_defines.baz" "string"}
+ :libs ["planck-cljs/test/libs/other.js"]}

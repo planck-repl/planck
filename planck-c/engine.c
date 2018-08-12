@@ -588,7 +588,7 @@ void *do_engine_init(void *data) {
     set_print_sender(&discarding_sender);
 
     {
-        JSValueRef arguments[8];
+        JSValueRef arguments[9];
         arguments[0] = JSValueMakeBoolean(ctx, config.repl);
         arguments[1] = JSValueMakeBoolean(ctx, config.verbose);
         JSValueRef cache_path_ref = NULL;
@@ -609,8 +609,17 @@ void *do_engine_init(void *data) {
         JSStringRef optimizations_str = JSStringCreateWithUTF8CString(config.optimizations);
         JSValueRef optimizations_ref = JSValueMakeString(ctx, optimizations_str);
         arguments[7] = optimizations_ref;
+
+        JSValueRef compile_opts[config.num_compile_opts];
+        size_t i;
+        for (i=0; i<config.num_compile_opts; i++) {
+            JSStringRef compile_opts_str = JSStringCreateWithUTF8CString(config.compile_opts[i]);
+            compile_opts[i] = JSValueMakeString(ctx, compile_opts_str);
+        }
+        arguments[8] = JSObjectMakeArray(ctx, config.num_compile_opts, compile_opts, NULL);
+
         JSValueRef ex = NULL;
-        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 8,
+        JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 9,
                                arguments, &ex);
         debug_print_value("planck.repl/init", ctx, ex);
     }

@@ -39,6 +39,10 @@ void usage(char *program_name) {
     "  With no options or args, runs an interactive Read-Eval-Print Loop\n"
     "\n"
     "  init options:\n"
+    "    -co, --compile-opts edn     Options to configure compilation, can be an EDN\n"
+    "                                string or colon-separated list of EDN files /\n"
+    "                                classpath resources. Options will be merged left\n"
+    "                                to right.\n"
     "    -i path, --init path        Load a file or resource\n"
     "    -e string, --eval string    Evaluate expressions in string; print non-nil\n"
     "                                values\n"
@@ -264,6 +268,15 @@ void dump_sdk(char* target_path) {
     }
 }
 
+void process_compile_opts(char* compile_opts) {
+    if (!config.compile_opts) {
+        config.compile_opts = malloc(sizeof(char*));
+    } else {
+        config.compile_opts = realloc(config.compile_opts, (sizeof(char*) * (config.num_compile_opts + 1)));
+    }
+    config.compile_opts[config.num_compile_opts++] = strdup(compile_opts);
+}
+
 bool should_ignore_arg(const char *opt) {
     if (opt[0] != '-') {
         return false;
@@ -275,7 +288,7 @@ bool should_ignore_arg(const char *opt) {
     }
 
     // opt is a short opt or clump of short opts. If the clump
-    // ends with i, e, m, c, n, k, t, S, A, O, D, or L
+    // ends with i, e, m, c, n, k, t, S, A, O, D, L, or \1
     // then this opt takes an argument.
     int idx = 0;
     char c = 0;
@@ -296,7 +309,8 @@ bool should_ignore_arg(const char *opt) {
             last_c == 'A' ||
             last_c == 'O' ||
             last_c == 'D' ||
-            last_c == 'L');
+            last_c == 'L' ||
+            last_c == '\1');
 }
 
 void control_FTL_JIT() {
@@ -310,11 +324,26 @@ void control_FTL_JIT() {
 
 }
 
+char** expand_medium_opts(int argc, char **argv) {
+    char** rv = malloc(argc * sizeof(char*));
+    int i;
+    for (i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-co")) {
+            rv[i] = "--compile-opts";
+        } else {
+            rv[i] = argv[i];
+        }
+    }
+    return rv;
+}
+
 int main(int argc, char **argv) {
 
     control_FTL_JIT();
 
     ignore_sigpipe();
+
+    argv = expand_medium_opts(argc, argv);
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
     // by getopt_long(). If one of those two things is found, everything afterward is a *command-line-args* arg.
@@ -366,6 +395,9 @@ int main(int argc, char **argv) {
 
     config.clojurescript_version = get_cljs_version();
 
+    config.num_compile_opts = 0;
+    config.compile_opts = NULL;
+
     char *classpath = NULL;
     char *dependencies = NULL;
     char *local_repo = NULL;
@@ -392,9 +424,9 @@ int main(int argc, char **argv) {
             {"dependencies",     required_argument, NULL, 'D'},
             {"local-repo",       required_argument, NULL, 'L'},
             {"auto-cache",       no_argument,       NULL, 'K'},
-            {"compile",          no_argument,       NULL, 'Z'},
             {"init",             required_argument, NULL, 'i'},
             {"main",             required_argument, NULL, 'm'},
+            {"compile-opts",     required_argument, NULL, '\1'},
 
             // development options
             {"javascript",       no_argument,       NULL, 'j'},
@@ -408,8 +440,11 @@ int main(int argc, char **argv) {
     // pass index_of_script_path_or_hyphen instead of argc to guarantee that everything
     // after a bare dash "-" or a script path gets passed as *command-line-args*
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:\1:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
+            case '\1':
+                process_compile_opts(optarg);
+                break;
             case 'X':
                 init_launch_timing();
                 break;
@@ -607,7 +642,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (config.num_scripts == 0 && config.main_ns_name == NULL && config.num_rest_args == 0) {
+    if (config.num_scripts == 0 && config.main_ns_name == NULL && config.num_rest_args == 0
+        && config.num_compile_opts == 0) {
         config.repl = true;
     }
 

@@ -263,32 +263,82 @@
   []
   (some? (:optimizations @app-env)))
 
+(defn- normalize-closure-defines [defines]
+  (into {}
+    (map (fn [[k v]]
+           [(if (symbol? k) (str (comp/munge k)) k) v])
+      defines)))
+
+(defn- init-closure-defines
+  [defines]
+  (when defines
+    (set! (.. js/goog -global -CLOSURE_UNCOMPILED_DEFINES)
+      (clj->js (normalize-closure-defines defines)))))
+
+(defn- compile-opts->edns [compile-opts]
+  (cond
+    (string/starts-with? compile-opts "{")
+    [compile-opts]
+
+    (string/includes? compile-opts ":")
+    (mapcat compile-opts->edns (string/split compile-opts #":"))
+
+    (string/starts-with? compile-opts "@")
+    [(first (js/PLANCK_LOAD (subs compile-opts 1)))]
+
+    (string/starts-with? compile-opts "@/")
+    [(first (js/PLANCK_LOAD (subs compile-opts 2)))]
+
+    :else
+    [(first (js/PLANCK_READ_FILE compile-opts))]))
+
+(defn- read-compile-opts [compile-opts]
+  (map r/read-string (compile-opts->edns compile-opts)))
+
+(defn- read-compile-optss [compile-optss]
+  (apply merge (mapcat read-compile-opts compile-optss)))
+
 (defn- ^:export init
-  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-optss]
   (when (exists? *command-line-args*)
     (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
-  (let [opts (or (read-opts-from-file "opts.clj")
-                 {})]
-    (reset! planck.repl/app-env (merge {:repl       repl
-                                        :verbose    verbose
-                                        :cache-path cache-path
-                                        :opts       opts}
+  (let [opts (merge {}
+               (read-compile-optss compile-optss)
+               (read-opts-from-file "opts.clj"))]
+    (reset! planck.repl/app-env (merge {:repl          repl
+                                        :verbose       verbose
+                                        :cache-path    cache-path
+                                        :elide-asserts elide-asserts
+                                        :opts          opts}
+                                  (when (contains? opts :verbose)
+                                    {:verbose (:verbose opts)})
                                   (when checked-arrays
                                     {:checked-arrays (keyword checked-arrays)})
+                                  (when (contains? opts :checked-arrays)
+                                    {:checked-arrays (:checked-arrays opts)})
                                   (when static-fns
                                     {:static-fns true})
+                                  (when (contains? opts :static-fns)
+                                    {:static-fns (:static-fns opts)})
+                                  (when fn-invoke-direct
+                                    {:fn-invoke-direct true})
+                                  (when (contains? opts :fn-invoke-direct)
+                                    {:fn-invoke-direct opts})
+                                  (when (contains? opts :elide-asserts)
+                                    {:elide-asserts (:elide-asserts opts)})
                                   (when (not= optimizations "none")
                                     {:optimizations (keyword optimizations)})
-                                  (when fn-invoke-direct
-                                    {:fn-invoke-direct true})))
-    (deps/index-foreign-libs opts)
+                                  (when (contains? opts :optimizations)
+                                    {:optimizations (:optimizations opts)})))
+    (init-closure-defines (:closure-defines opts))
+    (deps/index-opts opts)
     (deps/index-js-libs)
     (let [index @deps/js-lib-index]
       (swap! st assoc :js-dependency-index (into index
                                              (map (fn [[k v]] [(str k) v]))
                                              index))))
-  (setup-asserts elide-asserts)
+  (setup-asserts (:elide-asserts @planck.repl/app-env))
   (setup-print-namespace-maps repl))
 
 (defn- read-chars

@@ -109,15 +109,23 @@ It is possible to use foreign libraries with Planck.
 
 > “Foreign” libraries are implemented in a language that is not ClojureScript. (In other words, JavaScript!)
 
-Planck will honor any `deps.cljs` files on the classpath (including those embedded in a JAR file). A `deps.cljs` file will have a [`:foreign-libs`](https://clojurescript.org/reference/compiler-options#foreign-libs) specification for foreign dependencies, essentially indicating the synthetic namespace, the JavaScript file that needs to be loaded, and an indication of any other dependencies that need to be loaded for each foreign lib. If specified for a given foreign lib, Planck will load `:file-min` in preference to `:file` if Planck is launched with `simple` optimizations (via `-O simple` or `--optimizations simple`).
+Foreign libs are specified using a [`:foreign-libs` specification](https://clojurescript.org/reference/compiler-options#foreign-libs) which indicates the synthetic namespace, the JavaScript file that needs to be loaded, any global exports, and an indication of any other dependencies that need to be loaded for each foreign lib.
 
-> While `deps.cljs` files are usually bundled in JAR files in order to convey upstream foreign lib dependencies, you can also put a `deps.cljs` file directly on Planck's classpath in order to specify `:foreign-libs`. (This is useful since Planck doesn't provide a command line argument mechanism for specifying foreign libs.) 
+The `:foreign-libs` specification can be passed via `-co` / `--compile-opts`, or can be specified in any `deps.cljs` files on the classpath (including those embedded in a JAR file). 
+
+If specified for a given foreign lib, Planck will load `:file-min` in preference to `:file` if Planck is launched with `simple` optimizations (via `-O simple` or `--optimizations simple`).
 
 One easy way to make use of foreign libs packaged in this manner is via the excellent [CLJSJS](http://cljsjs.github.io) project. While many of the libraries packaged by CLJSJS cannot work with Planck because they either require a browser environment or Node, some utility libraries work just fine.
 
-Here's an example: Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. The first thing you'll need to do is to obtain the CLJSJS JAR containing this library. The easiest way to do this is to execute `boot -d cljsjs/long:3.0.3-1` as described in the Downloading Deps section above.
+Here's an example: Let's say you want to use the [long.js](https://github.com/dcodeIO/long.js) library. 
 
-If you launch Planck wtih `planck -D cljsjs/long:3.0.3-1`, you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
+If you launch Planck wtih 
+
+```
+plk -Sdeps '{:deps {cljsjs/long {:mvn/version "3.0.3-1"}}}'
+```
+
+you can `(require 'cljsjs.long)` to load the library and then proceed to use it using ClojureScript's JavaScript interop capabilities:
 
 ```clojure-repl
 cljs.user=> (require 'cljsjs.long)
