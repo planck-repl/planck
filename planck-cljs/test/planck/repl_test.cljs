@@ -102,3 +102,8 @@
     (is (= 'cljs.user (#'planck.repl/extract-namespace source))))
   (let [source ":hello"]
     (is (= 'cljs.user (#'planck.repl/extract-namespace source)))))
+
+(deftest read-compile-optss-test
+  (let [compile-optss #js ["{:a 1}" "@co0.edn" "{:b 2}" "@/co1.edn:@co2.edn" "{:a 3}"]]
+    (is (=  {:a 3, :b 17, :test1 :t, :test2 :z, :test3 :y, :test4 :j, :test5 :h}
+          (#'planck.repl/read-compile-optss compile-optss)))))

@@ -275,30 +275,36 @@
     (set! (.. js/goog -global -CLOSURE_UNCOMPILED_DEFINES)
       (clj->js (normalize-closure-defines defines)))))
 
-(defn- compile-opts->edn [compile-opts]
+(defn- compile-opts->edns [compile-opts]
   (cond
     (string/starts-with? compile-opts "{")
-    compile-opts
+    [compile-opts]
+
+    (string/includes? compile-opts ":")
+    (mapcat compile-opts->edns (string/split compile-opts #":"))
 
     (string/starts-with? compile-opts "@")
-    (first (js/PLANCK_LOAD (subs compile-opts 1)))
+    [(first (js/PLANCK_LOAD (subs compile-opts 1)))]
 
     (string/starts-with? compile-opts "@/")
-    (first (js/PLANCK_LOAD (subs compile-opts 2)))
+    [(first (js/PLANCK_LOAD (subs compile-opts 2)))]
 
     :else
-    (first (js/PLANCK_READ_FILE compile-opts))))
+    [(first (js/PLANCK_READ_FILE compile-opts))]))
 
 (defn- read-compile-opts [compile-opts]
-  (r/read-string (compile-opts->edn compile-opts)))
+  (map r/read-string (compile-opts->edns compile-opts)))
+
+(defn- read-compile-optss [compile-optss]
+  (apply merge (mapcat read-compile-opts compile-optss)))
 
 (defn- ^:export init
-  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-opts]
+  [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-optss]
   (when (exists? *command-line-args*)
     (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
   (load-core-analysis-caches repl)
   (let [opts (merge {}
-               (apply merge (map read-compile-opts compile-opts))
+               (read-compile-optss compile-optss)
                (read-opts-from-file "opts.clj"))]
     (reset! planck.repl/app-env (merge {:repl       repl
                                         :verbose    verbose
