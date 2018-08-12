@@ -47,5 +47,3 @@ Options that may be configured via `--compile-opts` comprise:
 - [:optimizations](https://clojurescript.org/reference/compiler-options#optimizations)
 - [:static-fns](https://clojurescript.org/reference/compiler-options#static-fns)
 - [:verbose](https://clojurescript.org/reference/compiler-options#verbose)
-
-
