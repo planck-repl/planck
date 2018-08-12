@@ -409,7 +409,6 @@ int main(int argc, char **argv) {
             {"dependencies",     required_argument, NULL, 'D'},
             {"local-repo",       required_argument, NULL, 'L'},
             {"auto-cache",       no_argument,       NULL, 'K'},
-            {"compile",          no_argument,       NULL, 'Z'},
             {"init",             required_argument, NULL, 'i'},
             {"main",             required_argument, NULL, 'm'},
             {"compile-opts",     required_argument, NULL, '\1'},
