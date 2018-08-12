@@ -39,7 +39,7 @@ void usage(char *program_name) {
     "  With no options or args, runs an interactive Read-Eval-Print Loop\n"
     "\n"
     "  init options:\n"
-    "    --compile-opts edn          Options to configure compilation, can be an EDN\n"
+    "    -co, --compile-opts edn     Options to configure compilation, can be an EDN\n"
     "                                string or colon-separated list of EDN files /\n"
     "                                classpath resources. Options will be merged left\n"
     "                                to right.\n"
@@ -324,11 +324,26 @@ void control_FTL_JIT() {
 
 }
 
+char** expand_medium_opts(int argc, char **argv) {
+    char** rv = malloc(argc * sizeof(char*));
+    int i;
+    for (i = 0; i < argc; i++) {
+        if (!strcmp(argv[i], "-co")) {
+            rv[i] = "--compile-opts";
+        } else {
+            rv[i] = argv[i];
+        }
+    }
+    return rv;
+}
+
 int main(int argc, char **argv) {
 
     control_FTL_JIT();
 
     ignore_sigpipe();
+
+    argv = expand_medium_opts(argc, argv);
 
     // A bare hyphen or a script path not preceded by -[iems] are the two types of mainopt not detected
     // by getopt_long(). If one of those two things is found, everything afterward is a *command-line-args* arg.

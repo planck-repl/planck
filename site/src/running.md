@@ -21,9 +21,9 @@ The command line arguments to Planck are heavily modeled after the ones availabl
 
 ### Compile Opts EDN
 
-Many of the command line arguments may also supplied via **edn**, passed via `--compile-opts`. Any opts passed via `--compile-opts` are merged onto any base opts specified directly by command-line flags.
+Many of the command line arguments may also supplied via **edn**, passed via `-co` / `--compile-opts`. Any opts passed via `-co` / `--compile-opts` are merged onto any base opts specified directly by command-line flags.
 
-Also, note that it is possible to configure certain behaviors via `--compile-opts` where there doesn't exist a direct command line flag.
+Also, note that it is possible to configure certain behaviors via `-co` / `--compile-opts` where there doesn't exist a direct command line flag.
 
 Compile opts **edn** may be specified directly on the command line as in
 
@@ -37,7 +37,7 @@ or by specifying a file, where an optional leading `@` means that the file shoul
 plk --compile-opts @/my-compile-opts.edn
 ```
 
-Options that may be configured via `--compile-opts` comprise:
+Options that may be configured via `-co` / `--compile-opts` comprise:
 
 - [:checked-arrays](https://clojurescript.org/reference/compiler-options#checked-arrays)
 - [:elide-asserts](https://clojurescript.org/reference/compiler-options#elide-asserts)
