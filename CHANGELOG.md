@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Add support for tagged literals ([#517](https://github.com/mfikes/planck/issues/517))
 - `doc` for spec-registered keywords
+- Support for passing options via `--compile-opts` ([#774](https://github.com/planck-repl/planck/issues/774))
+- Support for `:closure-defines` ([#773](https://github.com/planck-repl/planck/issues/773))
 
 ### Changed
 - Updates for private var use in Planck namespaces

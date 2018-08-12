@@ -628,7 +628,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (config.num_scripts == 0 && config.main_ns_name == NULL && config.num_rest_args == 0) {
+    if (config.num_scripts == 0 && config.main_ns_name == NULL && config.num_rest_args == 0
+        && config.num_compile_opts == 0) {
         config.repl = true;
     }
 
