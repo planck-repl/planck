@@ -327,9 +327,10 @@
                                     {:fn-invoke-direct opts})
                                   (when (contains? opts :elide-asserts)
                                     {:elide-asserts (:elide-asserts opts)})
-                                  ;; Note: We don't take optimizations from opts because it has slightly different semantics
                                   (when (not= optimizations "none")
-                                    {:optimizations (keyword optimizations)})))
+                                    {:optimizations (keyword optimizations)})
+                                  (when (contains? opts :optimizations)
+                                    {:optimizations (:optimizations opts)})))
     (init-closure-defines (:closure-defines opts))
     (deps/index-opts opts)
     (deps/index-js-libs)
