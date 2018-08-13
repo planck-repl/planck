@@ -275,6 +275,22 @@
     (set! (.. js/goog -global -CLOSURE_UNCOMPILED_DEFINES)
       (clj->js (normalize-closure-defines defines)))))
 
+(defn- init-warnings
+  [warnings warn-on-undeclared]
+  (set! ana/*cljs-warnings* (merge
+                              ana/*cljs-warnings*
+                              (if (or (true? warnings)
+                                      (false? warnings))
+                                (zipmap (keys ana/*cljs-warnings*) (repeat warnings))
+                                warnings)
+                              (zipmap
+                                [:unprovided :undeclared-var
+                                 :undeclared-ns :undeclared-ns-form]
+                                (repeat (if (false? warnings)
+                                          false
+                                          warn-on-undeclared)))
+                              {:infer-warning false})))
+
 (defn- compile-opts->edns [compile-opts]
   (cond
     (string/starts-with? compile-opts "{")
@@ -332,6 +348,7 @@
                                   (when (contains? opts :optimizations)
                                     {:optimizations (:optimizations opts)})))
     (init-closure-defines (:closure-defines opts))
+    (init-warnings (:warnings opts) (:warn-on-undeclared opts true))
     (deps/index-opts opts)
     (deps/index-js-libs)
     (let [index @deps/js-lib-index]
