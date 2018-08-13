@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file. This change
 - Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
 - Fix build issue when using `xxdi.pl` ([#770](https://github.com/mfikes/planck/issues/770))
 - Fix loading of Closure libs
+- Trailing comma error with optimizations ([#781](https://github.com/mfikes/planck/issues/781))
 
 ## [2.17.0] - 2018-07-02
 ### Changed

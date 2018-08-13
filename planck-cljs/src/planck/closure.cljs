@@ -14,7 +14,7 @@
                      :compilationLevel         (case optimizations
                                                  :simple "SIMPLE"
                                                  :whitespace "WHITESPACE_ONLY")
-                     :languageIn               "ECMASCRIPT3"
+                     :languageIn               "ECMASCRIPT5"
                      :languageOut              "ECMASCRIPT3"
                      :processClosurePrimitives false
                      :createSourceMap          (some? sm-data)
