@@ -45,5 +45,6 @@ Options that may be configured via `-co` / `--compile-opts` comprise:
 - [:foreign-libs](https://clojurescript.org/reference/compiler-options#foreign-libs)
 - [:libs](https://clojurescript.org/reference/compiler-options#libs)
 - [:optimizations](https://clojurescript.org/reference/compiler-options#optimizations)
+- [:source-map](https://clojurescript.org/reference/compiler-options#source-map)
 - [:static-fns](https://clojurescript.org/reference/compiler-options#static-fns)
 - [:verbose](https://clojurescript.org/reference/compiler-options#verbose)

@@ -501,12 +501,17 @@
     :name name-symbol
     :repl-special-function true))
 
+(defn- source-map? []
+  (if-some [source-map (-> @app-env :opts :source-map)]
+    (boolean source-map)
+    true))
+
 (defn- make-base-eval-opts
   []
   (merge
     {:ns         @current-ns
      :context    :expr
-     :source-map true}
+     :source-map (source-map?)}
     (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])))
 
 (defn- process-in-ns
@@ -873,8 +878,9 @@
   [path name source cache]
   (when (and path source cache (:cache-path @app-env))
     (let [cache-json     (cljs->transit-json cache)
-          sourcemap-json (when-let [sm (get-in @planck.repl/st [:source-maps (:name cache)])]
-                           (cljs->transit-json (strip-source-map sm)))]
+          sourcemap-json (when (source-map?)
+                           (when-let [sm (get-in @planck.repl/st [:source-maps (:name cache)])]
+                             (cljs->transit-json (strip-source-map sm))))]
       (log-cache-activity :write path cache-json sourcemap-json)
       (js/PLANCK_CACHE (cache-prefix-for-path path (is-macros? cache))
         (str (form-compiled-by-string (form-build-affecting-options)) "\n" source)
@@ -917,8 +923,9 @@
   [m]
   (if (and (not (= :js (:lang m)))
            (:cache m))
-    (let [{:keys [source source-map]} (compile (assoc m
-                                                 :sm-data @comp/*source-map-data*))]
+    (let [{:keys [source source-map]} (compile (cond-> m
+                                                 (source-map?)
+                                                 (assoc :sm-data @comp/*source-map-data*)))]
       (when source-map
         (swap! st assoc-in [:source-maps (:name (:cache m))] source-map))
       (assoc m :source source))
@@ -985,8 +992,9 @@
                                     (js/PLANCK_READ_FILE (str cache-prefix ".js")))
         [cache-json _] (or (raw-load (str path ".cache.json"))
                            (js/PLANCK_READ_FILE (str cache-prefix ".cache.json")))
-        [sourcemap-json _] (or (raw-load (str path ".js.map.json"))
-                               (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json")))]
+        [sourcemap-json _] (when (source-map?)
+                             (or (raw-load (str path ".js.map.json"))
+                                 (js/PLANCK_READ_FILE (str cache-prefix ".js.map.json"))))]
     (when (cached-js-valid? js-source js-modified source-modified)
       (log-cache-activity :read path cache-json sourcemap-json)
       (when (and sourcemap-json aname)
@@ -1199,22 +1207,23 @@
 
 (defn- load-bundled-source-maps!
   [ns-syms]
-  (let [source-map-path  (fn [ns-sym]
-                           (str (cljs.js/ns->relpath ns-sym) ".js.map"))
-        load-source-maps (fn [ns-sym]
-                           (when-not (get-in @st [:source-maps ns-sym])
-                             (if-let [sm-text (->> ns-sym
+  (when (source-map?)
+    (let [source-map-path  (fn [ns-sym]
+                             (str (cljs.js/ns->relpath ns-sym) ".js.map"))
+          load-source-maps (fn [ns-sym]
+                             (when-not (get-in @st [:source-maps ns-sym])
+                               (if-let [sm-text (->> ns-sym
                                                   source-map-path
                                                   js/PLANCK_LOAD
                                                   first)]
-                               ;; Detect if we have source maps in need of decoding
-                               ;; or if they are AOT decoded.
-                               (if (or (string/starts-with? sm-text "{\"version\"")
-                                       (string/starts-with? sm-text "{\n\"version\""))
-                                 (cljs/load-source-map! st ns-sym sm-text)
-                                 (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))
-                               (swap! st assoc-in [:source-maps ns-sym] {}))))]
-    (run! load-source-maps ns-syms)))
+                                 ;; Detect if we have source maps in need of decoding
+                                 ;; or if they are AOT decoded.
+                                 (if (or (string/starts-with? sm-text "{\"version\"")
+                                         (string/starts-with? sm-text "{\n\"version\""))
+                                   (cljs/load-source-map! st ns-sym sm-text)
+                                   (swap! st assoc-in [:source-maps ns-sym] (transit-json->cljs sm-text)))
+                                 (swap! st assoc-in [:source-maps ns-sym] {}))))]
+      (run! load-source-maps ns-syms))))
 
 (defn- load-core-macros-source-maps! []
   (load-bundled-source-maps! '[cljs.core$macros]))
@@ -1981,8 +1990,8 @@
               (merge {:context       :expr
                       :def-emits-var true}
                 (when (load-form? expression-form)
-                  {:source-map true}))
-              (merge {:source-map true}
+                  {:source-map (source-map?)}))
+              (merge {:source-map (source-map?)}
                 (when (:cache-path @app-env)
                   {:cache-source (cache-source-fn source-text)}))))
           (fn [{:keys [ns value error] :as ret}]

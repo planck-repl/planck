@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This change
 - `doc` for spec-registered keywords
 - Support for passing options via `--compile-opts` ([#774](https://github.com/planck-repl/planck/issues/774))
 - Support for `:closure-defines` ([#773](https://github.com/planck-repl/planck/issues/773))
+- Support for `:source-map` compiler option
 
 ### Changed
 - Updates for private var use in Planck namespaces
