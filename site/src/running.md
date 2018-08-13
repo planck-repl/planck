@@ -48,3 +48,5 @@ Options that may be configured via `-co` / `--compile-opts` comprise:
 - [:source-map](https://clojurescript.org/reference/compiler-options#source-map)
 - [:static-fns](https://clojurescript.org/reference/compiler-options#static-fns)
 - [:verbose](https://clojurescript.org/reference/compiler-options#verbose)
+- [:warnings](https://clojurescript.org/reference/compiler-options#warnings)
+- [:warn-on-undeclared](https://clojurescript.org/reference/repl-options#warn-on-undeclared)
