@@ -631,7 +631,8 @@ void *do_engine_init(void *data) {
     evaluate_script(ctx, version_script, "<init>");
 
     if (config.repl) {
-        evaluate_source("text", "(require '[planck.repl :refer-macros [apropos dir find-doc doc source pst]])",
+        evaluate_source("text", "(eval `(~'ns ~'cljs.user (:require ~@(-> @planck.repl/app-env :opts (:repl-requires "
+                                "'[[planck.repl :refer-macros [source doc find-doc apropos dir pst]]])))))",
                         true, false, "cljs.user", "dumb", false, 0);
         display_launch_timing("repl requires");
     } else {
