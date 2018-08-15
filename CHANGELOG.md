@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 - Support for `:closure-defines` ([#773](https://github.com/planck-repl/planck/issues/773))
 - Support for `:source-map` compiler option
 - Support for `:warnings` compiler option ([#783](https://github.com/planck-repl/planck/issues/783))
+- Support for `:repl-requires` compiler option ([#786](https://github.com/planck-repl/planck/issues/786))
 
 ### Changed
 - Updates for private var use in Planck namespaces

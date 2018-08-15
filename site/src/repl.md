@@ -163,3 +163,20 @@ If you switch to another namespace and find that `doc` no longer works, this is 
 ```
 
 The same works for `source`, `pst`, `apropos`, `find-doc`, and `dir`.
+
+#### `:repl-requires`
+
+If you would like a different set of symbols referred into `cljs.user` upon startup, Planck supports [`:repl-requires`](https://clojurescript.org/reference/repl-options#repl-requires). For example, if you put the following into a `compile-opts.edn` file
+
+```clojure
+{:repl-requires [[planck.repl :refer-macros [apropos dir find-doc doc source pst]]
+                 [cljs.pprint :refer [pprint]]]}
+```
+
+then you can launch Planck via
+
+```
+plk --compile-opts compile-opts.edn -r
+```
+
+and then `pprint` will be available.
