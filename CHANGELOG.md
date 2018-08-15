@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 - Support for `:source-map` compiler option
 - Support for `:warnings` compiler option ([#783](https://github.com/planck-repl/planck/issues/783))
 - Support for `:repl-requires` compiler option ([#786](https://github.com/planck-repl/planck/issues/786))
+- Support for `:def-emits-var` compiler option ([#785](https://github.com/planck-repl/planck/issues/785))
 
 ### Changed
 - Updates for private var use in Planck namespaces
