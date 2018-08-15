@@ -26,7 +26,7 @@ void print_value(char *prefix, JSContextRef ctx, JSValueRef val) {
     if (val != NULL) {
         JSStringRef str = to_string(ctx, val);
         char *ex_str = value_to_c_string(ctx, JSValueMakeString(ctx, str));
-        printf("%s%s\n", prefix, ex_str);
+        fprintf(stderr, "%s%s\n", prefix, ex_str);
         free(ex_str);
     }
 }

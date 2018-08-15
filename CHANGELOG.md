@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file. This change
 - Fix build issue when using `xxdi.pl` ([#770](https://github.com/mfikes/planck/issues/770))
 - Fix loading of Closure libs
 - Trailing comma error with optimizations ([#781](https://github.com/mfikes/planck/issues/781))
+- Log errors when initializing engine ([#787](https://github.com/mfikes/planck/issues/787))
 
 ## [2.17.0] - 2018-07-02
 ### Changed

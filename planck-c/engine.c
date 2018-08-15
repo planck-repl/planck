@@ -622,6 +622,10 @@ void *do_engine_init(void *data) {
         JSObjectCallAsFunction(ctx, get_function("planck.repl", "init"), JSContextGetGlobalObject(ctx), 9,
                                arguments, &ex);
         debug_print_value("planck.repl/init", ctx, ex);
+
+        if (ex) {
+            print_value("Error initializing engine: ", ctx, ex);
+        }
     }
 
     display_launch_timing("planck.repl/init");
@@ -650,6 +654,10 @@ void *do_engine_init(void *data) {
     JSValueRef ex = NULL;
     JSObjectCallAsFunction(ctx, get_function("planck.repl", "init-data-readers"), JSContextGetGlobalObject(ctx), 0,
                            arguments, &ex);
+
+    if (ex) {
+        print_value("Error initializing data readers: ", ctx, ex);
+    }
 
     display_launch_timing("engine ready");
 
