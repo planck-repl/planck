@@ -40,6 +40,7 @@ plk --compile-opts @/my-compile-opts.edn
 Options that may be configured via `-co` / `--compile-opts` comprise:
 
 - [:checked-arrays](https://clojurescript.org/reference/compiler-options#checked-arrays)
+- [:def-emits-var](https://clojurescript.org/reference/repl-options#def-emits-var)
 - [:elide-asserts](https://clojurescript.org/reference/compiler-options#elide-asserts)
 - [:fn-invoke-direct](https://clojurescript.org/reference/compiler-options#fn-invoke-direct)
 - [:foreign-libs](https://clojurescript.org/reference/compiler-options#foreign-libs)

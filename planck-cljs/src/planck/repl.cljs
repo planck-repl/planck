@@ -2005,7 +2005,7 @@
             (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])
             (if expression?
               (merge {:context       :expr
-                      :def-emits-var true}
+                      :def-emits-var (-> @app-env :opts (:def-emits-var true))}
                 (when (load-form? expression-form)
                   {:source-map (source-map?)}))
               (merge {:source-map (source-map?)}
