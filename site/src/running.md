@@ -19,6 +19,17 @@ plk -h
 
 The command line arguments to Planck are heavily modeled after the ones available for the Clojure REPL. In particular, you can provide zero or more _init-opt_ arguments, followed by an optional _main-opt_ argument, followed by zero or more _arg_ arguments. Planck also accepts _long arguments_ (preceeded by two dashes), just like the Clojure REPL.
 
+### Auto-loaded user code
+
+When a Planck starts, it automatically loads any `user.cljs` or `user.cljc` 
+file present on your classpath. This is an ideal location to place code
+that is useful for development time.
+
+The file may contain an `ns` form to load required namespaces or to establish 
+the namespace for any `def` forms that appear in the file. If no namespace 
+is specified, `cljs.user` is assumed.
+ 
+
 ### Compile Opts EDN
 
 Many of the command line arguments may also supplied via **edn**, passed via `-co` / `--compile-opts`. Any opts passed via `-co` / `--compile-opts` are merged onto any base opts specified directly by command-line flags.

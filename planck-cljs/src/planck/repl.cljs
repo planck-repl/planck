@@ -2121,3 +2121,12 @@
   (binding [cljs/*eval-fn* (fn [{:keys [source]}]
                              (js-eval source nil))]
     (set! *data-readers* (get-data-readers))))
+
+(defn- ^:export maybe-load-user-file []
+  (let [try-load (fn [name]
+                   (when-let [[_ _ path origin] (js/PLANCK_LOAD name)]
+                     (when (= "src" origin)
+                       (process-load-file path {:expression? false})
+                       true)))]
+    (or (try-load "user.cljs")
+        (try-load "user.cljc"))))

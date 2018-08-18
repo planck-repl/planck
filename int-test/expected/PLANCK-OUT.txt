@@ -606,3 +606,5 @@ Can't find variable: source
 
 Can't find variable: a
 
+Auto-load user.cljs
+3

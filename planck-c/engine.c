@@ -401,6 +401,20 @@ void discarding_sender(const char *msg) {
     /* Intentionally empty. */
 }
 
+void maybe_load_user_file() {
+    if (config.repl) {
+        JSValueRef arguments[0];
+        JSValueRef ex = NULL;
+        JSObjectCallAsFunction(ctx, get_function("planck.repl", "maybe-load-user-file"), JSContextGetGlobalObject(ctx),
+                               0, arguments, &ex);
+        debug_print_value("planck.repl/maybe-load-user-file", ctx, ex);
+
+        if (ex) {
+            print_value("Error loading user file: ", ctx, ex);
+        }
+    }
+}
+
 void *do_engine_init(void *data) {
     ctx = JSGlobalContextCreate(NULL);
 
@@ -658,6 +672,8 @@ void *do_engine_init(void *data) {
     if (ex) {
         print_value("Error initializing data readers: ", ctx, ex);
     }
+
+    maybe_load_user_file();
 
     display_launch_timing("engine ready");
 
