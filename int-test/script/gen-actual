@@ -801,3 +801,9 @@ $PLANCK <<REPL_INPUT
 js/source
 js/a
 REPL_INPUT
+
+echo "Auto-load user.cljs"
+echo "(def x 3)" > /tmp/PLANCK_SRC/user.cljs
+$PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
+x
+REPL_INPUT
