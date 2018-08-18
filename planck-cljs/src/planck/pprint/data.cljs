@@ -52,12 +52,19 @@
               (recur new-ns entries (assoc lm (strip-ns k) v)))))
         [ns lm]))))
 
+(defn- visit-default
+  "Delegates to ClojureScript for printing a value."
+  [x]
+  [:text (binding [*print-meta* false] (pr-str x))])
+
 (defrecord PlanckPrinter [symbols print-meta print-length print-level print-namespace-maps theme keyword-ns demunge-macros-symbols?]
 
   fipp.visit/IVisitor
 
   (visit-unknown [this x]
     (cond
+      (satisfies? IPrintWithWriter x)
+      (visit-default x)
       (instance? Eduction x)
       (if print-length
         (fipp.visit/visit-seq this (into [] (take (inc print-length)) x))
@@ -73,7 +80,7 @@
           (fn [printer [k v]]
             [:span (visit printer k) " " (visit printer v)])))
       :else
-      [:text (binding [*print-meta* false] (pr-str x))]))
+      (visit-default x)))
 
   (visit-nil [this]
     (wrap-theme :results-font theme "nil"))
