@@ -55,11 +55,15 @@
     (slurp (io/resource filename))))
 
 (copy-source "cljs/test.cljc")
+(copy-source "cljs/pprint.cljc")
 (copy-source "cljs/spec/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljc")
 (copy-source "cljs/spec/test/alpha.cljs")
 (copy-source "cljs/spec/gen/alpha.cljc")
 (copy-source "cljs/analyzer/api.cljc")
+(copy-source "cljs/analyzer/macros.clj")
+(copy-source "cljs/compiler/macros.clj")
+(copy-source "cljs/env/macros.clj")
 (copy-source "clojure/template.clj")
 
 (try

@@ -13,6 +13,8 @@ set -e
 set -o pipefail
 
 mkdir -p out/cljs/analyzer
+mkdir -p out/cljs/compiler
+mkdir -p out/cljs/env
 mkdir -p out/cljs/core/specs
 
 export PATH=script:$PATH
