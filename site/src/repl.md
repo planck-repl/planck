@@ -170,7 +170,7 @@ If you would like a different set of symbols referred into `cljs.user` upon star
 
 ```clojure
 {:repl-requires [[planck.repl :refer-macros [apropos dir find-doc doc source pst]]
-                 [cljs.pprint :refer [pprint]]]}
+                 [cljs.pprint :refer [pprint pp]]]}
 ```
 
 then you can launch Planck via
@@ -179,4 +179,4 @@ then you can launch Planck via
 plk --compile-opts compile-opts.edn -r
 ```
 
-and then `pprint` will be available.
+and then `pprint` and `pp` will be available.
