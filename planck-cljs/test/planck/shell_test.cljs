@@ -51,11 +51,11 @@
 
 (deftest with-sh-env-throws-on-nil-env-vars-test
   (is (thrown-with-msg? js/Error
-                        #"fails spec"
+                        #"planck.shell/string-string-map\?"
                         (planck.shell/with-sh-env {nil "value-for-a-nil-key"}
                           (planck.shell/sh "env"))))
   (is (thrown-with-msg? js/Error
-                        #"fails spec"
+                        #"planck.shell/string-string-map\?"
                         (planck.shell/with-sh-env {"key-with-a-nil-value" nil}
                           (planck.shell/sh "env")))))
 
