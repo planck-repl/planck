@@ -28,6 +28,10 @@
    [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
    [planck.themes :refer [get-theme]]))
 
+
+;; Prefer ES6 Number.isInteger
+(set! integer? (or (.-isInteger js/Number) integer?))
+
 (defn- distinct-by
   "Returns a lazy sequence of the elements of coll, removing any elements that
   return duplicate values when passed to a function f."

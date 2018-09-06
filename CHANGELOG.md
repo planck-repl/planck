@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. This change
 - Updates for private var use in Planck namespaces
 - Ensure all earmuffed vars defined in Planck namespaces are dynamic
 - Support `IPrintWithWriter` on native types ([#767](https://github.com/planck-repl/planck/issues/767))
+- Use Number.isInteger if possible ([#799](https://github.com/planck-repl/planck/issues/799))
 
 ### Fixed
 - Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
