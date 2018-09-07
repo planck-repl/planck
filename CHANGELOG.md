@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file. This change
 - Ensure all earmuffed vars defined in Planck namespaces are dynamic
 - Support `IPrintWithWriter` on native types ([#767](https://github.com/planck-repl/planck/issues/767))
 - Monkey patch target-specific array? and find-ns-obj ([#798](https://github.com/planck-repl/planck/issues/798))
+- Update `test.check` to 0.10.0-alpha3 ([#802](https://github.com/planck-repl/planck/issues/802))
 
 ### Fixed
 - Cache behavior when executing standalone script with shebang deps ([#749](https://github.com/mfikes/planck/issues/749))
