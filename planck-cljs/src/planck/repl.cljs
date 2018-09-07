@@ -28,6 +28,9 @@
    [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
    [planck.themes :refer [get-theme]]))
 
+;; Prefer ES6 Number.isInteger
+(set! integer? (or (.-isInteger js/Number) integer?))
+
 ;; Monkey patch target-specific core fns
 
 (set! array? (fn [x] (instance? js/Array x)))
