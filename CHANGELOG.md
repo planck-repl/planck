@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file. This change
 - Trailing comma error with optimizations ([#781](https://github.com/mfikes/planck/issues/781))
 - Log errors when initializing engine ([#787](https://github.com/mfikes/planck/issues/787))
 - Bundle missing macros namespaces ([#794](https://github.com/planck-repl/planck/issues/794))
+- ClojureScript version should not be displayed if there are inits ([#804](https://github.com/planck-repl/planck/issues/804))
 
 ## [2.17.0] - 2018-07-02
 ### Changed

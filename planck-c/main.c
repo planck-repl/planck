@@ -704,7 +704,7 @@ int main(int argc, char **argv) {
 
         evaluate_source(script.type, script.source, script.expression, false, NULL, config.theme, true, 0);
     } else if (config.repl) {
-        if (!config.quiet) {
+        if (!config.quiet && !config.num_scripts) {
             banner();
         }
 
