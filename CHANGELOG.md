@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+- Support for `:spec-skip-macros` compiler option ([#806](https://github.com/planck-repl/planck/issues/806))
 
 ## [2.18.0] - 2018-10-13
 ### Added

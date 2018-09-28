@@ -59,6 +59,7 @@ Options that may be configured via `-co` / `--compile-opts` comprise:
 - [:optimizations](https://clojurescript.org/reference/compiler-options#optimizations)
 - [:repl-requires](https://clojurescript.org/reference/repl-options#repl-requires)
 - [:source-map](https://clojurescript.org/reference/compiler-options#source-map)
+- [:spec-skip-macros](https://clojurescript.org/reference/compiler-options#spec-skip-macros)
 - [:static-fns](https://clojurescript.org/reference/compiler-options#static-fns)
 - [:verbose](https://clojurescript.org/reference/compiler-options#verbose)
 - [:warnings](https://clojurescript.org/reference/compiler-options#warnings)
