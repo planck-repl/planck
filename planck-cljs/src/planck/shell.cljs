@@ -52,10 +52,11 @@
           async?     (not= cb nil-func)
           in-bytes   (when in
                        (let [acc (volatile! [])
-                             os  (reify planck.core/IOutputStream
-                                   (-write-bytes [_ bytes]
+                             os  (planck.core/->OutputStream
+                                   (fn [bytes]
                                      (vswap! acc conj (vec bytes)))
-                                   (-flush-bytes [_]))]
+                                   (fn [])
+                                   (fn []))]
                          (io/copy in os in-enc)
                          (apply array @acc)))
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in-bytes out-enc
