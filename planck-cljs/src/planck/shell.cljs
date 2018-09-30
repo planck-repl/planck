@@ -58,7 +58,7 @@
                                    (fn [])
                                    (fn []))]
                          (io/copy in os in-enc)
-                         (apply array @acc)))
+                         (into-array @acc)))
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in-bytes out-enc
                                          (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
