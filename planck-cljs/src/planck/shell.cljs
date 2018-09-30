@@ -69,11 +69,8 @@
   cmd      the command(s) (Strings) to execute. will be concatenated together.
   options  optional keyword arguments-- see below.
   Options are:
-  :in      may be given followed by a string of one of the following formats:
-           String conforming to URL Syntax: 'file:///tmp/test.txt'
-           String pointing at an *existing* 'file: '/tmp/test.txt'
-           String with string input: 'Printing input from stdin with funny chars like $@ &'
-           to be fed to the sub-process's stdin.
+  :in      may be given followed by a String to be fed to the sub-process's
+           stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the
@@ -99,11 +96,8 @@
   options  optional keyword arguments-- see below.
   cb       the callback to call upon completion
   Options are:
-  :in      may be given followed by a string of one of the following formats:
-           String conforming to URL Syntax: 'file:///tmp/test.txt'
-           String pointing at an *existing* 'file: '/tmp/test.txt'
-           String with string input: 'Printing input from stdin with funny chars like $@ &'
-           to be fed to the sub-process's stdin.
+  :in      may be given followed by a String to be fed to the sub-process's
+           stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the

@@ -27,11 +27,7 @@ Parameters: `cmd`, <`options`><br/>
   `options`  optional keyword arguments-- see below.<br/>
 
 Options are:<br/>
-  `:in`      may be given followed by a string of one of the following formats:<br/>
-String conforming to URL Syntax: 'file:///tmp/test.txt'<br/>
-String pointing at an *existing* 'file: '/tmp/test.txt'<br/>
-String with string input: 'Printing input from stdin with funny chars like $@ &'
-to be fed to the sub-process's stdin.<br/>
+  `:in`      may be given followed by a String to be fed to the sub-process's stdin.<br/>
   `:in-enc`  option may be given followed by a String, used as a character
 encoding name (for example "UTF-8" or "ISO-8859-1") to
 convert the input string specified by the :in option to the
@@ -63,11 +59,7 @@ Parameters: `cmd`, <`options`>, `cb`<br/>
   `cb`       the callback to call upon completion
 
 Options are:<br/>
-  `:in`      may be given followed by a string of one of the following formats:<br/>
- String conforming to URL Syntax: 'file:///tmp/test.txt'<br/>
-String pointing at an *existing* 'file: '/tmp/test.txt'<br/>
-String with string input: 'Printing input from stdin with funny chars like $@ &'
-to be fed to the sub-process's stdin.<br/>
+  `:in`      may be given followed by a String to be fed to the sub-process's stdin.<br/>
   `:in-enc`  option may be given followed by a String, used as a character
 encoding name (for example "UTF-8" or "ISO-8859-1") to
 convert the input string specified by the :in option to the
