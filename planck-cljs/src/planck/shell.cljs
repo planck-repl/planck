@@ -6,6 +6,7 @@
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [goog.object :as gobj]
+   [planck.core]
    [planck.io :as io :refer [as-file]]
    [planck.repl :as repl]))
 
@@ -49,7 +50,15 @@
             (into {} (map (comp (juxt :key :val) second) opts)))
           dir        (and dir (:path (as-file (second dir))))
           async?     (not= cb nil-func)
-          translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc
+          in-bytes   (when in
+                       (let [acc (volatile! [])
+                             os  (reify planck.core/IOutputStream
+                                   (-write-bytes [_ bytes]
+                                     (vswap! acc conj (vec bytes)))
+                                   (-flush-bytes [_]))]
+                         (io/copy in os in-enc)
+                         (apply array @acc)))
+          translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in-bytes out-enc
                                          (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
       (cond

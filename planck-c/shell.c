@@ -485,19 +485,35 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
         if (command) {
             char *in_str = NULL;
             if (!JSValueIsNull(ctx, args[1])) {
-                in_str = value_to_c_string(ctx, args[1]);
+                unsigned int count = (unsigned int) array_get_count(ctx, (JSObjectRef) args[1]);
+                in_str = malloc(count+1);
+                in_str[count] = 0;
+                unsigned int i;
+                for (i = 0; i < count; i++) {
+                    JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef) args[1], i);
+                    if (JSValueIsNumber(ctx, v)) {
+                        double n = JSValueToNumber(ctx, v, NULL);
+                        if (0 <= n && n <= 255) {
+                            in_str[i] = (unsigned char) n;
+                        } else {
+                            fprintf(stderr, "Output stream value out of range %f", n);
+                        }
+                    } else {
+                        fprintf(stderr, "Output stream value not a number");
+                    }
+                }
             }
             char **environment = NULL;
-            if (!JSValueIsNull(ctx, args[4])) {
-                environment = env(ctx, (JSObjectRef) args[4]);
+            if (!JSValueIsNull(ctx, args[3])) {
+                environment = env(ctx, (JSObjectRef) args[3]);
             }
             char *dir = NULL;
-            if (!JSValueIsNull(ctx, args[5])) {
-                dir = value_to_c_string(ctx, args[5]);
+            if (!JSValueIsNull(ctx, args[4])) {
+                dir = value_to_c_string(ctx, args[4]);
             }
             int callback_idx = -1;
-            if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[6])) {
-                callback_idx = (int) JSValueToNumber(ctx, args[6], NULL);
+            if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[5])) {
+                callback_idx = (int) JSValueToNumber(ctx, args[5], NULL);
             }
             return system_call(ctx, command, in_str, environment, dir, callback_idx);
         }
