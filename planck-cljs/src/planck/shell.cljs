@@ -54,7 +54,7 @@
                        (let [acc (volatile! [])
                              os  (planck.core/->OutputStream
                                    (fn [bytes]
-                                     (vswap! acc conj (vec bytes)))
+                                     (vswap! acc into bytes))
                                    (fn [])
                                    (fn []))]
                          (io/copy in os in-enc)
