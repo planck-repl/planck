@@ -131,7 +131,7 @@
                                                (every? string? (vals m))))))
 
 (s/def ::sh-opt
-  (s/alt :in (s/cat :key #{:in} :val string?)
+  (s/alt :in (s/cat :key #{:in} :val any?)
     :in-enc (s/cat :key #{:in-enc} :val string?)
     :out-enc (s/cat :key #{:out-enc} :val string?)
     :dir (s/cat :key #{:dir} :val (s/or :string string? :file io/file?))

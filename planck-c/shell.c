@@ -480,13 +480,13 @@ static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char *
 
 JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                               size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    if (argc == 7) {
+    if (argc == 6) {
         char **command = cmd(ctx, (JSObjectRef) args[0]);
         if (command) {
             char *in_str = NULL;
             if (!JSValueIsNull(ctx, args[1])) {
                 unsigned int count = (unsigned int) array_get_count(ctx, (JSObjectRef) args[1]);
-                in_str = malloc(count+1);
+                in_str = malloc(sizeof(char *) * (count + 1));
                 in_str[count] = 0;
                 unsigned int i;
                 for (i = 0; i < count; i++) {
@@ -494,7 +494,6 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
                     if (JSValueIsNumber(ctx, v)) {
                         double n = JSValueToNumber(ctx, v, NULL);
                         if (0 <= n && n <= 255) {
-                            fprintf(stderr, "%d", (unsigned char)n);
                             in_str[i] = (unsigned char) n;
                         } else {
                             fprintf(stderr, "Output stream value out of range %f", n);
