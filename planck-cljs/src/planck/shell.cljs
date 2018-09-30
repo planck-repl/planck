@@ -79,8 +79,9 @@
   cmd      the command(s) (Strings) to execute. will be concatenated together.
   options  optional keyword arguments-- see below.
   Options are:
-  :in      may be given followed by a String to be fed to the sub-process's
-           stdin.
+  :in      may be given followed by any legal input source for
+           planck.io/copy, e.g. IInputStream or IReader created using planck.io,
+           File, or string, to be fed to the sub-process's stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the
@@ -106,8 +107,9 @@
   options  optional keyword arguments-- see below.
   cb       the callback to call upon completion
   Options are:
-  :in      may be given followed by a String to be fed to the sub-process's
-           stdin.
+  :in      may be given followed by any legal input source for
+           planck.io/copy, e.g. IInputStream or IReader created using planck.io,
+           File, or string, to be fed to the sub-process's stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the
