@@ -494,6 +494,7 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
                     if (JSValueIsNumber(ctx, v)) {
                         double n = JSValueToNumber(ctx, v, NULL);
                         if (0 <= n && n <= 255) {
+                            fprintf(stderr, "%d", (unsigned char)n);
                             in_str[i] = (unsigned char) n;
                         } else {
                             fprintf(stderr, "Output stream value out of range %f", n);
@@ -512,7 +513,7 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
                 dir = value_to_c_string(ctx, args[4]);
             }
             int callback_idx = -1;
-            if (!JSValueIsNull(ctx, args[6]) && JSValueIsNumber(ctx, args[5])) {
+            if (!JSValueIsNull(ctx, args[5]) && JSValueIsNumber(ctx, args[5])) {
                 callback_idx = (int) JSValueToNumber(ctx, args[5], NULL);
             }
             return system_call(ctx, command, in_str, environment, dir, callback_idx);
