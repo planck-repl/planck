@@ -204,7 +204,7 @@
       (#'planck.core/->InputStream
         (fn []
           (if (contains? @open-file-input-stream-descriptors file-descriptor)
-            (js->clj (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor))
+            (some-> (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor) vec)
             (throw (js/Error. "File closed."))))
         (fn []
           (when (contains? @open-file-input-stream-descriptors file-descriptor)
@@ -217,7 +217,7 @@
       (#'planck.core/->OutputStream
         (fn [byte-array]
           (if (contains? @open-file-output-stream-descriptors file-descriptor)
-            (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (clj->js byte-array))
+            (js/PLANCK_FILE_OUTPUT_STREAM_WRITE file-descriptor (into-array byte-array))
             (throw (js/Error. "File closed."))))
         (fn []
           (if (contains? @open-file-output-stream-descriptors file-descriptor)
