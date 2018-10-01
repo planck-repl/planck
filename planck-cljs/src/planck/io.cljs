@@ -204,7 +204,7 @@
       (#'planck.core/->InputStream
         (fn []
           (if (contains? @open-file-input-stream-descriptors file-descriptor)
-            (vec (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor))
+            (some-> (js/PLANCK_FILE_INPUT_STREAM_READ file-descriptor) vec)
             (throw (js/Error. "File closed."))))
         (fn []
           (when (contains? @open-file-input-stream-descriptors file-descriptor)
