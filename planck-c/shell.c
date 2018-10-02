@@ -148,43 +148,20 @@ void process_child_pipes(struct ThreadParams *params) {
     bool out_eof = false;
     bool err_eof = false;
 
-    if (params->in_str) {
-        char *to_write = params->in_str;
-        bool done = false;
-        while (!done) {
-            ssize_t result = write(params->inpipe, to_write, strlen(to_write));
-            if (result == -1) {
-                engine_perror("planck.shell write in");
-                done = true;
-            } else if (result != strlen(to_write)) {
-                to_write += result;
-            } else {
-                done = true;
-            }
-        }
-        close(params->inpipe);
-    }
-
+    char *to_write = params->in_str;
+    
     while (!out_eof || !err_eof) {
 
-        struct pollfd fds[2];
-        nfds_t fd_count = 0;
+        struct pollfd fds[3];
+        nfds_t fd_count = 3;
 
-        if (!out_eof && !err_eof) {
-            fds[0].fd = params->outpipe;
-            fds[0].events = POLLIN | POLLHUP;
-            fds[1].fd = params->errpipe;
-            fds[1].events = POLLIN | POLLHUP;
-            fd_count = 2;
-        } else if (!out_eof) {
-            fds[0].fd = params->outpipe;
-            fds[0].events = POLLIN | POLLHUP;
-            fd_count = 1;
-        } else {
-            fds[0].fd = params->errpipe;
-            fds[0].events = POLLIN | POLLHUP;
-            fd_count = 1;
-        }
+
+        fds[0].fd = out_eof ? -1 : params->outpipe;
+        fds[0].events = POLLIN | POLLHUP;
+        fds[1].fd = err_eof ? -1 : params->errpipe;
+        fds[1].events = POLLIN | POLLHUP;
+        fds[2].fd = to_write ? params->inpipe : -1;
+        fds[2].events = POLLOUT;
 
         int rv = poll(fds, fd_count, 10000);
 
@@ -200,32 +177,33 @@ void process_child_pipes(struct ThreadParams *params) {
             continue;
         } else {
             if (fds[0].revents & (POLLIN | POLLHUP)) {
-                if (fds[0].fd == params->outpipe) {
-                    int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
-                    if (res == 0) {
-                        out_eof = true;
-                    }
-                } else {
-                    int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
-                    if (res == 0) {
-                        err_eof = true;
-                    }
+                int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
+                if (res == 0) {
+                    out_eof = true;
                 }
             }
 
-            if (fd_count == 2) {
-                if (fds[1].revents & (POLLIN | POLLHUP)) {
-                    if (fds[1].fd == params->outpipe) {
-                        int res = read_child_pipe(params->outpipe, &out_buf, &out_total);
-                        if (res == 0) {
-                            out_eof = true;
-                        }
-                    } else {
-                        int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
-                        if (res == 0) {
-                            err_eof = true;
-                        }
-                    }
+            if (fds[1].revents & (POLLIN | POLLHUP)) {
+                int res = read_child_pipe(params->errpipe, &err_buf, &err_total);
+                if (res == 0) {
+                    err_eof = true;
+                }
+            }
+
+            if (fds[2].revents & POLLOUT) {
+                size_t remaining_to_write = strlen(to_write);
+                size_t count_to_write = remaining_to_write;
+                if (count_to_write > 4096) {
+                    count_to_write = 4096;
+                }
+                ssize_t result = write(params->inpipe, to_write, count_to_write);
+                if (result == -1) {
+                    engine_perror("planck.shell write in");
+                } else if (result != remaining_to_write) {
+                    to_write += result;
+                } else {
+                    to_write = NULL;
+                    close(params->inpipe);
                 }
             }
         }
