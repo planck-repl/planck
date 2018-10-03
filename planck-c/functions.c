@@ -793,6 +793,16 @@ JSValueRef function_file_input_stream_open(JSContextRef ctx, JSObjectRef functio
 
 JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                            size_t argc, const JSValueRef args[], JSValueRef *exception) {
+
+    static JSValueRef *charmap = NULL;
+    if (!charmap) {
+        charmap = malloc(256 * sizeof (JSValueRef));
+        for (int i = 0; i < 256; i++) {
+            charmap[i] = JSValueMakeNumber(ctx, i);
+            JSValueProtect(ctx, charmap[i]);
+        }
+    }
+
     if (argc == 1
         && JSValueGetType(ctx, args[0]) == kJSTypeString) {
 
@@ -811,7 +821,7 @@ JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef functio
             int num_arguments = (int) read;
             int i;
             for (i = 0; i < num_arguments; i++) {
-                arguments[i] = JSValueMakeNumber(ctx, buf[i]);
+                arguments[i] = charmap[buf[i]];
             }
 
             return JSObjectMakeArray(ctx, num_arguments, arguments, NULL);
