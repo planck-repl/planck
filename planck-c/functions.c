@@ -797,7 +797,8 @@ JSValueRef function_file_input_stream_read(JSContextRef ctx, JSObjectRef functio
     static JSValueRef *charmap = NULL;
     if (!charmap) {
         charmap = malloc(256 * sizeof (JSValueRef));
-        for (int i = 0; i < 256; i++) {
+        int i;
+        for (i = 0; i < 256; i++) {
             charmap[i] = JSValueMakeNumber(ctx, i);
             JSValueProtect(ctx, charmap[i]);
         }
