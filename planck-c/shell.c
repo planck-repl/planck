@@ -192,10 +192,7 @@ void process_child_pipes(struct ThreadParams *params) {
             }
 
             if (fds[2].revents & POLLOUT) {
-                size_t amount_to_write = remaining_to_write;
-                if (amount_to_write > 4096) {
-                    amount_to_write = 4096;
-                }
+                size_t amount_to_write = remaining_to_write > 4096 ? (size_t)4096 : remaining_to_write;
                 ssize_t result = write(params->inpipe, to_write, amount_to_write);
                 if (result == -1) {
                     engine_perror("planck.shell write in");
