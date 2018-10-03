@@ -201,6 +201,7 @@ void process_child_pipes(struct ThreadParams *params) {
                     remaining_to_write -= result;
                 } else {
                     to_write = NULL;
+                    free(params->in_str);
                     close(params->inpipe);
                 }
             }
