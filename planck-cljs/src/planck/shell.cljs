@@ -6,6 +6,7 @@
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [goog.object :as gobj]
+   [planck.core]
    [planck.io :as io :refer [as-file]]
    [planck.repl :as repl]))
 
@@ -49,7 +50,16 @@
             (into {} (map (comp (juxt :key :val) second) opts)))
           dir        (and dir (:path (as-file (second dir))))
           async?     (not= cb nil-func)
-          translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in in-enc out-enc
+          in-bytes   (when in
+                       (let [acc (volatile! [])
+                             os  (planck.core/->OutputStream
+                                   (fn [bytes]
+                                     (vswap! acc into bytes))
+                                   (fn [])
+                                   (fn []))]
+                         (io/copy in os in-enc)
+                         (into-array @acc)))
+          translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in-bytes out-enc
                                          (clj->js (seq env)) dir (if async? (assoc-cb cb))))
           {:keys [exit err]} translated]
       (cond
@@ -69,8 +79,9 @@
   cmd      the command(s) (Strings) to execute. will be concatenated together.
   options  optional keyword arguments-- see below.
   Options are:
-  :in      may be given followed by a String to be fed to the sub-process's
-           stdin.
+  :in      may be given followed by any legal input source for
+           planck.io/copy, e.g. IInputStream or IReader created using planck.io,
+           File, or string, to be fed to the sub-process's stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the
@@ -96,8 +107,9 @@
   options  optional keyword arguments-- see below.
   cb       the callback to call upon completion
   Options are:
-  :in      may be given followed by a String to be fed to the sub-process's
-           stdin.
+  :in      may be given followed by any legal input source for
+           planck.io/copy, e.g. IInputStream or IReader created using planck.io,
+           File, or string, to be fed to the sub-process's stdin.
   :in-enc  option may be given followed by a String, used as a character
            encoding name (for example \"UTF-8\" or \"ISO-8859-1\") to
            convert the input string specified by the :in option to the
@@ -121,7 +133,7 @@
                                                (every? string? (vals m))))))
 
 (s/def ::sh-opt
-  (s/alt :in (s/cat :key #{:in} :val string?)
+  (s/alt :in (s/cat :key #{:in} :val any?)
     :in-enc (s/cat :key #{:in-enc} :val string?)
     :out-enc (s/cat :key #{:out-enc} :val string?)
     :dir (s/cat :key #{:dir} :val (s/or :string string? :file io/file?))

@@ -27,7 +27,10 @@ Parameters: `cmd`, <`options`><br/>
   `options`  optional keyword arguments-- see below.<br/>
 
 Options are:<br/>
-  `:in`      may be given followed by a String to be fed to the sub-process's stdin.<br/>
+  `:in`     may be given followed by any legal input source for
+[`planck.io/copy`](planck-io.html#copy), e.g. [`IInputStream`](planck-core.html#IInputStream)
+or [`IReader`](planck-core.html#IReader) created using [`planck.io`](planck-io.html),
+[`File`](planck-io.html#File), or string, to be fed to the sub-process's stdin.<br/>
   `:in-enc`  option may be given followed by a String, used as a character
 encoding name (for example "UTF-8" or "ISO-8859-1") to
 convert the input string specified by the :in option to the
@@ -59,7 +62,10 @@ Parameters: `cmd`, <`options`>, `cb`<br/>
   `cb`       the callback to call upon completion
 
 Options are:<br/>
-  `:in`      may be given followed by a String to be fed to the sub-process's stdin.<br/>
+  `:in`     may be given followed by any legal input source for
+[`planck.io/copy`](planck-io.html#copy), e.g. [`IInputStream`](planck-core.html#IInputStream)
+or [`IReader`](planck-core.html#IReader) created using [`planck.io`](planck-io.html),
+[`File`](planck-io.html#File), or string, to be fed to the sub-process's stdin.<br/>
   `:in-enc`  option may be given followed by a String, used as a character
 encoding name (for example "UTF-8" or "ISO-8859-1") to
 convert the input string specified by the :in option to the

@@ -2,7 +2,8 @@
   (:require
    [clojure.string :as string]
    [clojure.test :refer [deftest is]]
-   [planck.io]
+   [planck.core]
+   [planck.io :as io]
    [planck.shell :include-macros true]))
 
 (deftest shell
@@ -73,3 +74,10 @@
 (deftest launch-fail-msg-test
   (is (= "Launch path \"ls -l\" not accessible. Did you perhaps mean to launch using \"ls\", with (\"-l\") as arguments?"
         (#'planck.shell/launch-fail-msg "ls -l"))))
+
+(deftest cat-in-test
+  (let [test-str (pr-str (range 1e5))
+        test-file (io/file "/tmp/plnk-cat-in-test.txt")]
+    (planck.core/spit test-file test-str)
+    (let [result (planck.shell/sh "cat" :in test-file)]
+      (is (= test-str (:out result))))))
