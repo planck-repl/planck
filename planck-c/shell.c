@@ -467,16 +467,8 @@ JSValueRef function_shellexec(JSContextRef ctx, JSObjectRef function, JSObjectRe
                 unsigned int i;
                 for (i = 0; i < count; i++) {
                     JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef) args[1], i);
-                    if (JSValueIsNumber(ctx, v)) {
-                        double n = JSValueToNumber(ctx, v, NULL);
-                        if (0 <= n && n <= 255) {
-                            in_str[i] = (unsigned char) n;
-                        } else {
-                            fprintf(stderr, "Output stream value out of range %f", n);
-                        }
-                    } else {
-                        fprintf(stderr, "Output stream value not a number");
-                    }
+                    double n = JSValueToNumber(ctx, v, NULL);
+                    in_str[i] = (unsigned char) n;
                 }
             }
             char **environment = NULL;
