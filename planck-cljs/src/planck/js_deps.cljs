@@ -41,7 +41,7 @@
   [dir]
   (tree-seq
     (fn [f] (js/PLANCK_IS_DIRECTORY f))
-    (fn [d] (js->clj (js/PLANCK_LIST_FILES d)))
+    (fn [d] (vec (js/PLANCK_LIST_FILES d)))
     dir))
 
 (defn parse-libs
