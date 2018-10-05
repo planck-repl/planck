@@ -20,6 +20,7 @@ _Vars_
 [eval](#eval)<br/>
 [exit](#exit)<br/>
 [file-seq](#file-seq)<br/>
+[find-var](#find-var)<br/>
 [init-empty-state](#init-empty-state)<br/>
 [intern](#intern)<br/>
 [line-seq](#line-seq)<br/>
@@ -138,6 +139,16 @@ A tree seq on files
 
 Spec<br/>
  _args_: `(cat :dir (or :string string? :file file?))`
+
+### <a name="find-var"></a>find-var
+`([sym])`
+
+Returns the global var named by the namespace-qualified symbol, or
+`nil` if no var with that name.
+
+Spec<br/>
+ _args_: `(cat :sym qualified-symbol?)`<br/>
+ _ret_: `(nilable var?)`
 
 ### <a name="init-empty-state"></a>init-empty-state
 `([state])`
