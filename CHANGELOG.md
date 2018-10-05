@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file. This change
 - ClojureScript version should not be displayed if there are inits ([#804](https://github.com/planck-repl/planck/issues/804))
 - Docstring for `planck.shell/sh` `:in` should indicate `string` ([#807](https://github.com/planck-repl/planck/issues/807))
 - Faster `array`<->`vec` I/O ([#812](https://github.com/planck-repl/planck/issues/812))
+- Faster `file-seq` ([#816](https://github.com/planck-repl/planck/issues/816))
 
 ## [2.17.0] - 2018-07-02
 ### Changed
