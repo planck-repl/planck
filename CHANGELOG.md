@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This change
 - Support for `:def-emits-var` compiler option ([#785](https://github.com/planck-repl/planck/issues/785))
 - Auto-load `user.`(`cljs`|`cljc`) ([#754](https://github.com/planck-repl/planck/issues/754))
 - Allow `planck.shell` `:in` to take same as `io/copy` ([#808](https://github.com/planck-repl/planck/issues/808))
+- Add `find-var` imitation ([#743](https://github.com/planck-repl/planck/issues/743))
 
 ### Changed
 - Updates for private var use in Planck namespaces

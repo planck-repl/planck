@@ -393,6 +393,17 @@
   :args (s/cat :sym symbol?)
   :ret (s/nilable var?))
 
+(defn find-var
+  "Returns the global var named by the namespace-qualified symbol, or
+  nil if no var with that name."
+  [sym]
+  (when (eval `(exists? ~sym))
+    (eval `(var ~sym))))
+
+(s/fdef find-var
+  :args (s/cat :sym qualified-symbol?)
+  :ret (s/nilable var?))
+
 (defn intern
   "Finds or creates a var named by the symbol name in the namespace ns (which
   can be a symbol or a namespace), setting its root binding to val if supplied.

@@ -138,3 +138,7 @@
   (is (= '(+ 1 2) (planck.core/read-string "(+ 1 2))))))")))
   (is (= '(\( \x \y \) \z) (planck.core/read-string "(\\( \\x \\y \\) \\z)")))
   (is (= 11 (planck.core/read-string (str "2r" "1011")))))
+
+(deftest find-var-test
+  (is (nil? (planck.core/find-var 'cljs.core/nonexist)))
+  (is (= #'cljs.core/filter (planck.core/find-var 'cljs.core/filter))))
