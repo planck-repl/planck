@@ -155,3 +155,8 @@
     (testing "String -> File"
       (io/copy content (io/file dst))
       (is (no-diff src dst)))))
+
+(deftest list-files-test
+  (is (nil? (io/list-files "/bogus/path")))
+  (is (seq? (io/list-files "/tmp")))
+  (is (io/file? (first (io/list-files "/tmp")))))

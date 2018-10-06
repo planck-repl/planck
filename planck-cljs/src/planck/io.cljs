@@ -352,6 +352,16 @@
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret boolean?)
 
+(defn list-files
+  "Returns a seq of the Files in dir or nil if dir is not a directory."
+  [dir]
+  (when (directory? dir)
+    (map as-file (js/PLANCK_LIST_FILES (:path (as-file dir))))))
+
+(s/fdef list-files
+  :args (s/cat :dir (s/or :string string? :file file?))
+  :ret (s/coll-of file?))
+
 (defn resource
   "Returns the URI for a named resource."
   [n]
