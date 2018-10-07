@@ -23,6 +23,7 @@ _Vars_
 [file?](#file?)<br/>
 [file-attributes](#file-attributes)<br/>
 [input-stream](#input-stream)<br/>
+[list-files](#list-files)<br/>
 [make-input-stream](#make-input-stream)<br/>
 [make-output-stream](#make-output-stream)<br/>
 [make-parents](#make-parents)<br/>
@@ -175,6 +176,15 @@ Spec
 `([x & opts])`
 
 Attempts to coerce its argument into an open [`IInputStream`](planck-core.html#IInputStream).
+
+### <a name="list-files"></a>list-files
+`([dir])`
+
+Returns a seq of the [`File`](#File)s in `dir` or `nil` if `dir` is not a directory.
+
+Spec
+ _args_: `(cat :dir (or :string string? :file file?))`<br/>
+ _ret_: `(coll-of file?)`
 
 ### <a name="make-input-stream"></a>make-input-stream
 `([x opts])`

@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This change
 - Auto-load `user.`(`cljs`|`cljc`) ([#754](https://github.com/planck-repl/planck/issues/754))
 - Allow `planck.shell` `:in` to take same as `io/copy` ([#808](https://github.com/planck-repl/planck/issues/808))
 - Add `find-var` imitation ([#743](https://github.com/planck-repl/planck/issues/743))
+- Add `planck.io/list-files` ([#748](https://github.com/planck-repl/planck/issues/748))
 
 ### Changed
 - Updates for private var use in Planck namespaces
