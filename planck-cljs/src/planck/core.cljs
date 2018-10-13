@@ -453,6 +453,28 @@
   :args (s/alt :unary (s/cat :millis #(and (integer? %) (not (neg? %))))
                :binary (s/cat :millis #(and (integer? %) (not (neg? %))) :nanos #(and (integer? %) (<= 0 % 999999)))))
 
+(defn load-reader
+  "Sequentially read and evaluate the set of forms contained in the
+  stream/file"
+  [rdr]
+  (->> (repeatedly #(read {:eof ::eof} rdr))
+    (take-while #(not (keyword-identical? % ::eof)))
+    (reduce #(eval %2) nil)))
+
+(s/fdef load-reader
+  :args (s/cat :rdr #(satisfies? IPushbackReader %))
+  :ret any?)
+
+(defn load-string
+  "Sequentially read and evaluate the set of forms contained in the
+  string"
+  [s]
+  (load-reader (make-string-reader s)))
+
+(s/fdef load-string
+  :args (s/cat :s string?)
+  :ret any?)
+
 ;; Ensure planck.io and planck.http are loaded so that their
 ;; facilities are available
 (#'repl/side-load-ns 'planck.http)

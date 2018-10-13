@@ -142,3 +142,7 @@
 (deftest find-var-test
   (is (nil? (planck.core/find-var 'cljs.core/nonexist)))
   (is (= #'cljs.core/filter (planck.core/find-var 'cljs.core/filter))))
+
+(deftest load-string-test
+  (is (= 3 (planck.core/load-string "1 2 3")))
+  (is (= "hi" (with-out-str (planck.core/load-string "1 (print \"hi\") 2")))))

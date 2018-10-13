@@ -24,6 +24,8 @@ _Vars_
 [init-empty-state](#init-empty-state)<br/>
 [intern](#intern)<br/>
 [line-seq](#line-seq)<br/>
+[load-reader](#load-reader)<br/>
+[load-string](#load-string)<br/>
 [ns-resolve](#ns-resolve)<br/>
 [read](#read)<br/>
 [read-line](#read-line)<br/>
@@ -184,6 +186,26 @@ Returns the lines of text from rdr as a lazy sequence of strings.
 Spec<br/>
  _args_: `(cat :rdr (instance? IBufferedReader %))`<br/>
  _ret_: `seq?`<br/>
+
+### <a name="load-reader"></a>load-reader
+`([rdr])`
+
+  Sequentially read and evaluate the set of forms contained in the
+  stream/file
+
+Spec<br/>
+ _args_: `(cat :reader (satisfies? IPushbackReader %))`<br/>
+ _ret_: `any?`
+
+### <a name="load-string"></a>load-string
+`([rdr])`
+
+  Sequentially read and evaluate the set of forms contained in the
+  string
+
+Spec<br/>
+ _args_: `(cat :s string?)`<br/>
+ _ret_: `any?`
 
 ### <a name="ns-resolve"></a>ns-resolve
 `([ns sym])`
