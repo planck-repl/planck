@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Pretty-print atoms and volatiles
 
 ## [2.18.0] - 2018-10-13
 ### Added
