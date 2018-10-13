@@ -39,13 +39,13 @@ Also, note that it is possible to configure certain behaviors via `-co` / `--com
 Compile opts **edn** may be specified directly on the command line as in
 
 ```
-plk --compile-opts '{:closure-defines {foo.core "bar"}}'
+plk --compile-opts '{:closure-defines {foo.core/x "bar"}}' -r
 ```
 
 or by specifying a file, where an optional leading `@` means that the file should be read from the classpath as in:
 
 ```
-plk --compile-opts @/my-compile-opts.edn
+plk --compile-opts @/my-compile-opts.edn -r
 ```
 
 Options that may be configured via `-co` / `--compile-opts` comprise:
