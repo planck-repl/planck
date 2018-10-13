@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.18.0] - 2018-10-13
 ### Added
 - Add support for tagged literals ([#517](https://github.com/mfikes/planck/issues/517))
 - `doc` for spec-registered keywords
@@ -737,7 +739,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.17.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.18.0...HEAD
+[2.18.0]: https://github.com/mfikes/planck/compare/2.17.0...2.18.0
 [2.17.0]: https://github.com/mfikes/planck/compare/2.16.0...2.17.0
 [2.16.0]: https://github.com/mfikes/planck/compare/2.15.0...2.16.0
 [2.15.0]: https://github.com/mfikes/planck/compare/2.14.0...2.15.0

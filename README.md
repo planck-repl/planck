@@ -52,6 +52,9 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 [eval](http://planck-repl.org/planck-core.html#eval), 
 [file-seq](http://planck-repl.org/planck-core.html#file-seq),
+[find-var](http://planck-repl.org/planck-core.html#find-var),
+[load-reader](http://planck-repl.org/planck-core.html#line-reader),
+[load-string](http://planck-repl.org/planck-core.html#line-string),
 [line-seq](http://planck-repl.org/planck-core.html#line-seq),
 [intern](http://planck-repl.org/planck-core.html#intern),
 [ns-resolve](http://planck-repl.org/planck-core.html#ns-resolve),
