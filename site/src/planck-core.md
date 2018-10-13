@@ -225,24 +225,14 @@ Spec<br/>
   Otherwise returns sentinel. If no reader is provided, [`*in*`](#in) will be used.
   Opts is a persistent map with valid keys:
   
-  `:read-cond` - `:allow` to process reader conditionals, or
-              `:preserve` to keep all branches
+  `:read-cond` - `:allow` to process reader conditionals, or `:preserve` to keep all branches
               
   `:features` - persistent set of feature keywords for reader conditionals
   
-  `:eof` - on eof, return value unless `:eofthrow`, then throw.
-        if not specified, will throw
+  `:eof` - on eof, return value unless `:eofthrow`, then throw. if not specified, will throw
 
 Spec<br/>
- _args_: `(alt
-         :nullary (cat )
-         :unary (cat :reader #(satisfies? IPushbackReader %))
-         :binary (cat :opts map? :reader #(satisfies? IPushbackReader %))
-         :ternary
-           (cat
-             :reader #(satisfies? IPushbackReader %)
-             :eof-error? boolean?
-             :eof-value any?))`<br/>
+ _args_:  `(alt :nullary (cat ) :unary (cat :reader #(satisfies? IPushbackReader %)) :binary (cat :opts map? :reader #(satisfies? IPushbackReader %)) :ternary (cat :reader #(satisfies? IPushbackReader %) :eof-error? boolean? :eof-value any?))`
 
 ### <a name="read-line"></a>read-line
 `([])`
