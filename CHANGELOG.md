@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Pretty-print atoms and volatiles
 
+### Fixed
+- Requiring foreign libs with cljsjs broken ([#825](https://github.com/mfikes/planck/issues/825))
+
 ## [2.18.0] - 2018-10-13
 ### Added
 - Add support for tagged literals ([#517](https://github.com/mfikes/planck/issues/517))

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
+
+mkdir -p lib
+if [ ! -f lib/long-3.0.3-1.jar ]; then
+  cp ~/.m2/repository/cljsjs/long/3.0.3-1/long-3.0.3-1.jar lib/long-3.0.3-1.jar
+fi
