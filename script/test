@@ -3,6 +3,7 @@
 set -e
 
 script/get-tcheck
+script/get-cljsjs-long
 
 echo "Running unit tests..."
 script/test-unit

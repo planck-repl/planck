@@ -1108,7 +1108,7 @@
                             (concat (->> requires
                                       (filter #(string/starts-with? % "goog."))
                                       (map (comp goog-dep-source symbol)))
-                              [(first (js/PLANCK_READ_FILE file))])))
+                              [(first (or (js/PLANCK_LOAD file) (js/PLANCK_READ_FILE file)))])))
                   (deps/js-libs-to-load name))]
     (cb {:lang :js
          :source (string/join "\n" sources)})

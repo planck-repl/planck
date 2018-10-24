@@ -4,6 +4,7 @@
    [clojure.test :refer [run-tests]]
    [fipp.edn]
    [general.closure-libs-test]
+   [general.cljsjs-libs-test]
    [general.core-test]
    [general.closure-defines-test]
    [general.data-readers-test]
@@ -31,6 +32,7 @@
     'planck.http-test
     'planck.closure-test
     'general.closure-libs-test
+    'general.cljsjs-libs-test
     'general.core-test
     'general.closure-defines-test
     'general.data-readers-test
