@@ -325,6 +325,12 @@
 (defn- read-compile-optss [compile-optss]
   (apply merge (mapcat read-compile-opts compile-optss)))
 
+(def ^:private passthrough-compiler-opts
+  [:spec-skip-macros])
+
+(defn- setup-passthrough-compiler-opts [opts]
+  (swap! st update :options merge (select-keys opts passthrough-compiler-opts)))
+
 (defn- ^:export init
   [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-optss]
   (when (exists? *command-line-args*)
@@ -333,6 +339,7 @@
   (let [opts (merge {}
                (read-compile-optss compile-optss)
                (read-opts-from-file "opts.clj"))]
+    (setup-passthrough-compiler-opts opts)
     (reset! planck.repl/app-env (merge {:repl          repl
                                         :verbose       verbose
                                         :cache-path    cache-path
