@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 ## [2.18.1] - 2018-10-23
 ### Changed
 - Pretty-print atoms and volatiles
+- Enhanced `delay` printing ([#827](https://github.com/mfikes/planck/issues/827))
 
 ### Fixed
 - Requiring foreign libs with cljsjs broken ([#825](https://github.com/mfikes/planck/issues/825))
