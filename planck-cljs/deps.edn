@@ -1,4 +1,4 @@
-{:deps {org.clojure/clojurescript {:mvn/version "1.10.339"}
+{:deps {org.clojure/clojurescript {:mvn/version "1.10.439"}
         org.clojure/test.check {:mvn/version "0.10.0-alpha3"}
         com.cognitect/transit-cljs {:mvn/version "0.8.248"}
         fipp {:mvn/version "0.6.8"}
