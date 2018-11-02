@@ -1195,7 +1195,7 @@
 
 (defn- handle-error
   [e include-stacktrace?]
-  (let [cause                     (or (.-cause e) e)]
+  (do
     (print-error e include-stacktrace?)
     (if (not (:repl @app-env))
       (js/PLANCK_EXIT_WITH_VALUE 1)
