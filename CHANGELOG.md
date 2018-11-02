@@ -2,13 +2,16 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.19.0] - 2018-11-02
+### Changed
 - Update to ClojureScript 1.10.439
 - Support for `:spec-skip-macros` compiler option ([#806](https://github.com/planck-repl/planck/issues/806))
+- Enhanced `delay` printing ([#827](https://github.com/mfikes/planck/issues/827))
 
 ## [2.18.1] - 2018-10-23
 ### Changed
 - Pretty-print atoms and volatiles
-- Enhanced `delay` printing ([#827](https://github.com/mfikes/planck/issues/827))
 
 ### Fixed
 - Requiring foreign libs with cljsjs broken ([#825](https://github.com/mfikes/planck/issues/825))
@@ -749,7 +752,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.18.1...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.19.0...HEAD
+[2.19.0]: https://github.com/mfikes/planck/compare/2.18.1...2.19.0
 [2.18.1]: https://github.com/mfikes/planck/compare/2.18.0...2.18.1
 [2.18.0]: https://github.com/mfikes/planck/compare/2.17.0...2.18.0
 [2.17.0]: https://github.com/mfikes/planck/compare/2.16.0...2.17.0

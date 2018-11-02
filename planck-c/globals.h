@@ -1,6 +1,6 @@
 // Global variables used throughout Planck
 
-#define PLANCK_VERSION "2.18.1"
+#define PLANCK_VERSION "2.19.0"
 
 // Configuration
 
