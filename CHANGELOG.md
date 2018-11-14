@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- Make s/explain provide names of core fns ([#832](https://github.com/mfikes/planck/issues/832))
 
 ## [2.19.0] - 2018-11-02
 ### Changed

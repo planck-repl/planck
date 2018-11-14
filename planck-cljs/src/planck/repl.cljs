@@ -28,6 +28,29 @@
    [planck.repl-resources :refer [repl-special-doc-map special-doc-map]]
    [planck.themes :refer [get-theme]]))
 
+;; Provide a mechanism so s/explain with core predicates can identify the predicate names
+
+(def ^:private fn-syms
+  (delay
+    (into {}
+      (planck.repl/make-fn-syms nil? int? array? number? not some? object? string? char? any? symbol? var?
+        iterable? cloneable? inst? reduced? counted? indexed? fn? empty? coll? set? associative? ifind? sequential?
+        sorted? reduceable? map? record? vector? chunked-seq? false? true? boolean? undefined? seq? seqable? ifn?
+        integer? int? pos-int? neg-int? nat-int? float? double? infinite? pos? zero? neg? list? reversible? keyword?
+        ident? simple-ident? qualified-ident? simple-symbol? qualified-symbol? simple-keyword? qualified-keyword?
+        even? odd? volatile? map-entry? regexp? delay? realized? uuid? special-symbol? tagged-literal? seq))))
+
+(extend-protocol s/Specize
+  default
+  (specize*
+    ([o]
+     (if-let [f-n (and (fn? o)
+                       (or (@fn-syms o)
+                           (#'s/fn-sym (.-name o))))]
+       (s/spec-impl f-n o nil nil)
+       (s/spec-impl ::s/unknown o nil nil)))
+    ([o form] (s/spec-impl form o nil nil))))
+
 ;; Prefer ES6 Number.isInteger
 (set! integer? (or (.-isInteger js/Number) integer?))
 
