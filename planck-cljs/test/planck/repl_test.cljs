@@ -2,6 +2,7 @@
   (:require-macros
    [planck.repl])
   (:require
+   [clojure.spec.alpha :as s]
    [clojure.test :refer [deftest is testing]]
    [clojure.test.check.clojure-test :refer-macros [defspec]]
    [clojure.test.check.generators :as gen]
@@ -107,3 +108,9 @@
   (let [compile-optss #js ["{:a 1}" "@co0.edn" "{:b 2}" "@/co1.edn:@co2.edn" "{:a 3}"]]
     (is (=  {:a 3, :b 17, :test1 :t, :test2 :z, :test3 :y, :test4 :j, :test5 :h}
           (#'planck.repl/read-compile-optss compile-optss)))))
+
+(defn my-int? [x] (int? x))
+
+(deftest spec-describe-core-fns
+  (is (= 'my-int? (s/describe my-int?)))
+  (is (= 'int? (s/describe int?))))

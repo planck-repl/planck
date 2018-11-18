@@ -51,3 +51,8 @@
                cljs.core/*print-err-fn*  (fn [x#] (.append sb# x#))]
        ~@body)
      (str sb#)))
+
+(defmacro ^:private make-fn-syms
+  [& body]
+  (let [syms# body]
+    `(zipmap [~@body] '~syms#)))
