@@ -2116,7 +2116,15 @@
 
 (defn- ns-resolve
   [ns sym]
-  (eval `(~'var ~sym) ns))
+  (let [result (atom nil)]
+    (binding [ana/*cljs-warnings* (zipmap (keys ana/*cljs-warnings*) (repeat false))]
+      (cljs/eval st `(~'var ~sym)
+        {:ns      ns
+         :context :expr}
+        (fn [{:keys [value error]}]
+          (when-not error
+            (reset! result value)))))
+    @result))
 
 (defn- resolve
   [sym]

@@ -393,6 +393,20 @@
   :args (s/cat :sym symbol?)
   :ret (s/nilable var?))
 
+(defn requiring-resolve
+  "Resolves namespace-qualified sym per 'resolve'. If initial resolve
+  fails, attempts to require sym's namespace and retries."
+  [sym]
+  (if (qualified-symbol? sym)
+    (or (resolve sym)
+        (do (eval `(require '~(-> sym namespace symbol)))
+            (resolve sym)))
+    (throw (js/Error. (str "Not a qualified symbol: " sym)))))
+
+(s/fdef requiring-resolve
+  :args (s/cat :sym qualified-symbol?)
+  :ret (s/nilable var?))
+
 (defn find-var
   "Returns the global var named by the namespace-qualified symbol, or
   nil if no var with that name."
