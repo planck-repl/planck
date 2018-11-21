@@ -198,3 +198,8 @@
     (is (vector? (:body response)))
     (is (= 16385 (count (:body response))))
     (is (= '[137 80 78] (take 3 (:body response))))))
+
+(deftest http-user-agent
+  (let [user-agent "Some-User-Agent/1.2.3"]
+    (is (= user-agent (get (:headers (do-request :get "/" {:user-agent user-agent})) "user-agent")))
+    (is (not (contains? (:headers (do-request :get "/")) "user-agent")))))

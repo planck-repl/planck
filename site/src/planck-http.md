@@ -23,11 +23,12 @@ _Vars_
   `:accepts`, keyword or string. Valid keywords are `:json` or `:xml`<br/>
   `:content-type`, keyword or string Valid keywords are `:json` or `:xml`<br/>
   `:headers`, map, a map containing headers<br/>
+  `:user-agent`, string, the user agent header to send<br/>
   `:socket`, string, specifying a system path to a socket to use<br/>
   `:binary-response`, boolean, encode response body as vector of unsigned bytes
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response ::insecure ])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response ::insecure ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="head"></a>head
@@ -38,10 +39,11 @@ Spec<br/>
   `:debug`, boolean, assoc the request on to the response<br/>
   `:insecure`, proceed even if the connection is considered insecure<br/>
   `:headers`, map, a map containing headers<br/>
+  `:user-agent`, string, the user agent header to send<br/>
   `:socket`, string, specifying a system path to a socket to use
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket ::insecure])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket ::insecure ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="delete"></a>delete
@@ -51,10 +53,11 @@ Spec<br/>
   `:timeout`, number, default 5 seconds<br/>
   `:debug`, boolean, assoc the request on to the response<br/>
   `:headers`, map, a map containing headers<br/>
+  `:user-agent`, string, the user agent header to send<br/>
   `:socket`, string, specifying a system path to a socket to use
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket ::insecure])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::headers ::socket ::insecure ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
  
 ### <a name="post"></a>post
@@ -68,7 +71,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status ::insecure])`
 
 ### <a name="put"></a>put
@@ -82,7 +85,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status ::insecure])`
 
 ### <a name="patch"></a>patch
@@ -96,5 +99,5 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::insecure])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::insecure ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
