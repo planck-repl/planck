@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-"exec" "planck-c/build/planck" "--classpath=lib/test.check-0.10.0-alpha3.jar:lib/long-3.0.3-1.jar:lib/speculative-0.0.2.jar:planck-cljs/test" "--compile-opts" "@/compile-opts.edn" "$0" "$@"
+"exec" "planck-c/build/planck" "--classpath=lib/test.check-0.10.0-alpha3.jar:lib/long-3.0.3-1.jar:planck-cljs/test" "--compile-opts" "@/compile-opts.edn" "$0" "$@"
 (ns planck.unit-test
   (:require [cljs.test]
             [planck.test-runner]

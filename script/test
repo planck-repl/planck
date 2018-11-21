@@ -4,7 +4,6 @@ set -e
 
 script/get-tcheck
 script/get-cljsjs-long
-script/get-speculative
 
 echo "Running unit tests..."
 script/test-unit
