@@ -131,6 +131,15 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, method);
         curl_easy_setopt(handle, CURLOPT_URL, url);
 
+        JSValueRef user_agent_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("user-agent"), NULL);
+        char *user_agent = NULL;
+        if (!JSValueIsUndefined(ctx, user_agent_ref)) {
+            user_agent = value_to_c_string(ctx, user_agent_ref);
+            curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
+        } else {
+            curl_easy_setopt(handle, CURLOPT_USERAGENT, "Planck/2.1.41");
+        }
+
         JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
         JSValueProtect(ctx, result);
 
@@ -223,6 +232,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
         curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &status);
 
         free(body);
+        free(user_agent);
 
         // printf("%d bytes, %x\n", body_state.offset, body_state.data);
         if (body_state.data != NULL) {

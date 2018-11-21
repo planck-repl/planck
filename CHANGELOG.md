@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Support setting user agent in `planck.http` ([#839](https://github.com/mfikes/planck/issues/839))
+
 ### Fixed
 - Make s/explain provide names of core fns ([#832](https://github.com/mfikes/planck/issues/832))
 
