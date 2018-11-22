@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Added
+- Option to have `planck.http` follow redirects ([#842](https://github.com/mfikes/planck/issues/842))
 - Support setting user agent in `planck.http` ([#838](https://github.com/mfikes/planck/issues/838))
 
 ### Fixed

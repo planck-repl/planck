@@ -137,6 +137,19 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
             user_agent = value_to_c_string(ctx, user_agent_ref);
             curl_easy_setopt(handle, CURLOPT_USERAGENT, user_agent);
         }
+
+        JSValueRef follow_redirects_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("follow-redirects"), NULL);
+        if (JSValueIsBoolean(ctx, follow_redirects_ref)) {
+            if (JSValueToBoolean(ctx, follow_redirects_ref)) {
+                curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
+
+                JSValueRef max_redirects_ref = JSObjectGetProperty(ctx, opts, JSStringCreateWithUTF8CString("max-redirects"), NULL);
+                if (JSValueIsNumber(ctx, max_redirects_ref)) {
+                    long max_redirects = (long)JSValueToNumber(ctx, max_redirects_ref, NULL);
+                    curl_easy_setopt(handle, CURLOPT_MAXREDIRS, max_redirects);
+                }
+            }
+        }
         
         JSObjectRef result = JSObjectMake(ctx, NULL, NULL);
         JSValueProtect(ctx, result);
