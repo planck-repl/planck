@@ -183,6 +183,7 @@
   :accepts, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
+  :user-agent, string, the user agent header to send
   :socket, string, specifying a system path to a socket to use
   :binary-response, boolean, encode response body as vector of unsigned bytes"
   ([url] (get url {}))
