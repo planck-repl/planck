@@ -2,7 +2,6 @@
   (:require
    [clojure.spec.test.alpha :as st]
    [clojure.test :refer [run-tests]]
-   [speculative.core]
    [fipp.edn]
    [general.closure-libs-test]
    [general.cljsjs-libs-test]
@@ -20,7 +19,7 @@
    [planck.shell-test]
    [planck.socket.alpha-test]))
 
-(st/instrument)
+#_(st/instrument)
 
 (defn run-all-tests []
   (run-tests

@@ -183,6 +183,7 @@
   :accepts, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
+  :user-agent, string, the user agent header to send
   :socket, string, specifying a system path to a socket to use
   :binary-response, boolean, encode response body as vector of unsigned bytes"
   ([url] (get url {}))
@@ -196,6 +197,7 @@
 (s/def ::headers (s/and map? (fn [m]
                                (and (every? keyword? (keys m))
                                     (every? string? (vals m))))))
+(s/def ::user-agent string?)
 (s/def ::socket string?)
 (s/def ::binary-response boolean?)
 (s/def ::body (s/or :string string? :binary vector?))
@@ -203,7 +205,8 @@
 
 (s/fdef get
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un
-                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response ::insecure])))
+                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket
+                                                ::binary-response ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn head
@@ -213,12 +216,13 @@
   :debug, boolean, assoc the request on to the response
   :insecure, proceed even if the connection is considered insecure
   :headers, map, a map containing headers
+  :user-agent, string, the user agent header to send
   :socket, string, specifying a system path to a socket to use"
   ([url] (head url {}))
   ([url opts] (request js/PLANCK_REQUEST :head url opts)))
 
 (s/fdef head
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn delete
@@ -228,12 +232,13 @@
   :debug, boolean, assoc the request on to the response
   :insecure, proceed even if the connection is considered insecure
   :headers, map, a map containing headers
+  :user-agent, string, the user agent header to send
   :socket, string, specifying a system path to a socket to use"
   ([url] (delete url {}))
   ([url opts] (request js/PLANCK_REQUEST :delete url opts)))
 
 (s/fdef delete
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure])))
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::headers ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::headers ::status]))
 
 (defn post
@@ -251,7 +256,7 @@
 
 (s/fdef post
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket ::insecure])))
+                                                        ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn put
@@ -266,7 +271,7 @@
 
 (s/fdef put
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket ::insecure])))
+                                                        ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn patch
@@ -281,5 +286,5 @@
 
 (s/fdef patch
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
-                                                        ::form-params ::multipart-params ::socket ::insecure])))
+                                                        ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
