@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Added
+- Add `requiring-resolve` ([#835](https://github.com/mfikes/planck/issues/835))
 - Support setting user agent in `planck.http` ([#838](https://github.com/mfikes/planck/issues/838))
 
 ### Fixed
