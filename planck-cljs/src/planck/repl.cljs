@@ -1653,7 +1653,10 @@
                         (fn [res]
                           (if-let [error (:error res)]
                             (handle-error (js/Error. error) false)
-                            (js-eval source source-url))))))))
+                            (do
+                              (js-eval source source-url)
+                              (when-some [ns (:name cache)]
+                                (swap! st assoc-in [::ana/namespaces ns] cache))))))))))
           (handle-error (js/Error. (str "Could not load file " file)) false))))))
 
 (defn- resolve-ns

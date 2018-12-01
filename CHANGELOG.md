@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - Make s/explain provide names of core fns ([#832](https://github.com/mfikes/planck/issues/832))
+- Analysis cache issue with `load-file` ([#843](https://github.com/mfikes/planck/issues/843))
 
 ## [2.19.0] - 2018-11-02
 ### Changed
