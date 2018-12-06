@@ -96,7 +96,7 @@ Planck ships with many of the deps that are available to conventional ClojureScr
 
 In addition, Planck ships with these libraries:
 
-* [Fipp](https://github.com/brandonbloom/fipp) 0.6.8
+* [Fipp](https://github.com/brandonbloom/fipp) 0.6.14
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.248
 
 Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `deps.edn`, `-c` / `-​-​classpath`, `-D` / `-​-​dependencies`, or `PLANCK_CLASSPATH`.
