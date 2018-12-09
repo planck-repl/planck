@@ -156,6 +156,9 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
     while (ns_part != NULL) {
         char *munged_ns_part = munge(ns_part);
         if (ns_val) {
+            if (JSValueIsUndefined(ctx, ns_val)) {
+                return ns_val;
+            }
             ns_val = get_value_on_object(ctx, JSValueToObject(ctx, ns_val, NULL), munged_ns_part);
         } else {
             ns_val = get_value_on_object(ctx, JSContextGetGlobalObject(ctx), munged_ns_part);
