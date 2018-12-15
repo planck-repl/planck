@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Update to Fipp 0.6.14
+- Syntax-highlight and shorten qualified keywords in default spec explain printer ([#848](https://github.com/mfikes/planck/issues/848))
 
 ### Fixed
 - Make s/explain provide names of core fns ([#832](https://github.com/mfikes/planck/issues/832))

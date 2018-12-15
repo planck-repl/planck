@@ -3,7 +3,7 @@
   (:refer-clojure :exclude [lift-ns])
   (:require
    [clojure.string :as string]
-   [fipp.engine :refer [pprint-document]]
+   [fipp.engine]
    [fipp.visit :refer [visit visit*]]
    [goog.object :as gobj]
    [planck.themes]))
@@ -158,6 +158,17 @@
       (fn [printer [k v]]
         [:span (visit printer k) " " (visit printer v)]))))
 
+(defn pprint-document [document options]
+  (let [options (merge {:width 70} options)]
+    (->> (fipp.engine/serialize document)
+      (eduction
+        fipp.engine/annotate-rights
+        (fipp.engine/annotate-begins options)
+        (fipp.engine/format-nodes options))
+      (run! print)))
+  (when-not (:no-newline? options)
+    (println)))
+
 (defn pprint
   ([x] (pprint x {}))
   ([x options]
@@ -167,7 +178,7 @@
                           :print-meta           *print-meta*
                           :print-namespace-maps *print-namespace-maps*
                           :theme                ^:private-var-access-nowarn planck.themes/dumb
-                          :pprint-document      fipp.engine/pprint-document}
+                          :pprint-document      pprint-document}
          full-opts       (merge defaults options)
          pprint-document (:pprint-document full-opts)
          printer         (map->PlanckPrinter full-opts)]

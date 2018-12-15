@@ -1492,6 +1492,40 @@
     "planck$repl$print_value"
     "fipp$visit$IVisitor$visit_seq$arity$2"})
 
+(defn- explain-printer
+  [ed]
+  (let [pr'     #(print-value %
+                   {::no-newline? true
+                    ::keyword-ns @current-ns
+                    ::as-code?    true})
+        pr-str' #(with-out-str (pr' %))]
+    (if ed
+      (let [problems (->> (::s/problems ed)
+                       (sort-by #(- (count (:in %))))
+                       (sort-by #(- (count (:path %)))))]
+        (print
+          (with-out-str
+            ;;(prn {:ed ed})
+            (doseq [{:keys [path pred val reason via in] :as prob} problems]
+              (pr' val)
+              (print " - failed: ")
+              (if reason (print reason) (pr' (s/abbrev pred)))
+              (when-not (empty? in)
+                (print (str " in: " (pr-str' in))))
+              (when-not (empty? path)
+                (print (str " at: " (pr-str' path))))
+              (when-not (empty? via)
+                (print (str " spec: " (pr-str' (last via)))))
+              (doseq [[k v] prob]
+                (when-not (#{:path :pred :val :reason :via :in} k)
+                  (print "\n\t" (pr-str' k) " ")
+                  (pr' v)))
+              (newline)))))
+      (println "Success!"))))
+
+;; Make the Planck explain printer be the default one, but yet still overridable
+(set! s/*explain-out* explain-printer)
+
 (defn- print-error
   ([error]
    (print-error error true))
@@ -1971,12 +2005,15 @@
          (if (::as-code? opts)
            planck.pprint.code/pprint
            planck.pprint.data/pprint))
-       value {:width      ((fnil + 0) term-width (::term-width-adj opts))
-              :theme      theme
-              :spec?      (::spec? opts)
-              :keyword-ns (::keyword-ns opts)})
-      (prn value))
-    (prn value)))
+       value {:width       ((fnil + 0) term-width (::term-width-adj opts))
+              :theme       theme
+              :spec?       (::spec? opts)
+              :keyword-ns  (::keyword-ns opts)
+              :no-newline? true})
+      (pr value))
+    (pr value))
+  (when-not (::no-newline? opts)
+    (newline)))
 
 (s/def ::as-code? boolean?)
 (s/def ::spec? boolean?)
