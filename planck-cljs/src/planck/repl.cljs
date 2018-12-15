@@ -1539,7 +1539,10 @@
                 nil)))))
        (when-let [cause (.-cause error)]
          (recur cause include-stacktrace? message)))
-     (print (cljs.repl/error->str error)))))
+     (let [error (cond-> error
+                   (-> (ex-data (ex-cause error)) (contains? :clojure.error/phase))
+                   ex-cause)]
+       (print (cljs.repl/error->str error))))))
 
 (defn- get-macro-var
   [env sym macros-ns]
