@@ -1653,7 +1653,10 @@
                         (fn [res]
                           (if-let [error (:error res)]
                             (handle-error (js/Error. error) false)
-                            (js-eval source source-url))))))))
+                            (do
+                              (js-eval source source-url)
+                              (when-some [ns (:name cache)]
+                                (swap! st assoc-in [::ana/namespaces ns] cache))))))))))
           (handle-error (js/Error. (str "Could not load file " file)) false))))))
 
 (defn- resolve-ns
@@ -1968,7 +1971,7 @@
          (if (::as-code? opts)
            planck.pprint.code/pprint
            planck.pprint.data/pprint))
-       value {:width      ((fnil + 0) term-width (::term-width-adj opts))
+       value {:width      ((fnil + 0 0) term-width (::term-width-adj opts))
               :theme      theme
               :spec?      (::spec? opts)
               :keyword-ns (::keyword-ns opts)})
@@ -2116,7 +2119,15 @@
 
 (defn- ns-resolve
   [ns sym]
-  (eval `(~'var ~sym) ns))
+  (let [result (atom nil)]
+    (binding [ana/*cljs-warnings* (zipmap (keys ana/*cljs-warnings*) (repeat false))]
+      (cljs/eval st `(~'var ~sym)
+        {:ns      ns
+         :context :expr}
+        (fn [{:keys [value error]}]
+          (when-not error
+            (reset! result value)))))
+    @result))
 
 (defn- resolve
   [sym]

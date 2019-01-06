@@ -4,10 +4,19 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Option to have `planck.http` follow redirects ([#842](https://github.com/mfikes/planck/issues/842))
+- Add `requiring-resolve` ([#835](https://github.com/mfikes/planck/issues/835))
 - Support setting user agent in `planck.http` ([#838](https://github.com/mfikes/planck/issues/838))
+- Bundle new datafy namespace ([#851](https://github.com/mfikes/planck/issues/851))
+
+### Changed
+- Update to Fipp 0.6.14
 
 ### Fixed
 - Make s/explain provide names of core fns ([#832](https://github.com/mfikes/planck/issues/832))
+- Analysis cache issue with `load-file` ([#843](https://github.com/mfikes/planck/issues/843))
+- Check for handle undefined values in C code that fetches values from JavaScriptCore
+- Fix `fnil` expression: `0` for `nil` in second position ([#854](https://github.com/mfikes/planck/issues/854))
+
 
 ## [2.19.0] - 2018-11-02
 ### Changed

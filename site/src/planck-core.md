@@ -31,6 +31,7 @@ _Vars_
 [read-line](#read-line)<br/>
 [read-password](#read-password)<br/>
 [read-string](#read-string)<br/>
+[requiring-resolve](#requiring-resolve)<br/>
 [resolve](#resolve)<br/>
 [sleep](#sleep)<br/>
 [slurp](#slurp)<br/>
@@ -262,6 +263,16 @@ Spec<br/>
 Spec<br/>
  _args_: `(alt :unary (cat :s string?) :binary (cat :opts map? :s string?))`<br/><br/>
 
+### <a name="requiring-resolve"></a>requiring-resolve
+`([sym])`
+
+  Resolves namespace-qualified sym per [`resolve`](#resolve). If initial resolve
+  fails, attempts to `require` `sym`'s namespace and retries.
+
+Spec<br/>
+ _args_: `(cat :sym qualified-symbol?)`<br/>
+ _ret_: `(nilable var?)`<br/>
+ 
 ### <a name="resolve"></a>resolve
 `([sym])`
 

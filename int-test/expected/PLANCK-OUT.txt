@@ -75,11 +75,6 @@ Test run malformed expression
 Unmatched delimiter ].
 Test run malformed script
 Unmatched delimiter ].
-Test run expression with analysis error
-First argument to defn must be a symbol at line 1 
-Test run script with analysis error
-Could not eval int-test/src/analysis/core.cljs
-First argument to defn must be a symbol at line 1 
 Test in-ns
 nil
 nil
@@ -515,9 +510,6 @@ Test restore state when require fails
 Could not parse ns form cljs.user
 Invalid :refer, var clojure.set/diff does not exist
 nil
-Test reader and analysis diagnostics
-Only :as alias, :refer (names) and :rename {from to} options supported in :require; offending spec: [foo.bar :quu] at line 1 
-Unmatched delimiter ).
 Test eval
 nil
 1
