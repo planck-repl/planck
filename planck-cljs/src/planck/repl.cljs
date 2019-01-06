@@ -1978,7 +1978,7 @@
          (if (::as-code? opts)
            planck.pprint.code/pprint
            planck.pprint.data/pprint))
-       value {:width      ((fnil + 0) term-width (::term-width-adj opts))
+       value {:width      ((fnil + 0 0) term-width (::term-width-adj opts))
               :theme      theme
               :spec?      (::spec? opts)
               :keyword-ns (::keyword-ns opts)})
