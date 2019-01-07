@@ -184,6 +184,8 @@
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
   :user-agent, string, the user agent header to send
+  :follow-redirects, boolean, follow HTTP location redirects
+  :max-redirects, number, maximum number of redirects to follow
   :socket, string, specifying a system path to a socket to use
   :binary-response, boolean, encode response body as vector of unsigned bytes"
   ([url] (get url {}))
@@ -198,6 +200,8 @@
                                (and (every? keyword? (keys m))
                                     (every? string? (vals m))))))
 (s/def ::user-agent string?)
+(s/def ::follow-redirects boolean?)
+(s/def ::max-redirects pos-int?)
 (s/def ::socket string?)
 (s/def ::binary-response boolean?)
 (s/def ::body (s/or :string string? :binary vector?))
@@ -206,7 +210,7 @@
 (s/fdef get
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un
                                                [::timeout ::debug ::accepts ::content-type ::headers ::socket
-                                                ::binary-response ::insecure ::user-agent])))
+                                                ::binary-response ::insecure ::user-agent ::follow-redirects ::max-redirects])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
 (defn head
@@ -243,7 +247,7 @@
 
 (defn post
   "Performs a POST request. It takes an URL and an optional map of options
-  These options include the options for get in addition to:
+  These options include the relevant options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
                      {:multipart-params [[\"name\" \"value\"]
@@ -261,7 +265,7 @@
 
 (defn put
   "Performs a PUT request. It takes an URL and an optional map of options
-  These options include the options for get in addition to:
+  These options include the relevant options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
                      {:multipart-params [[\"name\" \"value\"]
@@ -276,7 +280,7 @@
 
 (defn patch
   "Performs a PATCH request. It takes an URL and an optional map of options
-  These options include the options for get in addition to:
+  These options include the relevant options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
   :multipart-params, a list of tuples, used for file-upload
                      {:multipart-params [[\"name\" \"value\"]
