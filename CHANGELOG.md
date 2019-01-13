@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. This change
 - Analysis cache issue with `load-file` ([#843](https://github.com/mfikes/planck/issues/843))
 - Check for handle undefined values in C code that fetches values from JavaScriptCore
 - Fix `fnil` expression: `0` for `nil` in second position ([#854](https://github.com/mfikes/planck/issues/854))
+- Ensure `cljs.js/require` called with bound vars ([#855](https://github.com/mfikes/planck/issues/855))
 
 
 ## [2.19.0] - 2018-11-02
