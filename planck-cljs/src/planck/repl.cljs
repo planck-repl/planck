@@ -1641,7 +1641,9 @@
 (defn- process-deps
   [names opts cb]
   (run-sync! (fn [name cb]
-               (cljs/require name opts cb))
+               (cljs/require {:*compiler* st
+                              :*cljs-dep-set* ana/*cljs-dep-set*}
+                 name opts cb))
     names
     :error
     cb))
