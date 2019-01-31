@@ -9,6 +9,7 @@
    [cljs.compiler :as comp]
    [cljs.env :as env]
    [cljs.js :as cljs]
+   [cljs.repl]
    [cljs.source-map :as sm]
    [cljs.spec.alpha :as s]
    [cljs.stacktrace :as st]
@@ -1113,6 +1114,7 @@
    (and (= name 'clojure.core.rrb-vector.macros) macros)
    (and (= name 'cljs.js) macros)
    (and (= name 'cljs.reader) macros)
+   (and (= name 'cljs.repl) macros)
    (and (= name 'cljs.tools.reader.reader-types) macros)
    (and (= name 'tailrecursion.cljson) macros)
    (and (= name 'lazy-map.core) macros)))
@@ -1533,43 +1535,48 @@
    (print-error error include-stacktrace? nil))
   ([error include-stacktrace? printed-message]
    (print-error-column-indicator error)
-   (let [error               (skip-cljsjs-eval-error error)
-         roa?                (reader-or-analysis? error)
-         print-ex-data?      (= include-stacktrace? :pst)
-         include-stacktrace? (or (= include-stacktrace? :pst)
-                                 (and include-stacktrace?
-                                      (not roa?)))
-         include-stacktrace? (if *planck-integration-tests*
-                               false
-                               include-stacktrace?)
-         message             (if (instance? ExceptionInfo error)
-                               (ex-message error)
-                               (.-message error))]
-     (when (or (not ((fnil string/starts-with? "") printed-message message))
-               include-stacktrace?)
-       (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme)
-                 (str message (when (reader-error? error)
-                                (location-info error))))))
-     (when-let [data (and print-ex-data? (ex-data error))]
-       (print-value data {::as-code? false}))
-     (when include-stacktrace?
-       (load-core-macros-source-maps!)
-       (let [canonical-stacktrace (->> (st/parse-stacktrace
-                                         {}
-                                         (.-stack error)
-                                         {:ua-product :safari}
-                                         {:output-dir "file://(/goog/..)?"})
-                                    (drop-while #(string/starts-with? (:function %) "PLANCK_"))
-                                    (take-while #(not (stack-truncation-functions (:function %)))))]
-         (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
-         (println
-           ((:ex-stack-fn theme)
-            (mapped-stacktrace-str
-              canonical-stacktrace
-              (or (:source-maps @planck.repl/st) {})
-              nil)))))
-     (when-let [cause (.-cause error)]
-       (recur cause include-stacktrace? message)))))
+   (if (= include-stacktrace? :pst)
+     (let [error               (skip-cljsjs-eval-error error)
+           roa?                (reader-or-analysis? error)
+           print-ex-data?      (= include-stacktrace? :pst)
+           include-stacktrace? (or (= include-stacktrace? :pst)
+                                   (and include-stacktrace?
+                                        (not roa?)))
+           include-stacktrace? (if *planck-integration-tests*
+                                 false
+                                 include-stacktrace?)
+           message             (if (instance? ExceptionInfo error)
+                                 (ex-message error)
+                                 (.-message error))]
+       (when (or (not ((fnil string/starts-with? "") printed-message message))
+                 include-stacktrace?)
+         (println (((if roa? :rdr-ann-err-fn :ex-msg-fn) theme)
+                   (str message (when (reader-error? error)
+                                  (location-info error))))))
+       (when-let [data (and print-ex-data? (ex-data error))]
+         (print-value data {::as-code? false}))
+       (when include-stacktrace?
+         (load-core-macros-source-maps!)
+         (let [canonical-stacktrace (->> (st/parse-stacktrace
+                                           {}
+                                           (.-stack error)
+                                           {:ua-product :safari}
+                                           {:output-dir "file://(/goog/..)?"})
+                                      (drop-while #(string/starts-with? (:function %) "PLANCK_"))
+                                      (take-while #(not (stack-truncation-functions (:function %)))))]
+           (load-bundled-source-maps! (distinct (map file->ns-sym (keep :file canonical-stacktrace))))
+           (println
+             ((:ex-stack-fn theme)
+              (mapped-stacktrace-str
+                canonical-stacktrace
+                (or (:source-maps @planck.repl/st) {})
+                nil)))))
+       (when-let [cause (.-cause error)]
+         (recur cause include-stacktrace? message)))
+     (let [error (cond-> error
+                   (-> (ex-data (ex-cause error)) (contains? :clojure.error/phase))
+                   ex-cause)]
+       (print (cljs.repl/error->str error))))))
 
 (defn- get-macro-var
   [env sym macros-ns]

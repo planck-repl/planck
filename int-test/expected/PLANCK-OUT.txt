@@ -25,6 +25,7 @@ Test exit
 Exit on first error
 true
 ok
+Execution error (Error) at (<cljs repl>:1).
 x
 Multi-line data
 [1 2]
@@ -68,12 +69,15 @@ Test run file directly
 Test run file classpath resource @
 :run-file.core/hello
 Test run file classpath without @
+Execution error (Error) at (<cljs repl>:1).
 Could not load file run_file/core.cljs
 Test run file classpath resource @/
 :run-file.core/hello
 Test run malformed expression
+Execution error (ExceptionInfo) at (<cljs repl>:1).
 Unmatched delimiter ].
 Test run malformed script
+Execution error (ExceptionInfo) at (<cljs repl>:1).
 Unmatched delimiter ].
 Test in-ns
 nil
@@ -122,6 +126,7 @@ nil
 nil
 :reloaded
 Test require-macros unknown ns
+Execution error (ExceptionInfo) at (<cljs repl>:1).
 No such macros namespace: unknown-ns.core, could not locate unknown_ns/core.clj or unknown_ns/core.cljc
 Test spec cache
 nil
@@ -289,10 +294,12 @@ nil
 true
 #'cljs.user/f
 #'cljs.user/g
+Execution error (Error) at (<cljs repl>:1).
 whoah
 whoah
 nil
 #'cljs.user/e
+Execution error (Error) at (<cljs repl>:1).
 ouch
 ouch
 nil
@@ -305,6 +312,7 @@ nil
 3
 4
 Test load-file from classpath - expect this to fail
+Execution error (Error) at (<cljs repl>:1).
 Could not load file test_load_file/core.cljs
 nil
 Test load REPL special
@@ -319,6 +327,7 @@ REPL Special Function
   Sequentially read and evaluate the set of forms contained in the file.
 nil
 Test load-file REPL bad filename
+Execution error (Error) at (<cljs repl>:1).
 Could not load file int-test/src/test_load_file/nofile.cljs
 nil
 Test load-file REPL error in file
@@ -502,12 +511,14 @@ nil
 Test reader
 #js [1 2]
 #inst "2015-08-18T01:53:14.614-00:00"
-Set literal contains duplicate key: 1.
-Map literal contains duplicate key: 1.
+Execution error (ExceptionInfo) at (<cljs repl>:1).
+Set literal contains duplicate key: 1
+Execution error (ExceptionInfo) at (<cljs repl>:1).
+Map literal contains duplicate key: 1
 Test verbose
 5
 Test restore state when require fails
-Could not parse ns form cljs.user
+Execution error (ExceptionInfo) at (<cljs repl>:1).
 Invalid :refer, var clojure.set/diff does not exist
 nil
 Test eval
@@ -594,9 +605,9 @@ nil
 3
 Forms should be evaluated in global scope
 true
+Execution error (ReferenceError) at (<cljs repl>:1).
 Can't find variable: source
-
+Execution error (ReferenceError) at (<cljs repl>:1).
 Can't find variable: a
-
 Auto-load user.cljs
 3
