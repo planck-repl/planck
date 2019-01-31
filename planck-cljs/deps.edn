@@ -1,5 +1,4 @@
-{:deps {org.clojure/clojurescript {:git/url "https://github.com/clojure/clojurescript"
-                                   :sha "731be5e0916ad8d619c302bfc9b985c4d10daa8d"}
+{:deps {org.clojure/clojurescript {:mvn/version "1.10.516"}
         org.clojure/test.check {:mvn/version "0.10.0-alpha3"}
         com.cognitect/transit-cljs {:mvn/version "0.8.248"}
         fipp {:mvn/version "0.6.14"}

@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 - Bundle new datafy namespace ([#851](https://github.com/mfikes/planck/issues/851))
 
 ### Changed
+- Update to ClojureScript 1.10.516
 - Update to Fipp 0.6.14
 
 ### Fixed
