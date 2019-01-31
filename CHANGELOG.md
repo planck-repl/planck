@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 - Add `requiring-resolve` ([#835](https://github.com/mfikes/planck/issues/835))
 - Support setting user agent in `planck.http` ([#838](https://github.com/mfikes/planck/issues/838))
 - Bundle new datafy namespace ([#851](https://github.com/mfikes/planck/issues/851))
+- Support for improvements to exception messages and printing in ClojureScript 1.10.516 ([#845](https://github.com/mfikes/planck/issues/845))
 
 ### Changed
 - Update to ClojureScript 1.10.516
