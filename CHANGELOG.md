@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.20.0] - 2019-01-31
 ### Added
 - Option to have `planck.http` follow redirects ([#842](https://github.com/mfikes/planck/issues/842))
 - Add `requiring-resolve` ([#835](https://github.com/mfikes/planck/issues/835))
@@ -771,7 +773,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.19.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.20.0...HEAD
+[2.20.0]: https://github.com/mfikes/planck/compare/2.19.1...2.20.0
 [2.19.0]: https://github.com/mfikes/planck/compare/2.18.1...2.19.0
 [2.18.1]: https://github.com/mfikes/planck/compare/2.18.0...2.18.1
 [2.18.0]: https://github.com/mfikes/planck/compare/2.17.0...2.18.0
