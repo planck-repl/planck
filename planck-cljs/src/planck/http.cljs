@@ -54,7 +54,7 @@
         client)
       (client request))))
 
-(defn- wrap-accepts
+(defn- wrap-accept
   "Set the appropriate Accept header."
   [client]
   (fn [request]
@@ -165,7 +165,7 @@
      wrap-to-from-js
      wrap-throw-on-error
      wrap-debug
-     wrap-accepts
+     wrap-accept
      wrap-content-type
      wrap-add-content-length
      wrap-form-params
@@ -180,7 +180,7 @@
   :timeout, number, default 5 seconds
   :debug, boolean, assoc the request on to the response
   :insecure, proceed even if the connection is considered insecure
-  :accepts, keyword or string. Valid keywords are :json or :xml
+  :accept, keyword or string. Valid keywords are :json or :xml
   :content-type, keyword or string Valid keywords are :json or :xml
   :headers, map, a map containing headers
   :user-agent, string, the user agent header to send
@@ -194,7 +194,7 @@
 (s/def ::timeout integer?)
 (s/def ::debug boolean?)
 (s/def ::insecure boolean?)
-(s/def ::accepts (s/or :kw #{:json :xml} :str string?))
+(s/def ::accept (s/or :kw #{:json :xml} :str string?))
 (s/def ::content-type (s/or :kw #{:json :xml} :str string?))
 (s/def ::headers (s/and map? (fn [m]
                                (and (every? keyword? (keys m))
@@ -209,7 +209,7 @@
 
 (s/fdef get
   :args (s/cat :url string? :opts (s/? (s/keys :opt-un
-                                               [::timeout ::debug ::accepts ::content-type ::headers ::socket
+                                               [::timeout ::debug ::accept ::content-type ::headers ::socket
                                                 ::binary-response ::insecure ::user-agent ::follow-redirects ::max-redirects])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
@@ -259,7 +259,7 @@
 (s/def ::multipart-params seq?)
 
 (s/fdef post
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body
                                                         ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
@@ -274,7 +274,7 @@
   ([url opts] (request js/PLANCK_REQUEST :put url opts)))
 
 (s/fdef put
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body
                                                         ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))
 
@@ -289,6 +289,6 @@
   ([url opts] (request js/PLANCK_REQUEST :patch url opts)))
 
 (s/fdef patch
-  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body
+  :args (s/cat :url string? :opts (s/? (s/keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body
                                                         ::form-params ::multipart-params ::socket ::insecure ::user-agent])))
   :ret (s/keys :req-un [::body ::headers ::status]))

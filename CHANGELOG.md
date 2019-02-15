@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 * Update to ClojureScript 1.10.520
 
+### Fixed
+- Consistent use of 'accept' in `planck.http` ([#837](https://github.com/planck-repl/planck/issues/837))
+
 ## [2.20.0] - 2019-01-31
 ### Added
 - Option to have `planck.http` follow redirects ([#842](https://github.com/mfikes/planck/issues/842))

@@ -63,13 +63,13 @@
                  ((#'http/wrap-content-type identity))
                  (get-in [:headers "Content-Type"]))))))
 
-(deftest wrap-accepts-test
+(deftest wrap-accept-test
   (testing "wrap-accept"
     (is (= "application/json" (-> {:accept :json}
-                                ((#'http/wrap-accepts identity))
+                                ((#'http/wrap-accept identity))
                                 (get-in [:headers "Accept"]))))
     (is (= nil (-> {:accept :json}
-                 ((#'http/wrap-accepts identity))
+                 ((#'http/wrap-accept identity))
                  :accept)))))
 
 (deftest wrap-content-length-test
