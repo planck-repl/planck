@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+* Update to ClojureScript 1.10.520
 
 ## [2.20.0] - 2019-01-31
 ### Added
