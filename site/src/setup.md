@@ -9,7 +9,7 @@ Planck requires no external dependencies. (There is no need for either the Java 
 
 #### Install
 
-The easiest way to install Planck on macOS is via [Homebrew](http://brew.sh):
+The easiest way to install Planck on macOS is via [Homebrew](https://brew.sh):
 
 ```sh
 brew install planck

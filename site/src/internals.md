@@ -5,7 +5,7 @@ How does Planck work?
 
 ### Fundamentals
 
-At a high level, there is no JVM involved. Planck makes use of ClojureScript's [self-hosting](http://swannodette.github.io/2015/07/29/clojurescript-17/) capability and employs JavaScriptCore as its execution environment. JavaScriptCore is the JavaScript engine used by Safari and is already installed on all modern Macs.
+At a high level, there is no JVM involved. Planck makes use of ClojureScript's [self-hosting](http://swannodette.github.io/2015/07/29/clojurescript-17) capability and employs JavaScriptCore as its execution environment. JavaScriptCore is the JavaScript engine used by Safari and is already installed on all modern Macs.
 
 When you launch Planck, it internally starts a JavaScriptCore instance and then loads JavaScript implementing the ClojureScript runtime. This JavaScript is [baked into](http://blog.fikesfarm.com/posts/2015-07-27-island-repl.html) the Planck binary.
 

@@ -6,10 +6,10 @@ Most Clojure developers using Emacs tend to use Cider. Cider needs the
 Clojure instance to be running `nRepl`, but Planck doesn't support
 that. Planck does instead implement the new Socket REPL capability, but Cider doesn't know how to interact with that.
 
-Luckily for us, [Rich Hickey](http://www.infoq.com/presentations/Simple-Made-Easy)
-[thinks Cider is too complex](http://batsov.com/articles/2014/12/04/introducing-inf-clojure-a-better-basic-clojure-repl-for-emacs/),
+Luckily for us, [Rich Hickey](https://www.infoq.com/presentations/Simple-Made-Easy)
+[thinks Cider is too complex](https://batsov.com/articles/2014/12/04/introducing-inf-clojure-a-better-basic-clojure-repl-for-emacs/),
 so 
-[Bozhidar Batsov](http://batsov.com) went ahead and created
+[Bozhidar Batsov](https://batsov.com) went ahead and created
 [inf-clojure](https://github.com/clojure-emacs/inf-clojure).
 
 #### Setup
