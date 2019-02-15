@@ -20,7 +20,7 @@ _Vars_
   `:timeout`, number, default 5 seconds<br/>
   `:debug`, boolean, assoc the request on to the response<br/>
   `:insecure`, proceed even if the connection is considered insecure<br/>
-  `:accepts`, keyword or string. Valid keywords are `:json` or `:xml`<br/>
+  `:accept`, keyword or string. Valid keywords are `:json` or `:xml`<br/>
   `:content-type`, keyword or string Valid keywords are `:json` or `:xml`<br/>
   `:headers`, map, a map containing headers<br/>
   `:user-agent`, string, the user agent header to send<br/>
@@ -30,7 +30,7 @@ _Vars_
   `:binary-response`, boolean, encode response body as vector of unsigned bytes
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accepts ::content-type ::headers ::socket ::binary-response ::insecure ::user-agent ::follow-redirects ::max-redirects])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un  [::timeout ::debug ::accept ::content-type ::headers ::socket ::binary-response ::insecure ::user-agent ::follow-redirects ::max-redirects])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
 
 ### <a name="head"></a>head
@@ -73,7 +73,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status ::insecure])`
 
 ### <a name="put"></a>put
@@ -87,7 +87,7 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status ::insecure])`
 
 ### <a name="patch"></a>patch
@@ -101,5 +101,5 @@ Spec<br/>
 `["name" ["content" "filename"]]`<br/>
 
 Spec<br/>
- _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accepts ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::insecure ::user-agent])))`<br/>
+ _args_: `(cat :url string? :opts (? (keys :opt-un [::timeout ::debug ::accept ::content-type ::headers ::body ::form-params ::multipart-params ::socket ::insecure ::user-agent])))`<br/>
  _ret_: `(keys :req-un [::body ::headers ::status])`
