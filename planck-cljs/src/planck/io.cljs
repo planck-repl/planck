@@ -352,6 +352,33 @@
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret boolean?)
 
+(defn ^boolean exists?
+  "Checks if f exists on disk."
+  [f]
+  (not (nil? (file-attributes f))))
+
+(s/fdef exists?
+  :args (s/cat :f (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn ^boolean regular-file?
+  "Checks if f is a regular file."
+  [f]
+  (= :file (:type (file-attributes f))))
+
+(s/fdef regular-file?
+  :args (s/cat :f (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn ^boolean symbolic-link?
+  "Checks if f is a symbolic link."
+  [f]
+  (= :symbolic-link (:type (file-attributes f))))
+
+(s/fdef symbolic-link?
+  :args (s/cat :f (s/or :string string? :file file?))
+  :ret boolean?)
+
 (defn list-files
   "Returns a seq of the Files in dir or nil if dir is not a directory."
   [dir]
