@@ -2,8 +2,11 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Issue #853 (3 of 4 requested fns) - new file information predicates in planck.io
+
 ### Changed
-* Update to ClojureScript 1.10.520
+- Update to ClojureScript 1.10.520
 
 ### Fixed
 - Consistent use of 'accept' in `planck.http` ([#837](https://github.com/planck-repl/planck/issues/837))
