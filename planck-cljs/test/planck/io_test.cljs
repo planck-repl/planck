@@ -27,6 +27,29 @@
     (is (= js/Date (type (:modified (planck.io/file-attributes "/tmp")))))
     (is (number? (:file-size (planck.io/file-attributes "/tmp"))))))
 
+(deftest predicates-test
+  (testing "predicates"
+    (is (= false (planck.io/directory? nil)))
+    (is (= false (planck.io/exists? nil)))
+    (is (= false (planck.io/regular-file? nil)))
+    (is (= false (planck.io/symbolic-link? nil)))
+    (is (= false (planck.io/directory? "bogus")))
+    (is (= false (planck.io/exists? "bogus")))
+    (is (= false (planck.io/regular-file? "bogus")))
+    (is (= false (planck.io/symbolic-link? "bogus")))
+    (is (= true  (planck.io/directory? "/tmp")))
+    (is (= true  (planck.io/exists? "/tmp")))
+    (is (= false (planck.io/regular-file? "/tmp")))
+;    (is (= false (planck.io/symbolic-link? "/tmp")))   ; /tmp is a symbolic link on some systems (e.g. macos), but not others (e.g. most Linuxes), so it's not a great test case
+    (is (= false (planck.io/directory? "/dev/stdout")))
+    (is (= true  (planck.io/exists? "/dev/stdout")))
+    (is (= false (planck.io/regular-file? "/dev/stdout")))
+    (is (= true  (planck.io/symbolic-link? "/dev/stdout")))
+    (is (= false (planck.io/directory? "/bin/sh")))
+    (is (= true  (planck.io/exists? "/bin/sh")))
+    (is (= true  (planck.io/regular-file? "/bin/sh")))
+    (is (= false (planck.io/symbolic-link? "/bin/sh")))))
+
 (deftest coercions
   (testing "as-file coerceions"
     (is (nil? (planck.io/as-file nil)))
