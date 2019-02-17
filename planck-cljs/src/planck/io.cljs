@@ -346,13 +346,13 @@
 (defn ^boolean directory?
   "Checks if dir is a directory."
   [dir]
-  (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
+  (boolean (js/PLANCK_IS_DIRECTORY (:path (as-file dir)))))
 
 (s/fdef directory?
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret boolean?)
 
-(defn ^boolean exists?
+(defn exists?
   "Checks if f exists on disk."
   [f]
   (not (nil? (file-attributes f))))
@@ -361,7 +361,7 @@
   :args (s/cat :f (s/or :string string? :file file?))
   :ret boolean?)
 
-(defn ^boolean regular-file?
+(defn regular-file?
   "Checks if f is a regular file."
   [f]
   (= :file (:type (file-attributes f))))
@@ -370,7 +370,7 @@
   :args (s/cat :f (s/or :string string? :file file?))
   :ret boolean?)
 
-(defn ^boolean symbolic-link?
+(defn symbolic-link?
   "Checks if f is a symbolic link."
   [f]
   (= :symbolic-link (:type (file-attributes f))))
