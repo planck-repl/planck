@@ -45,10 +45,11 @@
     (is (= true  (planck.io/exists? "/dev/stdout")))
     (is (= false (planck.io/regular-file? "/dev/stdout")))
     (is (= true  (planck.io/symbolic-link? "/dev/stdout")))
-    (is (= false (planck.io/directory? "/bin/sh")))
-    (is (= true  (planck.io/exists? "/bin/sh")))
-    (is (= true  (planck.io/regular-file? "/bin/sh")))
-    (is (= false (planck.io/symbolic-link? "/bin/sh")))))
+;    (is (= false (planck.io/directory? "/bin/sh")))    ; /bin/sh is a symbolic link on some systems (e.g. TravisCI), but not others (e.g. macos), so it's not a great test case
+;    (is (= true  (planck.io/exists? "/bin/sh")))
+;    (is (= true  (planck.io/regular-file? "/bin/sh")))
+;    (is (= false (planck.io/symbolic-link? "/bin/sh")))
+    ))
 
 (deftest coercions
   (testing "as-file coerceions"
