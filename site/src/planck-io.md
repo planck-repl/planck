@@ -19,6 +19,7 @@ _Vars_
 [copy](#copy)<br/>
 [delete-file](#delete-file)<br/>
 [directory?](#directory?)<br/>
+[exists?](#exists?)<br/>
 [file](#file)<br/>
 [file?](#file?)<br/>
 [file-attributes](#file-attributes)<br/>
@@ -31,8 +32,10 @@ _Vars_
 [make-writer](#make-writer)<br/>
 [output-stream](#output-stream)<br/>
 [reader](#reader)<br/>
+[regular-file?](#regular-file?)<br/>
+[symbolic-link?](#symbolic-link?)<br/>
 [writer](#writer)<br/>
-   
+
 ## Protocols
 
 ### <a name="Coercions"></a>Coercions
@@ -47,7 +50,7 @@ _Protocol_
   `as-url`<br/>
   `([x])`<br/>
   Coerce argument to a `goog.Uri`.
-  
+
 ### <a name="IOFactory"></a>IOFactory
 _Protocol_
 
@@ -101,7 +104,7 @@ Coerce argument to a [`File`](#File).
 
 Take an [`as-file`](#as-file)-able thing and return a string if it is
 a relative path, else throws an exception.
-  
+
 ### <a name="as-url"></a>as-url
 `([x])`
 
@@ -134,8 +137,8 @@ Delete file `f`.
 
 Spec<br/>
  _args_: `(cat :f (or :string string? :file file?))`<br/>
- 
-### <a name=""></a>directory?
+
+### <a name="directory?"></a>directory?
 `([dir])`
 
 Checks if `dir` is a directory.
@@ -143,11 +146,20 @@ Checks if `dir` is a directory.
 Spec<br/>
  _args_: `(cat :dir (or :string string? :file file?))`<br/>
  _ret_: `boolean?`<br/>
- 
+
+### <a name="exists?"></a>exists?
+`([f])`
+
+Checks if `f` exists on disk.
+
+Spec<br/>
+ _args_: `(cat :f (or :string string? :file file?))`<br/>
+ _ret_: `boolean?`<br/>
+
 ### <a name="file"></a>file
 `([arg] [parent child] [parent child & more])`
 
-Returns a [`File`](#File), passing each arg to [`as-file`](#as-file).  Multiple-arg versions treat the first argument as parent and subsequent 
+Returns a [`File`](#File), passing each arg to [`as-file`](#as-file).  Multiple-arg versions treat the first argument as parent and subsequent
 args as children relative to the parent.
 
 Spec<br/>
@@ -162,7 +174,7 @@ Returns `true` if `x` is a [`File`](#File).
 Spec<br/>
  _args_: `(s/cat :x any?)`<br/>
  _ret_: `boolean?`
-  
+
 ### <a name="file-attributes"></a>file-attributes
 `([path])`
 
@@ -171,7 +183,7 @@ Returns a map containing the attributes of the item at a given `path`.
 Spec
  _args_: `(cat :path (nillable? (or :string string? :file file?)))`<br/>
  _ret_: `map?`
- 
+
 ### <a name="input-stream"></a>input-stream
 `([x & opts])`
 
@@ -190,10 +202,10 @@ Spec
 `([x opts])`
 
 Creates an [`IInputStream`](planck-core.html#IInputStream). See also [`IOFactory`](#IOFactory) docs.
-  
+
 ### <a name="make-output-stream"></a>make-output-stream
 `([x opts])`
-  
+
 Creates an [`IOutputStream`](planck-core.html#IOutputStream). See also [`IOFactory`](#IOFactory) docs.
 
 ### <a name="make-parents"></a>make-parents
@@ -205,27 +217,45 @@ the file they represent.
 Spec<br/>
  _args_: `(cat :path-or-parent any? :more (* any?))`<br/>
  _ret_: `boolean?`
-  
+
 ### <a name="make-reader"></a>make-reader
 `([x opts])`
 
 Creates an [`IReader`](planck-core.html#IReader). See also [`IOFactory`](#IOFactory) docs.
-  
+
 ### <a name="make-writer"></a>make-writer
 `([x opts])`
 
 Creates an `IWriter`. See also [`IOFactory`](#IOFactory) docs.
-  
+
 ### <a name="output-stream"></a>output-stream
 `([x & opts])`
 
 Attempts to coerce its argument into an open [`IOutputStream`](planck-core.html#IOutputStream).
-  
+
 ### <a name="reader"></a>reader
 `([x & opts])`
 
 Attempts to coerce its argument into an open [`IPushbackReader`](planck-core.html#IPushbackReader).
-  
+
+### <a name="regular-file?"></a>regular-file?
+`([f])`
+
+Checks if `f` is a regular file.
+
+Spec<br/>
+ _args_: `(cat :f (or :string string? :file file?))`<br/>
+ _ret_: `boolean?`<br/>
+
+### <a name="symbolic-link?"></a>symbolic-link?
+`([f])`
+
+Checks if `f` is a symbolic link.
+
+Spec<br/>
+ _args_: `(cat :f (or :string string? :file file?))`<br/>
+ _ret_: `boolean?`<br/>
+
 ### <a name="writer"></a>writer
 `([x & opts])`
 
