@@ -28,28 +28,31 @@
     (is (number? (:file-size (planck.io/file-attributes "/tmp"))))))
 
 (deftest predicates-test
-  (testing "predicates"
-    (is (= false (planck.io/directory? nil)))
-    (is (= false (planck.io/exists? nil)))
-    (is (= false (planck.io/regular-file? nil)))
-    (is (= false (planck.io/symbolic-link? nil)))
-    (is (= false (planck.io/directory? "bogus")))
-    (is (= false (planck.io/exists? "bogus")))
-    (is (= false (planck.io/regular-file? "bogus")))
-    (is (= false (planck.io/symbolic-link? "bogus")))
-    (is (= true  (planck.io/directory? "/tmp")))
-    (is (= true  (planck.io/exists? "/tmp")))
-    (is (= false (planck.io/regular-file? "/tmp")))
-;    (is (= false (planck.io/symbolic-link? "/tmp")))   ; /tmp is a symbolic link on some systems (e.g. macos), but not others (e.g. most Linuxes), so it's not a great test case
-    (is (= false (planck.io/directory? "/dev/stdout")))
-    (is (= true  (planck.io/exists? "/dev/stdout")))
-    (is (= false (planck.io/regular-file? "/dev/stdout")))
-    (is (= true  (planck.io/symbolic-link? "/dev/stdout")))
-;    (is (= false (planck.io/directory? "/bin/sh")))    ; /bin/sh is a symbolic link on some systems (e.g. TravisCI), but not others (e.g. macos), so it's not a great test case
-;    (is (= true  (planck.io/exists? "/bin/sh")))
-;    (is (= true  (planck.io/regular-file? "/bin/sh")))
-;    (is (= false (planck.io/symbolic-link? "/bin/sh")))
-    ))
+  (let [regular-file      "/tmp/plk-predicates-file.txt"
+        regular-directory "/tmp/plk-directory/"]
+    (spit regular-file "Planck test case: regular file")
+    (io/make-parents regular-directory)
+    (testing "predicates"
+      (is (= false (planck.io/directory? nil)))
+      (is (= false (planck.io/exists? nil)))
+      (is (= false (planck.io/regular-file? nil)))
+      (is (= false (planck.io/symbolic-link? nil)))
+      (is (= false (planck.io/directory? "bogus")))
+      (is (= false (planck.io/exists? "bogus")))
+      (is (= false (planck.io/regular-file? "bogus")))
+      (is (= false (planck.io/symbolic-link? "bogus")))
+      (is (= true  (planck.io/directory? regular-directory)))
+      (is (= true  (planck.io/exists? regular-directory)))
+      (is (= false (planck.io/regular-file? regular-directory)))
+      (is (= false (planck.io/symbolic-link? regular-directory)))
+      (is (= false (planck.io/directory? "/dev/stdout")))
+      (is (= true  (planck.io/exists? "/dev/stdout")))
+      (is (= false (planck.io/regular-file? "/dev/stdout")))
+      (is (= true  (planck.io/symbolic-link? "/dev/stdout")))
+      (is (= false (planck.io/directory? regular-file)))
+      (is (= true  (planck.io/exists? regular-file)))
+      (is (= true  (planck.io/regular-file? regular-file)))
+      (is (= false (planck.io/symbolic-link? regular-file))))))
 
 (deftest coercions
   (testing "as-file coerceions"
