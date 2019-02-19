@@ -38,7 +38,7 @@ _Vars_
 [regular-file?](#regular-file?)<br/>
 [symbolic-link?](#symbolic-link?)<br/>
 [writer](#writer)<br/>
-
+  
 ## Protocols
 
 ### <a name="Coercions"></a>Coercions
@@ -53,7 +53,7 @@ _Protocol_
   `as-url`<br/>
   `([x])`<br/>
   Coerce argument to a `goog.Uri`.
-
+  
 ### <a name="IOFactory"></a>IOFactory
 _Protocol_
 
@@ -107,7 +107,7 @@ Coerce argument to a [`File`](#File).
 
 Take an [`as-file`](#as-file)-able thing and return a string if it is
 a relative path, else throws an exception.
-
+  
 ### <a name="as-url"></a>as-url
 `([x])`
 
@@ -162,7 +162,7 @@ Spec<br/>
 ### <a name="file"></a>file
 `([arg] [parent child] [parent child & more])`
 
-Returns a [`File`](#File), passing each arg to [`as-file`](#as-file).  Multiple-arg versions treat the first argument as parent and subsequent
+Returns a [`File`](#File), passing each arg to [`as-file`](#as-file).  Multiple-arg versions treat the first argument as parent and subsequent 
 args as children relative to the parent.
 
 Spec<br/>
@@ -177,7 +177,7 @@ Returns `true` if `x` is a [`File`](#File).
 Spec<br/>
  _args_: `(s/cat :x any?)`<br/>
  _ret_: `boolean?`
-
+  
 ### <a name="file-attributes"></a>file-attributes
 `([path])`
 
@@ -186,7 +186,7 @@ Returns a map containing the attributes of the item at a given `path`.
 Spec
  _args_: `(cat :path (nillable? (or :string string? :file file?)))`<br/>
  _ret_: `map?`
-
+  
 ### <a name="file-name"></a>file-name
 `([x])`
 
@@ -223,7 +223,7 @@ Spec
 `([x opts])`
 
 Creates an [`IInputStream`](planck-core.html#IInputStream). See also [`IOFactory`](#IOFactory) docs.
-
+  
 ### <a name="make-output-stream"></a>make-output-stream
 `([x opts])`
 
@@ -238,12 +238,12 @@ the file they represent.
 Spec<br/>
  _args_: `(cat :path-or-parent any? :more (* any?))`<br/>
  _ret_: `boolean?`
-
+  
 ### <a name="make-reader"></a>make-reader
 `([x opts])`
 
 Creates an [`IReader`](planck-core.html#IReader). See also [`IOFactory`](#IOFactory) docs.
-
+  
 ### <a name="make-writer"></a>make-writer
 `([x opts])`
 
