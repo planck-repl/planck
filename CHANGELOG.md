@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Added
-- Add `planck.io/exists?`, `planck.io/regular-file?`, `planck.io/symbolic-link?` ([#853](https://github.com/planck-repl/planck/issues/853))
+- Add `planck.io/exists?`, `planck.io/hidden-file?`, `planck.io/regular-file?`, `planck.io/symbolic-link?` ([#863](https://github.com/planck-repl/planck/issues/863))
 
 ### Changed
 * Update to ClojureScript 1.10.520

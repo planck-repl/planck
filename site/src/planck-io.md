@@ -23,6 +23,7 @@ _Vars_
 [file](#file)<br/>
 [file?](#file?)<br/>
 [file-attributes](#file-attributes)<br/>
+[hidden-file?](#hidden-file?)<br/>
 [input-stream](#input-stream)<br/>
 [list-files](#list-files)<br/>
 [make-input-stream](#make-input-stream)<br/>
@@ -183,6 +184,15 @@ Returns a map containing the attributes of the item at a given `path`.
 Spec
  _args_: `(cat :path (nillable? (or :string string? :file file?)))`<br/>
  _ret_: `map?`
+
+### <a name="hidden-file?"></a>hidden-file?
+`([x])`
+
+Checks if `x` is hidden (name begins with a '.' character).  Note that this fn does not take MS-DOS' "hidden attribute" into account.
+
+Spec<br/>
+ _args_: `(cat :x (or :string string? :file file?))`<br/>
+ _ret_: `boolean?`<br/>
 
 ### <a name="input-stream"></a>input-stream
 `([x & opts])`

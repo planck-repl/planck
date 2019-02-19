@@ -361,6 +361,34 @@
   :args (s/cat :f (s/or :string string? :file file?))
   :ret boolean?)
 
+(defn- path-elements
+  "Returns the path elements of the given file as a sequence."
+  [x]
+  (if x
+    (remove (partial = "") (string/split (str x) #"/"))))
+
+(s/fdef path-elements
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret (s/nilable (s/coll-of string?)))
+
+(defn- file-name
+  "Returns the name (the final path element) of the given file."
+  [x]
+  (last (path-elements x)))
+
+(s/fdef file-name
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret (s/nilable string?))
+
+(defn hidden-file?
+  "Checks if x is hidden (name starts with a . character)."
+  [x]
+  (= "." (first (file-name x))))
+
+(s/fdef hidden-file?
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret boolean?)
+
 (defn regular-file?
   "Checks if f is a regular file."
   [f]
