@@ -38,7 +38,7 @@ _Vars_
 [regular-file?](#regular-file?)<br/>
 [symbolic-link?](#symbolic-link?)<br/>
 [writer](#writer)<br/>
-  
+   
 ## Protocols
 
 ### <a name="Coercions"></a>Coercions
@@ -140,7 +140,7 @@ Delete file `f`.
 
 Spec<br/>
  _args_: `(cat :f (or :string string? :file file?))`<br/>
-
+ 
 ### <a name="directory?"></a>directory?
 `([dir])`
 
@@ -226,7 +226,7 @@ Creates an [`IInputStream`](planck-core.html#IInputStream). See also [`IOFactory
   
 ### <a name="make-output-stream"></a>make-output-stream
 `([x opts])`
-
+  
 Creates an [`IOutputStream`](planck-core.html#IOutputStream). See also [`IOFactory`](#IOFactory) docs.
 
 ### <a name="make-parents"></a>make-parents
@@ -248,7 +248,7 @@ Creates an [`IReader`](planck-core.html#IReader). See also [`IOFactory`](#IOFact
 `([x opts])`
 
 Creates an `IWriter`. See also [`IOFactory`](#IOFactory) docs.
-
+  
 ### <a name="output-stream"></a>output-stream
 `([x & opts])`
 
