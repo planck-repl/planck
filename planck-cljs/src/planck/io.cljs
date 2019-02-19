@@ -1,5 +1,6 @@
 (ns planck.io
   "Planck I/O functionality."
+  (:refer-clojure :exclude [exists?])
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
