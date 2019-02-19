@@ -23,6 +23,7 @@ _Vars_
 [file](#file)<br/>
 [file?](#file?)<br/>
 [file-attributes](#file-attributes)<br/>
+[file-name](#file-name)<br/>
 [hidden-file?](#hidden-file?)<br/>
 [input-stream](#input-stream)<br/>
 [list-files](#list-files)<br/>
@@ -32,6 +33,7 @@ _Vars_
 [make-reader](#make-reader)<br/>
 [make-writer](#make-writer)<br/>
 [output-stream](#output-stream)<br/>
+[path-elements](#path-elements)<br/>
 [reader](#reader)<br/>
 [regular-file?](#regular-file?)<br/>
 [symbolic-link?](#symbolic-link?)<br/>
@@ -185,6 +187,15 @@ Spec
  _args_: `(cat :path (nillable? (or :string string? :file file?)))`<br/>
  _ret_: `map?`
 
+### <a name="file-name"></a>file-name
+`([x])`
+
+Returns the name (the final path element) of `x`.
+
+Spec<br/>
+ _args_: `(cat :x (or :string string? :file file?))`<br/>
+ _ret_: `(s/nilable string?)`<br/>
+
 ### <a name="hidden-file?"></a>hidden-file?
 `([x])`
 
@@ -242,6 +253,16 @@ Creates an `IWriter`. See also [`IOFactory`](#IOFactory) docs.
 `([x & opts])`
 
 Attempts to coerce its argument into an open [`IOutputStream`](planck-core.html#IOutputStream).
+
+### <a name="path-elements"></a>path-elements
+`([x])`
+
+Returns the path elements of the given file as a sequence.
+
+Spec<br/>
+ _args_: `(cat :x (or :string string? :file file?))`<br/>
+ _ret_: `(s/nilable (s/coll-of string?)))`<br/>
+
 
 ### <a name="reader"></a>reader
 `([x & opts])`

@@ -361,8 +361,8 @@
   :args (s/cat :f (s/or :string string? :file file?))
   :ret boolean?)
 
-(defn- path-elements
-  "Returns the path elements of the given file as a sequence."
+(defn path-elements
+  "Returns the path elements of x as a sequence."
   [x]
   (if x
     (remove (partial = "") (string/split (str x) #"/"))))
@@ -371,8 +371,8 @@
   :args (s/cat :x (s/or :string string? :file file?))
   :ret (s/nilable (s/coll-of string?)))
 
-(defn- file-name
-  "Returns the name (the final path element) of the given file."
+(defn file-name
+  "Returns the name (the final path element) of x."
   [x]
   (last (path-elements x)))
 
