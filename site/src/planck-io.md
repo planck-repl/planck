@@ -257,7 +257,7 @@ Attempts to coerce its argument into an open [`IOutputStream`](planck-core.html#
 ### <a name="path-elements"></a>path-elements
 `([x])`
 
-Returns the path elements of the given file as a sequence.
+Returns the path elements of `x` as a sequence.
 
 Spec<br/>
  _args_: `(cat :x (or :string string? :file file?))`<br/>
