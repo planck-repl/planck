@@ -199,7 +199,7 @@ Spec<br/>
 ### <a name="hidden-file?"></a>hidden-file?
 `([x])`
 
-Checks if `x` is hidden (name begins with a '.' character).  Note that this fn does not take MS-DOS' "hidden attribute" into account.
+Checks if `x` is hidden (name begins with a '.' character).
 
 Spec<br/>
  _args_: `(cat :x (or :string string? :file file?))`<br/>
