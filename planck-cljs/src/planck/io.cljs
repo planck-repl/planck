@@ -366,7 +366,7 @@
   "Returns the path elements of x as a sequence."
   [x]
   (if x
-    (remove (partial = "") (string/split (str x) #"/"))))
+    (remove (partial = "") (string/split (:path (as-file x)) #"/"))))
 
 (s/fdef path-elements
   :args (s/cat :x (s/or :string string? :file file?))
