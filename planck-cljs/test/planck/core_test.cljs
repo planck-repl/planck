@@ -145,7 +145,11 @@
 
 (deftest load-string-test
   (is (= 3 (planck.core/load-string "1 2 3")))
-  (is (= "hi" (with-out-str (planck.core/load-string "1 (print \"hi\") 2")))))
+  (is (= "hi" (with-out-str (planck.core/load-string "1 (print \"hi\") 2"))))
+  (is (= :foo.core/x (planck.core/load-string "(ns foo.core) ::x"))))
+
+(deftest load-reader-test
+  (is (= 3 (planck.core/load-reader (#'planck.core/make-string-reader "1 2 3")))))
 
 (deftest requiring-resolve-test
   (is (nil? (planck.core/resolve 'planck.requiring-resolve-ns/a)))
