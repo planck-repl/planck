@@ -2224,3 +2224,28 @@
                        true)))]
     (or (try-load "user.cljs")
         (try-load "user.cljc"))))
+
+(defn- load-string
+  [s]
+  (let [result (volatile! nil)]
+    (loop [source s]
+      (if-let [balance-text (and (seq source)
+                                 (is-readable? source))]
+        (do
+          (cljs/eval-str
+            st
+            (subs source 0 (- (count source) (count balance-text)))
+            "string"
+            (merge
+              (select-keys @app-env [:verbose :checked-arrays :static-fns :fn-invoke-direct])
+              {:ns            @current-ns
+               :context       :expr
+               :eval          cljs/js-eval
+               :def-emits-var (-> @app-env :opts (:def-emits-var true))})
+            (fn [{:keys [value error ns]}]
+              (when error
+                (throw error))
+              (reset! current-ns ns)
+              (vreset! result value)))
+          (recur balance-text))
+        @result))))

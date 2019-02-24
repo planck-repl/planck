@@ -467,13 +467,13 @@
   :args (s/alt :unary (s/cat :millis #(and (integer? %) (not (neg? %))))
                :binary (s/cat :millis #(and (integer? %) (not (neg? %))) :nanos #(and (integer? %) (<= 0 % 999999)))))
 
+(declare load-string)
+
 (defn load-reader
   "Sequentially read and evaluate the set of forms contained in the
   stream/file"
   [rdr]
-  (->> (repeatedly #(read {:eof ::eof} rdr))
-    (take-while #(not (keyword-identical? % ::eof)))
-    (reduce #(eval %2) nil)))
+  (load-string (slurp rdr)))
 
 (s/fdef load-reader
   :args (s/cat :rdr #(satisfies? IPushbackReader %))
@@ -483,7 +483,7 @@
   "Sequentially read and evaluate the set of forms contained in the
   string"
   [s]
-  (load-reader (make-string-reader s)))
+  (#'repl/load-string s))
 
 (s/fdef load-string
   :args (s/cat :s string?)
