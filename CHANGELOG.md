@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.21.0] - 2019-02-24
 ### Added
 - Add `planck.io/exists?`, `planck.io/hidden-file?`, `planck.io/regular-file?`, `planck.io/symbolic-link?` ([#863](https://github.com/planck-repl/planck/issues/863))
 - Add `planck.io/path-elements`, `planck.io/file-name`
@@ -783,7 +785,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.20.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.21.0...HEAD
+[2.21.0]: https://github.com/mfikes/planck/compare/2.20.0...2.21.0
 [2.20.0]: https://github.com/mfikes/planck/compare/2.19.1...2.20.0
 [2.19.0]: https://github.com/mfikes/planck/compare/2.18.1...2.19.0
 [2.18.1]: https://github.com/mfikes/planck/compare/2.18.0...2.18.1
