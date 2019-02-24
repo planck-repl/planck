@@ -347,7 +347,7 @@
 (defn ^boolean directory?
   "Checks if dir is a directory."
   [dir]
-  (boolean (js/PLANCK_IS_DIRECTORY (:path (as-file dir)))))
+  (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
 (s/fdef directory?
   :args (s/cat :dir (s/or :string string? :file file?))
@@ -365,12 +365,11 @@
 (defn path-elements
   "Returns the path elements of x as a sequence."
   [x]
-  (if x
-    (remove (partial = "") (string/split (:path (as-file x)) #"/"))))
+  (remove (partial = "") (string/split (:path (as-file x)) #"/")))
 
 (s/fdef path-elements
   :args (s/cat :x (s/or :string string? :file file?))
-  :ret (s/nilable (s/coll-of string?)))
+  :ret (s/coll-of string?))
 
 (defn file-name
   "Returns the name (the final path element) of x."
@@ -379,7 +378,7 @@
 
 (s/fdef file-name
   :args (s/cat :x (s/or :string string? :file file?))
-  :ret (s/nilable string?))
+  :ret string?)
 
 (defn hidden-file?
   "Checks if x is hidden (name starts with a . character)."

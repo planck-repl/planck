@@ -194,7 +194,7 @@ Returns the name (the final path element) of `x`.
 
 Spec<br/>
  _args_: `(cat :x (or :string string? :file file?))`<br/>
- _ret_: `(s/nilable string?)`<br/>
+ _ret_: `string?`<br/>
 
 ### <a name="hidden-file?"></a>hidden-file?
 `([x])`
@@ -261,7 +261,7 @@ Returns the path elements of `x` as a sequence.
 
 Spec<br/>
  _args_: `(cat :x (or :string string? :file file?))`<br/>
- _ret_: `(s/nilable (s/coll-of string?)))`<br/>
+ _ret_: `(s/coll-of string?)`<br/>
 
 
 ### <a name="reader"></a>reader

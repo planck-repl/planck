@@ -37,11 +37,6 @@
     (spit hidden-file "Planck test case: hidden file")
     (io/make-parents hidden-directory)
     (testing "predicates"
-      (is (= false (planck.io/directory? nil)))
-      (is (= false (planck.io/exists? nil)))
-      (is (= false (planck.io/hidden-file? nil)))
-      (is (= false (planck.io/regular-file? nil)))
-      (is (= false (planck.io/symbolic-link? nil)))
       (is (= false (planck.io/directory? "bogus")))
       (is (= false (planck.io/exists? "bogus")))
       (is (= false (planck.io/hidden-file? "bogus")))
