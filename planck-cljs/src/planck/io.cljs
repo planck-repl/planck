@@ -1,5 +1,6 @@
 (ns planck.io
   "Planck I/O functionality."
+  (:refer-clojure :exclude [exists?])
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
@@ -350,6 +351,60 @@
 
 (s/fdef directory?
   :args (s/cat :dir (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn exists?
+  "Checks if f exists on disk."
+  [f]
+  (not (nil? (file-attributes f))))
+
+(s/fdef exists?
+  :args (s/cat :f (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn path-elements
+  "Returns the path elements of x as a sequence."
+  [x]
+  (remove (partial = "") (string/split (:path (as-file x)) #"/")))
+
+(s/fdef path-elements
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret (s/coll-of string?))
+
+(defn file-name
+  "Returns the name (the final path element) of x."
+  [x]
+  (last (path-elements x)))
+
+(s/fdef file-name
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret string?)
+
+(defn hidden-file?
+  "Checks if x is hidden (name starts with a . character)."
+  [x]
+  (= "." (first (file-name x))))
+
+(s/fdef hidden-file?
+  :args (s/cat :x (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn regular-file?
+  "Checks if f is a regular file."
+  [f]
+  (= :file (:type (file-attributes f))))
+
+(s/fdef regular-file?
+  :args (s/cat :f (s/or :string string? :file file?))
+  :ret boolean?)
+
+(defn symbolic-link?
+  "Checks if f is a symbolic link."
+  [f]
+  (= :symbolic-link (:type (file-attributes f))))
+
+(s/fdef symbolic-link?
+  :args (s/cat :f (s/or :string string? :file file?))
   :ret boolean?)
 
 (defn list-files

@@ -27,6 +27,52 @@
     (is (= js/Date (type (:modified (planck.io/file-attributes "/tmp")))))
     (is (number? (:file-size (planck.io/file-attributes "/tmp"))))))
 
+(deftest predicates-test
+  (let [regular-file      "/tmp/plk-predicates-file.txt"
+        regular-directory "/tmp/plk-directory/"
+        hidden-file       "/tmp/.plk-predicates-hidden-file.txt"
+        hidden-directory "/tmp/.plk-hidden-directory/"]
+    (spit regular-file "Planck test case: regular file")
+    (io/make-parents regular-directory)
+    (spit hidden-file "Planck test case: hidden file")
+    (io/make-parents hidden-directory)
+    (testing "predicates"
+      (is (= false (planck.io/directory? "bogus")))
+      (is (= false (planck.io/exists? "bogus")))
+      (is (= false (planck.io/hidden-file? "bogus")))
+      (is (= false (planck.io/regular-file? "bogus")))
+      (is (= false (planck.io/symbolic-link? "bogus")))
+      (is (= false (planck.io/directory? ".bogus")))
+      (is (= false (planck.io/exists? ".bogus")))
+      (is (= true  (planck.io/hidden-file? ".bogus")))
+      (is (= false (planck.io/regular-file? ".bogus")))
+      (is (= false (planck.io/symbolic-link? ".bogus")))
+      (is (= true  (planck.io/directory? regular-directory)))
+      (is (= true  (planck.io/exists? regular-directory)))
+      (is (= false (planck.io/hidden-file? regular-directory)))
+      (is (= false (planck.io/regular-file? regular-directory)))
+      (is (= false (planck.io/symbolic-link? regular-directory)))
+      (is (= false (planck.io/directory? "/dev/stdout")))
+      (is (= true  (planck.io/exists? "/dev/stdout")))
+      (is (= false (planck.io/hidden-file? "/dev/stdout")))
+      (is (= false (planck.io/regular-file? "/dev/stdout")))
+      (is (= true  (planck.io/symbolic-link? "/dev/stdout")))
+      (is (= false (planck.io/directory? regular-file)))
+      (is (= true  (planck.io/exists? regular-file)))
+      (is (= false (planck.io/hidden-file? regular-file)))
+      (is (= true  (planck.io/regular-file? regular-file)))
+      (is (= false (planck.io/symbolic-link? regular-file)))
+      (is (= false (planck.io/directory? hidden-file)))
+      (is (= true  (planck.io/exists? hidden-file)))
+      (is (= true  (planck.io/hidden-file? hidden-file)))
+      (is (= true  (planck.io/regular-file? hidden-file)))
+      (is (= false (planck.io/symbolic-link? hidden-file)))
+      (is (= true  (planck.io/directory? hidden-directory)))
+      (is (= true  (planck.io/exists? hidden-directory)))
+      (is (= true  (planck.io/hidden-file? hidden-directory)))
+      (is (= false (planck.io/regular-file? hidden-directory)))
+      (is (= false (planck.io/symbolic-link? hidden-directory))))))
+
 (deftest coercions
   (testing "as-file coerceions"
     (is (nil? (planck.io/as-file nil)))
