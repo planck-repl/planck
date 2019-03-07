@@ -44,6 +44,22 @@ This stand-alone script specifies its own dependencies (via the `-Sdeps` _dep-op
 
 > Also note that the script both a valid Bash script (as the `exec` causes the script to terminate prior to any ClojureScript text being parsed), and a valid ClojureScript file (all of the values on `"exec"` line are ClojureScript strings and thus harmless values preceding the `require` form).
 
+### Using Boot
+
+The [Boot](https://boot-clj.com/) build tool can be used to generate a classpath file that can be fed into Planck. A side effect of creating such a file is that Boot will also download the specified dependencies (see "Downloading Deps" below).
+
+Let's look at an example that puts the [cljs-time](https://clojars.org/com.andrewmcveigh/cljs-time) library on the classpath. On a system with `boot` installed, run the following:
+
+```sh
+boot -d com.andrewmcveigh/cljs-time:"0.5.2" with-cp -w --file .classpath
+```
+
+The list of dependencies (one in this case) is written to `.classpath`. You can use this file in invocations of `planck` like so:
+
+```sh
+planck -c `cat .classpath` 
+```
+
 ### Classpath Specification
 
 Planck's classpath can be directly specified by providing a colon-separated list of directories and/or JARs via the `-c` / `-​-​classpath` argument, or by the `PLANCK_CLASSPATH` environment variable.
