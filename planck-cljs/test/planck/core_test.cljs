@@ -154,3 +154,6 @@
 (deftest requiring-resolve-test
   (is (nil? (planck.core/resolve 'planck.requiring-resolve-ns/a)))
   (is (= 3 @(planck.core/requiring-resolve 'planck.requiring-resolve-ns/a))))
+
+(deftest with-in-str-test
+  (is (= "34" (planck.core/with-in-str "34\n35" (planck.core/read-line)))))

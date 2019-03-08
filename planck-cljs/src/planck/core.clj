@@ -24,3 +24,11 @@
                                   (planck.core/-close ~(bindings 0)))))
     :else (throw (ex-info
                    "with-open only allows symbols in bindings" {}))))
+
+(defmacro with-in-str
+  "Evaluates body in a context in which *in* is bound to a fresh
+  string reader initialized with the string s."
+  [s & body]
+  `(with-open [s# (#'planck.core/make-string-reader ~s)]
+     (binding [planck.core/*in* s#]
+       ~@body)))
