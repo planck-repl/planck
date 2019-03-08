@@ -36,6 +36,7 @@ _Vars_
 [path-elements](#path-elements)<br/>
 [reader](#reader)<br/>
 [regular-file?](#regular-file?)<br/>
+[resource](#resource)<br/>
 [symbolic-link?](#symbolic-link?)<br/>
 [writer](#writer)<br/>
    
@@ -277,6 +278,17 @@ Checks if `f` is a regular file.
 Spec<br/>
  _args_: `(cat :f (or :string string? :file file?))`<br/>
  _ret_: `boolean?`<br/>
+
+### <a name="resource"></a>resource
+`([n])`
+
+Returns the URI for the named resource, `n`.
+  
+The resource must be either a JAR resource, a file resource or a "bundled" resource. JARs and files are expressed relative to the classpath while "bundled" resources are the namespaces bundled with Planck and are referred to by reference to the file that contains the namespace, eg. `cljs.test` is `"cljs/test.cljs"`.
+
+Spec<br/>
+ _args_: `(cat :n string?)`<br/>
+ _ret_: `Uri?`<br/>
 
 ### <a name="symbolic-link?"></a>symbolic-link?
 `([f])`
