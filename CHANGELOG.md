@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
 
 ## [2.21.0] - 2019-02-24
 ### Added
