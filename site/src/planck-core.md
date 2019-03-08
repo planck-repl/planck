@@ -36,6 +36,7 @@ _Vars_
 [sleep](#sleep)<br/>
 [slurp](#slurp)<br/>
 [spit](#spit)<br/>
+[with-in-str](#with-in-str)<br/>
 [with-open](#with-open)<br/>
 
 ## Protocols
@@ -313,6 +314,14 @@ Spec<br/>
 Spec<br/>
  `args`: `(cat :f (or :string string? :file file?) :content any? :opts (* any?))`
 
+### <a name="with-in-str"></a>with-in-str
+`([s & body])`
+
+_Macro_
+
+  Evaluates body in a context in which [`*in*`](#in) is bound to a fresh
+  string reader initialized with the string `s`.
+  
 ### <a name="with-open"></a>with-open
 `([bindings & body])`
 
