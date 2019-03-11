@@ -74,10 +74,10 @@ Could not load file run_file/core.cljs
 Test run file classpath resource @/
 :run-file.core/hello
 Test run malformed expression
-Execution error (ExceptionInfo) at (<cljs repl>:1).
+Syntax error reading source at (<cljs repl>:1).
 Unmatched delimiter ].
 Test run malformed script
-Execution error (ExceptionInfo) at (<cljs repl>:1).
+Syntax error reading source at (<cljs repl>:1).
 Unmatched delimiter ].
 Test in-ns
 nil
@@ -511,9 +511,9 @@ nil
 Test reader
 #js [1 2]
 #inst "2015-08-18T01:53:14.614-00:00"
-Execution error (ExceptionInfo) at (<cljs repl>:1).
+Syntax error reading source at (<cljs repl>:1).
 Set literal contains duplicate key: 1
-Execution error (ExceptionInfo) at (<cljs repl>:1).
+Syntax error reading source at (<cljs repl>:1).
 Map literal contains duplicate key: 1
 Test verbose
 5
