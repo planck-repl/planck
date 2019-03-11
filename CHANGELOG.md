@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
 
-## [2.21.0] - 2019-02-24
+## [2.21.0] - 2019-03-07
 ### Added
 - Add `planck.io/exists?`, `planck.io/hidden-file?`, `planck.io/regular-file?`, `planck.io/symbolic-link?` ([#863](https://github.com/planck-repl/planck/issues/863))
 - Add `planck.io/path-elements`, `planck.io/file-name`
+- Document using Boot to generate a classpath file ([#343](https://github.com/planck-repl/planck/issues/343))
 
 ### Changed
 * Update to ClojureScript 1.10.520
