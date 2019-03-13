@@ -57,13 +57,17 @@
 
 (planck.core/intern 'foo.core 'a 3)
 (planck.core/intern 'foo.core (with-meta 'b {:alpha 17}) 12)
-(planck.core/intern (find-ns 'foo.core) 'd 18)
+(planck.core/intern (find-ns 'foo.core) 'c 18)
+(planck.core/intern 'foo.core 'd 'bar)
+(planck.core/intern 'foo.core 'e '[bar])
 
 (deftest test-intern
-  (is (= 4 (count (planck.core/eval '(ns-interns (quote foo.core))))))
+  (is (= 6 (count (planck.core/eval '(ns-interns (quote foo.core))))))
   (is (= 12 @(planck.core/ns-resolve 'foo.core 'b)))
   (is (= 17 (:alpha (meta (planck.core/ns-resolve 'foo.core 'b)))))
-  (is (= 18 @(planck.core/ns-resolve 'foo.core 'd))))
+  (is (= 18 @(planck.core/ns-resolve 'foo.core 'c)))
+  (is (= 'bar @(planck.core/ns-resolve 'foo.core 'd)))
+  (is (= '[bar] @(planck.core/ns-resolve 'foo.core 'e))))
 
 (defn spit-slurp [file-name content]
   (planck.core/spit file-name content)
