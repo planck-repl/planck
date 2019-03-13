@@ -84,7 +84,11 @@
 (deftest repl-read-string-test
   (is (thrown? js/Error (#'planck.repl/repl-read-string "34f")))
   (is (thrown? js/Error (#'planck.repl/repl-read-string "a:")))
-  (is (thrown? js/Error (#'planck.repl/repl-read-string "]"))))
+  (is (thrown? js/Error (#'planck.repl/repl-read-string "]")))
+  (try
+    (#'planck.repl/repl-read-string "34f")
+    (catch :default e
+      (is (= :read-source (:clojure.error/phase (ex-data e)))))))
 
 (deftest strip-source-map-test
   (let [input-sm {0 {2 [{:line 1 :col 1} {:line 2 :col 2 :name "a"}]

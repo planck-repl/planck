@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file. This change
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
 
 ### Fixed
+- Execution error instead of syntax for `08` ([#857](https://github.com/planck-repl/planck/issues/857))
 - Support interning quoted data structues ([#508](https://github.com/planck-repl/planck/issues/508))
 
 ## [2.21.0] - 2019-03-07
