@@ -2200,7 +2200,7 @@
      (eval `(def ~name) (ns-name the-ns))))
   ([ns name val]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
-     (eval `(def ~name ~val) (ns-name the-ns)))))
+     (eval `(def ~name (quote ~val)) (ns-name the-ns)))))
 
 (defn- ^:export wrap-color-err
   []
