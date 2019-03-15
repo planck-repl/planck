@@ -287,8 +287,8 @@ Returns the URI for the named resource, `n`.
 The resource must be either a JAR resource, a file resource or a "bundled" resource. JARs and files are expressed relative to the classpath while "bundled" resources are the namespaces bundled with Planck and are referred to by reference to the file that contains the namespace, eg. `cljs.test` is `"cljs/test.cljs"`.
 
 Spec<br/>
- _args_: `(cat :n string?)`<br/>
- _ret_: `Uri?`<br/>
+ _args_: `(cat :n (nilable string?))`<br/>
+ _ret_: `(nilable (instance? Uri %))`<br/>
 
 ### <a name="symbolic-link?"></a>symbolic-link?
 `([f])`
