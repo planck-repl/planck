@@ -1,6 +1,6 @@
 (ns planck.core
   "Core Planck macros."
-  (:refer-clojure :exclude [with-open]))
+  (:refer-clojure :exclude [with-open with-in-str]))
 
 (defmacro with-open
   "bindings => [name IClosable ...]

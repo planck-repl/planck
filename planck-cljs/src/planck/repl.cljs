@@ -482,7 +482,7 @@
       (let [reader (rt/string-push-back-reader source)]
         [(r/read {:read-cond :allow :features #{:cljs}} reader) (apply str (read-chars reader))]))
     (catch :default e
-      (throw (ensure-period e)))))
+      (throw (ex-info nil {:clojure.error/phase :read-source} (ensure-period e))))))
 
 (def ^:private eof (js-obj))
 
@@ -496,7 +496,7 @@
   (try
     (first (repl-read-string source-text))
     (catch :default e
-      (if (eof-while-reading? e)
+      (if (eof-while-reading? (ex-cause e))
         eof
         (throw e)))))
 
@@ -508,7 +508,7 @@
     (second (repl-read-string source))
     (catch :default e
       (cond
-        (eof-while-reading? e) nil
+        (eof-while-reading? (ex-cause e)) nil
         :else ""))))
 
 (defn- seq-form-starting-with-sym?
@@ -2200,7 +2200,7 @@
      (eval `(def ~name) (ns-name the-ns))))
   ([ns name val]
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
-     (eval `(def ~name ~val) (ns-name the-ns)))))
+     (eval `(def ~name (quote ~val)) (ns-name the-ns)))))
 
 (defn- ^:export wrap-color-err
   []
