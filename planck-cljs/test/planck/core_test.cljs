@@ -69,6 +69,18 @@
   (is (= 'bar @(planck.core/ns-resolve 'foo.core 'd)))
   (is (= '[bar] @(planck.core/ns-resolve 'foo.core 'e))))
 
+(deftest test-ns-aliases
+  (is (= '{string clojure.string, set clojure.set}
+        (into {} (map (fn [[k v]] [k (ns-name v)])) (planck.core/ns-aliases 'foo.core))))
+  (is (thrown? js/Error (planck.core/ns-aliases 'unknown.namespace))))
+
+(deftest test-ns-refers
+  (let [refers (planck.core/ns-refers 'foo.core)]
+    (is (= ['union #'clojure.set/union] (find refers 'union)))
+    (is (= ['intersection #'clojure.set/intersection] (find refers 'intersection)))
+    (is (= ['reduce #'cljs.core/reduce] (find refers 'reduce)))
+    (is (not (contains? refers 'map)))))
+
 (defn spit-slurp [file-name content]
   (planck.core/spit file-name content)
   (planck.core/slurp file-name))
