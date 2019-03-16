@@ -418,7 +418,13 @@
   :ret (s/coll-of file?))
 
 (defn resource
-  "Returns the URI for a named resource."
+  "Returns the URI for the named resource, `n`.
+  
+  The resource must be either a JAR resource, a file resource or a \"bundled\"
+  resource. JARs and files are expressed relative to the classpath while 
+  \"bundled\" resources are the namespaces bundled with Planck and are referred 
+  to by reference to the file that contains the namespace, eg. `cljs.test` is 
+  \"cljs/test.cljs\"."
   [n]
   (when-some [[_ _ loaded-path loaded-type loaded-location] (js/PLANCK_LOAD n)]
     (case loaded-type
