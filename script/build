@@ -47,7 +47,7 @@ checkCmdSuccess() {
     fi
 }
 
-export CLOSURE_RELEASE="20180610"
+export CLOSURE_RELEASE="20190301"
 export CLOSURE_JS_RELEASE=${CLOSURE_RELEASE}.0.0
 script/get-closure-compiler
 

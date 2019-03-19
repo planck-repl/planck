@@ -95,11 +95,9 @@ An easy way to quickly download dependencies is to use [`boot`](https://github.c
 boot -d andare:0.9.0 -d org.clojure/test.check:0.10.0-alpha3
 ```
 
-
-
 ### Bundled Deps
 
-Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes [most of the Google Closure library](gcl.html) as well as these namespaces:
+Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes [almost all of the Google Closure library](gcl.html) as well as these namespaces:
 
 * `cljs.test`
 * `clojure.core.reducers`
