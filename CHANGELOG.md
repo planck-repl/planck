@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
 - Document `planck.io/resource` ([#487](https://github.com/planck-repl/planck/issues/487))`
+- Support `ns-aliases` and `ns-refers` ([#505](https://github.com/planck-repl/planck/issues/505))
 
 ### Fixed
 - Execution error instead of syntax for `08` ([#857](https://github.com/planck-repl/planck/issues/857))
