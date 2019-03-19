@@ -26,6 +26,8 @@ _Vars_
 [line-seq](#line-seq)<br/>
 [load-reader](#load-reader)<br/>
 [load-string](#load-string)<br/>
+[ns-aliases](#ns-aliases)<br/>
+[ns-refers](#ns-refers)<br/>
 [ns-resolve](#ns-resolve)<br/>
 [read](#read)<br/>
 [read-line](#read-line)<br/>
@@ -209,6 +211,24 @@ Spec<br/>
  _args_: `(cat :s string?)`<br/>
  _ret_: `any?`
 
+### <a name="ns-aliases"></a>ns-aliases
+`([ns])`
+
+Returns a map of the aliases for the namespace.
+
+Spec<br/>
+ _args_: `(cat :ns (or :sym symbol? :ns #(instance? Namespace %)))`<br/>
+ _ret_: `(map-of simple-symbol? (instance? Namespace %))`<br/>
+ 
+### <a name="ns-refers"></a>ns-refers
+`([ns])`
+
+Returns a map of the refer mappings for the namespace.
+
+Spec<br/>
+ _args_: `(cat :ns (or :sym symbol? :ns #(instance? Namespace %)))`<br/>
+ _ret_: `(map-of simple-symbol? var?)`<br/>
+ 
 ### <a name="ns-resolve"></a>ns-resolve
 `([ns sym])`
 

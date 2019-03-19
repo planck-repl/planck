@@ -433,6 +433,24 @@
           :name symbol?
           :val (s/? any?)))
 
+(defn ns-aliases
+  "Returns a map of the aliases for the namespace."
+  [ns]
+  (#'repl/ns-aliases ns))
+
+(s/fdef ns-aliases
+  :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %)))
+  :ret (s/map-of simple-symbol? #(instance? Namespace %)))
+
+(defn ns-refers
+  "Returns a map of the refer mappings for the namespace."
+  [ns]
+  (#'repl/ns-refers ns))
+
+(s/fdef ns-refers
+  :args (s/cat :ns (s/or :sym symbol? :ns #(instance? Namespace %)))
+  :ret (s/map-of simple-symbol? var?))
+
 (defn- transfer-ns
   [state ns]
   (-> state

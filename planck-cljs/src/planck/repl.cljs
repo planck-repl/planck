@@ -2202,6 +2202,27 @@
    (when-let [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
      (eval `(def ~name (quote ~val)) (ns-name the-ns)))))
 
+(defn- ns-aliases
+  [ns]
+  (if-some [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+    (->> (get-in @st [::ana/namespaces (ns-name the-ns) :requires])
+      (keep (fn [[k v]]
+              (when (not= k v)
+                [k (find-ns v)])))
+      (into {}))
+    (throw (ex-info (str "No namespace " ns " found.") {}))))
+
+(defn- ns-refers
+  [ns]
+  (if-some [the-ns (find-ns (cond-> ns (instance? Namespace ns) ns-name))]
+    (merge
+      (apply dissoc (ns-publics 'cljs.core)
+        (get-in @st [::ana/namespaces (ns-name the-ns) :excludes]))
+      (->> (get-in @st [::ana/namespaces (ns-name the-ns) :uses])
+        (map (fn [[k v]] [k (ns-resolve v k)]))
+        (into {})))
+    (throw (ex-info (str "No namespace " ns " found.") {}))))
+
 (defn- ^:export wrap-color-err
   []
   (let [orig-print-err-fn js/PLANCK_PRINT_ERR_FN]
