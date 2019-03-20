@@ -97,7 +97,7 @@ boot -d andare:0.9.0 -d org.clojure/test.check:0.10.0-alpha3
 
 ### Bundled Deps
 
-Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes [almost all of the Google Closure library](gcl.html) as well as these namespaces:
+Planck ships with many of the deps that are available to conventional ClojureScript code. In particular this includes [the majority of the Google Closure Library](gcl.html) as well as these namespaces:
 
 * `cljs.test`
 * `clojure.core.reducers`
