@@ -31,7 +31,7 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
 fi
 
 if [ -z ${FAST_BUILD+set} ]; then
-  echo "Creating an optimized build, which can take more than half an hour."
+  echo "Creating an optimized build, which can take more than an hour and a half."
   echo "Specifying --fast skips optimizations and takes less than two minutes."
 fi
 
