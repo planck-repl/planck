@@ -239,27 +239,27 @@
   (make-writer [uri opts]
     (cond
       (file-uri? uri) (make-writer (as-file uri) opts)
-      (jar-uri? uri) (throw (ex-info "Can't write to jar URI" {:uri uri}))
-      (bundled-uri? uri) (throw (ex-info "Can't write to bundled URI" {:uri uri}))
+      (jar-uri? uri) (throw (ex-info "Cannot write to JAR URI" {:uri uri}))
+      (bundled-uri? uri) (throw (ex-info "Cannot write to bundled URI" {:uri uri}))
       :else (make-http-uri-writer uri opts)))
 
   default
   (make-reader [x _]
     (if (satisfies? planck.core/IReader x)
       x
-      (throw (ex-info (str "Can't make a reader from " x) {}))))
+      (throw (ex-info (str "Cannot open <" (pr-str x) "> as a Reader.") {}))))
   (make-writer [x _] nil
     (if (satisfies? IWriter x)
       x
-      (throw (ex-info (str "Can't make a writer from " x) {}))))
+      (throw (ex-info (str "Cannot open <" (pr-str x) "> as a Writer.") {}))))
   (make-input-stream [x _]
     (if (satisfies? planck.core/IInputStream x)
       x
-      (throw (ex-info (str "Can't make an input stream from " x) {}))))
+      (throw (ex-info (str "Cannot open <" (pr-str x) "> as an InputStream.") {}))))
   (make-output-stream [x _]
     (if (satisfies? planck.core/IOutputStream x)
       x
-      (throw (ex-info (str "Can't make an output stream from " x) {})))))
+      (throw (ex-info (str "Cannot open <" (pr-str x) "> as an OutputStream.") {})))))
 
 (defn reader
   "Attempts to coerce its argument into an open IPushbackReader."
