@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file. This change
 - Support `ns-aliases` and `ns-refers` ([#505](https://github.com/planck-repl/planck/issues/505))
 - Add almost all of the Google Closure Library ([#496](https://github.com/planck-repl/planck/issues/496))
 
+### Changed
+- Update to Google Closure Library v20190213
+- Update to Google Closure Compiler v20190301
+
 ### Fixed
 - Execution error instead of syntax for `08` ([#857](https://github.com/planck-repl/planck/issues/857))
 - Support interning quoted data structues ([#508](https://github.com/planck-repl/planck/issues/508))
