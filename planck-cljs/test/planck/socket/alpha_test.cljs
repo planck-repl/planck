@@ -1,16 +1,22 @@
 (ns planck.socket.alpha-test
   (:require
+   [clojure.string :as string]
    [clojure.test :refer [deftest is testing async]]
+   [planck.shell :as shell]
    [planck.socket.alpha :as socket]))
+
+(defn darwin? []
+  (= "Darwin" (-> (shell/sh "uname") :out string/trim-newline)))
 
 ;; Start up an echo server
 
 (def echo-server-port 55555)
 
-(socket/listen echo-server-port
-  (fn [socket]
-    (fn [socket data]
-      (socket/write socket data))))
+(when-not (darwin?)
+  (socket/listen echo-server-port
+    (fn [socket]
+      (fn [socket data]
+        (socket/write socket data)))))
 
 (defn latch [m f]
   (let [r (atom 0)]
@@ -23,7 +29,8 @@
   (swap! r inc))
 
 (deftest listen-protected-port
-  (is (thrown-with-msg? js/Error #"Permission denied" (socket/listen 123 (fn [_] (fn [_ _]))))))
+  (when-not (darwin?)
+    (is (thrown-with-msg? js/Error #"Permission denied" (socket/listen 123 (fn [_] (fn [_ _])))))))
 
 #_(deftest integration-test
   (async done
