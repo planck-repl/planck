@@ -1,25 +1,15 @@
 # Google Closure Library
 
-The following [Google Closure library](https://developers.google.com/closure/library/) facilities are bundled with Planck:
+Planck bundles the majority of the [Google Closure library](https://developers.google.com/closure/library/). The following namespaces are not included:
 
-* [goog.Delay](https://google.github.io/closure-library/api/goog.Delay.html)
-* [goog.Disposable](https://google.github.io/closure-library/api/goog.Disposable.html)
-* [goog.Promise](https://google.github.io/closure-library/api/goog.Promise.html)
-* [goog.Throttle](https://google.github.io/closure-library/api/goog.Throttle.html)
-* [goog.Timer](https://google.github.io/closure-library/api/goog.Timer.html)
-* [goog.Uri](https://google.github.io/closure-library/api/goog.Uri.html)
-* [goog.color](https://google.github.io/closure-library/api/goog.color.html)
-* [goog.crypt](https://google.github.io/closure-library/api/goog.crypt.html)
-* [goog.date](https://google.github.io/closure-library/api/goog.date.html)
-* [goog.debug.Console](https://google.github.io/closure-library/api/goog.debug.Console.html)
-* [goog.format](https://google.github.io/closure-library/api/goog.format.html)
-* [goog.i18n](https://google.github.io/closure-library/api/goog.i18n.html)
-* [goog.iter](https://google.github.io/closure-library/api/goog.iter.html)
-* [goog.json](https://google.github.io/closure-library/api/goog.json.html)
-* [goog.labs.format.csv](https://google.github.io/closure-library/api/goog.labs.format.csv.html)
-* [goog.locale](https://google.github.io/closure-library/api/goog.locale.html)
-* [goog.math](https://google.github.io/closure-library/api/goog.math.html)
-* [goog.spell.SpellCheck](https://google.github.io/closure-library/api/goog.spell.SpellCheck.html)
-* [goog.string](https://google.github.io/closure-library/api/goog.string.html)
-* [goog.structs](https://google.github.io/closure-library/api/goog.structs.html)
-* [goog.text.LoremIpsum](https://google.github.io/closure-library/api/goog.text.LoremIpsum.html)
+* goog.debug
+* goog.editor
+* goog.fx
+* goog.graphics
+* goog.labs
+* goog.net.BrowserChannel
+* goog.net.testdata
+* goog.testing
+* goog.ui
+
+The version of the library used is brought in from the unofficial distribution prepared by the ClojureScript team and hosted on the Maven repository. The version is currently based on [revision 2033d596a](https://github.com/google/closure-library/tree/2033d5d96aa3fe315fee1efd31086ce096d433a2).
