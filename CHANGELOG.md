@@ -4,12 +4,13 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
-- Document `planck.io/resource` ([#487](https://github.com/planck-repl/planck/issues/487))`
+- Document `planck.io/resource` ([#487](https://github.com/planck-repl/planck/issues/487))
 - Support `ns-aliases` and `ns-refers` ([#505](https://github.com/planck-repl/planck/issues/505))
 
 ### Fixed
 - Execution error instead of syntax for `08` ([#857](https://github.com/planck-repl/planck/issues/857))
 - Support interning quoted data structues ([#508](https://github.com/planck-repl/planck/issues/508))
+- Fix error messages in `planck.io` ([#582](https://github.com/planck-repl/planck/issues/582))
 
 ## [2.21.0] - 2019-03-07
 ### Added
