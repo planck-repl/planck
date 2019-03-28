@@ -32,6 +32,7 @@ fi
 
 if [ -z ${FAST_BUILD+set} ]; then
   echo "Creating an optimized build, which can take more than an hour and a half."
+  echo "The build time will be substantially reduced if the build cache is up to date."
   echo "Specifying --fast skips optimizations and takes less than two minutes."
 fi
 
@@ -47,9 +48,12 @@ checkCmdSuccess() {
     fi
 }
 
-export CLOSURE_RELEASE="20190301"
-export CLOSURE_JS_RELEASE=${CLOSURE_RELEASE}.0.0
+export GCC_RELEASE="20190301"
+export CLOSURE_JS_RELEASE=${GCC_RELEASE}.0.0
 script/get-closure-compiler
+
+export GCL_RELEASE="20190301"
+script/get-closure-library
 
 NON_BUNDLED_SRC=`find planck-cljs -type f -newer planck-c/bundle.c`
 BUNDLE_SIZE=$(wc -c < planck-c/bundle.c)
@@ -100,7 +104,7 @@ if [ -n "$NON_BUNDLED_SRC" ] || [ ! -d planck-c/build ] || [ $BUNDLE_SIZE -le 40
   mkdir -p planck-cljs/out/macros-tmp
   planck-c/build/planck -sk planck-cljs/out/macros-tmp -e"(require 'cljs.analyzer)" -e"(do (set! cljs.analyzer/*cljs-warnings* (assoc cljs.analyzer/*cljs-warnings* :undeclared-var false)) nil)" -e "(require-macros 'planck.repl 'planck.core 'planck.shell 'planck.from.io.aviso.ansi 'clojure.template 'cljs.spec.alpha 'cljs.spec.test.alpha 'cljs.spec.gen.alpha 'cljs.test 'cljs.pprint 'cljs.analyzer.macros 'cljs.compiler.macros 'cljs.env.macros)"
   checkCmdSuccess
-  
+
   mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js planck-cljs/out/planck/repl\$macros.js
   mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.cache.json planck-cljs/out/planck/repl\$macros.cache.json
   mv planck-cljs/out/macros-tmp/planck_SLASH_repl\$macros.js.map.json planck-cljs/out/planck/repl\$macros.js.map.json
