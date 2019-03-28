@@ -2069,12 +2069,24 @@
   [expression-form]
   (call-form? expression-form '#{def defn defn- defonce defmulti defmacro}))
 
+(defn- compiler-state-memo
+  []
+  {:st     @st
+   :loaded @cljs/*loaded*})
+
+(defn- restore-compiler-state
+  [memo]
+  (reset! st (:st memo))
+  (reset! cljs/*loaded* (:loaded memo)))
+
 (defn- process-execute-source
   [source-text expression-form
    {:keys [expression? print-nil-expression? include-stacktrace? source-path session-id] :as opts}]
   (try
     (set-session-state-for-session-id session-id)
-    (let [initial-ns @current-ns]
+    (let [initial-ns @current-ns
+          memo       (when (and expression? (load-form? expression-form))
+                       (compiler-state-memo))]
       (binding [ana/*cljs-warning-handlers* (if expression?
                                               [warning-handler]
                                               [ana/default-warning-handler])]
@@ -2110,6 +2122,8 @@
                 (reset! current-ns ns)
                 nil))
             (when error
+              (when memo
+                (restore-compiler-state memo))
               (handle-error error include-stacktrace?))))))
     (catch :default e
       (handle-error e include-stacktrace?))
