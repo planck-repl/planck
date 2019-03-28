@@ -43,7 +43,9 @@
      :optimize-constants false
      :dump-core          false
      :checked-arrays     checked-arrays
-     :parallel-build     true
+     :parallel-build     false
+     :libs               ["lib/closure"
+                          "lib/third_party/closure"]
      :foreign-libs       [{:file     "jscomp.js"
                            :provides ["google-closure-compiler-js"]}]
      :compiler-stats     false

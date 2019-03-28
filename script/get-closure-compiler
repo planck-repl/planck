@@ -4,13 +4,13 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
   set -x
 fi
 
-if [ ! -f compiler/closure-compiler-v$CLOSURE_RELEASE.jar ]; then
-  echo "Fetching Google Closure compiler..."
+if [ ! -f compiler/closure-compiler-v$GCC_RELEASE.jar ]; then
+  echo "Fetching Google Closure Compiler..."
   mkdir -p compiler
   cd compiler
-  curl --retry 3 -O -s https://dl.google.com/closure-compiler/compiler-$CLOSURE_RELEASE.zip || { echo "Download failed."; exit 1; }
-  unzip -qu compiler-$CLOSURE_RELEASE.zip
-  echo "Cleaning up Google Closure compiler archive..."
-  rm compiler-$CLOSURE_RELEASE.zip
+  curl --retry 3 -O -s https://dl.google.com/closure-compiler/compiler-$GCC_RELEASE.zip || { echo "Download failed."; exit 1; }
+  unzip -qu compiler-$GCC_RELEASE.zip
+  echo "Cleaning up Google Closure Compiler archive..."
+  rm compiler-$GCC_RELEASE.zip
   cd ../..
 fi

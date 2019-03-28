@@ -12,6 +12,9 @@ cd planck-cljs
 script/clean
 cd ..
 
+# GCL
+rm -rf planck-cljs/lib
+
 # CMake
 rm -rf planck-c/build
 

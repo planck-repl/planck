@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
+  set -x
+fi
+
+mkdir -p planck-cljs/lib
+cd planck-cljs/lib
+echo "Fetching Google Closure Library..."
+curl --retry 3 -LO -s https://github.com/google/closure-library/archive/v$GCL_RELEASE.zip || { echo "Download failed."; exit 1; }
+unzip -qu v$GCL_RELEASE.zip
+mv closure-library-$GCL_RELEASE/closure .
+mv closure-library-$GCL_RELEASE/third_party .
+echo "Cleaning up Google Closure Library archive..."
+rm -rf closure-library-$GCL_RELEASE
+rm v$GCL_RELEASE.zip
+cd ../..
+
+output=planck-cljs/src/planck/bundle/gcl.cljs
+
+cat <<EOF > $output
+(ns planck.bundle.gcl
+  "Require the namespaces that make up the Google Closure Library."
+  (:require
+EOF
+
+cd planck-cljs/lib/closure/goog
+for ns in `find . -path './debug' -prune \
+              -or -path './demos' -prune \
+              -or -path './editor' -prune \
+              -or -path './events' -prune \
+              -or -path './fx' -prune \
+              -or -path './graphics' -prune \
+              -or -path './labs' -prune \
+              -or -path './net/testdata' -prune \
+              -or -path './testing' -prune \
+              -or -path './ui' -prune \
+              -or -name '*.js' \
+              -not -name '*_test.js' \
+              -exec sed -n "s/^goog\.provide('\(goog\..\+\)');$/\1/p" {} \; | \
+           sort -u`
+do
+  if [[ ! "$ns" =~ i18n.*_[A-Za-z][A-Za-z] ]]
+  then
+cat <<EOF >> ../../../../$output
+   [$ns]
+EOF
+  fi
+done
+cd ../../../..
+
+cd planck-cljs/lib/third_party/closure/goog
+for ns in `find . -path './svgpan' -prune \
+              -or -name '*.js' \
+              -not -name '*_test.js' \
+              -exec sed -n "s/^goog\.provide('\(goog\..\+\)');$/\1/p" {} \; | \
+           sort -u`
+do
+cat <<EOF >> ../../../../../$output
+   [$ns]
+EOF
+done
+cd ../../../../..
+
+cat <<EOF >> $output
+))
+EOF
