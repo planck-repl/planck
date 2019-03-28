@@ -16,6 +16,7 @@ rm -rf closure-library-$GCL_RELEASE
 rm v$GCL_RELEASE.zip
 cd ../..
 
+mkdir -p planck-cljs/src/planck/bundle
 output=planck-cljs/src/planck/bundle/gcl.cljs
 
 cat <<EOF > $output
