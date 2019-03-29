@@ -117,15 +117,15 @@ then
       else
         java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --create_source_map $file.map
       fi
-      cp $file.optim $buildcache/$file.$crc.optim
-      cp $file.map $buildcache/$file.$crc.map
-      echo -n "."
     fi
     cp $file.optim $file
+    cp $file.optim $buildcache/$file.$crc.optim
+    cp $file.map $buildcache/$file.$crc.map # Optimised maps are never cached
   else
     cp $buildcache/$file.$crc.optim $file
     cp $buildcache/$file.$crc.map $file.map
   fi
+  echo -n "."
 fi
 if [ ${file: -4} == ".map" ] && [ -f $file.optim ]
 then

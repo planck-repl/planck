@@ -32,6 +32,7 @@ fi
 
 if [ -z ${FAST_BUILD+set} ]; then
   echo "Creating an optimized build, which can take more than an hour and a half."
+  echo "The build time will be substantially reduced if the build cache is up to date."
   echo "Specifying --fast skips optimizations and takes less than two minutes."
 fi
 

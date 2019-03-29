@@ -13,7 +13,10 @@ script/clean
 cd ..
 
 # GCL
-rm -rf planck-cljs/lib
+rm -rf planck-cljs/lib/closure
+rm -rf planck-cljs/lib/third_party
+rm planck-cljs/src/planck/bundle/gcl.cljs
+rmdir planck-cljs/src/planck/bundle
 
 # CMake
 rm -rf planck-c/build

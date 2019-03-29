@@ -43,7 +43,7 @@
      :optimize-constants false
      :dump-core          false
      :checked-arrays     checked-arrays
-     :parallel-build     false
+     :parallel-build     true
      :libs               ["lib/closure"
                           "lib/third_party/closure"]
      :foreign-libs       [{:file     "jscomp.js"
