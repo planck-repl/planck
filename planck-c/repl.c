@@ -54,25 +54,29 @@ void empty_previous_lines(repl_t *repl) {
 }
 
 char *form_prompt(repl_t *repl, bool is_secondary) {
-
     char *prompt = NULL;
+    char *sec_prompt = "#_=> ";
+    size_t prompt_min_len = 6; // length of sec_prompt literal
+    size_t prefix_min_len = 2; // length of "#_" prefix
 
     char *current_ns = repl->current_ns;
     bool dumb_terminal = repl->session_id != 0 || config.dumb_terminal;
 
     if (!is_secondary) {
-        if (strlen(current_ns) == 1 && !config.dumb_terminal) {
-            prompt = malloc(6 * sizeof(char));
+        if (strlen(current_ns) < prefix_min_len && !config.dumb_terminal) {
+            prompt = malloc(prompt_min_len * sizeof(char));
             sprintf(prompt, " %s=> ", current_ns);
         } else {
             prompt = str_concat(current_ns, "=> ");
         }
     } else {
         if (!dumb_terminal) {
-            size_t len = strlen(current_ns) - 2;
-            prompt = malloc((len + 6) * sizeof(char));
-            memset(prompt, ' ', len);
-            sprintf(prompt + len, "#_=> ");
+            size_t ns_len = strlen(current_ns);
+            size_t ns_len_extra = (ns_len < prefix_min_len) ?
+                                      0 : ns_len - prefix_min_len;
+            prompt = malloc((prompt_min_len + ns_len_extra) * sizeof(char));
+            memset(prompt, ' ', ns_len_extra);
+            sprintf(prompt + ns_len_extra, sec_prompt);
         }
     }
 
