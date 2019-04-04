@@ -74,6 +74,10 @@ then
 fi
 
 cd out
+
+buildcache=../.buildcache
+mkdir -p $buildcache
+
 # Make sure we don't bundle test.check
 rm -rf clojure/test/check*
 # We don't need to bundle the extra cljs/core$macros.cljc file
@@ -94,19 +98,34 @@ for file in `find . -name '*.js' -o -name '*.cljs' -o -name '*.cljc' -o -name '*
 do 
 file=${file:2}
 cp -p $file $file.bak
-if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file:0:10} != "goog/i18n/" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
+mkdir -p `dirname $buildcache/$file`
+
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] || [ $AOT_DECODE_SOURCE_MAPS == "1" ] 
 then
-  if [ ! -f $file.optim ] || [ $file -nt $file.optim ]
+  crc=`md5sum $file | cut -f1 -d" "`
+fi
+
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
+then
+  if [ ! -f $buildcache/$file.$crc.optim ] 
   then
-    if [ -f $file.map ]
+    if [ ! -f $file.optim ] || [ $file -nt $file.optim ]
     then
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim 
-    else
-      java -jar ../../compiler/closure-compiler-v$CLOSURE_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --create_source_map $file.map
+      if [ -f $file.map ]
+      then
+        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim 
+      else
+        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --create_source_map $file.map
+      fi
     fi
-    echo -n "."
+    cp $file.optim $file
+    cp $file.optim $buildcache/$file.$crc.optim
+    cp $file.map $buildcache/$file.$crc.map # Optimised maps are never cached
+  else
+    cp $buildcache/$file.$crc.optim $file
+    cp $buildcache/$file.$crc.map $file.map
   fi
-  cp $file.optim $file
+  echo -n "."
 fi
 if [ ${file: -4} == ".map" ] && [ -f $file.optim ]
 then
@@ -115,8 +134,15 @@ fi
 # For the second pass, we will have the planck binary available and we can use it to AOT decode source maps
 if [ $AOT_DECODE_SOURCE_MAPS == "1" ] && [ ${file: -4} == ".map" ] && [ -f ../../planck-c/build/planck ]
 then
+  if [ ! -f $buildcache/$file.$crc.aot ]
+  then
+    ../../planck-c/build/planck ../script/decode.cljs $file > $file.aot
+    cp $file.aot $buildcache/$file.$crc.aot
+    cp $file.aot $file
+  else
+    cp $buildcache/$file.$crc.aot $file
+  fi
   echo -n "."
-  ../../planck-c/build/planck ../script/decode.cljs $file
 fi
 uncompressed_file_size=`wc -c $file | sed -e 's/^ *//' | cut -d' ' -f1`
 gzip -9 $file
