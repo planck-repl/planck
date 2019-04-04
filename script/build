@@ -31,8 +31,7 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
 fi
 
 if [ -z ${FAST_BUILD+set} ]; then
-  echo "Creating an optimized build, which can take more than an hour and a half."
-  echo "The build time will be substantially reduced if the build cache is up to date."
+  echo "Creating an optimized build, using build cache to speed up build."
   echo "Specifying --fast skips optimizations and takes less than two minutes."
 fi
 
@@ -54,6 +53,8 @@ script/get-closure-compiler
 
 export GCL_RELEASE="20190301"
 script/get-closure-library
+
+script/get-build-cache
 
 NON_BUNDLED_SRC=`find planck-cljs -type f -newer planck-c/bundle.c`
 BUNDLE_SIZE=$(wc -c < planck-c/bundle.c)
