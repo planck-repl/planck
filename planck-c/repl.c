@@ -53,10 +53,11 @@ void empty_previous_lines(repl_t *repl) {
     repl->previous_lines = NULL;
 }
 
+#define SEC_PROMPT "#_=> "
+
 char *form_prompt(repl_t *repl, bool is_secondary) {
     char *prompt = NULL;
-    char *sec_prompt = "#_=> ";
-    size_t prompt_min_len = 6; // length of sec_prompt literal
+    size_t prompt_min_len = 6; // length of SEC_PROMPT literal
     size_t prefix_min_len = 2; // length of "#_" prefix
 
     char *current_ns = repl->current_ns;
@@ -76,7 +77,7 @@ char *form_prompt(repl_t *repl, bool is_secondary) {
                                       0 : ns_len - prefix_min_len;
             prompt = malloc((prompt_min_len + ns_len_extra) * sizeof(char));
             memset(prompt, ' ', ns_len_extra);
-            sprintf(prompt + ns_len_extra, sec_prompt);
+            sprintf(prompt + ns_len_extra, SEC_PROMPT);
         }
     }
 
