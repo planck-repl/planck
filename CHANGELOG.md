@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file. This change
 - Fix error messages in `planck.io` ([#582](https://github.com/planck-repl/planck/issues/582))
 - Bad import taints analysis metadata ([#888](https://github.com/planck-repl/planck/issues/888))
 - Long form needed with plk for optimizations / checked arrays ([#750](https://github.com/planck-repl/planck/issues/750))
+- Crash when defining single segment ns ([#588](https://github.com/planck-repl/planck/issues/588))
 
 ## [2.21.0] - 2019-03-07
 ### Added
