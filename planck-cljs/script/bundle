@@ -75,7 +75,7 @@ fi
 
 cd out
 
-buildcache=../.buildcache
+buildcache=../.buildcache-$GCC_RELEASE-$GCL_RELEASE
 mkdir -p $buildcache
 
 # Make sure we don't bundle test.check
@@ -102,7 +102,7 @@ mkdir -p `dirname $buildcache/$file`
 
 if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] || [ $AOT_DECODE_SOURCE_MAPS == "1" ] 
 then
-  crc=`md5sum $file | cut -f1 -d" "`
+  crc=`shasum $file | cut -f1 -d" "`
 fi
 
 if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
