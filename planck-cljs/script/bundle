@@ -75,7 +75,7 @@ fi
 
 cd out
 
-buildcache=../.buildcache
+buildcache=../.buildcache-$GCC_RELEASE
 mkdir -p $buildcache
 
 # Make sure we don't bundle test.check
