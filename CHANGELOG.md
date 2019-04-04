@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file. This change
 - Support interning quoted data structues ([#508](https://github.com/planck-repl/planck/issues/508))
 - Fix error messages in `planck.io` ([#582](https://github.com/planck-repl/planck/issues/582))
 - Bad import taints analysis metadata ([#888](https://github.com/planck-repl/planck/issues/888))
+- Long form needed with plk for optimizations / checked arrays ([#750](https://github.com/planck-repl/planck/issues/750))
 
 ## [2.21.0] - 2019-03-07
 ### Added
