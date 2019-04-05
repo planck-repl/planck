@@ -119,6 +119,8 @@ then
       fi
     fi
     cp $file.optim $file
+    rm -f $buildcache/$file.*.optim
+    rm -f $buildcache/$file.*.map
     cp $file.optim $buildcache/$file.$crc.optim
     cp $file.map $buildcache/$file.$crc.map # Optimised maps are never cached
   else
@@ -137,8 +139,9 @@ then
   if [ ! -f $buildcache/$file.$crc.aot ]
   then
     ../../planck-c/build/planck ../script/decode.cljs $file > $file.aot
-    cp $file.aot $buildcache/$file.$crc.aot
     cp $file.aot $file
+    rm -f $buildcache/$file.*.aot
+    cp $file.aot $buildcache/$file.$crc.aot
   else
     cp $buildcache/$file.$crc.aot $file
   fi
