@@ -4,6 +4,10 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
   set -x
 fi
 
+if [ -d planck-cljs/lib/closure ]; then
+  exit
+fi
+
 mkdir -p planck-cljs/lib
 cd planck-cljs/lib
 echo "Fetching Google Closure Library..."
