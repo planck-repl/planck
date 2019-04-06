@@ -42,7 +42,7 @@ for ns in `find . -path './debug' -prune \
               -or -path './ui' -prune \
               -or -name '*.js' \
               -not -name '*_test.js' \
-              -exec sed -n "s/^goog\.provide('\(goog\..\+\)');$/\1/p" {} \; | \
+              -exec sed -n "s/^goog\.provide('\(goog\...*\)');$/\1/p" {} \; | \
            sort -u`
 do
   if [[ ! "$ns" =~ i18n.*_[A-Za-z][A-Za-z] ]]
@@ -58,7 +58,7 @@ cd planck-cljs/lib/third_party/closure/goog
 for ns in `find . -path './svgpan' -prune \
               -or -name '*.js' \
               -not -name '*_test.js' \
-              -exec sed -n "s/^goog\.provide('\(goog\..\+\)');$/\1/p" {} \; | \
+              -exec sed -n "s/^goog\.provide('\(goog\...*\)');$/\1/p" {} \; | \
            sort -u`
 do
 cat <<EOF >> ../../../../../$output
