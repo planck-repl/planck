@@ -13,10 +13,12 @@ script/clean
 cd ..
 
 # GCL
-rm -rf planck-cljs/lib/closure
-rm -rf planck-cljs/lib/third_party
-rm -f planck-cljs/src/planck/bundle/gcl.cljs
-rm -rf planck-cljs/src/planck/bundle
+if [ -z "$BUILD_PPA" ]; then
+    rm -rf planck-cljs/lib/closure
+    rm -rf planck-cljs/lib/third_party
+    rm -f planck-cljs/src/planck/bundle/gcl.cljs
+    rm -rf planck-cljs/src/planck/bundle
+fi
 
 # CMake
 rm -rf planck-c/build
