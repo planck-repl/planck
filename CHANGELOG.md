@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file. This change
 - Bad import taints analysis metadata ([#888](https://github.com/planck-repl/planck/issues/888))
 - Long form needed with plk for optimizations / checked arrays ([#750](https://github.com/planck-repl/planck/issues/750))
 - Crash when defining single segment ns ([#588](https://github.com/planck-repl/planck/issues/588))
+- Handle interruptions while nanosleeping ([#909](https://github.com/planck-repl/planck/issues/909))
 
 ## [2.21.0] - 2019-03-07
 ### Added

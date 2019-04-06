@@ -2,6 +2,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "timers.h"
 #include "engine.h"
 #include "tasks.h"
@@ -23,7 +24,8 @@ void *timer_thread(void *data) {
         t.tv_nsec = 1; /* Evidently needed on Ubuntu 14.04 */
     }
 
-    int err = nanosleep(&t, NULL);
+    int err;
+    while ((err = nanosleep(&t, &t)) && errno == EINTR) {}
     if (err) {
         free(data);
         engine_perror("timer nanosleep");

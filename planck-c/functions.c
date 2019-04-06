@@ -1472,7 +1472,8 @@ JSValueRef function_sleep(JSContextRef ctx, JSObjectRef function, JSObjectRef th
         t.tv_nsec = 1000 * 1000 * (millis % 1000) + nanos;
         
         if (t.tv_sec != 0 || t.tv_nsec != 0) {
-            int err = nanosleep(&t, NULL);
+            int err;
+            while ((err = nanosleep(&t, &t)) && errno == EINTR) {}
             if (err) {
                 engine_perror("sleep");
             }

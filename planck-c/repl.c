@@ -266,7 +266,8 @@ void run_cmdline_loop(repl_t *repl) {
         struct timespec t;
         t.tv_sec = 0;
         t.tv_nsec = 1000 * 1000;
-        int err = nanosleep(&t, NULL);
+        int err;
+        while ((err = nanosleep(&t, &t)) && errno == EINTR) {}
         if (err) {
             engine_perror("repl nanosleep");
         }
