@@ -57,6 +57,8 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 [load-string](http://planck-repl.org/planck-core.html#load-string),
 [line-seq](http://planck-repl.org/planck-core.html#line-seq),
 [intern](http://planck-repl.org/planck-core.html#intern),
+[ns-aliases](http://planck-repl.org/planck-core.html#ns-aliases),
+[ns-refers](http://planck-repl.org/planck-core.html#ns-refers),
 [ns-resolve](http://planck-repl.org/planck-core.html#ns-resolve),
 [read](http://planck-repl.org/planck-core.html#read),
 [read-line](http://planck-repl.org/planck-core.html#read-line),
@@ -64,6 +66,7 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 [resolve](http://planck-repl.org/planck-core.html#resolve),
 [slurp](http://planck-repl.org/planck-core.html#slurp),
 [spit](http://planck-repl.org/planck-core.html#spit),
+[with-in-str](http://planck-repl.org/planck-core.html#with-in-str),
 [with-open](http://planck-repl.org/planck-core.html#with-open)
 
 #### clojure.java.io/ -> planck.io/
@@ -81,7 +84,7 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 [make-writer](http://planck-repl.org/planck-io.html#make-writer),
 [output-stream](http://planck-repl.org/planck-io.html#output-stream),
 [reader](http://planck-repl.org/planck-io.html#reader),
-resource,
+[resource](http://planck-repl.org/planck-io.html#resource),
 [writer](http://planck-repl.org/planck-io.html#writer)
 
 #### clojure.java.shell/ -> planck.shell/
