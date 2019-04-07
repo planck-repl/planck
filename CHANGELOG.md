@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.22.0] - 2019-04-06
 ### Added
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))
 - Document `planck.io/resource` ([#487](https://github.com/planck-repl/planck/issues/487))
@@ -807,7 +809,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.21.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.22.0...HEAD
+[2.22.0]: https://github.com/mfikes/planck/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/mfikes/planck/compare/2.20.0...2.21.0
 [2.20.0]: https://github.com/mfikes/planck/compare/2.19.1...2.20.0
 [2.19.0]: https://github.com/mfikes/planck/compare/2.18.1...2.19.0
