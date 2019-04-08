@@ -54,18 +54,6 @@
   also satisfy IBufferedReader."
   (-unread [this s] "Pushes a string of characters back on to the stream."))
 
-(defn- fission!
-  "Breaks an atom's value into two parts. The supplied function should
-  return a pair. The first element will be set to be the atom's new
-  value and the second element will be returned."
-  [atom f & args]
-  (loop []
-    (let [old @atom
-          [new-in new-out] (apply f old args)]
-      (if (compare-and-set! atom old new-in)
-        new-out
-        (recur)))))
-
 (deftype ^:private Reader [raw-read raw-close buffer pos]
 
   IReader
