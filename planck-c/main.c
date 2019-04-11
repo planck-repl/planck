@@ -63,6 +63,7 @@ void usage(char *program_name) {
     "    -d, --dumb-terminal         Disable line editing / VT100 terminal control\n"
     "    -t theme, --theme theme     Set the color theme\n"
     "    -n x, --socket-repl x       Enable socket REPL where x is port or IP:port\n"
+    "    -p x, --prepl x             Enable IO pREPL where x is port or IP:port\n"
     "    -s, --static-fns            Generate static dispatch function calls\n"
     "    -f, --fn-invoke-direct      Do not not generate .call(null...) calls\n"
     "                                for unknown functions, but instead direct\n"
@@ -303,6 +304,7 @@ bool should_ignore_arg(const char *opt) {
             last_c == 'm' ||
             last_c == 'c' ||
             last_c == 'n' ||
+            last_c == 'p' ||
             last_c == 'k' ||
             last_c == 't' ||
             last_c == 'S' ||
@@ -419,6 +421,7 @@ int main(int argc, char **argv) {
             {"eval",             required_argument, NULL, 'e'},
             {"theme",            required_argument, NULL, 't'},
             {"socket-repl",      required_argument, NULL, 'n'},
+            {"prepl",            required_argument, NULL, 'p'},
             {"dumb-terminal",    no_argument,       NULL, 'd'},
             {"classpath",        required_argument, NULL, 'c'},
             {"dependencies",     required_argument, NULL, 'D'},
@@ -440,7 +443,7 @@ int main(int argc, char **argv) {
     // pass index_of_script_path_or_hyphen instead of argc to guarantee that everything
     // after a bare dash "-" or a script path gets passed as *command-line-args*
     while (!did_encounter_main_opt &&
-           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:\1:lvrA:sfak:je:t:n:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
+           (opt = getopt_long(index_of_script_path_or_hyphen, argv, "O:Xh?VS:D:L:\1:lvrA:sfak:je:t:n:p:dc:o:Ki:qm:", long_options, &option_index)) != -1) {
         switch (opt) {
             case '\1':
                 process_compile_opts(optarg);
@@ -551,6 +554,17 @@ int main(int argc, char **argv) {
                         printf("Could not parse socket REPL params.\n");
                         free(config.socket_repl_host);
                         config.socket_repl_port = 0;
+                    }
+                }
+                break;
+            case 'p':
+                config.prepl_host = malloc(256);
+                if (sscanf(optarg, "%255[^:]:%d", config.prepl_host, &config.prepl_port) != 2) {
+                    strcpy(config.prepl_host, "localhost");
+                    if (sscanf(optarg, "%d", &config.prepl_port) != 1) {
+                        printf("Could not parse pREPL params.\n");
+                        free(config.prepl_host);
+                        config.prepl_port = 0;
                     }
                 }
                 break;

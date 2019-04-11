@@ -54,7 +54,7 @@ void *conn_handler(void *data) {
     accepted_conn_cb_ret_t *accepted_conn_cb_ret = NULL;
     if (conn_handler_info->socket_accept_info->accepted_conn_cb) {
         accepted_conn_cb_ret = conn_handler_info->socket_accept_info->accepted_conn_cb(
-                conn_handler_info->sock, conn_handler_info->socket_accept_info->info);
+                conn_handler_info->sock, conn_handler_info->socket_accept_info);
     }
 
     int err = 0;

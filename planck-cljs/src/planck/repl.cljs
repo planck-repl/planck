@@ -149,7 +149,7 @@
 (declare ^{:arglists '([error]
                        [error include-stacktrace?]
                        [error include-stacktrace? printed-message])} print-error)
-(declare ^{:arglists '([e include-stacktrace?])} handle-error)
+(declare ^{:arglists '([e {:keys [include-stacktrace?] :as opts}])} handle-error)
 
 (defonce ^:private st (cljs/empty-state))
 
@@ -1219,7 +1219,7 @@
 (declare ^{:arglists '([error])} skip-cljsjs-eval-error)
 
 (defn- handle-error
-  [e include-stacktrace?]
+  [e {:keys [include-stacktrace?] :as opts}]
   (do
     (print-error e include-stacktrace?)
     (if (not (:repl @app-env))
@@ -1234,7 +1234,7 @@
   (try
     (apply main args)
     (catch :default e
-      (handle-error e true))))
+      (handle-error e {:include-stacktrace? true}))))
 
 (defn- ^:export run-main
   [main-ns & args]
@@ -1247,7 +1247,7 @@
         opts
         (fn [{:keys [ns value error] :as ret}]
           (if error
-            (handle-error error true)
+            (handle-error error {:include-stacktrace? true})
             (cljs/eval-str st
               (str "(var -main)")
               nil
@@ -1691,16 +1691,16 @@
             :js (process-macros-deps cache
                   (fn [res]
                     (if-let [error (:error res)]
-                      (handle-error (js/Error. error) false)
+                      (handle-error (js/Error. error) {:include-stacktrace? false})
                       (process-libs-deps cache
                         (fn [res]
                           (if-let [error (:error res)]
-                            (handle-error (js/Error. error) false)
+                            (handle-error (js/Error. error) {:include-stacktrace? false})
                             (do
                               (js-eval source source-url)
                               (when-some [ns (:name cache)]
                                 (swap! st assoc-in [::ana/namespaces ns] cache))))))))))
-          (handle-error (js/Error. (str "Could not load file " file)) false))))))
+          (handle-error (js/Error. (str "Could not load file " file)) {:include-stacktrace? false}))))))
 
 (defn- resolve-ns
   "Resolves a namespace symbol to a namespace by first checking to see if it
@@ -1893,7 +1893,7 @@
     (try
       (execute-source ["path" filename] opts)
       (catch :default e
-        (handle-error e false)))))
+        (handle-error e {:include-stacktrace? false})))))
 
 (defn- root-resource
   "Returns the root directory path for a lib"
@@ -2081,12 +2081,14 @@
 
 (defn- process-execute-source
   [source-text expression-form
-   {:keys [expression? print-nil-expression? include-stacktrace? source-path session-id] :as opts}]
+   {:keys [expression? print-nil-expression? include-stacktrace? source-path
+           session-id print-value-fn handle-error-fn include-extra-opts?] :as opts}]
   (try
     (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns
           memo       (when (and expression? (load-form? expression-form))
-                       (compiler-state-memo))]
+                       (compiler-state-memo))
+          start      (if include-extra-opts? (system-time))]
       (binding [ana/*cljs-warning-handlers* (if expression?
                                               [warning-handler]
                                               [ana/default-warning-handler])]
@@ -2114,7 +2116,13 @@
               (when-not error
                 (when (or print-nil-expression?
                           (not (nil? value)))
-                  (print-value value {::as-code? (macroexpand-form? expression-form)}))
+                  (let [basic-opts {::as-code? (macroexpand-form? expression-form)}
+                        print-opts (if include-extra-opts?
+                                     (merge basic-opts {:ns (str ns)
+                                                        :ms (- (system-time) start)
+                                                        :form (str expression-form)})
+                                     basic-opts)]
+                    (print-value-fn value print-opts)))
                 (process-1-2-3 expression-form value)
                 (when (def-form? expression-form)
                   (let [{:keys [ns name]} (meta value)]
@@ -2124,9 +2132,12 @@
             (when error
               (when memo
                 (restore-compiler-state memo))
-              (handle-error error include-stacktrace?))))))
+              (handle-error-fn error {:form                (str expression-form)
+                                      :include-stacktrace? include-stacktrace?
+                                      :ns                  (str initial-ns)}))))))
     (catch :default e
-      (handle-error e include-stacktrace?))
+      (handle-error-fn e {:include-stacktrace? include-stacktrace?
+                          :ns                  @current-ns}))
     (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
@@ -2148,19 +2159,31 @@
                 (process-repl-special expression-form opts)
                 (process-execute-source source-text expression-form opts)))))))))
 
-(defn- ^:export execute
-  [source expression? print-nil-expression? set-ns theme-id session-id]
-  (reset-show-indicator!)
-  (when set-ns
-    (reset! current-ns (symbol set-ns)))
-  (binding [theme (get-theme (keyword theme-id))]
-    (try
-      (execute-source source {:expression?           expression?
-                              :print-nil-expression? print-nil-expression?
-                              :include-stacktrace?   true
-                              :session-id            session-id})
-      (catch :default e
-        (handle-error e true)))))
+(defn ^:export execute
+  ([source expression? print-nil-expression? set-ns theme-id session-id]
+   (let [opts {:expression?           expression?
+               :handle-error-fn       handle-error
+               :include-extra-opts?   true
+               :include-stacktrace?   true
+               :print-nil-expression? print-nil-expression?
+               :print-value-fn        print-value
+               :session-id            session-id
+               :set-ns                set-ns
+               :show-indicator?       true
+               :theme-id              theme-id}]
+     (execute source opts)))
+  ([source {:keys [handle-error-fn include-stacktrace? set-ns show-indicator? theme-id] :as opts}]
+   (if show-indicator?
+     (reset-show-indicator!)
+     (disable-error-indicator!))
+   (when set-ns
+     (reset! current-ns (symbol set-ns)))
+   (binding [theme (get-theme (keyword theme-id))]
+     (try
+       (execute-source source opts)
+       (catch :default e
+         (handle-error-fn e {:include-stacktrace? include-stacktrace?
+                             :ns                  set-ns}))))))
 
 (defn- eval
   ([form]
@@ -2173,7 +2196,7 @@
         :def-emits-var true}
        (fn [{:keys [value error]}]
          (if error
-           (handle-error error true)
+           (handle-error error {:include-stacktrace? true})
            (reset! result value))))
      @result)))
 
