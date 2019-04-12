@@ -495,6 +495,14 @@
   :args (s/cat :s string?)
   :ret any?)
 
+(defn tty?
+  "Return true if the file descriptor numbered with fd-num is a tty"
+  [fd-num]
+  (js/PLANCK_ISATTY fd-num))
+
+(s/fdef tty?
+  :args (s/cat :fd-num (s/and integer? pos?)))
+
 ;; Ensure planck.io and planck.http are loaded so that their
 ;; facilities are available
 (#'repl/side-load-ns 'planck.http)

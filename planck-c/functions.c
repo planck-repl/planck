@@ -1522,3 +1522,13 @@ JSValueRef function_getenv(JSContextRef ctx, JSObjectRef function, JSObjectRef t
   }
   return JSValueMakeNull(ctx);
 }
+
+JSValueRef function_isatty(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception) {
+  if (argc == 1 && JSValueGetType(ctx, args[0]) == kJSTypeNumber) {
+    int fd = (int) JSValueToNumber(ctx, args[0], NULL);
+    int result = isatty(fd);
+    return JSValueMakeBoolean(ctx, (result != 0));
+  }
+  return JSValueMakeNull(ctx);
+}
