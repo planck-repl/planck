@@ -797,7 +797,11 @@ x
 REPL_INPUT
 
 faketty () {
-    script -qfec "$(printf "%q " "$@")"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        script -qt 0 /dev/null $@
+    else
+        script -qfec "$(printf "%q " "$@")" /dev/null
+    fi
 }
 echo "stdio TTY is detected (in a faketty)"
 faketty $PLANCK -i $SRC/test_tty/stdio.cljs
