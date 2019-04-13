@@ -78,10 +78,10 @@
       (is (boolean? (planck.io/tty? planck.core/*in*)))
       (is (boolean? (planck.io/tty? *out*)))
       (is (boolean? (planck.io/tty? planck.core/*err*)))
-      (is (nil? (planck.io/tty? nil)))
-      (is (nil? (planck.io/tty? -1)))
-      (is (nil? (planck.io/tty? 99999999999999999)))
-      (is (nil? (planck.io/tty? (planck.io/reader regular-file)))))))
+      (is (= false (planck.io/tty? nil)))
+      (is (= false (planck.io/tty? -1)))
+      (is (= false (planck.io/tty? 99999999999999999)))
+      (is (= false (planck.io/tty? (planck.io/reader regular-file)))))))
 
 (deftest coercions
   (testing "as-file coerceions"
