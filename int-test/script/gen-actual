@@ -795,3 +795,22 @@ echo "(def x 3)" > /tmp/PLANCK_SRC/user.cljs
 $PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 x
 REPL_INPUT
+
+faketty () {
+    script -qfec "$(printf "%q " "$@")"
+}
+echo "stdio TTY is detected (in a faketty)"
+faketty $PLANCK -i $SRC/test_tty/stdio.cljs
+echo
+
+echo "stdin non-TTY is detected (in a pipeline)"
+echo "" | $PLANCK -i $SRC/test_tty/stdin.cljs
+echo
+
+echo "stdout non-TTY is detected (in a pipeline)"
+$PLANCK -i $SRC/test_tty/stdout.cljs | cat
+echo
+
+echo "stderr non-TTY is detected (redirected to /dev/null)"
+$PLANCK -i $SRC/test_tty/stderr.cljs 2>/dev/null
+echo

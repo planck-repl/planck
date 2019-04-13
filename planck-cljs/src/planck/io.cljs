@@ -552,6 +552,30 @@
   :args (s/cat :input any? :output any? :opts (s/* any?))
   :ret nil?)
 
+(defn tty?
+  "Returns true if x is a file descriptor associated with a terminal,
+  or x is either a Reader/Writer among *in*, *out*, or *err* which is
+  associated with a terminal.
+
+  Returns false if x is a file descriptor, *in*, *out*, or *err* and
+  not associated with a terminal.
+
+  Returns nil otherwise."
+  [x]
+  (when-let [fd (cond-> x
+                  (not (and (integer? x) (>= x 0)))
+                  {planck.core/*in*  0
+                   cljs.core/*out*   1
+                   planck.core/*err* 2})]
+    (js/PLANCK_ISATTY fd)))
+
+(s/fdef tty?
+  :args (s/cat :x (s/or :fd-num (s/and integer? (complement neg?))
+                        :reader #(implements? planck.core/IReader %)
+                        :writer #(implements? planck.core/IWriter %)))
+  :ret (s/or :tty? boolean?
+             :invalid nil?))
+
 ;; These have been moved
 (def ^:deprecated read-line planck.core/read-line)
 (def ^:deprecated slurp planck.core/slurp)
