@@ -560,13 +560,12 @@
   Returns false if x is a file descriptor, *in*, *out*, or *err* and
   not associated with a terminal, or an invalid file descriptor."
   [x]
-  (boolean
-    (when-let [fd (cond-> x
-                    (not (and (integer? x) (>= x 0)))
-                    {planck.core/*in*  0
-                     cljs.core/*out*   1
-                     planck.core/*err* 2})]
-      (js/PLANCK_ISATTY fd))))
+  (let [stdio->fd {planck.core/*in*  0
+                   cljs.core/*out*   1
+                   planck.core/*err* 2}]
+    (-> (if-let [fd (stdio->fd x)] fd x)
+        js/PLANCK_ISATTY
+        boolean)))
 
 (s/fdef tty?
   :args (s/cat :x (s/or :fd-num (s/and integer? (complement neg?))
