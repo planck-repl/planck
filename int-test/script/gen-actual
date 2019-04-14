@@ -818,3 +818,12 @@ echo
 echo "stderr non-TTY is detected (redirected to /dev/null)"
 $PLANCK -i $SRC/test_tty/stderr.cljs 2>/dev/null
 echo
+
+echo "*err* TTY is detected when rebound to *out* even when stderr is redirected to /dev/null"
+cat <<EOF >/tmp/PLANCK_TTY_REBINDING_TEST
+#!/bin/sh
+$PLANCK -i $SRC/test_tty/rebinding_err_out.cljs 2>/dev/null
+EOF
+chmod +x /tmp/PLANCK_TTY_REBINDING_TEST
+faketty /tmp/PLANCK_TTY_REBINDING_TEST
+echo

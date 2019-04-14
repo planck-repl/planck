@@ -552,6 +552,11 @@
   :args (s/cat :input any? :output any? :opts (s/* any?))
   :ret nil?)
 
+(def ^:private stdio->fd
+  {planck.core/*in*  0
+   cljs.core/*out*   1
+   planck.core/*err* 2})
+
 (defn ^boolean tty?
   "Returns true if x is a file descriptor associated with a terminal,
   or x is either a Reader/Writer among *in*, *out*, or *err* which is
@@ -560,12 +565,9 @@
   Returns false if x is a file descriptor, *in*, *out*, or *err* and
   not associated with a terminal, or an invalid file descriptor."
   [x]
-  (let [stdio->fd {planck.core/*in*  0
-                   cljs.core/*out*   1
-                   planck.core/*err* 2}]
-    (-> (if-let [fd (stdio->fd x)] fd x)
-        js/PLANCK_ISATTY
-        boolean)))
+  (-> (if-let [fd (stdio->fd x)] fd x)
+      js/PLANCK_ISATTY
+      boolean))
 
 (s/fdef tty?
   :args (s/cat :x (s/or :fd-num (s/and integer? (complement neg?))

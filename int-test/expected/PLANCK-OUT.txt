@@ -619,3 +619,5 @@ stdout non-TTY is detected (in a pipeline)
 [*out* false]
 stderr non-TTY is detected (redirected to /dev/null)
 [*err* false]
+*err* TTY is detected when rebound to *out* even when stderr is redirected to /dev/null
+[[*out* true] [*err* true]]
