@@ -11,14 +11,15 @@
   (binding [*print-fn* js/PLANCK_PRINT_FN]
     (let [v (:val input)]
       (prn (as-> input m
-             (if (#{:ret :tag} (:tag m))
+             (if (#{:ret :tap} (:tag m))
                (assoc m :val (if (string? v) (identity v) (pr-str v)))
                (identity m))
              (into {} (filter (comp some? val) m)))))))
 
 (defn ^:export execute
   [source-text set-ns session-id]
-  (binding [*print-fn* #(out-fn {:tag :out :val %1})
+  (binding [*exec-tap-fn* #(or (%) true)
+            *print-fn* #(out-fn {:tag :out :val %1})
             *print-err-fn* #(out-fn {:tag :err :val %1})]
     (try
       (let [print-value-fn  #(out-fn {:tag  :ret
@@ -31,6 +32,7 @@
                                       :ns        (:ns %2)
                                       :form      (:form %2)
                                       :exception true})
+            tap-fn          #(out-fn {:tag :tap :val %})
             opts            {:expression?           true
                              :handle-error-fn       handle-error-fn
                              :include-extra-opts?   true
@@ -42,6 +44,8 @@
                              :show-indicator?       false
                              :theme-id              "dumb"
                              :timer?                true}]
-        (repl/execute ["text" source-text] opts))
+        (add-tap tap-fn)
+        (repl/execute ["text" source-text] opts)
+        (remove-tap tap-fn))
       (catch :default e
         (println e)))))
