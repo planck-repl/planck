@@ -26,3 +26,4 @@ build-envs/*/*-cloudimg-console.log
 .cpcache
 .planck_cache
 /planck-man/plk.1
+*.swp

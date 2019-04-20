@@ -106,7 +106,7 @@
        :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
   If it is bound to logical false, results are printed in a plain fashion.
   Otherwise, results are pretty printed."}
-*pprint-results* true)
+  *pprint-results* true)
 
 (def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
@@ -149,7 +149,8 @@
 (declare ^{:arglists '([error]
                        [error include-stacktrace?]
                        [error include-stacktrace? printed-message])} print-error)
-(declare ^{:arglists '([e {:keys [include-stacktrace?] :as opts}])} handle-error)
+(declare ^{:arglists '([e opts]
+                       [e print-err-fn {:keys [exit? include-stacktrace?] :as opts}])} handle-error)
 
 (defonce ^:private st (cljs/empty-state))
 
@@ -949,7 +950,7 @@
 (defn- js-eval
   [source source-url]
   #_(when (:verbose @app-env)
-    (println-verbose (str "Evaluating JavaScript:\n" source)))
+      (println-verbose (str "Evaluating JavaScript:\n" source)))
   (if source-url
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
@@ -1219,12 +1220,14 @@
 (declare ^{:arglists '([error])} skip-cljsjs-eval-error)
 
 (defn- handle-error
-  [e {:keys [include-stacktrace?] :as opts}]
-  (do
-    (print-error e include-stacktrace?)
-    (if (not (:repl @app-env))
-      (js/PLANCK_EXIT_WITH_VALUE 1)
-      (set! *e (skip-cljsjs-eval-error e)))))
+  ([e opts]
+   (handle-error e print-error (assoc opts :exit? true)))
+  ([e print-err-fn {:keys [exit? include-stacktrace?] :as opts}]
+   (do
+     (print-err-fn e include-stacktrace?)
+     (if (and exit? (not (:repl @app-env)))
+       (js/PLANCK_EXIT_WITH_VALUE 1)
+       (set! *e (skip-cljsjs-eval-error e))))))
 
 (defn- get-eval-fn []
   (cond-> caching-js-eval (compile?) (comp compiling)))
@@ -1989,9 +1992,8 @@
 
 (defn- process-1-2-3
   [expression-form value]
-  (when-not
-   (or ('#{*1 *2 *3 *e} expression-form)
-       (ns-form? expression-form))
+  (when-not (or ('#{*1 *2 *3 *e} expression-form)
+                (ns-form? expression-form))
     (set! *3 *2)
     (set! *2 *1)
     (set! *1 value)))
@@ -2082,7 +2084,7 @@
 (defn- process-execute-source
   [source-text expression-form
    {:keys [expression? print-nil-expression? include-stacktrace? source-path
-           session-id print-value-fn handle-error-fn include-extra-opts?] :as opts}]
+           session-id print-value-fn print-err-fn exit? include-extra-opts?] :as opts}]
   (try
     (set-session-state-for-session-id session-id)
     (let [initial-ns @current-ns
@@ -2132,12 +2134,15 @@
             (when error
               (when memo
                 (restore-compiler-state memo))
-              (handle-error-fn error {:form                (str expression-form)
-                                      :include-stacktrace? include-stacktrace?
-                                      :ns                  (str initial-ns)}))))))
+              (handle-error error print-err-fn {:exit?               exit?
+                                                :form                (str expression-form)
+                                                :include-stacktrace? include-stacktrace?
+                                                :ns                  (str initial-ns)}))))
+        :success))
     (catch :default e
-      (handle-error-fn e {:include-stacktrace? include-stacktrace?
-                          :ns                  @current-ns}))
+      (handle-error e print-err-fn {:exit?               exit?
+                                    :include-stacktrace? include-stacktrace?
+                                    :ns                  @current-ns}))
     (finally (capture-session-state-for-session-id session-id))))
 
 (defn- execute-source
@@ -2161,18 +2166,19 @@
 
 (defn ^:export execute
   ([source expression? print-nil-expression? set-ns theme-id session-id]
-   (let [opts {:expression?           expression?
-               :handle-error-fn       handle-error
+   (let [opts {:exit?                 true
+               :expression?           expression?
                :include-extra-opts?   true
                :include-stacktrace?   true
                :print-nil-expression? print-nil-expression?
+               :print-err-fn          print-error
                :print-value-fn        print-value
                :session-id            session-id
                :set-ns                set-ns
                :show-indicator?       true
                :theme-id              theme-id}]
      (execute source opts)))
-  ([source {:keys [handle-error-fn include-stacktrace? set-ns show-indicator? theme-id] :as opts}]
+  ([source {:keys [exit? include-stacktrace? print-err-fn set-ns show-indicator? theme-id] :as opts}]
    (if show-indicator?
      (reset-show-indicator!)
      (disable-error-indicator!))
@@ -2182,8 +2188,9 @@
      (try
        (execute-source source opts)
        (catch :default e
-         (handle-error-fn e {:include-stacktrace? include-stacktrace?
-                             :ns                  set-ns}))))))
+         (handle-error e print-err-fn {:exit?               exit?
+                                       :include-stacktrace? include-stacktrace?
+                                       :ns                  set-ns}))))))
 
 (defn- eval
   ([form]

@@ -23,6 +23,8 @@ int block_until_engine_ready();
 
 const char *block_until_engine_ready_failed_msg;
 
+JSValueRef get_value_on_object(JSContextRef ctx, JSObjectRef obj, char *name);
+
 JSObjectRef get_function(char *namespace, char *name);
 
 void run_main_in_ns(char *ns, size_t argc, char **argv);

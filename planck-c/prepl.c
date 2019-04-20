@@ -17,11 +17,11 @@ prepl_t *make_prepl() {
     return prepl;
 }
 
-static void evaluate_source_and_structure(char *source, char *set_ns, int session_id, prepl_t *prepl) {
+static int evaluate_source_and_structure(char *source, char *set_ns, int session_id, prepl_t *prepl) {
     int err = block_until_engine_ready();
     if (err) {
         engine_println(block_until_engine_ready_failed_msg);
-        return;
+        return -1;
     }
 
     JSValueRef args[5];
@@ -41,15 +41,22 @@ static void evaluate_source_and_structure(char *source, char *set_ns, int sessio
 
     static JSObjectRef execute_fn = NULL;
     if (!execute_fn) {
-        execute_fn = get_function("planck.prepl", "execute");
+        execute_fn = get_function("planck.prepl.alpha", "execute");
         JSValueProtect(ctx, execute_fn);
     }
 
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
 
     acquire_eval_lock();
-    JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, NULL);
+    JSValueRef success_ref = JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, NULL);
     release_eval_lock();
+
+    bool exit = false;
+    if (JSValueIsBoolean(ctx, success_ref)) {
+        exit = !(JSValueToBoolean(ctx, success_ref));
+    }
+
+    return (exit) ? -1 : 0;
 }
 
 static bool process_line(int sock, repl_t *repl, char *input_line, bool split_on_newlines) {
@@ -63,6 +70,7 @@ static bool process_line(int sock, repl_t *repl, char *input_line, bool split_on
     }
 
     // Check for explicit exit
+
     if (is_exit_command(repl->input, true)) {
         return true;
     }
@@ -78,17 +86,12 @@ static bool process_line(int sock, repl_t *repl, char *input_line, bool split_on
             repl->input[strlen(repl->input) - strlen(balance_text)] = '\0';
 
             if (!is_whitespace(repl->input)) { // Guard against empty string being read
-                // TODO: set exit value
-
-                evaluate_source_and_structure(repl->input, repl->current_ns, repl->session_id, repl->prepl);
+                exit_value = evaluate_source_and_structure(repl->input, repl->current_ns, repl->session_id, repl->prepl);
 
                 if (exit_value != 0) {
                     free(repl->input);
                     return true;
                 }
-            } else {
-                // TODO: Change to socket write?
-                engine_print("\n");
             }
 
             // Now that we've evaluated the input, reset for next round
@@ -131,7 +134,7 @@ static void setup(prepl_t *prepl, int sock) {
 
     static JSObjectRef execute_fn = NULL;
     if (!execute_fn) {
-        execute_fn = get_function("planck.prepl", "channels");
+        execute_fn = get_function("planck.prepl.alpha", "io-channels");
         JSValueProtect(ctx, execute_fn);
     }
 
@@ -142,15 +145,15 @@ static void setup(prepl_t *prepl, int sock) {
     release_eval_lock();
 
     JSObjectRef res_obj = JSValueToObject(ctx, res, NULL);
-    prepl->in = JSObjectGetProperty(ctx, res_obj, JSStringCreateWithUTF8CString("in"), NULL);
-    prepl->out = JSObjectGetProperty(ctx, res_obj, JSStringCreateWithUTF8CString("out"), NULL);
-    prepl->tap = JSObjectGetProperty(ctx, res_obj, JSStringCreateWithUTF8CString("tap"), NULL);
+    prepl->in = get_value_on_object(ctx, res_obj, "in");
+    prepl->out = get_value_on_object(ctx, res_obj, "out");
+    prepl->tap = get_value_on_object(ctx, res_obj, "tap");
 
     args[0] = prepl->tap;
 
     static JSObjectRef add_tap_fn = NULL;
     if (!add_tap_fn) {
-        add_tap_fn = get_function("planck.prepl", "add-tap");
+        add_tap_fn = get_function("planck.prepl.alpha", "add-tap");
         JSValueProtect(ctx, add_tap_fn);
     }
 
@@ -173,7 +176,7 @@ static void teardown(prepl_t *prepl) {
 
     static JSObjectRef remove_tap_fn = NULL;
     if (!remove_tap_fn) {
-        remove_tap_fn = get_function("planck.prepl", "remove-tap");
+        remove_tap_fn = get_function("planck.prepl.alpha", "remove-tap");
         JSValueProtect(ctx, remove_tap_fn);
     }
 
@@ -182,6 +185,9 @@ static void teardown(prepl_t *prepl) {
     acquire_eval_lock();
     JSObjectCallAsFunction(ctx, remove_tap_fn, global_obj, num_args, args, NULL);
     release_eval_lock();
+
+    // This produces an error about double free()
+    // free(prepl);
 }
 
 conn_data_cb_ret_t *prepl_data_arrived(char *data, int sock, void *state) {

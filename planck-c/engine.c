@@ -448,7 +448,7 @@ void *do_engine_init(void *data) {
 
     // require app namespaces
     evaluate_script(ctx, "goog.require('planck.repl');", "<init>");
-    evaluate_script(ctx, "goog.require('planck.prepl');", "<init>");
+    evaluate_script(ctx, "goog.require('planck.prepl.alpha');", "<init>");
 
     display_launch_timing("require app namespaces");
 
