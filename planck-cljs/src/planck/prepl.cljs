@@ -1,25 +1,23 @@
 (ns planck.prepl
   "Planck PREPL implementation."
-  (:refer-clojure)
+  (:refer-clojure :exclude [add-tap remove-tap])
   (:require
     [cljs.repl]
     [cljs.spec.alpha :as s]
-    [planck.repl :as repl]))
+    [planck.repl :as repl]
+    [planck.socket.alpha :as sock]))
 
-(defn- out-fn
-  [input & etc]
-  (binding [*print-fn* js/PLANCK_PRINT_FN]
-    (let [v (:val input)]
-      (prn (as-> input m
-             (if (#{:ret :tap} (:tag m))
-               (assoc m :val (if (string? v) (identity v) (pr-str v)))
-               (identity m))
-             (into {} (filter (comp some? val) m)))))))
+(defn- ^:export add-tap
+  [tap]
+  (clojure.core/add-tap tap))
+
+(defn- ^:export remove-tap
+  [tap]
+  (clojure.core/remove-tap tap))
 
 (defn ^:export execute
-  [source-text set-ns session-id]
-  (binding [*exec-tap-fn* #(or (%) true)
-            *print-fn* #(out-fn {:tag :out :val %1})
+  [source-text set-ns session-id in-fn out-fn]
+  (binding [*print-fn* #(out-fn {:tag :out :val %1})
             *print-err-fn* #(out-fn {:tag :err :val %1})]
     (try
       (let [print-value-fn  #(out-fn {:tag  :ret
@@ -32,7 +30,6 @@
                                       :ns        (:ns %2)
                                       :form      (:form %2)
                                       :exception true})
-            tap-fn          #(out-fn {:tag :tap :val %})
             opts            {:expression?           true
                              :handle-error-fn       handle-error-fn
                              :include-extra-opts?   true
@@ -44,8 +41,19 @@
                              :show-indicator?       false
                              :theme-id              "dumb"
                              :timer?                true}]
-        (add-tap tap-fn)
-        (repl/execute ["text" source-text] opts)
-        (remove-tap tap-fn))
+        (repl/execute ["text" source-text] opts))
       (catch :default e
         (println e)))))
+
+(defn- ^:export channels
+  [socket]
+  (let [out-fn #(binding [*print-fn* (partial sock/write socket)]
+                  (let [v (:val %1)]
+                    (prn (as-> %1 m
+                           (if (#{:ret :tap} (:tag m))
+                             (assoc m :val (if (string? v) (identity v) (pr-str v)))
+                             (identity m))
+                           (into {} (filter (comp some? val) m))))))]
+    #js {:in  :stdin
+         :out out-fn
+         :tap #(out-fn {:tag :tap :val %})}))

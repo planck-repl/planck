@@ -1,3 +1,6 @@
+#ifndef SOCKETS_H
+#define SOCKETS_H
+
 #include <stdbool.h>
 
 typedef void *(*connection_handler_t)(void *socket_desc);
@@ -38,3 +41,5 @@ int close_socket(int fd);
 
 int connect_socket(const char *host, int port, conn_data_cb_t conn_data_cb,
                    void *data_arrived_info);
+
+#endif /* SOCKETS_H */

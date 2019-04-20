@@ -61,3 +61,4 @@ extern struct config config;
 
 extern int exit_value;
 extern bool return_termsize;
+extern int session_id_counter;

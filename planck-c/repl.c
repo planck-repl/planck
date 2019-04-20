@@ -12,24 +12,11 @@
 #include "engine.h"
 #include "globals.h"
 #include "keymap.h"
+#include "repl.h"
 #include "sockets.h"
 #include "str.h"
 #include "theme.h"
 #include "timers.h"
-
-struct repl {
-    char *current_ns;
-    char *current_prompt;
-    char *history_path;
-    char *input;
-    int indent_space_count;
-    bool is_prepl;
-    size_t num_previous_lines;
-    char **previous_lines;
-    int session_id;
-};
-
-typedef struct repl repl_t;
 
 repl_t *make_repl() {
     repl_t *repl = malloc(sizeof(repl_t));
@@ -38,8 +25,8 @@ repl_t *make_repl() {
     repl->history_path = NULL;
     repl->input = NULL;
     repl->indent_space_count = 0;
-    repl->is_prepl = false;
     repl->num_previous_lines = 0;
+    repl->prepl = NULL;
     repl->previous_lines = NULL;
     repl->session_id = 0;
     return repl;
@@ -59,12 +46,6 @@ void empty_previous_lines(repl_t *repl) {
 
 char *form_prompt(repl_t *repl, bool is_secondary) {
     char *prompt = NULL;
-
-    if (repl->is_prepl) {
-        prompt = malloc(sizeof(char));
-        sprintf(prompt, "");
-        return prompt;
-    }
 
     size_t prompt_min_len = 6; // length of SEC_PROMPT literal
     size_t prefix_min_len = 2; // length of "#_" prefix
@@ -202,14 +183,8 @@ bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
 
                 const char *theme = repl->session_id == 0 ? config.theme : "dumb";
 
-                if (repl->is_prepl) {
-                    evaluate_source_prepl(repl->input, repl->current_ns,
-                                          repl->session_id);
-                } else {
-                    evaluate_source("text", repl->input, true, true,
-                                    repl->current_ns, theme, true,
-                                    repl->session_id);
-                }
+                evaluate_source("text", repl->input, true, true, repl->current_ns,
+                                theme, true, repl->session_id);
 
                 if (repl->session_id == 0) {
                     clear_int_handler();
@@ -518,8 +493,6 @@ void socket_sender(const char *text) {
     }
 }
 
-static int session_id_counter = 0;
-
 conn_data_cb_ret_t* socket_repl_data_arrived(char *data, int sock, void *state) {
 
     int err = 0;
@@ -585,31 +558,6 @@ void socket_repl_listen_successful_cb() {
     }
 }
 
-accepted_conn_cb_ret_t* accepted_prepl_connection(int sock, void* info) {
-    repl_t *repl = make_repl();
-    repl->is_prepl = true;
-    repl->current_prompt = form_prompt(repl, false);
-    repl->session_id = ++session_id_counter;
-
-    int err = write_to_socket(sock, repl->current_prompt);
-
-    accepted_conn_cb_ret_t* accepted_connection_cb_return = malloc(sizeof(accepted_conn_cb_ret_t));
-
-    accepted_connection_cb_return->err = err;
-    accepted_connection_cb_return->info = repl;
-
-    return accepted_connection_cb_return;
-}
-
-void prepl_listen_successful_cb() {
-    if (!config.quiet) {
-        char msg[1024];
-        snprintf(msg, 1024, "Planck pREPL listening at %s:%d.\n", config.prepl_host,
-                 config.prepl_port);
-        engine_print(msg);
-    }
-}
-
 int run_repl() {
     repl_t *repl = make_repl();
     s_repl = repl;
@@ -669,13 +617,13 @@ int run_repl() {
         }
     }
 
-    socket_accept_info_t prepl_accept_data = {config.prepl_host,
-                                              config.prepl_port,
-                                              prepl_listen_successful_cb,
-                                              accepted_prepl_connection,
-                                              socket_repl_data_arrived,
-                                              0,
-                                              NULL};
+    socket_accept_info_t prepl_accept_data = {config.prepl_host,            // host
+                                              config.prepl_port,            // port
+                                              prepl_listen_successful_cb,   // listen_successful_cb
+                                              prepl_accepted_connection,    // accepted_conn_cb
+                                              prepl_data_arrived,           // conn_data_cb
+                                              0,                            // socket_desc
+                                              NULL};                        // info
 
     if (config.prepl_port) {
         block_until_engine_ready();

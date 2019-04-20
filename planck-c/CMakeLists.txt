@@ -36,6 +36,8 @@ set(SOURCE_FILES
     linenoise.c
     linenoise.h
     main.c
+    prepl.c
+    prepl.h
     repl.c
     repl.h
     shell.c

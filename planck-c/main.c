@@ -118,6 +118,7 @@ char *get_cljs_version() {
 struct config config;
 int exit_value = 0;
 bool return_termsize = false;
+int session_id_counter = 0;
 
 void banner() {
     printf("ClojureScript %s\n", config.clojurescript_version);

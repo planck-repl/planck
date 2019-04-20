@@ -230,37 +230,6 @@ void evaluate_source(char *type, char *source, bool expression, bool print_nil, 
     release_eval_lock();
 }
 
-void evaluate_source_prepl(char *source, char *set_ns, int session_id) {
-    int err = block_until_engine_ready();
-    if (err) {
-        engine_println(block_until_engine_ready_failed_msg);
-        return;
-    }
-
-    JSValueRef args[3];
-    size_t num_args = 3;
-
-    JSStringRef source_str = JSStringCreateWithUTF8CString(source);
-    args[0] = JSValueMakeString(ctx, source_str);
-
-    JSStringRef set_ns_str = JSStringCreateWithUTF8CString(set_ns);
-    args[1] = JSValueMakeString(ctx, set_ns_str);
-
-    args[2] = JSValueMakeNumber(ctx, session_id);
-
-    static JSObjectRef execute_prepl_fn = NULL;
-    if (!execute_prepl_fn) {
-        execute_prepl_fn = get_function("planck.prepl", "execute");
-        JSValueProtect(ctx, execute_prepl_fn);
-    }
-
-    JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
-
-    acquire_eval_lock();
-    JSObjectCallAsFunction(ctx, execute_prepl_fn, global_obj, num_args, args, NULL);
-    release_eval_lock();
-}
-
 void bootstrap(char *out_path) {
     char *deps_file_path = "main.js";
     char *goog_base_path = "goog/base.js";

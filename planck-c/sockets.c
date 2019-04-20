@@ -48,7 +48,6 @@ typedef struct conn_handler_info {
 } conn_handler_info_t;
 
 void *conn_handler(void *data) {
-
     conn_handler_info_t *conn_handler_info = (conn_handler_info_t *) data;
 
     accepted_conn_cb_ret_t *accepted_conn_cb_ret = NULL;
