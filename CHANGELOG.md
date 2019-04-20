@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 
+### Added
+- Add -keep-gcl option to the clean script
+- Ignore `*.swp` files
+
 ## [2.22.0] - 2019-04-06
 ### Added
 - Add `planck.core/with-in-str` ([#873](https://github.com/planck-repl/planck/issues/873))

@@ -4,11 +4,8 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
   set -x
 fi
 
-if [ -d planck-cljs/lib/closure ]; then
-  exit
-fi
-
-mkdir -p planck-cljs/lib
+if ! [ -d planck-cljs/lib/closure ]; then
+  mkdir -p planck-cljs/lib
 cd planck-cljs/lib
 echo "Fetching Google Closure Library..."
 curl --retry 3 -LO -s https://github.com/google/closure-library/archive/v$GCL_RELEASE.zip || { echo "Download failed."; exit 1; }
@@ -19,6 +16,7 @@ echo "Cleaning up Google Closure Library archive..."
 rm -rf closure-library-$GCL_RELEASE
 rm v$GCL_RELEASE.zip
 cd ../..
+fi
 
 mkdir -p planck-cljs/src/planck/bundle
 output=planck-cljs/src/planck/bundle/gcl.cljs
