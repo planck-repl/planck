@@ -106,7 +106,7 @@
        :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
   If it is bound to logical false, results are printed in a plain fashion.
   Otherwise, results are pretty printed."}
- *pprint-results* true)
+  *pprint-results* true)
 
 (def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
@@ -949,7 +949,7 @@
 (defn- js-eval
   [source source-url]
   #_(when (:verbose @app-env)
-     (println-verbose (str "Evaluating JavaScript:\n" source)))
+      (println-verbose (str "Evaluating JavaScript:\n" source)))
   (if source-url
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
@@ -1989,12 +1989,12 @@
 
 (defn- process-1-2-3
   [expression-form value]
-  (when-not
-   (or ('#{*1 *2 *3 *e} expression-form)
-       (ns-form? expression-form))
-   (set! *3 *2)
-   (set! *2 *1)
-   (set! *1 value)))
+  (when (and (:repl @app-env)
+             (not ('#{*1 *2 *3 *e} expression-form))
+             (not (ns-form? expression-form)))
+    (set! *3 *2)
+    (set! *2 *1)
+    (set! *1 value)))
 
 (defn- cache-source-fn
   [source-text]
@@ -2115,8 +2115,7 @@
                 (when (or print-nil-expression?
                           (not (nil? value)))
                   (print-value value {::as-code? (macroexpand-form? expression-form)}))
-                (when (:repl @app-env)
-                  (process-1-2-3 expression-form value))
+                (process-1-2-3 expression-form value)
                 (when (def-form? expression-form)
                   (let [{:keys [ns name]} (meta value)]
                     (swap! st assoc-in [::ana/namespaces ns :defs name ::repl-entered-source] source-text)))
