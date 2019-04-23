@@ -106,7 +106,7 @@
        :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
   If it is bound to logical false, results are printed in a plain fashion.
   Otherwise, results are pretty printed."}
-*pprint-results* true)
+ *pprint-results* true)
 
 (def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
@@ -949,7 +949,7 @@
 (defn- js-eval
   [source source-url]
   #_(when (:verbose @app-env)
-    (println-verbose (str "Evaluating JavaScript:\n" source)))
+     (println-verbose (str "Evaluating JavaScript:\n" source)))
   (if source-url
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
@@ -1992,9 +1992,9 @@
   (when-not
    (or ('#{*1 *2 *3 *e} expression-form)
        (ns-form? expression-form))
-    (set! *3 *2)
-    (set! *2 *1)
-    (set! *1 value)))
+   (set! *3 *2)
+   (set! *2 *1)
+   (set! *1 value)))
 
 (defn- cache-source-fn
   [source-text]
@@ -2115,7 +2115,8 @@
                 (when (or print-nil-expression?
                           (not (nil? value)))
                   (print-value value {::as-code? (macroexpand-form? expression-form)}))
-                (process-1-2-3 expression-form value)
+                (when (:repl @app-env)
+                  (process-1-2-3 expression-form value))
                 (when (def-form? expression-form)
                   (let [{:keys [ns name]} (meta value)]
                     (swap! st assoc-in [::ana/namespaces ns :defs name ::repl-entered-source] source-text)))
@@ -2138,15 +2139,15 @@
               cljs/*load-fn*   load-fn
               cljs/*eval-fn*   (get-eval-fn)
               tags/*cljs-data-readers* (data-readers)]
-      (if-not (= "text" source-type)
-        (process-execute-path source-value (assoc opts :source-path source-value))
-        (let [source-text source-value
-              first-form  (eof-guarded-read source-text)]
-          (when (not= eof first-form)
-            (let [expression-form (and expression? first-form)]
-              (if (repl-special? expression-form)
-                (process-repl-special expression-form opts)
-                (process-execute-source source-text expression-form opts)))))))))
+      (cond 
+        (= "path" source-type) (process-execute-path source-value (assoc opts :source-path source-value))
+        (= "text" source-type) (let [source-text source-value
+                                                 first-form  (eof-guarded-read source-text)]
+                                  (when (not= eof first-form)
+                                    (let [expression-form (and expression? first-form)]
+                                      (if (repl-special? expression-form)
+                                        (process-repl-special expression-form opts)
+                                        (process-execute-source source-text expression-form opts)))))))))
 
 (defn- ^:export execute
   [source expression? print-nil-expression? set-ns theme-id session-id]
