@@ -2141,7 +2141,7 @@
       (cond 
         (= "path" source-type) (process-execute-path source-value (assoc opts :source-path source-value))
         (= "text" source-type) (let [source-text source-value
-                                                 first-form  (eof-guarded-read source-text)]
+                                     first-form  (eof-guarded-read source-text)]
                                   (when (not= eof first-form)
                                     (let [expression-form (and expression? first-form)]
                                       (if (repl-special? expression-form)
