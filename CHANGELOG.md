@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - Switch `strncpy` to `memcpy` to avoid GCC warning
+- Backslash return return should produce "\n" ([661](https://github.com/planck-repl/planck/issues/661))
 
 ## [2.22.0] - 2019-04-06
 ### Added
