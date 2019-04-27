@@ -9,6 +9,10 @@
 #include <signal.h>
 #include <sys/stat.h>
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 #include "bundle.h"
 #include "engine.h"
 #include "globals.h"
@@ -315,10 +319,18 @@ bool should_ignore_arg(const char *opt) {
 
 void control_FTL_JIT() {
 
-    // Recent versions of JavaScriptCore are crashing in FTL JIT.
-    // Disable FTL JIT if JSC_useFTLJIT env var not set.
+    // Older versions of JavaScriptCore were crashing in FTL JIT.
+    // Default to FTL JIT to off if older version on macOS or Unix.
 
-    if (getenv("JSC_useFTLJIT") == NULL) {
+#ifdef __APPLE__
+    int32_t jsc_version = NSVersionOfLinkTimeLibrary("JavaScriptCore");
+    bool default_disable_ftl_jit = (jsc_version < 0x25f0128);
+#else
+    bool default_disable_ftl_jit = true;
+#endif
+
+    if (default_disable_ftl_jit &&
+        getenv("JSC_useFTLJIT") == NULL) {
         putenv("JSC_useFTLJIT=false");
     }
 
