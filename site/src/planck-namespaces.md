@@ -62,7 +62,7 @@ With this escape hatch, you can do nearly anything: Move files to remote hosts u
 This namespace provides facilities for interacting with HTTP servers. For example:
 
 ```
-(planck.http/get "http://planck-repl.org")
+(planck.http/get "https://planck-repl.org")
 ```
 
 will fetch the main page of the Planck website, returning the status code, headers, and body in a map structure.

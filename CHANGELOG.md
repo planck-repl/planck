@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Re-enable FTL JIT on macOS ([#820](https://github.com/planck-repl/planck/issues/820))
+- Updated planck-repl.org to use HTTPs and revised all references.
 
 ### Fixed
 - Switch `strncpy` to `memcpy` to avoid GCC warning
@@ -666,7 +667,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [1.9] - 2016-01-20
 ### Added
-- New website with comprehensive User Guide: [http://planck-repl.org](http://planck-repl.org).
+- New website with comprehensive User Guide: [https://planck-repl.org](http://planck-repl.org).
 - Socket REPL.
 - Lazily load core analysis caches (2x faster in some cases).
 - `apropos` and `dir` support.
