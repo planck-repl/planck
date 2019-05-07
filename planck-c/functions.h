@@ -156,3 +156,6 @@ JSValueRef function_signal_task_complete(JSContextRef ctx, JSObjectRef function,
 
 JSValueRef function_getenv(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                            size_t argc, const JSValueRef args[], JSValueRef *exception);
+
+JSValueRef function_isatty(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception);
