@@ -1989,9 +1989,9 @@
 
 (defn- process-1-2-3
   [expression-form value]
-  (when-not
-   (or ('#{*1 *2 *3 *e} expression-form)
-       (ns-form? expression-form))
+  (when (and (:repl @app-env)
+             (not ('#{*1 *2 *3 *e} expression-form))
+             (not (ns-form? expression-form)))
     (set! *3 *2)
     (set! *2 *1)
     (set! *1 value)))
@@ -2138,15 +2138,15 @@
               cljs/*load-fn*   load-fn
               cljs/*eval-fn*   (get-eval-fn)
               tags/*cljs-data-readers* (data-readers)]
-      (if-not (= "text" source-type)
-        (process-execute-path source-value (assoc opts :source-path source-value))
-        (let [source-text source-value
-              first-form  (eof-guarded-read source-text)]
-          (when (not= eof first-form)
-            (let [expression-form (and expression? first-form)]
-              (if (repl-special? expression-form)
-                (process-repl-special expression-form opts)
-                (process-execute-source source-text expression-form opts)))))))))
+      (case source-type
+        "path" (process-execute-path source-value (assoc opts :source-path source-value))
+        "text" (let [source-text source-value
+                     first-form  (eof-guarded-read source-text)]
+                  (when (not= eof first-form)
+                    (let [expression-form (and expression? first-form)]
+                      (if (repl-special? expression-form)
+                        (process-repl-special expression-form opts)
+                        (process-execute-source source-text expression-form opts)))))))))
 
 (defn- ^:export execute
   [source expression? print-nil-expression? set-ns theme-id session-id]
