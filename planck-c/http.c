@@ -314,7 +314,7 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 int main(int argc, char **argv) {
     CURL *curl = curl_easy_init();
     if(curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "http://planck-repl.org");
+        curl_easy_setopt(curl, CURLOPT_URL, "https://planck-repl.org");
         curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
         curl_easy_perform(curl);
     }

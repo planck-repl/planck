@@ -2,7 +2,7 @@
 
 A stand-alone ClojureScript REPL for macOS and Linux based on JavaScriptCore.
 
-Home page: [planck-repl.org](http://planck-repl.org)
+Home page: [planck-repl.org](https://planck-repl.org)
 
 # Installing
 
@@ -28,7 +28,7 @@ Launch Planck by entering `planck` or `plk` at the terminal.
 
 Get help on command-line options by issuing `planck -h` or `plk -h`.
 
-For more details, see the [Planck User Guide](http://planck-repl.org/guide.html).
+For more details, see the [Planck User Guide](https://planck-repl.org/guide.html).
 
 ### Ported Clojure Functionality
 
@@ -50,48 +50,48 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 #### clojure.core/ -> planck.core/ 
 
-[eval](http://planck-repl.org/planck-core.html#eval), 
-[file-seq](http://planck-repl.org/planck-core.html#file-seq),
-[find-var](http://planck-repl.org/planck-core.html#find-var),
-[load-reader](http://planck-repl.org/planck-core.html#load-reader),
-[load-string](http://planck-repl.org/planck-core.html#load-string),
-[line-seq](http://planck-repl.org/planck-core.html#line-seq),
-[intern](http://planck-repl.org/planck-core.html#intern),
-[ns-aliases](http://planck-repl.org/planck-core.html#ns-aliases),
-[ns-refers](http://planck-repl.org/planck-core.html#ns-refers),
-[ns-resolve](http://planck-repl.org/planck-core.html#ns-resolve),
-[read](http://planck-repl.org/planck-core.html#read),
-[read-line](http://planck-repl.org/planck-core.html#read-line),
-[read-string](http://planck-repl.org/planck-core.html#read-string),
-[resolve](http://planck-repl.org/planck-core.html#resolve),
-[slurp](http://planck-repl.org/planck-core.html#slurp),
-[spit](http://planck-repl.org/planck-core.html#spit),
-[with-in-str](http://planck-repl.org/planck-core.html#with-in-str),
-[with-open](http://planck-repl.org/planck-core.html#with-open)
+[eval](https://planck-repl.org/planck-core.html#eval), 
+[file-seq](https://planck-repl.org/planck-core.html#file-seq),
+[find-var](https://planck-repl.org/planck-core.html#find-var),
+[load-reader](https://planck-repl.org/planck-core.html#load-reader),
+[load-string](https://planck-repl.org/planck-core.html#load-string),
+[line-seq](https://planck-repl.org/planck-core.html#line-seq),
+[intern](https://planck-repl.org/planck-core.html#intern),
+[ns-aliases](https://planck-repl.org/planck-core.html#ns-aliases),
+[ns-refers](https://planck-repl.org/planck-core.html#ns-refers),
+[ns-resolve](https://planck-repl.org/planck-core.html#ns-resolve),
+[read](https://planck-repl.org/planck-core.html#read),
+[read-line](https://planck-repl.org/planck-core.html#read-line),
+[read-string](https://planck-repl.org/planck-core.html#read-string),
+[resolve](https://planck-repl.org/planck-core.html#resolve),
+[slurp](https://planck-repl.org/planck-core.html#slurp),
+[spit](https://planck-repl.org/planck-core.html#spit),
+[with-in-str](https://planck-repl.org/planck-core.html#with-in-str),
+[with-open](https://planck-repl.org/planck-core.html#with-open)
 
 #### clojure.java.io/ -> planck.io/
 
-[as-file](http://planck-repl.org/planck-io.html#as-file),
-[as-relative-path](http://planck-repl.org/planck-io.html#as-relative-path),
-[as-url](http://planck-repl.org/planck-io.html#as-url),
-[delete-file](http://planck-repl.org/planck-io.html#delete-file),
-[file](http://planck-repl.org/planck-io.html#file),
-[input-stream](http://planck-repl.org/planck-io.html#input-stream),
-[make-input-stream](http://planck-repl.org/planck-io.html#make-input-stream),
-[make-output-stream](http://planck-repl.org/planck-io.html#make-output-stream),
-[make-parents](http://planck-repl.org/planck-io.html#make-parents),
-[make-reader](http://planck-repl.org/planck-io.html#make-reader),
-[make-writer](http://planck-repl.org/planck-io.html#make-writer),
-[output-stream](http://planck-repl.org/planck-io.html#output-stream),
-[reader](http://planck-repl.org/planck-io.html#reader),
-[resource](http://planck-repl.org/planck-io.html#resource),
-[writer](http://planck-repl.org/planck-io.html#writer)
+[as-file](https://planck-repl.org/planck-io.html#as-file),
+[as-relative-path](https://planck-repl.org/planck-io.html#as-relative-path),
+[as-url](https://planck-repl.org/planck-io.html#as-url),
+[delete-file](https://planck-repl.org/planck-io.html#delete-file),
+[file](https://planck-repl.org/planck-io.html#file),
+[input-stream](https://planck-repl.org/planck-io.html#input-stream),
+[make-input-stream](https://planck-repl.org/planck-io.html#make-input-stream),
+[make-output-stream](https://planck-repl.org/planck-io.html#make-output-stream),
+[make-parents](https://planck-repl.org/planck-io.html#make-parents),
+[make-reader](https://planck-repl.org/planck-io.html#make-reader),
+[make-writer](https://planck-repl.org/planck-io.html#make-writer),
+[output-stream](https://planck-repl.org/planck-io.html#output-stream),
+[reader](https://planck-repl.org/planck-io.html#reader),
+[resource](https://planck-repl.org/planck-io.html#resource),
+[writer](https://planck-repl.org/planck-io.html#writer)
 
 #### clojure.java.shell/ -> planck.shell/
 
-[sh](http://planck-repl.org/planck-shell.html#sh),
-[with-sh-dir](http://planck-repl.org/planck-shell.html#with-sh-dir),
-[with-sh-env](http://planck-repl.org/planck-shell.html#with-sh-env)
+[sh](https://planck-repl.org/planck-shell.html#sh),
+[with-sh-dir](https://planck-repl.org/planck-shell.html#with-sh-dir),
+[with-sh-env](https://planck-repl.org/planck-shell.html#with-sh-env)
 
 # Building 
 

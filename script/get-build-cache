@@ -7,7 +7,7 @@ fi
 if [ ! -d planck-cljs/.buildcache-$GCC_RELEASE-$GCL_RELEASE ]; then
   echo "Fetching Build Cache..."
   cd planck-cljs
-  curl --retry 3 -O -s http://planck-repl.org/releases/buildcache-$GCC_RELEASE-$GCL_RELEASE.tar || { echo "Download failed."; exit 1; }
+  curl --retry 3 -O -s https://planck-repl.org/releases/buildcache-$GCC_RELEASE-$GCL_RELEASE.tar || { echo "Download failed."; exit 1; }
   tar -xf buildcache-$GCC_RELEASE-$GCL_RELEASE.tar
   echo "Cleaning up Build Cache archive..."
   rm buildcache-$GCC_RELEASE-$GCL_RELEASE.tar

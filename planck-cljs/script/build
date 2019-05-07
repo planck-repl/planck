@@ -5,7 +5,7 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
 fi
 
 if [ ! -f jscomp.js ]; then
-  curl -s -O http://planck-repl.org/releases/closure-${CLOSURE_JS_RELEASE}/jscomp.js
+  curl -s -O https://planck-repl.org/releases/closure-${CLOSURE_JS_RELEASE}/jscomp.js
 fi
 
 # Make sure we fail and exit on the command that actually failed.
