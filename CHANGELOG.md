@@ -2,12 +2,19 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Add `planck.io/tty?` ([#911](https://github.com/planck-repl/planck/issues/911))
 
 ### Added
 - Add -keep-gcl option to the clean script
 - Ignore `*.swp` files
 
+### Changed
+- Re-enable FTL JIT on macOS ([#820](https://github.com/planck-repl/planck/issues/820))
+
 ### Fixed
+- Switch `strncpy` to `memcpy` to avoid GCC warning
+- Backslash return return should produce "\n" ([661](https://github.com/planck-repl/planck/issues/661))
 - `-e` affects `*1`, `*2`, `*3` ([#659](https://github.com/planck-repl/planck/issues/659))
 
 ## [2.22.0] - 2019-04-06

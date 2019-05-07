@@ -523,6 +523,8 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_GETENV", function_getenv);
 
+    register_global_function(ctx, "PLANCK_ISATTY", function_isatty);
+
     display_launch_timing("register fns");
 
     // Monkey patch cljs.core/system-time to use Planck's high-res timer

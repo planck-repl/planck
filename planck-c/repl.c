@@ -334,10 +334,14 @@ void run_cmdline_loop(repl_t *repl) {
 
         // If the input is small process each line separately here
         // so that things like brace highlighting work properly.
-        // But for large input, let process line more efficiently
-        // handle the input.
+        // But for large input, let process_line() more efficiently
+        // handle the input. The initial case is for a new line (the
+        // new itself is not part of input_line).
         bool break_out = false;
-        if (strlen(input_line) < 16384) {
+        if (repl->input != NULL & strlen(input_line) == 0) {
+            repl->indent_space_count = 0;
+            break_out = process_line(repl, input_line, false);
+        } else if (strlen(input_line) < 16384) {
             char *tokenize = strdup(input_line);
             char *saveptr;
             char *token = strtok_r(tokenize, "\n", &saveptr);

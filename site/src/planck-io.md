@@ -38,6 +38,7 @@ _Vars_
 [regular-file?](#regular-file?)<br/>
 [resource](#resource)<br/>
 [symbolic-link?](#symbolic-link?)<br/>
+[tty?](#tty?)<br/>
 [writer](#writer)<br/>
    
 ## Protocols
@@ -298,6 +299,15 @@ Checks if `f` is a symbolic link.
 Spec<br/>
  _args_: `(cat :f (or :string string? :file file?))`<br/>
  _ret_: `boolean?`<br/>
+
+### <a name="tty?"></a>tty?
+`([x])`
+
+Checks if `x` is a file descriptor associated with a terminal. `x` may be a file descriptor number or one of `planck.core/*in*`, `cljs.core/*out*` or `planck.core/*err*`.
+
+Spec<br/>
+_x_: `(or :fd-num (and integer? (complement neg?)) :reader #(implements? planck.core/IReader %) :writer #(implements? planck.core/IWriter %))`<br/>
+_ret_: `boolean?`<br/>
 
 ### <a name="writer"></a>writer
 `([x & opts])`

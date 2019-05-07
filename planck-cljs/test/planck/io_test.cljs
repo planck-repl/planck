@@ -71,7 +71,17 @@
       (is (= true  (planck.io/exists? hidden-directory)))
       (is (= true  (planck.io/hidden-file? hidden-directory)))
       (is (= false (planck.io/regular-file? hidden-directory)))
-      (is (= false (planck.io/symbolic-link? hidden-directory))))))
+      (is (= false (planck.io/symbolic-link? hidden-directory)))
+      (is (boolean? (planck.io/tty? 0)))
+      (is (boolean? (planck.io/tty? 1)))
+      (is (boolean? (planck.io/tty? 2)))
+      (is (boolean? (planck.io/tty? planck.core/*in*)))
+      (is (boolean? (planck.io/tty? *out*)))
+      (is (boolean? (planck.io/tty? planck.core/*err*)))
+      (is (= false (planck.io/tty? nil)))
+      (is (= false (planck.io/tty? -1)))
+      (is (= false (planck.io/tty? 99999999999999999)))
+      (is (= false (planck.io/tty? (planck.io/reader regular-file)))))))
 
 (deftest coercions
   (testing "as-file coerceions"

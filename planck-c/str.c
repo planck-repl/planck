@@ -29,8 +29,8 @@ char *str_concat(const char *s1, const char *s2) {
     char *s = malloc(len * sizeof(char));
 
     if (s) {
-        strncpy(s, s1, l1);
-        strncpy(s + l1, s2, l2 + 1);
+        memcpy(s, s1, l1);
+        memcpy(s + l1, s2, l2 + 1);
     }
     return s;
 }
