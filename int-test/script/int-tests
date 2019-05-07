@@ -67,7 +67,7 @@ Usage:  planck [init-opt*] [main-opt] [arg*]
 
   Paths may be absolute or relative in the filesystem.
 
-  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n\n")
+  A comprehensive User Guide for Planck can be found at https://planck-repl.org\n\n")
   (sh planck-exe "-h"))
 
 (defn ensure-output [expected quoted-commands]

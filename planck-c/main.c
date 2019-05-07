@@ -101,7 +101,7 @@ void usage(char *program_name) {
     "  Paths may be absolute or relative in the filesystem or relative to\n"
     "  classpath. Classpath-relative paths have prefix of @ or @/\n"
     "\n"
-    "  A comprehensive User Guide for Planck can be found at http://planck-repl.org\n"
+    "  A comprehensive User Guide for Planck can be found at https://planck-repl.org\n"
     "\n", program_name);
 }
 

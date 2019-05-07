@@ -104,7 +104,7 @@
       (is (= '(2 3 4) value)))))
 
 (deftest slurp-url-test
-  (is (string/includes? (planck.core/slurp "http://planck-repl.org") "Planck")))
+  (is (string/includes? (planck.core/slurp "https://planck-repl.org") "Planck")))
 
 (deftest slurp-from-jar-test
   (is (= "(ns test-jar.core)\n\n(def x \"Hello, from JAR\")\n"

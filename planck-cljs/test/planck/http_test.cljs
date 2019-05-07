@@ -194,7 +194,8 @@
           (:request (http/patch url {:debug true}))))))
 
 (deftest binary-body-response-test
-  (let [response (http/get "http://planck-repl.org/img/intro.png" {:binary-response true})]
+  (let [response (http/get "http://planck-repl.org/img/intro.png" {:binary-response true
+                                                                   :follow-redirects true})]
     (is (vector? (:body response)))
     (is (= 16385 (count (:body response))))
     (is (= '[137 80 78] (take 3 (:body response))))))
