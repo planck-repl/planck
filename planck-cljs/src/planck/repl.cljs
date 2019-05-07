@@ -106,7 +106,7 @@
        :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
   If it is bound to logical false, results are printed in a plain fashion.
   Otherwise, results are pretty printed."}
-  *pprint-results* true)
+*pprint-results* true)
 
 (def ^:private ^:const expression-name "Expression")
 (def ^:private could-not-eval-expr (str "Could not eval " expression-name))
@@ -949,7 +949,7 @@
 (defn- js-eval
   [source source-url]
   #_(when (:verbose @app-env)
-      (println-verbose (str "Evaluating JavaScript:\n" source)))
+    (println-verbose (str "Evaluating JavaScript:\n" source)))
   (if source-url
     (let [exception (js/PLANCK_EVAL source source-url)]
       (when exception
