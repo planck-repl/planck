@@ -116,9 +116,11 @@
     (wrap-theme :results-font theme (pr-str x)))
 
   (visit-seq [this x]
-    (if-let [pretty (symbols (first x))]
-      (pretty this x)
-      (pretty-coll this "(" x :line ")" visit)))
+    (if (instance? PersistentQueue x)
+      (pretty-coll this "#queue [" x :line "]" visit)
+      (if-let [pretty (symbols (first x))]
+        (pretty this x)
+        (pretty-coll this "(" x :line ")" visit))))
 
   (visit-vector [this x]
     (pretty-coll this "[" x :line "]" visit))
