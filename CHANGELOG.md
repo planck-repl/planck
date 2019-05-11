@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This change
 - Add -keep-gcl option to the clean script
 - Ignore `*.swp` files
 - Support [`NO_COLOR`](https://no-color.org) ([#923](https://github.com/planck-repl/planck/issues/923))
+- Auto complete for `#queue`, `#inst`, _etc_. ([#926](https://github.com/planck-repl/planck/issues/926))
 
 ### Changed
 - Re-enable FTL JIT on macOS ([#820](https://github.com/planck-repl/planck/issues/820))

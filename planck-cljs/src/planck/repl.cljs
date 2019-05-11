@@ -657,6 +657,9 @@
    :req :req-un :opt :opt-un
    :args :ret :fn])
 
+(def ^:private tagged-literal-completions
+  ["#uuid" "#inst" "#queue" "#js"])
+
 (def ^:private namespace-completion-exclusions
   '[planck.from.io.aviso.ansi
     planck.pprint.code
@@ -728,6 +731,7 @@
              (completion-candidates-for-ns (add-macros-suffix expanded-ns) false)))
          (concat
            (map str keyword-completions)
+           tagged-literal-completions
            (namespace-completions)
            (map #(str % "/") (keys (current-alias-map)))
            (completion-candidates-for-ns 'cljs.core false)
@@ -786,7 +790,7 @@
     (local-keyword-completions kw-name)
     (let [top-form? (re-find #"^\s*\(\s*[^()\s]*$" buffer)
           typed-ns  (second (re-find #"\(*(\b[a-zA-Z0-9-.<>*=&?]+)/[a-zA-Z0-9-]*$" buffer))]
-      (let [buffer-match-suffix (first (re-find #":?([a-zA-Z0-9-.<>*=&?]*|^\(/)$" buffer))
+      (let [buffer-match-suffix (first (re-find #"[#:]?([a-zA-Z0-9-.<>*=&?]*|^\(/)$" buffer))
             completions         (sort (filter (partial is-completion? buffer-match-suffix)
                                         (completion-candidates top-form? typed-ns)))
             common-prefix (longest-common-prefix completions)]
