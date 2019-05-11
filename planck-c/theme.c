@@ -53,6 +53,13 @@ const char *prompt_font_for_theme(const char *theme) {
 
 const char *default_theme_for_terminal() {
 
+    // Check NO_COLOR env var
+
+    char *no_color = getenv("NO_COLOR");
+    if (no_color) {
+        return "plain";
+    }
+
     // Check COLORFGBG env var
 
     char *color_fg_bg = getenv("COLORFGBG");
