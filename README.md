@@ -18,7 +18,7 @@ sudo apt-get update
 sudo apt-get install planck
 ```
 
-For other Linux distros, see Building below.
+For other Linux distros, [download](https://planck-repl.org/binaries/) a binary or see [Building](https://github.com/planck-repl/planck#building) below.
 
 # Using
 

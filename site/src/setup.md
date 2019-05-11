@@ -23,7 +23,7 @@ sudo apt-get update
 sudo apt-get install planck
 ```
 
-For other Linux distros, see Building below.
+For other Linux distros, [binary downloads](https://planck-repl.org/binaries/) are available for some distros. Otherwise, see Building below.
 
 #### Install Master
 
