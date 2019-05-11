@@ -4,8 +4,6 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Add `planck.io/tty?` ([#911](https://github.com/planck-repl/planck/issues/911))
-
-### Added
 - Add -keep-gcl option to the clean script
 - Ignore `*.swp` files
 
