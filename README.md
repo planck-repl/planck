@@ -50,7 +50,6 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 #### clojure.core/ -> planck.core/ 
 
-[eval](https://planck-repl.org/planck-core.html#eval), 
 [file-seq](https://planck-repl.org/planck-core.html#file-seq),
 [find-var](https://planck-repl.org/planck-core.html#find-var),
 [load-reader](https://planck-repl.org/planck-core.html#load-reader),
