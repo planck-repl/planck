@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [2.23.0] - 2019-05-19
 ### Added
 - Add `planck.io/tty?` ([#911](https://github.com/planck-repl/planck/issues/911))
 - Add -keep-gcl option to the clean script
@@ -825,7 +827,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.22.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.23.0...HEAD
+[2.23.0]: https://github.com/mfikes/planck/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/mfikes/planck/compare/2.21.0...2.22.0
 [2.21.0]: https://github.com/mfikes/planck/compare/2.20.0...2.21.0
 [2.20.0]: https://github.com/mfikes/planck/compare/2.19.1...2.20.0
