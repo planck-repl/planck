@@ -573,7 +573,7 @@
 (s/fdef tty?
   :args (s/cat :x (s/or :fd-num (s/and integer? (complement neg?))
                         :reader #(implements? planck.core/IReader %)
-                        :writer #(implements? planck.core/IWriter %)))
+                        :writer #(implements? IWriter %)))
   :ret boolean?)
 
 ;; These have been moved

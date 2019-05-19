@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Fixed
+- `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
 
 ## [2.23.0] - 2019-05-19
 ### Added
