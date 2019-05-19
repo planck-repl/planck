@@ -577,9 +577,9 @@
   :ret boolean?)
 
 ;; These have been moved
-(def ^:deprecated read-line planck.core/read-line)
-(def ^:deprecated slurp planck.core/slurp)
-(def ^:deprecated spit planck.core/spit)
+(def ^:deprecated ^:no-doc read-line planck.core/read-line)
+(def ^:deprecated ^:no-doc slurp planck.core/slurp)
+(def ^:deprecated ^:no-doc spit planck.core/spit)
 
 (set! planck.core/*reader-fn* reader)
 (set! planck.core/*writer-fn* writer)
