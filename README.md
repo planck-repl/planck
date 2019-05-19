@@ -22,13 +22,13 @@ For other Linux distros, [download](https://planck-repl.org/binaries/) a binary 
 
 # Using
 
+[![cljdoc badge](https://cljdoc.org/badge/planck/planck)](https://cljdoc.org/d/planck/planck/CURRENT)
+
 Launch Planck by entering `planck` or `plk` at the terminal. 
 
 > The `plk` script executes `planck`, while integrating with the [`clojure`](https://clojure.org/guides/getting_started) CLI tool to add support for `deps.edn` and classpath-affecting options such as `-Aalias`.
 
 Get help on command-line options by issuing `planck -h` or `plk -h`.
-
-For more details, see the [Planck User Guide](https://planck-repl.org/guide.html).
 
 ### Ported Clojure Functionality
 
@@ -50,47 +50,47 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 #### clojure.core/ -> planck.core/ 
 
-[file-seq](https://planck-repl.org/planck-core.html#file-seq),
-[find-var](https://planck-repl.org/planck-core.html#find-var),
-[load-reader](https://planck-repl.org/planck-core.html#load-reader),
-[load-string](https://planck-repl.org/planck-core.html#load-string),
-[line-seq](https://planck-repl.org/planck-core.html#line-seq),
-[intern](https://planck-repl.org/planck-core.html#intern),
-[ns-aliases](https://planck-repl.org/planck-core.html#ns-aliases),
-[ns-refers](https://planck-repl.org/planck-core.html#ns-refers),
-[ns-resolve](https://planck-repl.org/planck-core.html#ns-resolve),
-[read](https://planck-repl.org/planck-core.html#read),
-[read-line](https://planck-repl.org/planck-core.html#read-line),
-[read-string](https://planck-repl.org/planck-core.html#read-string),
-[resolve](https://planck-repl.org/planck-core.html#resolve),
-[slurp](https://planck-repl.org/planck-core.html#slurp),
-[spit](https://planck-repl.org/planck-core.html#spit),
-[with-in-str](https://planck-repl.org/planck-core.html#with-in-str),
-[with-open](https://planck-repl.org/planck-core.html#with-open)
+[file-seq](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#file-seq),
+[find-var](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#find-var),
+[load-reader](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#load-reader),
+[load-string](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#load-string),
+[line-seq](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#line-seq),
+[intern](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#intern),
+[ns-aliases](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#ns-aliases),
+[ns-refers](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#ns-refers),
+[ns-resolve](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#ns-resolve),
+[read](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#read),
+[read-line](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#read-line),
+[read-string](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#read-string),
+[resolve](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#resolve),
+[slurp](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#slurp),
+[spit](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#spit),
+[with-in-str](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#with-in-str),
+[with-open](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.core#with-open)
 
 #### clojure.java.io/ -> planck.io/
 
-[as-file](https://planck-repl.org/planck-io.html#as-file),
-[as-relative-path](https://planck-repl.org/planck-io.html#as-relative-path),
-[as-url](https://planck-repl.org/planck-io.html#as-url),
-[delete-file](https://planck-repl.org/planck-io.html#delete-file),
-[file](https://planck-repl.org/planck-io.html#file),
-[input-stream](https://planck-repl.org/planck-io.html#input-stream),
-[make-input-stream](https://planck-repl.org/planck-io.html#make-input-stream),
-[make-output-stream](https://planck-repl.org/planck-io.html#make-output-stream),
-[make-parents](https://planck-repl.org/planck-io.html#make-parents),
-[make-reader](https://planck-repl.org/planck-io.html#make-reader),
-[make-writer](https://planck-repl.org/planck-io.html#make-writer),
-[output-stream](https://planck-repl.org/planck-io.html#output-stream),
-[reader](https://planck-repl.org/planck-io.html#reader),
-[resource](https://planck-repl.org/planck-io.html#resource),
-[writer](https://planck-repl.org/planck-io.html#writer)
+[as-file](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#as-file),
+[as-relative-path](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#as-relative-path),
+[as-url](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#as-url),
+[delete-file](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#delete-file),
+[file](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#file),
+[input-stream](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#input-stream),
+[make-input-stream](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#make-input-stream),
+[make-output-stream](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#make-output-stream),
+[make-parents](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#make-parents),
+[make-reader](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#make-reader),
+[make-writer](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#make-writer),
+[output-stream](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#output-stream),
+[reader](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#reader),
+[resource](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#resource),
+[writer](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.io#writer)
 
 #### clojure.java.shell/ -> planck.shell/
 
-[sh](https://planck-repl.org/planck-shell.html#sh),
-[with-sh-dir](https://planck-repl.org/planck-shell.html#with-sh-dir),
-[with-sh-env](https://planck-repl.org/planck-shell.html#with-sh-env)
+[sh](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.shell#sh),
+[with-sh-dir](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.shell#with-sh-dir),
+[with-sh-env](https://cljdoc.org/d/planck/planck/CURRENT/api/planck.shell#with-sh-env)
 
 # Building 
 
