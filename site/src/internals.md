@@ -1,6 +1,7 @@
 ## Internals
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/internals.jpg">
+
 How does Planck work?
 
 ### Fundamentals

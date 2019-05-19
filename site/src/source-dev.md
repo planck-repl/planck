@@ -1,6 +1,7 @@
 ## Source Dev
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/source-dev.jpg">
+
 When launching Planck using `plk`, you can specify a vector of source directories in `deps.edn`:
 
 ```

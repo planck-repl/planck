@@ -50,8 +50,8 @@
 
 (defprotocol Coercions
   "Coerce between various 'resource-namish' things."
-  (as-file [x] "Coerce argument to a File.")
-  (as-url [x] "Coerce argument to a goog.Uri."))
+  (as-file [x] "Coerce argument to a [[File]].")
+  (as-url [x] "Coerce argument to a `goog.Uri`."))
 
 (extend-protocol Coercions
   nil
@@ -85,15 +85,15 @@
 
   Common options include
 
-    :append   true to open stream in append mode
-    :encoding  string name of encoding to use, e.g. \"UTF-8\".
+    `:append`    `true` to open stream in append mode
+    `:encoding`  string name of encoding to use, e.g. \"UTF-8\".
 
-  Callers should generally prefer the higher level API provided by reader,
-  writer, input-stream, and output-stream."
-  (make-reader [x opts] "Creates an IReader. See also IOFactory docs.")
-  (make-writer [x opts] "Creates an IWriter. See also IOFactory docs.")
-  (make-input-stream [x opts] "Creates an IInputStream. See also IOFactory docs.")
-  (make-output-stream [x opts] "Creates an IOutputStream. See also IOFactory docs."))
+  Callers should generally prefer the higher level API provided by [[reader]],
+  [[writer]], [[input-stream]], and [[output-stream]]."
+  (make-reader [x opts] "Creates an [[planck.core/IReader]]. See also [[IOFactory]] docs.")
+  (make-writer [x opts] "Creates an [[cljs.core/IWriter]]. See also [[IOFactory]] docs.")
+  (make-input-stream [x opts] "Creates an [[planck.core/IInputStream]]. See also [[IOFactory]] docs.")
+  (make-output-stream [x opts] "Creates an [[planck.core/IOutputStream]]. See also [[IOFactory]] docs."))
 
 (defonce ^:private open-file-reader-descriptors (atom #{}))
 (defonce ^:private open-file-writer-descriptors (atom #{}))
@@ -262,22 +262,22 @@
       (throw (ex-info (str "Cannot open <" (pr-str x) "> as an OutputStream.") {})))))
 
 (defn reader
-  "Attempts to coerce its argument into an open IPushbackReader."
+  "Attempts to coerce its argument into an open [[planck.core/IPushbackReader]]."
   [x & opts]
   (make-reader x (when opts (apply hash-map opts))))
 
 (defn writer
-  "Attempts to coerce its argument into an open IWriter."
+  "Attempts to coerce its argument into an open [[cljs.core/IWriter]]."
   [x & opts]
   (make-writer x (when opts (apply hash-map opts))))
 
 (defn input-stream
-  "Attempts to coerce its argument into an open IInputStream."
+  "Attempts to coerce its argument into an open [[planck.core/IInputStream]]."
   [x & opts]
   (make-input-stream x (when opts (apply hash-map opts))))
 
 (defn output-stream
-  "Attempts to coerce its argument into an open IOutputStream."
+  "Attempts to coerce its argument into an open [[planck.core/IOutputStream]]."
   [x & opts]
   (make-output-stream x (when opts (apply hash-map opts))))
 
@@ -306,7 +306,7 @@
   :ret boolean?)
 
 (defn file
-  "Returns a File, passing each arg to as-file. Multiple-arg versions treat
+  "Returns a [[File]], passing each arg to [[as-file]]. Multiple-arg versions treat
   the first argument as parent and subsequent args as children relative to the
   parent."
   ([arg]
@@ -337,7 +337,7 @@
   :ret map?)
 
 (defn delete-file
-  "Delete file f."
+  "Delete file `f`."
   [f]
   (js/PLANCK_DELETE (:path (as-file f))))
 
@@ -345,7 +345,7 @@
   :args (s/cat :f (s/or :string string? :file file?)))
 
 (defn ^boolean directory?
-  "Checks if dir is a directory."
+  "Checks if `dir` is a directory."
   [dir]
   (js/PLANCK_IS_DIRECTORY (:path (as-file dir))))
 
@@ -354,7 +354,7 @@
   :ret boolean?)
 
 (defn exists?
-  "Checks if f exists on disk."
+  "Checks if `f` exists on disk."
   [f]
   (not (nil? (file-attributes f))))
 
@@ -363,7 +363,7 @@
   :ret boolean?)
 
 (defn path-elements
-  "Returns the path elements of x as a sequence."
+  "Returns the path elements of `x` as a sequence."
   [x]
   (remove (partial = "") (string/split (:path (as-file x)) #"/")))
 
@@ -372,7 +372,7 @@
   :ret (s/coll-of string?))
 
 (defn file-name
-  "Returns the name (the final path element) of x."
+  "Returns the name (the final path element) of `x`."
   [x]
   (last (path-elements x)))
 
@@ -381,7 +381,7 @@
   :ret string?)
 
 (defn hidden-file?
-  "Checks if x is hidden (name starts with a . character)."
+  "Checks if `x` is hidden (name starts with a `.` character)."
   [x]
   (= "." (first (file-name x))))
 
@@ -390,7 +390,7 @@
   :ret boolean?)
 
 (defn regular-file?
-  "Checks if f is a regular file."
+  "Checks if `f` is a regular file."
   [f]
   (= :file (:type (file-attributes f))))
 
@@ -399,7 +399,7 @@
   :ret boolean?)
 
 (defn symbolic-link?
-  "Checks if f is a symbolic link."
+  "Checks if `f` is a symbolic link."
   [f]
   (= :symbolic-link (:type (file-attributes f))))
 
@@ -408,7 +408,7 @@
   :ret boolean?)
 
 (defn list-files
-  "Returns a seq of the Files in dir or nil if dir is not a directory."
+  "Returns a seq of the [[File]]s in dir or `nil` if dir is not a directory."
   [dir]
   (when (directory? dir)
     (map as-file (js/PLANCK_LIST_FILES (:path (as-file dir))))))
@@ -446,7 +446,7 @@
         (planck.io/file (subs path 0 ndx))))))
 
 (defn make-parents
-  "Given the same arg(s) as for file, creates all parent directories of
+  "Given the same arg(s) as for [[file]], creates all parent directories of
   the file they represent."
   [f & more]
   (when-some [parent (get-parent-file (apply file f more))]
@@ -533,14 +533,15 @@
     (do-copy (#'planck.core/make-string-reader input) out)))
 
 (defn copy
-  "Copies input to output. Returns nil or throws an exception.
+  "Copies input to output. Returns `nil` or throws an exception.
 
-  Input may be an IInputStream or IReader created using planck.io, File, or
-  string.
+  Input may be an [[planck.core/IInputStream]] or [[planck.core/IReader]]
+  created using `planck.io`, [[File]], or string.
 
-  Output may be an IOutputStream or IWriter created using planck.io, or File.
+  Output may be an [[planck.core/IOutputStream]] or [[cljs.core/IWriter]]
+  created using `planck.io`, or [[File]].
 
-  The opts arg is included for compatibility with clojure.java.io/copy
+  The opts arg is included for compatibility with `clojure.java.io/copy`
   but ignored. If translating between char and byte representations, UTF-8
   encoding is assumed.
 
@@ -558,11 +559,11 @@
    planck.core/*err* 2})
 
 (defn ^boolean tty?
-  "Returns true if x is a file descriptor associated with a terminal,
-  or x is either a Reader/Writer among *in*, *out*, or *err* which is
+  "Returns `true` if `x `is a file descriptor associated with a terminal,
+  or x is either a Reader/Writer among `*in*`, `*out*`, or `*err*` which is
   associated with a terminal.
 
-  Returns false if x is a file descriptor, *in*, *out*, or *err* and
+  Returns false if `x` is a file descriptor, `*in*`, `*out*`, or `*err*` and
   not associated with a terminal, or an invalid file descriptor."
   [x]
   (-> (if-let [fd (stdio->fd x)] fd x)

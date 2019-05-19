@@ -1,4 +1,4 @@
-(ns planck.themes
+(ns ^:no-doc planck.themes
   "Planck color theme management."
   (:require
    [planck.from.io.aviso.ansi :as ansi]))

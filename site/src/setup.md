@@ -1,6 +1,7 @@
 ## Setup
 
 <img width="100" align="right" style="margin: 0ex 1em" src="img/setup.jpg">
+
 Planck runs on macOS and Linux. 
 
 Planck requires no external dependencies. (There is no need for either the Java JVM or Node.js.)

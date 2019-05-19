@@ -1,4 +1,4 @@
-(ns planck.bundle
+(ns ^:no-doc planck.bundle
   "Require namespaces so they will be bundled in the Planck binary."
   (:require
    [google-closure-compiler-js]

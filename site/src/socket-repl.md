@@ -1,6 +1,7 @@
 ## Socket REPL
 
 <img width="85" align="right" style="margin: 0ex 1em" src="img/socket-repl.jpg">
+
 Planck supports connecting via a TCP socket.
 
 This mimics the Socket REPL feature introduced with Clojure 1.8.

@@ -1,4 +1,4 @@
-(ns planck.closure
+(ns ^:no-doc planck.closure
   "Provides access to the Closure compiler"
   (:require
    [cljs.source-map :as sm]))

@@ -1,4 +1,4 @@
-(ns planck.pprint.code
+(ns ^:no-doc planck.pprint.code
   "Pretty printing for code."
   (:require
    [clojure.walk :as walk]

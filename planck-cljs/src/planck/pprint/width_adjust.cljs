@@ -1,4 +1,4 @@
-(ns planck.pprint.width-adjust
+(ns ^:no-doc planck.pprint.width-adjust
   "Adjust pretty-print width for trailing delimiters."
   (:require
    [clojure.string :as string]

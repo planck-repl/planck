@@ -1,6 +1,7 @@
 ## Running
 
 <img width="70" align="right" style="margin: 0ex 1em" src="img/running.jpg">
+
 You launch Planck by typing `planck` in a terminal.
 
 You can also launch Planck using the `plk` script, which integrates with the [`clojure`](https://clojure.org/guides/getting_started) CLI tool to add support for `deps.edn` and classpath-affecting options such as `-Aalias`.

@@ -38,7 +38,7 @@ $ plk bar.cljs there
 Hello there!
 ```
 
-> If you'd like to directly specify dependencies in scripts using `#!` see the “Shebang Deps” section of [Dependencies](https://planck-repl.org/dependencies.html).
+> If you'd like to directly specify dependencies in scripts using `#!` see the “Shebang Deps” section of [Dependencies](dependencies.md).
 
 ### Main Function
 

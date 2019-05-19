@@ -1,4 +1,4 @@
-(ns planck.pprint.data
+(ns ^:no-doc planck.pprint.data
   "Pretty printing for data."
   (:refer-clojure :exclude [lift-ns])
   (:require

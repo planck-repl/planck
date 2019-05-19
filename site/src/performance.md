@@ -1,6 +1,7 @@
 ## Performance
 
 <img width="85" align="right" style="margin: 0ex 1em" src="img/performance.jpg">
+
 Planck can be very fast, especially since it depends on JavaScriptCore, which is great for minimizing startup latency. This makes it very useable for quickly starting up a REPL or running simple scripts.
 
 ### Caching

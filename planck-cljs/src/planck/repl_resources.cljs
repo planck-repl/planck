@@ -1,4 +1,4 @@
-(ns planck.repl-resources
+(ns ^:no-doc planck.repl-resources
   "Resources for use in the Planck REPL implementation.")
 
 (def special-doc-map

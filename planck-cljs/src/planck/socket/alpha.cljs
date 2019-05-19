@@ -1,4 +1,4 @@
-(ns planck.socket.alpha
+(ns ^:no-doc planck.socket.alpha
   "Planck socket functionality."
   (:require
    [cljs.spec.alpha :as s]

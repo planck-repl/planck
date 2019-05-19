@@ -1,4 +1,4 @@
-(ns planck.from.io.aviso.ansi
+(ns ^:no-doc planck.from.io.aviso.ansi
   (:require
    [clojure.string :as str]))
 

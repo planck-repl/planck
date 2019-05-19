@@ -1,4 +1,4 @@
-(ns planck.js-deps
+(ns ^:no-doc planck.js-deps
   (:require
    [cljs.tools.reader :as r]
    [clojure.string :as string]))

@@ -103,7 +103,7 @@
     :args (s/cat :sym symbol?))
 
 (def ^{:dynamic true
-       :doc "*pprint-results* controls whether Planck REPL results are pretty printed.
+       :doc "`*pprint-results*` controls whether Planck REPL results are pretty printed.
   If it is bound to logical false, results are printed in a plain fashion.
   Otherwise, results are pretty printed."}
 *pprint-results* true)
@@ -1714,7 +1714,7 @@
       (get-in @st [::ana/namespaces ana/*cljs-ns* :require-macros ns-sym])
       ns-sym))
 
-(defn dir*
+(defn ^:no-doc dir*
   [nsname]
   (let [ns (resolve-ns nsname)]
     (run! prn
@@ -1722,7 +1722,7 @@
                         (public-syms ns)
                         (public-syms (add-macros-suffix ns))))))))
 
-(defn apropos*
+(defn ^:no-doc apropos*
   [str-or-pattern]
   (let [matches? (if (instance? js/RegExp str-or-pattern)
                    #(re-find str-or-pattern (str %))
@@ -1814,7 +1814,7 @@
                 (print (str "\n " (name role) ":") (format-spec spec (+ 3 (count (name role))) n))))
             (println)))))))
 
-(defn doc*
+(defn ^:no-doc doc*
   [name]
   (if-let [special-name ('{&       fn
                            catch   try
@@ -1858,7 +1858,7 @@
 (defn- namespace-doc [nspace]
   (select-keys (get-in @st [::ana/namespaces nspace]) [:name :doc]))
 
-(defn find-doc*
+(defn ^:no-doc find-doc*
   [re-string-or-pattern]
   (let [re (re-pattern re-string-or-pattern)
         ms (concat (mapcat #(sort-by :name
@@ -1874,12 +1874,12 @@
                            (re-find re (str (:name m)))))]
       (doc* (:name m)))))
 
-(defn source*
+(defn ^:no-doc source*
   [sym]
   (println (or (fetch-source (get-var (get-aenv) sym))
                "Source not found")))
 
-(defn pst*
+(defn ^:no-doc pst*
   ([]
    (pst* '*e))
   ([expr]

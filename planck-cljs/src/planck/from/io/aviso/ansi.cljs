@@ -1,4 +1,4 @@
-(ns planck.from.io.aviso.ansi
+(ns ^:no-doc planck.from.io.aviso.ansi
   "Help with generating textual output that includes ANSI escape codes for formatting.
   Ported for use with bootstrap ClojureScript in Planck from
   https://github.com/AvisoNovate/pretty/blob/master/src/io/aviso/ansi.clj"

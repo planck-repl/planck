@@ -42,16 +42,16 @@
 
 (defprotocol IReader
   "Protocol for reading."
-  (-read [this] "Returns available characters as a string or nil if EOF."))
+  (-read [this] "Returns available characters as a string or `nil` if EOF."))
 
 (defprotocol IBufferedReader
-  "Protocol for reading line-based content. Instances of IBufferedReader must
-   also satisfy IReader."
+  "Protocol for reading line-based content. Instances of [[IBufferedReader]] must
+   also satisfy [[IReader]]."
   (-read-line [this] "Reads the next line."))
 
 (defprotocol IPushbackReader
-  "Protocol for readers that support undo. Instances of IPushbackReader must
-  also satisfy IBufferedReader."
+  "Protocol for readers that support undo. Instances of [[IPushbackReader]] must
+  also satisfy [[IBufferedReader]]."
   (-unread [this s] "Pushes a string of characters back on to the stream."))
 
 (deftype ^:private Reader [raw-read raw-close buffer pos]
@@ -113,7 +113,7 @@
 
 (defprotocol IInputStream
   "Protocol for reading binary data."
-  (-read-bytes [this] "Returns available bytes as an array of unsigned numbers or nil if EOF."))
+  (-read-bytes [this] "Returns available bytes as an array of unsigned numbers or `nil` if EOF."))
 
 (defprotocol IOutputStream
   "Protocol for writing binary data."
@@ -142,7 +142,7 @@
     (raw-close)))
 
 (defonce
-  ^{:doc     "An IPushbackReader representing standard input for read operations."
+  ^{:doc     "An [[IPushbackReader]] representing standard input for read operations."
     :dynamic true}
   *in*
   (let [closed (atom false)]
@@ -169,7 +169,7 @@
 (set! cljs.core/*out* (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDOUT js/PLANCK_RAW_FLUSH_STDOUT))
 
 (defonce
-  ^{:doc     "A cljs.core/IWriter representing standard error for print operations."
+  ^{:doc     "A [[cljs.core/IWriter]] representing standard error for print operations."
     :dynamic true}
   *err*
   (make-closeable-raw-writer js/PLANCK_RAW_WRITE_STDERR js/PLANCK_RAW_FLUSH_STDERR))
@@ -209,15 +209,15 @@
         (-unread pushback-reader ch)))))
 
 (defn read
-  "Reads the first object from an IPushbackReader.
-  Returns the object read. If EOF, throws if eof-error? is true.
-  Otherwise returns sentinel. If no reader is provided, *in* will be used.
+  "Reads the first object from an [[IPushbackReader]].
+  Returns the object read. If EOF, throws if `eof-error?` is true.
+  Otherwise returns sentinel. If no reader is provided, `*in*` will be used.
   Opts is a persistent map with valid keys:
-     :read-cond - :allow to process reader conditionals, or
-                  :preserve to keep all branches
-     :features - persistent set of feature keywords for reader conditionals
-     :eof - on eof, return value unless :eofthrow, then throw.
-            if not specified, will throw"
+     `:read-cond` - `:allow` to process reader conditionals, or
+                    `:preserve` to keep all branches
+     `:features`  - persistent set of feature keywords for reader conditionals
+     `:eof` - on eof, return value unless :eofthrow, then throw.
+              if not specified, will throw"
   ([] (read *in*))
   ([reader]
    (r/read (adapt-pushback-reader reader)))
@@ -244,7 +244,7 @@
       (atom 0))))
 
 (defn read-string
-  "Reads one object from the string s. Optionally include reader
+  "Reads one object from the string `s`. Optionally include reader
   options, as specified in read."
   ([s] (read (make-string-reader s)))
   ([opts s] (read opts (make-string-reader s))))
@@ -253,8 +253,8 @@
   :args (s/alt :unary (s/cat :s string?)
                :binary (s/cat :opts map? :s string?)))
 (defn line-seq
-  "Returns the lines of text from rdr as a lazy sequence of strings. rdr must
-  implement IBufferedReader."
+  "Returns the lines of text from `rdr` as a lazy sequence of strings. `rdr` must
+  implement [[IBufferedReader]]."
   [rdr]
   (when-let [line (-read-line rdr)]
     (cons line (lazy-seq (line-seq rdr)))))
@@ -320,8 +320,8 @@
     (throw (js/Error. "No *writer-fn* fn set."))))
 
 (defn slurp
-  "Opens a reader on f and reads all its contents, returning a string. See
-  planck.io/reader for a complete list of supported arguments."
+  "Opens a reader on `f` and reads all its contents, returning a string. See
+  [[planck.io/reader]] for a complete list of supported arguments."
   [f & opts]
   (with-open [r (apply *reader-fn* f opts)]
     (let [sb (StringBuffer.)]
@@ -340,8 +340,8 @@
   :ret string?)
 
 (defn spit
-  "Opposite of slurp. Opens f with writer, writes content, then closes f.
-  Options passed to planck.io/writer."
+  "Opposite of [[slurp]]. Opens `f` with writer, writes content, then closes `f`.
+  Options passed to [[planck.io/writer]]."
   [f content & opts]
   (with-open [w (apply *writer-fn* f opts)]
     (-write w (str content))))
@@ -363,7 +363,7 @@
 
 (defn ns-resolve
   "Returns the var to which a symbol will be resolved in the namespace, else
-  nil."
+  `nil`."
   [ns sym]
   (#'repl/ns-resolve ns sym))
 
@@ -373,7 +373,7 @@
 
 (defn resolve
   "Returns the var to which a symbol will be resolved in the current
-  namespace, else nil."
+  namespace, else `nil`."
   [sym]
   (#'repl/resolve sym))
 
@@ -382,8 +382,8 @@
   :ret (s/nilable var?))
 
 (defn requiring-resolve
-  "Resolves namespace-qualified sym per 'resolve'. If initial resolve
-  fails, attempts to require sym's namespace and retries."
+  "Resolves namespace-qualified sym per [[resolve]]. If initial resolve
+  fails, attempts to require `sym`'s namespace and retries."
   [sym]
   (if (qualified-symbol? sym)
     (or (resolve sym)
@@ -397,7 +397,7 @@
 
 (defn find-var
   "Returns the global var named by the namespace-qualified symbol, or
-  nil if no var with that name."
+  `nil` if no var with that name."
   [sym]
   (when (eval `(exists? ~sym))
     (eval `(var ~sym))))
@@ -446,12 +446,12 @@
       (get-in @@#'repl/st [:cljs.analyzer/namespaces ns]))))
 
 (defn init-empty-state
-  "An init function for use with cljs.js/empty-state which initializes the
+  "An init function for use with [[cljs.js/empty-state]] which initializes the
   empty state with cljs.core analysis metadata.
 
-  This is useful because Planck is built with :dump-core set to false.
+  This is useful because Planck is built with `:dump-core` set to false.
 
-  Usage: (cljs.js/empty-state init-empty-state)"
+  Usage: `(cljs.js/empty-state init-empty-state)`"
   [state]
   (-> state
     (transfer-ns 'cljs.core)
