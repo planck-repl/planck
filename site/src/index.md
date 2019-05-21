@@ -20,7 +20,7 @@ You can run Clojure-idiomatic scripts with Planck:
 (shell/sh "say" "done")
 ```
 
-Get it: On macOS `brew install planck`, on Ubuntu [install](setup.html) using `apt-get`. Otherwise [download](https://planck-repl.org/binaries/) a binary, or [build](https://github.com/planck-repl/planck#building) it. 
+Get it: On macOS `brew install planck`, on Ubuntu [install](https://cljdoc.org/d/planck/planck/CURRENT/doc/setup) using `apt-get`. Otherwise [download](https://planck-repl.org/binaries/) a binary, or [build](https://github.com/planck-repl/planck#building) it. 
 
 Online docs: [![cljdoc badge](https://cljdoc.org/badge/planck/planck)](https://cljdoc.org/d/planck/planck/CURRENT)
 
