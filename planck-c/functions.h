@@ -117,6 +117,9 @@ JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRe
 JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                const JSValueRef args[], JSValueRef *exception);
 
+JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception);
+
 JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject, size_t argc,
                                  const JSValueRef args[], JSValueRef *exception);
 

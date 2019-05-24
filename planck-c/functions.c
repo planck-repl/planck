@@ -1030,6 +1030,43 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
     return JSValueMakeNull(ctx);
 }
 
+JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+                           size_t argc, const JSValueRef args[], JSValueRef *exception) {
+    if (argc == 1
+        && JSValueGetType(ctx, args[0]) == kJSTypeBoolean) {
+
+        bool directory = JSValueToBoolean(ctx, args[0]);
+
+        char* tmpdir = getenv("TMPDIR");
+        if (!tmpdir) {
+            tmpdir = "/tmp";
+        }
+
+        char template[PATH_MAX];
+        if (str_has_suffix(tmpdir, "/") == 0) {
+            snprintf(template, PATH_MAX, "%splanck.XXXXXX", tmpdir);
+        } else {
+            snprintf(template, PATH_MAX, "%s/planck.XXXXXX", tmpdir);
+        }
+
+        char *temp_name;
+        if (directory) {
+            temp_name = mkdtemp(template);
+        } else {
+            temp_name = mktemp(template);
+        }
+
+        if (temp_name) {
+            return c_string_to_value(ctx, temp_name);
+        } else {
+            JSValueRef arguments[1];
+            arguments[0] = c_string_to_value(ctx, strerror(errno));
+            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+        }
+
+    }
+    return JSValueMakeNull(ctx);
+}
 
 JSValueRef function_is_directory(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                  size_t argc, const JSValueRef args[], JSValueRef *exception) {

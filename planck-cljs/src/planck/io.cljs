@@ -417,6 +417,29 @@
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret (s/coll-of file?))
 
+(defn temp-file
+  "Returns a temporary file as a [[File]].
+
+  The path name is guaranteed to be unique at the time of the the call, and
+  the file will not be created on disk."
+  []
+  (as-file (js/PLANCK_MKTEMP false)))
+
+(s/fdef temp-file
+  :args (s/cat)
+  :ret file?)
+
+(defn temp-directory
+  "Returns a temporary directory as a [[File]].
+
+  The directory will be created on disk with mode 0700."
+  []
+  (as-file (js/PLANCK_MKTEMP true)))
+
+(s/fdef temp-directory
+  :args (s/cat)
+  :ret file?)
+
 (defn resource
   "Returns the URI for the named resource, `n`.
   
