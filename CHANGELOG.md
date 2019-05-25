@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Native temp file and dir facilities ([#934](https://github.com/planck-repl/planck/issues/934)
 
+### Changed
+- `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
+
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
 

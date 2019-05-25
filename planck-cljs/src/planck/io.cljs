@@ -134,7 +134,7 @@
 
 (defn- make-http-uri-reader
   [uri opts]
-  (#'planck.core/make-string-reader (:body (http/get (str uri) {}))))
+  (#'planck.core/make-string-reader (:body (http/get (str uri) (merge {:follow-redirects true} opts)))))
 
 (defn- make-http-uri-writer
   [uri opts]
