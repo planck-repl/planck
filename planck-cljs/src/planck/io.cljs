@@ -420,8 +420,7 @@
 (defn temp-file
   "Returns a temporary file as a [[File]].
 
-  The path name is guaranteed to be unique at the time of the the call, and
-  the file will not be created on disk."
+  An empty file with the returned name will be created on disk with mode 0600."
   []
   (as-file (js/PLANCK_MKTEMP false)))
 
@@ -432,7 +431,7 @@
 (defn temp-directory
   "Returns a temporary directory as a [[File]].
 
-  The directory will be created on disk with mode 0700."
+  A directory with the returned name will be created on disk with mode 0700."
   []
   (as-file (js/PLANCK_MKTEMP true)))
 
