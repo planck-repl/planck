@@ -12,6 +12,7 @@
 #include <pthread.h>
 #include <errno.h>
 #include <time.h>
+#include <fcntl.h>
 
 #include <JavaScriptCore/JavaScript.h>
 
