@@ -1050,25 +1050,14 @@ JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef t
             snprintf(template, PATH_MAX, "%s/planck.XXXXXX", tmpdir);
         }
 
-        char *temp_name;
+        char *temp_name = NULL;
         if (directory) {
             temp_name = mkdtemp(template);
         } else {
-            bool done = false;
-            int count = 0;
-            while (!done) {
-                if (++count == 100) {
-                    temp_name = NULL;
-                    done = true;
-                } else {
-                    temp_name = mktemp(template);
-                    if (temp_name) {
-                        int fd = open(temp_name, O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
-                        if (fd != -1) {
-                            done = true;
-                            close(fd);
-                        }
-                    }
+            int fd = mkstemp(template);
+            if (fd != -1) {
+                if (close(fd) != -1){
+                    temp_name = template;
                 }
             }
         }
