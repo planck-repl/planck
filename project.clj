@@ -6,7 +6,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :source-paths ["planck-cljs/src"]
   :dependencies [[org.clojure/clojurescript "1.10.520"]
-                 [fipp "0.6.14"]
+                 [fipp "0.6.18"]
                  [malabarba/lazy-map "1.3"]
-                 [com.cognitect/transit-cljs "0.8.248"]
+                 [com.cognitect/transit-cljs "0.8.256"]
                  [cljsjs/parinfer "1.8.1-0"]])
