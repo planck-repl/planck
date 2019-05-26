@@ -1038,7 +1038,7 @@ JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef t
 
         bool directory = JSValueToBoolean(ctx, args[0]);
 
-        char* tmpdir = getenv("TMPDIR");
+        char *tmpdir = getenv("TMPDIR");
         if (!tmpdir) {
             tmpdir = "/tmp";
         }
@@ -1056,7 +1056,7 @@ JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef t
         } else {
             int fd = mkstemp(template);
             if (fd != -1) {
-                if (close(fd) != -1){
+                if (close(fd) != -1) {
                     temp_name = template;
                 }
             }
