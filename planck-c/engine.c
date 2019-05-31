@@ -506,6 +506,8 @@ void *do_engine_init(void *data) {
 
     register_global_function(ctx, "PLANCK_FSTAT", function_fstat);
 
+    register_global_function(ctx, "PLANCK_MKTEMP", function_mktemp);
+
     register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 
     register_global_function(ctx, "PLANCK_READ_PASSWORD", function_read_password);

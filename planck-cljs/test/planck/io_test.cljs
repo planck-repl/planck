@@ -216,3 +216,11 @@
   (is (nil? (io/list-files "/bogus/path")))
   (is (seq? (io/list-files "/tmp")))
   (is (io/file? (first (io/list-files "/tmp")))))
+
+(deftest temp-file-test
+  (is (io/file? (io/temp-file)))
+  (is (= "abc" (slurp (doto (io/temp-file) (spit "abc"))))))
+
+(deftest temp-directory-test
+  (is (io/file? (io/temp-directory)))
+  (is (io/directory? (io/temp-directory))))
