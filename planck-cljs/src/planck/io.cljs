@@ -109,14 +109,17 @@
   (when (bad-file-descriptor? file-descriptor)
     (throw (ex-info "Failed to open file." {:file file, :opts opts}))))
 
-(defn- make-jar-uri-reader
-  [jar-uri opts]
+(defn- make-jar-uri-consumer
+  [jar-uri string-oriented? opts]
   (let [file-uri (Uri. (.getPath jar-uri))]
     (if (file-uri? file-uri)
       (let [[file-path resource] (string/split (.getPath file-uri) #"!/")
-            [content error-msg] (js/PLANCK_LOAD_FROM_JAR file-path resource)]
+            [content error-msg] (js/PLANCK_LOAD_FROM_JAR file-path resource string-oriented?)]
         (if-not (nil? content)
-          (#'planck.core/make-string-reader content)
+          ((if string-oriented?
+             #'planck.core/make-string-reader
+             #'planck.core/make-array-input-stream)
+           content)
           (throw (ex-info (str "Failed to extract resource from JAR: " error-msg)
                    {:uri       jar-uri
                     :jar-file  file-path
@@ -136,6 +139,12 @@
   [uri opts]
   (#'planck.core/make-string-reader (:body (http/get (str uri) (merge {:follow-redirects true} opts)))))
 
+(defn- make-http-uri-input-stream
+  [uri opts]
+  (#'planck.core/make-array-input-stream (:body (http/get (str uri) (merge {:follow-redirects true}
+                                                                      opts
+                                                                      {:binary-response true})))))
+
 (defn- make-http-uri-writer
   [uri opts]
   (#'planck.core/->Writer
@@ -154,9 +163,9 @@
   (make-writer [s opts]
     (make-writer (as-url-or-file s) opts))
   (make-input-stream [s opts]
-    (make-input-stream (as-file s) opts))
+    (make-input-stream (as-url-or-file s) opts))
   (make-output-stream [s opts]
-    (make-output-stream (as-file s) opts))
+    (make-output-stream (as-url-or-file s) opts))
 
   File
   (make-reader [file opts]
@@ -233,7 +242,7 @@
   (make-reader [uri opts]
     (cond
       (file-uri? uri) (make-reader (as-file uri) opts)
-      (jar-uri? uri) (make-jar-uri-reader uri opts)
+      (jar-uri? uri) (make-jar-uri-consumer uri true opts)
       (bundled-uri? uri) (make-bundled-uri-reader uri opts)
       :else (make-http-uri-reader uri opts)))
   (make-writer [uri opts]
@@ -242,6 +251,18 @@
       (jar-uri? uri) (throw (ex-info "Cannot write to JAR URI" {:uri uri}))
       (bundled-uri? uri) (throw (ex-info "Cannot write to bundled URI" {:uri uri}))
       :else (make-http-uri-writer uri opts)))
+  (make-input-stream [uri opts]
+    (cond
+      (file-uri? uri) (make-input-stream (as-file uri) opts)
+      (jar-uri? uri) (make-jar-uri-consumer uri false opts)
+      (bundled-uri? uri) (throw (ex-info "Cannot create input stream on bundled URI" {:uri uri}))
+      :else (make-http-uri-input-stream uri opts)))
+  (make-output-stream [uri opts]
+    (cond
+      (file-uri? uri) (make-output-stream (as-file uri) opts)
+      (jar-uri? uri) (throw (ex-info "Cannot write to JAR URI" {:uri uri}))
+      (bundled-uri? uri) (throw (ex-info "Cannot create output stream on bundled URI" {:uri uri}))
+      :else (throw (ex-info "Cannot create output stream on URI" {:uri uri}))))
 
   default
   (make-reader [x _]
