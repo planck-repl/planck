@@ -28,7 +28,7 @@
 (defn inc! [r]
   (swap! r inc))
 
-(deftest listen-protected-port
+#_(deftest listen-protected-port
   (when-not (darwin?)
     (is (thrown-with-msg? js/Error #"Permission denied" (socket/listen 123 (fn [_] (fn [_ _])))))))
 
