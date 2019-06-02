@@ -237,5 +237,5 @@
 
 (deftest http-input-stream-test
   (let [target-file (io/temp-file)]
-    (io/copy (io/input-stream "http://planck-repl.org/img/screenshot.png") target-file)
-    (is (= 245768 (:file-size (io/file-attributes target-file))))))
+    (io/copy (io/input-stream "http://planck-repl.org/releases/andare/andare-0.2.0.jar") target-file)
+    (is (= 64328 (:file-size (io/file-attributes target-file))))))
