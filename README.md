@@ -122,7 +122,7 @@ If you specify `-Sdeps` or `-R<alias>`, it will be passed through to the underly
 
 [![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck) Travis (macOS & Linux on x86)
 
-[![Build Status](https://cloud.drone.io/api/badges/planck-repl/planck/status.svg?branch=master)](https://travis-ci.org/planck-repl/planck) Drone (Linux on ARM) 
+[![Build Status](https://cloud.drone.io/api/badges/planck-repl/planck/status.svg?branch=master)](https://cloud.drone.io/planck-repl/planck) Drone (Linux on ARM) 
 
 ```
 $ script/test
