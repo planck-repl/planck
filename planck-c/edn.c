@@ -423,7 +423,6 @@ static form_reader get_macro_reader(wint_t c) {
 }
 
 static clj_Result read_form(clj_Reader *r) {
-  clj_Result result;
   form_reader macro_reader;
   wint_t c;
   while (WEOF != (c = pop_char(r))) {
@@ -470,62 +469,4 @@ static const char *result_message(clj_Result result) {
 int clj_read_error(char *str, const clj_Reader *r, clj_Result result) {
   return sprintf(str, "%s at line %d, column %d",
                  result_message(result), r->line, r->column);
-}
-
-
-// Print forms
-
-static void print_string(clj_Printer *p, const wchar_t *s) {
-  const wchar_t *i;
-  for (i = s; *i != L'\0'; i++) {
-    p->putwchar(*i);
-  };
-}
-
-#pragma GCC diagnostic ignored "-Wall"
-
-void clj_print(clj_Printer *p, const clj_Node *node) {
-  switch (node->type) {
-
-    case CLJ_NUMBER:
-    case CLJ_STRING:
-    case CLJ_REGEX:
-    case CLJ_SYMBOL:
-    case CLJ_KEYWORD:
-    case CLJ_CHARACTER:
-      print_string(p, node->value);
-      break;
-
-    case CLJ_LIST:
-      p->putwchar(L'(');
-      break;
-    case CLJ_LIST | CLJ_END:
-      p->putwchar(L')');
-      break;
-
-    case CLJ_VECTOR:
-      p->putwchar(L'[');
-      break;
-    case CLJ_VECTOR | CLJ_END:
-      p->putwchar(L']');
-      break;
-
-    case CLJ_MAP:
-      p->putwchar(L'{');
-      break;
-    case CLJ_MAP | CLJ_END:
-      p->putwchar(L'}');
-      break;
-
-    case CLJ_SET:
-      print_string(p, L"#{");
-      break;
-    case CLJ_SET | CLJ_END:
-      p->putwchar(L'}');
-      break;
-
-    default:
-      fatal("unexpected node type");
-  }
-  p->putwchar(L'\n');
 }

@@ -23,4 +23,4 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then chmod +x linux-install-1.9.0.315.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ./linux-install-1.9.0.315.sh; fi
 
-script: script/build && script/test
+script: script/build -Werror && script/test

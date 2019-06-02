@@ -11,6 +11,10 @@ do
       export VERBOSE_BUILD=1
       shift
       ;;
+    -Werror)
+      export WARN_ERROR_BUILD=1
+      shift
+      ;;
     -R*)
       export RESOLVE_ALIAS="${1:2}"
       shift
