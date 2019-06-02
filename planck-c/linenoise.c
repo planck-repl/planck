@@ -383,7 +383,6 @@ int linenoiseEditInsert(struct linenoiseState *l, char c);
  * structure as described in the structure definition. */
 static int completeLine(struct linenoiseState *ls) {
     linenoiseCompletions lc = {0, NULL};
-    int nread, nwritten;
     char c = 0;
 
     completionCallback(ls->buf, &lc);

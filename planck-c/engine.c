@@ -151,7 +151,7 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
     // printf("get_value: '%s'\n", namespace);
     char *ns_tmp = strdup(namespace);
-    char *saveptr;
+    char *saveptr = NULL;
     char *ns_part = strtok_r(ns_tmp, ".", &saveptr);
     while (ns_part != NULL) {
         char *munged_ns_part = munge(ns_part);
