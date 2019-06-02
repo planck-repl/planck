@@ -157,7 +157,7 @@ bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
         // Split on newlines because input_line will contain newlines if pasting
         if (split_on_newlines) {
             char *tokenize = strdup(input_line);
-            char *saveptr;
+            char *saveptr = NULL;
             char *token = strtok_r(tokenize, "\n", &saveptr);
             while (token != NULL) {
                 linenoiseHistoryAdd(token);
@@ -338,12 +338,12 @@ void run_cmdline_loop(repl_t *repl) {
         // handle the input. The initial case is for a new line (the
         // new itself is not part of input_line).
         bool break_out = false;
-        if (repl->input != NULL & strlen(input_line) == 0) {
+        if (repl->input != NULL && strlen(input_line) == 0) {
             repl->indent_space_count = 0;
             break_out = process_line(repl, input_line, false);
         } else if (strlen(input_line) < 16384) {
             char *tokenize = strdup(input_line);
-            char *saveptr;
+            char *saveptr = NULL;
             char *token = strtok_r(tokenize, "\n", &saveptr);
             while (token != NULL) {
                 repl->indent_space_count = 0;

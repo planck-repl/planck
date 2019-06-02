@@ -151,7 +151,7 @@ JSValueRef get_value(JSContextRef ctx, char *namespace, char *name) {
 
     // printf("get_value: '%s'\n", namespace);
     char *ns_tmp = strdup(namespace);
-    char *saveptr;
+    char *saveptr = NULL;
     char *ns_part = strtok_r(ns_tmp, ".", &saveptr);
     while (ns_part != NULL) {
         char *munged_ns_part = munge(ns_part);
@@ -505,6 +505,8 @@ void *do_engine_init(void *data) {
     register_global_function(ctx, "PLANCK_IS_DIRECTORY", function_is_directory);
 
     register_global_function(ctx, "PLANCK_FSTAT", function_fstat);
+
+    register_global_function(ctx, "PLANCK_MKTEMP", function_mktemp);
 
     register_global_function(ctx, "PLANCK_REQUEST", function_http_request);
 

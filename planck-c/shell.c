@@ -273,6 +273,8 @@ static void *thread_proc(void *params) {
     return (void *) wait_for_child((struct ThreadParams *) params);
 }
 
+#ifdef __APPLE__
+
 static const char *get_path(void) {
     const char *s = getenv("PATH");
     return (s != NULL) ? s : ":/bin:/usr/bin";
@@ -342,6 +344,7 @@ static void planck_execvpe(const char *file, char * const *argv, char * const * 
             errno = sticky_errno;
     }
 }
+#endif
 
 static JSValueRef system_call(JSContextRef ctx, char **cmd, char *in_str, char **env, char *dir, int cb_idx) {
     struct SystemResult result = {0, NULL, NULL};

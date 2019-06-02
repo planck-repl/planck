@@ -134,7 +134,7 @@
 
 (defn- make-http-uri-reader
   [uri opts]
-  (#'planck.core/make-string-reader (:body (http/get (str uri) {}))))
+  (#'planck.core/make-string-reader (:body (http/get (str uri) (merge {:follow-redirects true} opts)))))
 
 (defn- make-http-uri-writer
   [uri opts]
@@ -416,6 +416,28 @@
 (s/fdef list-files
   :args (s/cat :dir (s/or :string string? :file file?))
   :ret (s/coll-of file?))
+
+(defn temp-file
+  "Returns a temporary file as a [[File]].
+
+  An empty file with the returned name will be created on disk with mode 0600."
+  []
+  (as-file (js/PLANCK_MKTEMP false)))
+
+(s/fdef temp-file
+  :args (s/cat)
+  :ret file?)
+
+(defn temp-directory
+  "Returns a temporary directory as a [[File]].
+
+  A directory with the returned name will be created on disk with mode 0700."
+  []
+  (as-file (js/PLANCK_MKTEMP true)))
+
+(s/fdef temp-directory
+  :args (s/cat)
+  :ret file?)
 
 (defn resource
   "Returns the URI for the named resource, `n`.

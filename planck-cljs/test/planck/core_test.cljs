@@ -173,3 +173,7 @@
 
 (deftest with-in-str-test
   (is (= "34" (planck.core/with-in-str "34\n35" (planck.core/read-line)))))
+
+(deftest slurp-follow-redirects-by-default
+  (is (string/includes? (planck.core/slurp "http://planck-repl.org") "ClojureScript REPL"))
+  (is (string/includes? (planck.core/slurp "http://planck-repl.org" :follow-redirects false) "Moved Permanently")))

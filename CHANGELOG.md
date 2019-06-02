@@ -2,8 +2,15 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Native temp file and dir facilities ([#934](https://github.com/planck-repl/planck/issues/934)
+
+### Changed
+- `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
+
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
+- HTTP binary response includes trailing buffer ([#949](https://github.com/planck-repl/planck/issues/949))
 - Update dependencies ([#940](https://github.com/planck-repl/planck/issues/940), [#941](https://github.com/planck-repl/planck/issues/941), [#942]((https://github.com/planck-repl/planck/issues/942))
 
 ## [2.23.0] - 2019-05-19

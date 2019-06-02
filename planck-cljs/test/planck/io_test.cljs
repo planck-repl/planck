@@ -200,7 +200,8 @@
       (is (no-diff src dst))
       (io/copy (io/file src) (io/file dst))
       (is (no-diff src dst)))
-    (testing "String -> OutputStream"
+    ; Commented until https://github.com/planck-repl/planck/issues/951 is fixed
+    #_(testing "String -> OutputStream"
       (with-open [out (io/output-stream dst)]
         (io/copy content out))
       (is (no-diff src dst)))
@@ -216,3 +217,11 @@
   (is (nil? (io/list-files "/bogus/path")))
   (is (seq? (io/list-files "/tmp")))
   (is (io/file? (first (io/list-files "/tmp")))))
+
+(deftest temp-file-test
+  (is (io/file? (io/temp-file)))
+  (is (= "abc" (slurp (doto (io/temp-file) (spit "abc"))))))
+
+(deftest temp-directory-test
+  (is (io/file? (io/temp-directory)))
+  (is (io/directory? (io/temp-directory))))
