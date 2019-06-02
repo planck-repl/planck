@@ -194,11 +194,12 @@
           (:request (http/patch url {:debug true}))))))
 
 (deftest binary-body-response-test
-  (let [response (http/get "http://planck-repl.org/img/intro.png" {:binary-response true
-                                                                   :follow-redirects true})]
+  (let [response (http/get "http://planck-repl.org/releases/andare/andare-0.2.0.jar"
+                   {:binary-response  true
+                    :follow-redirects true})]
     (is (vector? (:body response)))
-    (is (= 16385 (count (:body response))))
-    (is (= '[137 80 78] (take 3 (:body response))))))
+    (is (= 64328 (count (:body response))))
+    (is (= '[0x50 0x4b 0x03] (take 3 (:body response))))))
 
 (deftest http-user-agent
   (let [user-agent "Some-User-Agent/1.2.3"]

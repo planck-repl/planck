@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
+- HTTP binary response includes trailing buffer ([#949](https://github.com/planck-repl/planck/issues/949))
 
 ## [2.23.0] - 2019-05-19
 ### Added
