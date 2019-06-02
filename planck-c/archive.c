@@ -33,7 +33,6 @@ void close_archive(void* archive) {
 }
 
 contents_zip_t get_contents_zip(void* archive_p, const char *name, time_t *last_modified, char **error_msg) {
-
     contents_zip_t rv;
     rv.payload = NULL;
     rv.length = 0;
