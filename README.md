@@ -96,8 +96,6 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 If using macOS or Ubuntu, you can install pre-built binaries as described above under "Installing". The instructions here can be used to build, test, and optionally install Planck on your machine.
 
-[![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck)
-
 ## Prerequisites 
 
 See [Building Wiki](https://github.com/planck-repl/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
@@ -121,6 +119,10 @@ $ script/build --fast
 If you specify `-Sdeps` or `-R<alias>`, it will be passed through to the underlying [`clojure`](https://clojure.org/guides/deps_and_cli) command during the build process. This can be used to specify a ClojureScript dep to use.
 
 ## Tests
+
+[![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck) Travis (macOS & Linux on x86)
+
+[![Build Status](https://cloud.drone.io/api/badges/planck-repl/planck/status.svg?branch=master)](https://cloud.drone.io/planck-repl/planck) Drone (Linux on ARM) 
 
 ```
 $ script/test
