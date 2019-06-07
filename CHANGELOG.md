@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
 - Update dependencies ([#940](https://github.com/planck-repl/planck/issues/940), [#941](https://github.com/planck-repl/planck/issues/941), [#942]((https://github.com/planck-repl/planck/issues/942))
+- Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
+
+### Deprecated
+- Deprecate `planck.socket.alpha` namespace ([#956](https://github.com/planck-repl/planck/issues/956))
 
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
