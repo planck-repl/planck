@@ -8,6 +8,10 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
 
+### Removed
+
+- Remove deprecated `io/read-line`, `io/slurp`, `io/spit` ([#963](https://github.com/planck-repl/planck/issues/963))
+
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
 - HTTP binary response includes trailing buffer ([#949](https://github.com/planck-repl/planck/issues/949))
