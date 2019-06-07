@@ -12,6 +12,8 @@ All notable changes to this project will be documented in this file. This change
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
 - HTTP binary response includes trailing buffer ([#949](https://github.com/planck-repl/planck/issues/949))
 - Update dependencies ([#940](https://github.com/planck-repl/planck/issues/940), [#941](https://github.com/planck-repl/planck/issues/941), [#942]((https://github.com/planck-repl/planck/issues/942))
+- IO encoding should default to UTF-8 if unspecified ([#960](https://github.com/planck-repl/planck/issues/960))
+
 
 ## [2.23.0] - 2019-05-19
 ### Added

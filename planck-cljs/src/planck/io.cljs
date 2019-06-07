@@ -78,6 +78,9 @@
     (as-url f)
     (as-file f)))
 
+(defn- encoding [opts]
+  (or (:encoding opts) "UTF-8"))
+
 (defprotocol IOFactory
   "Factory functions that create ready-to-use versions of the various stream
   types, on top of anything that can be unequivocally converted to the
@@ -160,7 +163,7 @@
 
   File
   (make-reader [file opts]
-    (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (:encoding opts))]
+    (let [file-descriptor (js/PLANCK_FILE_READER_OPEN (:path file) (encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-reader-descriptors conj file-descriptor)
       (#'planck.core/->Reader
@@ -178,7 +181,7 @@
         (atom nil)
         (atom 0))))
   (make-writer [file opts]
-    (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (:encoding opts))]
+    (let [file-descriptor (js/PLANCK_FILE_WRITER_OPEN (:path file) (boolean (:append opts)) (encoding opts))]
       (check-file-descriptor file-descriptor file opts)
       (swap! open-file-writer-descriptors conj file-descriptor)
       (#'planck.core/->Writer
