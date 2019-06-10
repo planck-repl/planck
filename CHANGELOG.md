@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
 - Update dependencies ([#940](https://github.com/planck-repl/planck/issues/940), [#941](https://github.com/planck-repl/planck/issues/941), [#942](https://github.com/planck-repl/planck/issues/942))
+- Improve perf of `io/file-attributes` using [CLJS Bean](https://github.com/mfikes/cljs-bean) ([#969](https://github.com/planck-repl/planck/issues/969))
 
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))

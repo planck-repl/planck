@@ -2,8 +2,10 @@
   "Planck I/O functionality."
   (:refer-clojure :exclude [exists?])
   (:require
+   [cljs-bean.core :refer [bean]]
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
+   [goog.object :as gobj]
    [planck.core :refer [with-open]]
    [planck.http :as http]
    [planck.repl :as repl])
@@ -326,14 +328,15 @@
 (defn file-attributes
   "Returns a map containing the attributes of the item at a given path."
   [path]
-  (some-> path
-    as-file
-    :path
-    js/PLANCK_FSTAT
-    (js->clj :keywordize-keys true)
-    (update-in [:type] keyword)
-    (update-in [:created] #(js/Date. %))
-    (update-in [:modified] #(js/Date. %))))
+  (when-some [o (-> path as-file :path js/PLANCK_FSTAT)]
+    (let [{:keys [type created modified]} (bean o)]
+      (js-delete o "type")
+      (gobj/set o "type" (keyword type))
+      (js-delete o "created")
+      (gobj/set o "created" (js/Date. created))
+      (js-delete o "modified")
+      (gobj/set o "modified" (js/Date. modified))
+      (bean o))))
 
 (s/fdef file-attributes
   :args (s/cat :path (s/nilable (s/or :string string? :file file?)))
