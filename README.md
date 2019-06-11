@@ -7,12 +7,14 @@ Home page: [planck-repl.org](https://planck-repl.org)
 # Installing
 
 On macOS:
-```
-$ brew install planck
+
+```shell
+brew install planck
 ```
 
 On Ubuntu:
-```
+
+```shell
 sudo add-apt-repository ppa:mfikes/planck
 sudo apt-get update
 sudo apt-get install planck
@@ -96,8 +98,6 @@ Many of the familiar functions and macros unique to Clojure have been ported:
 
 If using macOS or Ubuntu, you can install pre-built binaries as described above under "Installing". The instructions here can be used to build, test, and optionally install Planck on your machine.
 
-[![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck)
-
 ## Prerequisites 
 
 See [Building Wiki](https://github.com/planck-repl/planck/wiki/Building) for setting up OS-specific build tooling and dependencies.
@@ -106,38 +106,42 @@ Pre-made build environments for various environments are available in [build-env
 
 ## Compiling
 
-```
-$ script/build
+```shell
+script/build
 ```
 
 The resulting binary will be `planck-c/build/planck`.
 
 Specify `--fast` to quickly build a development version that skips Closure optimization:
 
-```
-$ script/build --fast
+```shell
+script/build --fast
 ```
 
 If you specify `-Sdeps` or `-R<alias>`, it will be passed through to the underlying [`clojure`](https://clojure.org/guides/deps_and_cli) command during the build process. This can be used to specify a ClojureScript dep to use.
 
 ## Tests
 
-```
-$ script/test
+[![Build Status](https://travis-ci.org/planck-repl/planck.svg?branch=master)](https://travis-ci.org/planck-repl/planck) Travis (macOS & Linux on x86)
+
+[![Build Status](https://cloud.drone.io/api/badges/planck-repl/planck/status.svg?branch=master)](https://cloud.drone.io/planck-repl/planck) Drone (Linux on ARM) 
+
+```shell
+script/test
 ```
 
 ## Installing
 
 The following will install Planck under the prefix `/usr/local`:
 
-```
-$ sudo script/install
+```shell
+sudo script/install
 ```
 
 If you'd like to install Planck under a different prefix, you may pass `-p`. For example:
 
-```
-$ sudo script/install -p /usr
+```shell
+sudo script/install -p /usr
 ```
 
 # License

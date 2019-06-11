@@ -152,17 +152,17 @@ char *get_current_working_dir() {
 
 char *calculate_dependencies_classpath(char *dependencies, char *local_repo) {
 
-    char *paths[1024];
+    char *paths[1024] = { 0 };
     size_t ndx = 0;
 
-    char *saveptr;
+    char *saveptr = NULL;
     char *dependency = strtok_r(dependencies, ",", &saveptr);
     while (dependency != NULL) {
-        char *saveptr2;
+        char *saveptr2 = NULL;
         char *sym = strtok_r(dependency, ":", &saveptr2);
         char *version = strtok_r(NULL, ":", &saveptr2);
 
-        char *saveptr3;
+        char *saveptr3 = NULL;
         char *group = strtok_r(sym, "/", &saveptr3);
         char *p = group;
         while (*p) {

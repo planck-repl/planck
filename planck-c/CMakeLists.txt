@@ -6,6 +6,12 @@ set(CMAKE_BUILD_TYPE Release)
 # Uncomment to enable Clang Address Sanitizer
 #set (CMAKE_C_FLAGS "-fsanitize=address -O1 -fno-omit-frame-pointer")
 
+add_compile_options(-Wall)
+
+if(DEFINED ENV{WARN_ERROR_BUILD})
+    add_compile_options(-Werror)
+endif()
+
 set(SOURCE_FILES
     archive.c
     archive.h

@@ -200,8 +200,7 @@
       (is (no-diff src dst))
       (io/copy (io/file src) (io/file dst))
       (is (no-diff src dst)))
-    ; Commented until https://github.com/planck-repl/planck/issues/951 is fixed
-    #_(testing "String -> OutputStream"
+    (testing "String -> OutputStream"
       (with-open [out (io/output-stream dst)]
         (io/copy content out))
       (is (no-diff src dst)))
