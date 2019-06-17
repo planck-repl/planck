@@ -105,7 +105,7 @@ then
   crc=`shasum $file | cut -f1 -d" "`
 fi
 
-if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -10}" != "paredit.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
 then
   if [ ! -f $buildcache/$file.$crc.optim ] 
   then
