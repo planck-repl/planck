@@ -90,16 +90,17 @@
 (deftest generate-form-data-test
   (testing "fileupload-stuff"
     (let [expected (str @#'http/content-disposition "foo\"\n\nbar")]
-      (is (= [expected "--\n"]
+      (is (= (map #'planck.http/str->bytes [expected "--\n"])
             (#'http/generate-form-data [["foo" "bar"]]))))
-    (is (= [(str @#'http/content-disposition "foo\"; filename=\"bar\"\n"
-              "Content-Type: application/octet-stream\n\n" "baz") "--\n"]
+    (is (= (map #'planck.http/str->bytes
+             [(str @#'http/content-disposition "foo\"; filename=\"bar\"\n"
+                "Content-Type: application/octet-stream\n\n" "baz") "--\n"])
           (#'http/generate-form-data [["foo" ["baz" "bar"]]])))))
 
 (deftest generate-multipart-body-test
   (testing "generate-multipart-body"
-    (is (= "boundarypart1\nboundarypart2"
-          (#'http/generate-multipart-body "boundary" ["part1" "part2"])))))
+    (is (= (#'planck.http/str->bytes "boundarypart1\nboundarypart2")
+          (#'http/generate-multipart-body "boundary" (map #'planck.http/str->bytes ["part1" "part2"]))))))
 
 (deftest boundary-test
   (testing "boundary"

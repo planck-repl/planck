@@ -109,19 +109,26 @@
   (fn [request]
     (client (assoc request :timeout (or (:timeout request) timeout)))))
 
+(defn- str->bytes [s]
+  (let [str->utf8  (comp js/unescape js/encodeURIComponent)
+        str->chars (fn [s] (mapv #(.charCodeAt %) s))]
+    (-> s str->utf8 str->chars)))
+
 (defn- generate-form-data [params]
   (conj (mapv (fn [[k v]]
                 (if (coll? v)
-                  (str content-disposition k "\"; filename=\"" (second v) "\"\n"
-                    "Content-Type: application/octet-stream\n\n"
-                    (first v))
-                  (str content-disposition k "\"\n\n" v))) params) "--\n"))
+                  (into (str->bytes (str content-disposition k "\"; filename=\"" (second v) "\"\n"
+                                      "Content-Type: application/octet-stream\n\n"))
+                    (cond-> (first v) (string? (first v)) str->bytes))
+                  (str->bytes (str content-disposition k "\"\n\n" v))))
+          params)
+    (str->bytes "--\n")))
 
 (defn- generate-multipart-body [boundary body-parts]
   (->> body-parts
-    (map str (repeat boundary))
-    (interpose "\n")
-    (apply str)))
+    (map into (repeat (str->bytes boundary)))
+    (interpose (str->bytes "\n"))
+    (reduce into [])))
 
 (defn- boundary [c]
   (apply str (cons c (take 10 (repeatedly #(int (rand 10)))))))
@@ -249,9 +256,10 @@
   "Performs a POST request. It takes an URL and an optional map of options
   These options include the relevant options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
-  :multipart-params, a list of tuples, used for file-upload
+  :multipart-params, a list of tuples, used for file-upload, where <content>
+                     can be a string or a vector of unsigned bytes (binary)
                      {:multipart-params [[\"name\" \"value\"]
-                                         [\"name\" [\"content\" \"filename\"]]"
+                                         [\"name\" [<content> \"filename\"]]]"
   ([url] (post url {}))
   ([url opts] (request js/PLANCK_REQUEST :post url opts)))
 
@@ -267,9 +275,10 @@
   "Performs a PUT request. It takes an URL and an optional map of options
   These options include the relevant options for get in addition to:
   :form-params, a map, will become the body of the request, urlencoded
-  :multipart-params, a list of tuples, used for file-upload
+  :multipart-params, a list of tuples, used for file-upload, where <content>
+                     can be a string or a vector of unsigned bytes (binary)
                      {:multipart-params [[\"name\" \"value\"]
-                                         [\"name\" [\"content\" \"filename\"]]"
+                                         [\"name\" [<content> \"filename\"]]]"
   ([url] (put url {}))
   ([url opts] (request js/PLANCK_REQUEST :put url opts)))
 
