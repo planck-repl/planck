@@ -16,11 +16,11 @@
    [cljs.tagged-literals :as tags]
    [cljs.tools.reader :as r]
    [cljs.tools.reader.reader-types :as rt]
-   [cljsjs.parinfer]
    [clojure.string :as string]
    [cognitect.transit :as transit]
    [goog.string :as gstring]
    [lazy-map.core :refer-macros [lazy-map]]
+   [paredit]
    [planck.closure :as closure]
    [planck.js-deps :as deps]
    [planck.pprint.code]
@@ -120,22 +120,24 @@
        :cursorLine line}
       (recur (subs text (inc x)) (- pos (inc x)) (inc line)))))
 
+(def ^:private extra-paredit-special-forms
+  '[simple-benchmark])
+
+(defn- ^:export init-paredit []
+  (doseq [extra-paredit-special-form extra-paredit-special-forms]
+    (.push paredit/specialForms (str extra-paredit-special-form))))
+
 (defn- ^:export indent-space-count
   "Given text representing a partially entered form, returns the number of
   spaces to indent a newly entered line. Returns 0 if unsuccessful."
   [text]
-  (let [pos      (count text)
-        balanced (js->clj (js/parinfer.indentMode text
-                            (clj->js (calc-x-line text pos 0)))
-                   :keywordize-keys true)]
-    (if (:success balanced)
-      (let [new-text (str (subs (:text balanced) 0 pos) "\n" (subs (:text balanced) pos))
-            indented (js->clj (js/parinfer.parenMode new-text
-                                (clj->js (calc-x-line new-text (inc pos) 0)))
-                       :keywordize-keys true)]
-        (if (:success indented)
-          (count (take-while #(= " " %) (:line (last (:changedLines indented)))))
-          0))
+  (let [source (str text "\n")
+        length (count source)
+        ast (paredit/parse source)
+        changes (:changes (js->clj (.indentRange paredit/editor ast source length length) :keywordize-keys true))
+        insertion-change (first (filter (fn [[type _ _]] (= type "insert")) changes))]
+    (if insertion-change
+      (count (insertion-change 2))
       0)))
 
 (defonce ^:dynamic ^:private theme (get-theme :dumb))

@@ -8,6 +8,10 @@ if [ ! -f jscomp.js ]; then
   curl -s -O https://planck-repl.org/releases/closure-${CLOSURE_JS_RELEASE}/jscomp.js
 fi
 
+if [ ! -f paredit.js ]; then
+  curl -s -O https://planck-repl.org/releases/paredit-${PAREDIT_JS_RELEASE}/paredit.js
+fi
+
 # Make sure we fail and exit on the command that actually failed.
 set -e
 set -o pipefail
