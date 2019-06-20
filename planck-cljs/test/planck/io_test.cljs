@@ -224,3 +224,17 @@
 (deftest temp-directory-test
   (is (io/file? (io/temp-directory)))
   (is (io/directory? (io/temp-directory))))
+
+(deftest jar-input-stream-test
+  (let [resource-name "META-INF/maven/org.clojure/test.check/pom.properties"
+        resource (io/resource resource-name)
+        target-file-1 (io/temp-file)
+        target-file-2 (io/temp-file)]
+    (io/copy (io/reader resource) target-file-1)
+    (io/copy (io/input-stream resource) target-file-2)
+    (is (= (slurp target-file-1) (slurp target-file-2)))))
+
+(deftest http-input-stream-test
+  (let [target-file (io/temp-file)]
+    (io/copy (io/input-stream "http://planck-repl.org/releases/andare/andare-0.2.0.jar") target-file)
+    (is (= 64328 (:file-size (io/file-attributes target-file))))))

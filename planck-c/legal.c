@@ -208,10 +208,10 @@ void legal() {
     "\n"
     "\n"
   
-    "Parinfer\n"
+    "paredit.js\n"
     "--------\n"
     "\n"
-    "Copyright (c) 2015 Shaun Williams and contributors\n"
+    "Copyright (c) 2015 Robert Krahn\n"
     "MIT License\n"
     "\n"
     "\n"

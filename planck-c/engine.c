@@ -418,6 +418,17 @@ void maybe_load_user_file() {
     }
 }
 
+void init_paredit(JSContextRef ctx) {
+    JSValueRef arguments[0];
+    JSValueRef ex = NULL;
+    JSObjectCallAsFunction(ctx, get_function("planck.repl", "init-paredit"),
+                           JSContextGetGlobalObject(ctx), 0, arguments, &ex);
+
+    if (ex) {
+        print_value("Error initializing paredit: ", ctx, ex);
+    }
+}
+
 void *do_engine_init(void *data) {
     ctx = JSGlobalContextCreate(NULL);
 
@@ -681,6 +692,10 @@ void *do_engine_init(void *data) {
     }
 
     maybe_load_user_file();
+
+    if (config.repl) {
+        init_paredit(ctx);
+    }
 
     display_launch_timing("engine ready");
 

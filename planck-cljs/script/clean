@@ -6,6 +6,7 @@ fi
 
 if [ -z "$BUILD_PPA" ]; then
     rm -f jscomp.js
+    rm -f paredit.js
 fi
 rm -rf out
 rm -rf target

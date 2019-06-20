@@ -19,6 +19,7 @@ planck-cljs/clojurescript
 build-envs/*/*-cloudimg-console.log
 /compiler
 /planck-cljs/jscomp.js
+/planck-cljs/paredit.js
 /planck-cljs/bundle.c
 /planck-cljs/bundle_dict.c
 /planck-cljs/src/planck/bundle
