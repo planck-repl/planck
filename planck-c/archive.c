@@ -32,13 +32,16 @@ void close_archive(void* archive) {
     zip_close(archive);
 }
 
-char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified, char **error_msg) {
+contents_zip_t get_contents_zip(void* archive_p, const char *name, time_t *last_modified, char **error_msg) {
+    contents_zip_t rv;
+    rv.payload = NULL;
+    rv.length = 0;
 
     zip_t *archive = archive_p;
     
     zip_stat_t stat;
     if (zip_stat(archive, name, 0, &stat) < 0) {
-        return NULL;
+        return rv;
     }
 
     zip_file_t *f = zip_fopen(archive, name, 0);
@@ -46,14 +49,14 @@ char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified,
         if (error_msg) {
             format_zip_error("zip_fopen", archive, error_msg);
         }
-        return NULL;
+        return rv;
     }
 
     if (last_modified != NULL) {
         *last_modified = stat.mtime;
     }
 
-    char *buf = malloc(stat.size + 1);
+    uint8_t *buf = malloc(stat.size + 1);
     if (!buf) {
         if (error_msg) {
             *error_msg = strdup("zip malloc");
@@ -67,11 +70,15 @@ char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified,
         }
         goto free_buf;
     }
+    // NULL-terminate in case client wants to treat contents as a string
     buf[stat.size] = '\0';
 
     zip_fclose(f);
 
-    return buf;
+    rv.payload = buf;
+    rv.length = stat.size;
+
+    return rv;
 
     free_buf:
     free(buf);
@@ -79,7 +86,7 @@ char *get_contents_zip(void* archive_p, const char *name, time_t *last_modified,
     close_f:
     zip_fclose(f);
 
-    return NULL;
+    return rv;
 }
 
 void format_zip_error(const char *prefix, zip_t *zip, char **error_msg) {

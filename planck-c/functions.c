@@ -161,8 +161,10 @@ JSValueRef function_load(JSContextRef ctx, JSObjectRef function, JSObjectRef thi
                             }
                         }
                         if (config.src_paths[i].archive) {
-                            contents = get_contents_zip(config.src_paths[i].archive, path,
-                                                        &last_modified, &error_msg);
+                            contents_zip_t contents_zip;
+                            contents_zip = get_contents_zip(config.src_paths[i].archive, path,
+                                                            &last_modified, &error_msg);
+                            contents = (char *) contents_zip.payload;
                             if (!contents && error_msg) {
                                 engine_print(error_msg);
                                 engine_print("\n");
@@ -249,8 +251,10 @@ JSValueRef function_load_all_files(const char* filename, JSContextRef ctx, JSObj
                         }
                     }
                     if (config.src_paths[i].archive) {
-                        char *source = get_contents_zip(config.src_paths[i].archive, filename,
+                        contents_zip_t contents_zip;
+                        contents_zip = get_contents_zip(config.src_paths[i].archive, filename,
                                                         NULL, &error_msg);
+                        char *source = (char *) contents_zip.payload;
                         if (source != NULL) {
                             num_files += 1;
                             paths = realloc(paths, num_files * sizeof(char *));
@@ -319,9 +323,10 @@ JSValueRef function_load_data_readers_files(JSContextRef ctx, JSObjectRef functi
 JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                                   size_t argc, const JSValueRef args[], JSValueRef *exception) {
 
-    if (argc == 2
+    if (argc == 3
         && JSValueGetType(ctx, args[0]) == kJSTypeString
-        && JSValueGetType(ctx, args[1]) == kJSTypeString) {
+        && JSValueGetType(ctx, args[1]) == kJSTypeString
+        && JSValueGetType(ctx, args[2]) == kJSTypeBoolean) {
 
         char jar_path[PATH_MAX];
         JSStringRef path_str = JSValueToStringCopy(ctx, args[0], NULL);
@@ -335,8 +340,12 @@ JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObje
         JSStringGetUTF8CString(resource_path_str, resource_path, PATH_MAX);
         JSStringRelease(resource_path_str);
 
-        char *contents = NULL;
+        bool convertToString = JSValueToBoolean(ctx, args[2]);
+
+        contents_zip_t contents;
+        contents.payload = NULL;
         JSStringRef contents_str = NULL;
+        JSValueRef* contents_arr = NULL;
 
         char *error_msg = NULL;
         void *archive = open_archive(jar_path, &error_msg);
@@ -349,9 +358,16 @@ JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObje
 
             close_archive(archive);
 
-            if (contents != NULL) {
-                contents_str = JSStringCreateWithUTF8CString(contents);
-                free(contents);
+            if (contents.payload != NULL) {
+                if (convertToString) {
+                   contents_str = JSStringCreateWithUTF8CString((char*)contents.payload);
+                } else {
+                    contents_arr = malloc(sizeof(JSValueRef) * contents.length);
+                    for (size_t i=0; i<contents.length; i++) {
+                        contents_arr[i] = JSValueMakeNumber(ctx, contents.payload[i]);
+                    }
+                }
+                free(contents.payload);
             } else {
                 if (!error_msg) {
                     error_msg = strdup("Resource not found in JAR");
@@ -366,7 +382,16 @@ JSValueRef function_load_from_jar(JSContextRef ctx, JSObjectRef function, JSObje
         }
 
         JSValueRef res[2];
-        res[0] = contents ? JSValueMakeString(ctx, contents_str) : JSValueMakeNull(ctx);
+        if (contents.payload) {
+            if (convertToString) {
+                res[0] = JSValueMakeString(ctx, contents_str);
+            } else {
+                res[0] = JSObjectMakeArray(ctx, contents.length, contents_arr, NULL);
+                free(contents_arr);
+            }
+        } else {
+            res[0] = JSValueMakeNull(ctx);
+        }
         res[1] = error_msg ? JSValueMakeString(ctx, error_msg_str) : JSValueMakeNull(ctx);
         return JSObjectMakeArray(ctx, 2, res, NULL);
 
