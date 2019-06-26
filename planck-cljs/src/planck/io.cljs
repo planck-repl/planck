@@ -521,8 +521,7 @@
   [input output opts]
   (let [bytes      (->> (repeatedly #(planck.core/-read-bytes input))
                      (take-while some?)
-                     (map vec)
-                     (apply concat))
+                     (reduce into))
         utf8->str  (comp js/decodeURIComponent js/escape)
         codes->str (fn [coll] (apply str (map char coll)))]
     (do-copy (-> bytes codes->str utf8->str) output)) nil)
