@@ -47,7 +47,10 @@
      :libs               ["lib/closure"
                           "lib/third_party/closure"]
      :foreign-libs       [{:file     "jscomp.js"
-                           :provides ["google-closure-compiler-js"]}]
+                           :provides ["google-closure-compiler-js"]}
+                          {:file     "paredit.js"
+                           :provides ["paredit"]
+                           :global-exports '{paredit paredit}}]
      :compiler-stats     false
      :aot-cache          (not sandbox-build?)}))
 

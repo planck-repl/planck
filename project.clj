@@ -8,5 +8,4 @@
   :dependencies [[org.clojure/clojurescript "1.10.520"]
                  [fipp "0.6.18"]
                  [malabarba/lazy-map "1.3"]
-                 [com.cognitect/transit-cljs "0.8.256"]
-                 [cljsjs/parinfer "1.8.1-0"]])
+                 [com.cognitect/transit-cljs "0.8.256"]])

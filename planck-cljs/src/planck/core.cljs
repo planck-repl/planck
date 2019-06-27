@@ -243,6 +243,15 @@
       (atom nil)
       (atom 0))))
 
+(defn- make-array-input-stream
+  [arr]
+  (let [content (volatile! arr)]
+    (->InputStream
+      (fn [] (let [return @content]
+               (vreset! content nil)
+               return))
+      (fn []))))
+
 (defn read-string
   "Reads one object from the string `s`. Optionally include reader
   options, as specified in read."
