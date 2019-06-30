@@ -27,7 +27,15 @@ void legal() {
     "not remove this notice, or any other, from this software.\n"
     "\n"
     "\n"
-  
+
+    "CLJS Bean\n"
+    "---------\n"
+    "\n"
+    "Copyright (c) 2019 Mike Fikes\n"
+    "Eclipse Public License 1.0\n"
+    "\n"
+    "\n"
+
     "Fipp\n"
     "-----\n"
     "\n"

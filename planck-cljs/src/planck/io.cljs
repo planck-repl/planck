@@ -5,6 +5,7 @@
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [planck.core :refer [with-open]]
+   [planck.from.cljs-bean.core :refer [bean]]
    [planck.http :as http]
    [planck.repl :as repl])
   (:import
@@ -351,7 +352,7 @@
     as-file
     :path
     js/PLANCK_FSTAT
-    (js->clj :keywordize-keys true)
+    (bean :keywordize-keys true)
     (update-in [:type] keyword)
     (update-in [:created] #(js/Date. %))
     (update-in [:modified] #(js/Date. %))))
