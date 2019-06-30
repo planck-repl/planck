@@ -32,7 +32,7 @@ void legal() {
     "---------\n"
     "\n"
     "Copyright (c) 2019 Mike Fikes\n"
-    "MIT License\n"
+    "Eclipse Public License 1.0\n"
     "\n"
     "\n"
 

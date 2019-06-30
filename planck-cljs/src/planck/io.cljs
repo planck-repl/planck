@@ -2,10 +2,10 @@
   "Planck I/O functionality."
   (:refer-clojure :exclude [exists?])
   (:require
-   [cljs-bean.core :refer [bean]]
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
    [planck.core :refer [with-open]]
+   [planck.from.cljs-bean.core :refer [bean]]
    [planck.http :as http]
    [planck.repl :as repl])
   (:import
