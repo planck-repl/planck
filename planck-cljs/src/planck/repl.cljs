@@ -22,6 +22,7 @@
    [lazy-map.core :refer-macros [lazy-map]]
    [paredit]
    [planck.closure :as closure]
+   [planck.from.cljs-bean.core :refer [->clj]]
    [planck.js-deps :as deps]
    [planck.pprint.code]
    [planck.pprint.data]
@@ -134,7 +135,7 @@
   (let [source (str text "\n")
         length (count source)
         ast (paredit/parse source)
-        changes (:changes (js->clj (.indentRange paredit/editor ast source length length) :keywordize-keys true))
+        changes (:changes (->clj (.indentRange paredit/editor ast source length length)))
         insertion-change (first (filter (fn [[type _ _]] (= type "insert")) changes))]
     (if insertion-change
       (count (insertion-change 2))
