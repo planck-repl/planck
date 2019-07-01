@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file. This change
 - Use `paredit.js` for indentation ([#973](https://github.com/planck-repl/planck/issues/973))
 - Improve perf of `io/file-attributes` using [CLJS Bean](https://github.com/mfikes/cljs-bean) ([#969](https://github.com/planck-repl/planck/issues/969))
 - Optimize `planck.io/copy` for input stream to writer case  
+- Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
+
+### Deprecated
+- Deprecate `planck.socket.alpha` namespace ([#956](https://github.com/planck-repl/planck/issues/956))
 
 ### Removed
 
