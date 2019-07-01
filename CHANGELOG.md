@@ -13,6 +13,10 @@ All notable changes to this project will be documented in this file. This change
 - Improve perf of `io/file-attributes` using [CLJS Bean](https://github.com/mfikes/cljs-bean) ([#969](https://github.com/planck-repl/planck/issues/969))
 - Optimize `planck.io/copy` for input stream to writer case  
 
+### Removed
+
+- Remove deprecated `io/read-line`, `io/slurp`, `io/spit` ([#963](https://github.com/planck-repl/planck/issues/963))
+
 ### Fixed
 - `tty?` spec refers to `planck.core/IWriter` ([#928](https://github.com/planck-repl/planck/issues/928))
 - HTTP binary response includes trailing buffer ([#949](https://github.com/planck-repl/planck/issues/949))
