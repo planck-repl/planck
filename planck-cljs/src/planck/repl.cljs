@@ -664,10 +664,7 @@
   ["#uuid" "#inst" "#queue" "#js"])
 
 (def ^:private namespace-completion-exclusions
-  '[planck.from.io.aviso.ansi
-    planck.pprint.code
-    planck.pprint.data
-    planck.bundle
+  '[planck.bundle
     planck.closure
     planck.js-deps
     planck.repl
@@ -710,6 +707,8 @@
   (->> (all-ns)
     (map #(drop-macros-suffix (str %)))
     (remove (into #{} (map str namespace-completion-exclusions)))
+    (remove #(string/starts-with? % "planck.from."))
+    (remove #(string/starts-with? % "planck.pprint."))
     (concat (map str namespace-completion-additons))
     sort
     distinct))
