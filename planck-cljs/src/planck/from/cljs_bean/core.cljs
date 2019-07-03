@@ -5,8 +5,6 @@
 
 (declare Bean)
 (declare ArrayVector)
-(declare bean?)
-(declare object)
 
 (def ^:private lookup-sentinel #js {})
 
@@ -18,6 +16,12 @@
     (nil? x) x
     (object? x) (Bean. nil x prop->key key->prop true nil nil nil)
     (array? x) (ArrayVector. nil prop->key key->prop x nil)
+    :else x))
+
+(defn- unwrap [x]
+  (cond
+    (instance? Bean x) (.-obj x)
+    (instance? ArrayVector x) (.-arr x)
     :else x))
 
 (def ^:private empty-map (.. js/cljs -core -PersistentArrayMap -EMPTY))
@@ -40,9 +44,6 @@
   (or
     (and (keyword? k) (identical? prop->key keyword))
     (and (string? k) (identical? prop->key identity))))
-
-(defn- recursive-bean? [x]
-  (and (bean? x) (.-recursive? x)))
 
 (deftype ^:private TransientBean [^:mutable ^boolean editable?
                                   obj prop->key key->prop ^boolean recursive?
@@ -82,14 +83,11 @@
   (-assoc! [tcoll k v]
     (if editable?
       (if (and (compatible-key? k prop->key)
-            (not (and recursive?
-                   (or (object? v)
-                     (array? v)))))
+               (not (and recursive?
+                         (or (object? v)
+                             (array? v)))))
         (do
-          (unchecked-set obj (key->prop k)
-            (cond-> v
-              (and recursive? (bean? v)) object
-              (and recursive? (instance? ArrayVector v)) .-arr))
+          (unchecked-set obj (key->prop k) (cond-> v recursive? unwrap))
           (set! __cnt nil)
           tcoll)
         (-assoc! (transient (snapshot obj prop->key key->prop recursive?)) k v))
@@ -272,15 +270,11 @@
   IAssociative
   (-assoc [_ k v]
     (if (and (compatible-key? k prop->key)
-          (not (and recursive?
-                 (or (object? v)
-                   (array? v)))))
+             (not (and recursive?
+                       (or (object? v)
+                           (array? v)))))
       (Bean. meta
-        (doto (gobj/clone obj) (unchecked-set (key->prop k)
-                                 ;; TODO short circuit this
-                                 (cond-> v
-                                   (and recursive? (bean? v)) object
-                                   (and recursive? (instance? ArrayVector v)) .-arr)))
+        (doto (gobj/clone obj) (unchecked-set (key->prop k) (cond-> v recursive? unwrap)))
         prop->key key->prop recursive? nil nil nil)
       (-assoc (with-meta (snapshot obj prop->key key->prop recursive?) meta) k v)))
 
@@ -363,9 +357,7 @@
       (if (or (object? o) (array? o))
         (-conj! (transient (vec arr)) o)
         (do
-          (.push arr (cond-> o
-                       (bean? o) object
-                       (instance? ArrayVector o) .-arr))
+          (.push arr (unwrap o))
           tcoll))
       (throw (js/Error. "conj! after persistent!"))))
 
@@ -387,9 +379,7 @@
         (-assoc-n! (transient (vec arr)) n val)
         (cond
           (and (<= 0 n) (< n (alength arr)))
-          (do (aset arr n (cond-> val
-                            (bean? val) object
-                            (instance? ArrayVector val) .-arr))
+          (do (aset arr n (unwrap val))
               tcoll)
           (== n (alength arr)) (-conj! tcoll val)
           :else
@@ -561,22 +551,19 @@
       (-nth coll (dec (alength arr)))))
   (-pop [coll]
     (cond
-      (zero? (alength arr)) (throw (js/Error. "Can't pop empty vector"))
-      (== 1 (alength arr)) (-empty coll)
-      :else
-      (let [new-arr (aclone arr)]
-        (ArrayVector. meta prop->key key->prop
-          (.slice new-arr 0 (dec (alength new-arr))) nil))))
+        (zero? (alength arr)) (throw (js/Error. "Can't pop empty vector"))
+        (== 1 (alength arr)) (-empty coll)
+        :else
+        (let [new-arr (aclone arr)]
+          (ArrayVector. meta prop->key key->prop
+            (.slice new-arr 0 (dec (alength new-arr))) nil))))
 
   ICollection
   (-conj [_ o]
     (if (or (object? o) (array? o))
       (-conj (vec arr) o)
       (let [new-arr (aclone arr)]
-        (unchecked-set new-arr (alength new-arr)
-          (cond-> o
-            (bean? o) object
-            (instance? ArrayVector o) .-arr))
+        (unchecked-set new-arr (alength new-arr) (unwrap o))
         (ArrayVector. meta prop->key key->prop new-arr nil))))
 
   IEmptyableCollection
@@ -631,9 +618,7 @@
       (if (or (object? val) (array? val))
         (-assoc-n (vec arr) n val)
         (let [new-arr (aclone arr)]
-          (aset new-arr n (cond-> val
-                            (bean? val) object
-                            (instance? ArrayVector val) .-arr))
+          (aset new-arr n (unwrap val))
           (ArrayVector. meta prop->key key->prop new-arr nil)))
       (== n (alength arr)) (-conj coll val)
       :else (throw (js/Error. (str "Index " n " out of bounds  [0," (alength arr) "]")))))
@@ -750,10 +735,10 @@
   "Recursively converts ClojureScript values to JavaScript.
 
   Where possible, directly returns the backing objects and arrays for values
-  produced using ->clj."
+  produced using ->clj and bean."
   [x]
   (cond
-    (recursive-bean? x) (object x)
+    (instance? Bean x) (.-obj x)
     (instance? ArrayVector x) (.-arr x)
     :else (clj->js x :keyword-fn default-key->prop)))
 
