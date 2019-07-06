@@ -6,6 +6,7 @@
    [fipp.engine]
    [fipp.visit :refer [visit visit*]]
    [goog.object :as gobj]
+   [planck.from.cljs.core :as core]
    [planck.themes]))
 
 ;; Derived from fipp.edn
@@ -63,6 +64,10 @@
 
   (visit-unknown [this x]
     (cond
+      (inst? x)
+      [:group "#inst " (visit this (core/date->str (js/Date. (inst-ms x))))]
+      (uuid? x)
+      [:group "#uuid " (visit this (str x))]
       (instance? Atom x)
       (pretty-coll this "#object [" ['cljs.core.Atom {:val @x}] :line "]" visit)
       (instance? Volatile x)
