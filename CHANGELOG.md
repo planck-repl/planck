@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Native temp file and dir facilities ([#934](https://github.com/planck-repl/planck/issues/934))
 - Ability to open i/o streams on URI and JAR resources ([#947](https://github.com/planck-repl/planck/issues/947))
+- Allow http post of binary info ([#980](https://github.com/planck-repl/planck/issues/980))
 
 ### Changed
 - `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
