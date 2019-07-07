@@ -4,6 +4,7 @@
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
+   [planck.from.cljs-bean.core :refer [->clj]]
    [planck.repl :as repl]))
 
 (def ^:private content-types {:json            "application/json"
@@ -153,7 +154,7 @@
     (-> request
       clj->js
       client
-      (js->clj :keywordize-keys true))))
+      ->clj)))
 
 (defn- do-request [client]
   (fn [opts]
