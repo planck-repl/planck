@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file. This change
 - Optimize `planck.io/copy` for input stream to writer case  
 - Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
 - Syntax-highlight `#inst` and `#uuid` ([#975](https://github.com/planck-repl/planck/issues/975))
+- Use CLJS Bean to convert output of http ([#988](https://github.com/planck-repl/planck/issues/988))
 
 ### Deprecated
 - Deprecate `planck.socket.alpha` namespace ([#956](https://github.com/planck-repl/planck/issues/956))
