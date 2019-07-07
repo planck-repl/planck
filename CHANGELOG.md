@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file. This change
 - Improve perf of `io/file-attributes` using [CLJS Bean](https://github.com/mfikes/cljs-bean) ([#969](https://github.com/planck-repl/planck/issues/969))
 - Optimize `planck.io/copy` for input stream to writer case  
 - Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
+- Syntax-highlight `#inst` and `#uuid` ([#975](https://github.com/planck-repl/planck/issues/975))
 
 ### Deprecated
 - Deprecate `planck.socket.alpha` namespace ([#956](https://github.com/planck-repl/planck/issues/956))
