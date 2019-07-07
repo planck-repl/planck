@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file. This change
 - Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
 - Syntax-highlight `#inst` and `#uuid` ([#975](https://github.com/planck-repl/planck/issues/975))
 - Use CLJS Bean to convert output of http ([#988](https://github.com/planck-repl/planck/issues/988))
+- Just use `seq` to convert command line args ([#990](https://github.com/planck-repl/planck/issues/990))
 
 ### Deprecated
 - Deprecate `planck.socket.alpha` namespace ([#956](https://github.com/planck-repl/planck/issues/956))
