@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Native temp file and dir facilities ([#934](https://github.com/planck-repl/planck/issues/934))
 - Ability to open i/o streams on URI and JAR resources ([#947](https://github.com/planck-repl/planck/issues/947))
+- Allow http post of binary info ([#980](https://github.com/planck-repl/planck/issues/980))
 
 ### Changed
 - `io/reader` on http follow redirects by default ([#937](https://github.com/planck-repl/planck/issues/937))
@@ -15,6 +16,7 @@ All notable changes to this project will be documented in this file. This change
 - Promote `planck.socket.alpha` to `planck.socket` ([#956](https://github.com/planck-repl/planck/issues/956))
 - Syntax-highlight `#inst` and `#uuid` ([#975](https://github.com/planck-repl/planck/issues/975))
 - Use CLJS Bean to convert output of http ([#988](https://github.com/planck-repl/planck/issues/988))
+- Avoid `js->clj` when forming sh results ([#992](https://github.com/planck-repl/planck/issues/992))
 - Avoid `js->clj` / `clj->js` in highlight coordinates calculation ([#994](https://github.com/planck-repl/planck/issues/994))
 
 ### Deprecated
