@@ -244,8 +244,21 @@ JSValueRef function_http_request(JSContextRef ctx, JSObjectRef function, JSObjec
 
         char *body = NULL;
         if (!JSValueIsUndefined(ctx, body_ref)) {
-            body = value_to_c_string(ctx, body_ref);
-            curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body);
+            if (JSValueIsArray(ctx, body_ref)) {
+                JSObjectRef arr = JSValueToObject(ctx, body_ref, NULL);
+                int arr_len = array_get_count(ctx, arr);
+                body = malloc(sizeof(char) * arr_len);
+                size_t ndx;
+                for (ndx = 0; ndx < arr_len; ndx++) {
+                    JSValueRef elem_ref = JSObjectGetPropertyAtIndex(ctx, arr, ndx, NULL);
+                    body[ndx] = (char) JSValueToNumber(ctx, elem_ref, NULL);
+                }
+                curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body);
+                curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, arr_len);
+            } else {
+                body = value_to_c_string(ctx, body_ref);
+                curl_easy_setopt(handle, CURLOPT_POSTFIELDS, body);
+            }
         }
 
         JSObjectRef response_headers = JSObjectMake(ctx, NULL, NULL);
