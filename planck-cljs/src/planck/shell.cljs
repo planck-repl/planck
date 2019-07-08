@@ -25,7 +25,7 @@
 (gobj/set js/global "do_async_sh_callback" do-callback)
 
 (defn- translate-result [js-res]
-  (let [[exit out err] (js->clj js-res)]
+  (let [[exit out err] js-res]
     {:exit exit :out out :err err}))
 (gobj/set js/global "translate_async_result" translate-result)
 
