@@ -69,7 +69,7 @@
   (boolean
     (when (sequential? y)
       (if (and (counted? x) (counted? y)
-            (not (== (count x) (count y))))
+               (not (== (count x) (count y))))
         false
         (loop [xs (seq x) ys (seq y)]
           (cond (nil? xs) (nil? ys)
