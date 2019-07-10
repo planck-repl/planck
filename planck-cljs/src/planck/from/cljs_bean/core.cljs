@@ -45,6 +45,17 @@
     (and (keyword? k) (identical? prop->key keyword))
     (and (string? k) (identical? prop->key identity))))
 
+(defn- compatible-value? [v recursive?]
+  (and (not (or (and (map? v) (not (instance? Bean v)))
+                (and (vector? v) (not (instance? ArrayVector v)))))
+       (not (and recursive?
+                 (or (object? v)
+                     (array? v))))))
+
+(defn- snapshot? [k v prop->key recursive?]
+  (not (and (compatible-key? k prop->key)
+            (compatible-value? v recursive?))))
+
 (deftype ^:private TransientBean [^:mutable ^boolean editable?
                                   obj prop->key key->prop ^boolean recursive?
                                   ^:mutable __cnt]
@@ -82,15 +93,12 @@
   ITransientAssociative
   (-assoc! [tcoll k v]
     (if editable?
-      (if (and (compatible-key? k prop->key)
-               (not (and recursive?
-                         (or (object? v)
-                             (array? v)))))
+      (if (snapshot? k v prop->key recursive?)
+        (-assoc! (transient (snapshot obj prop->key key->prop recursive?)) k v)
         (do
           (unchecked-set obj (key->prop k) (cond-> v recursive? unwrap))
           (set! __cnt nil)
-          tcoll)
-        (-assoc! (transient (snapshot obj prop->key key->prop recursive?)) k v))
+          tcoll))
       (throw (js/Error. "assoc! after persistent!"))))
 
   ITransientMap
@@ -269,14 +277,11 @@
 
   IAssociative
   (-assoc [_ k v]
-    (if (and (compatible-key? k prop->key)
-             (not (and recursive?
-                       (or (object? v)
-                           (array? v)))))
+    (if (snapshot? k v prop->key recursive?)
+      (-assoc (with-meta (snapshot obj prop->key key->prop recursive?) meta) k v)
       (Bean. meta
         (doto (gobj/clone obj) (unchecked-set (key->prop k) (cond-> v recursive? unwrap)))
-        prop->key key->prop recursive? nil nil nil)
-      (-assoc (with-meta (snapshot obj prop->key key->prop recursive?) meta) k v)))
+        prop->key key->prop recursive? nil nil nil)))
 
   (-contains-key? [coll k]
     (contains? coll k))
@@ -354,7 +359,7 @@
   ITransientCollection
   (-conj! [tcoll o]
     (if editable?
-      (if (or (object? o) (array? o))
+      (if (not (compatible-value? o true))
         (-conj! (transient (vec arr)) o)
         (do
           (.push arr (unwrap o))
@@ -375,7 +380,7 @@
   ITransientVector
   (-assoc-n! [tcoll n val]
     (if editable?
-      (if (or (object? val) (array? val))
+      (if (not (compatible-value? val true))
         (-assoc-n! (transient (vec arr)) n val)
         (cond
           (and (<= 0 n) (< n (alength arr)))
@@ -560,7 +565,7 @@
 
   ICollection
   (-conj [_ o]
-    (if (or (object? o) (array? o))
+    (if (not (compatible-value? o true))
       (-conj (vec arr) o)
       (let [new-arr (aclone arr)]
         (unchecked-set new-arr (alength new-arr) (unwrap o))
@@ -615,7 +620,7 @@
   (-assoc-n [coll n val]
     (cond
       (and (<= 0 n) (< n (alength arr)))
-      (if (or (object? val) (array? val))
+      (if (not (compatible-value? val true))
         (-assoc-n (vec arr) n val)
         (let [new-arr (aclone arr)]
           (aset new-arr n (unwrap val))
