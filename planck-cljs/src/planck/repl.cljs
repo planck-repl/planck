@@ -847,7 +847,7 @@
   system is such that line 0 is the current buffer line, line 1 is the previous
   line, and so on, and pos is the position in that line."
   [pos buffer previous-lines]
-  (let [previous-lines  (js->clj previous-lines)
+  (let [previous-lines  (->clj previous-lines)
         previous-source (string/join "\n" previous-lines)
         total-source    (if (empty? previous-lines)
                           buffer
@@ -855,9 +855,8 @@
         total-pos       (+ (if (empty? previous-lines)
                              0
                              (inc (count previous-source))) pos)]
-    (->> (form-start total-source total-pos)
-      (reduce-highlight-coords previous-lines)
-      clj->js)))
+    (let [[x y] (reduce-highlight-coords previous-lines (form-start total-source total-pos))]
+      #js [x y])))
 
 (defn- cache-prefix-for-path
   [path macros]
