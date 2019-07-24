@@ -361,7 +361,7 @@
 (defn- ^:export init
   [repl verbose cache-path checked-arrays static-fns fn-invoke-direct elide-asserts optimizations compile-optss]
   (when (exists? *command-line-args*)
-    (set! ^:cljs.analyzer/no-resolve *command-line-args* (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq)))
+    (set! ^:cljs.analyzer/no-resolve *command-line-args* (seq js/PLANCK_INITIAL_COMMAND_LINE_ARGS)))
   (load-core-analysis-caches repl)
   (let [opts (merge {}
                (read-compile-optss compile-optss)

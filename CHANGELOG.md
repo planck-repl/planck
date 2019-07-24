@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. This change
 - Syntax-highlight `#inst` and `#uuid` ([#975](https://github.com/planck-repl/planck/issues/975))
 - Use CLJS Bean to convert output of http ([#988](https://github.com/planck-repl/planck/issues/988))
 - Avoid `js->clj` when forming sh results ([#992](https://github.com/planck-repl/planck/issues/992))
+- Just use `seq` to convert command line args ([#990](https://github.com/planck-repl/planck/issues/990))
 - Avoid `js->clj` / `clj->js` in highlight coordinates calculation ([#994](https://github.com/planck-repl/planck/issues/994))
 
 ### Deprecated

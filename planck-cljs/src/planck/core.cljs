@@ -179,7 +179,7 @@
   none were supplied"
     :dynamic true}
   *command-line-args*
-  (-> js/PLANCK_INITIAL_COMMAND_LINE_ARGS js->clj seq))
+  (seq js/PLANCK_INITIAL_COMMAND_LINE_ARGS))
 
 (defn read-line
   "Reads the next line from the current value of *in*"
