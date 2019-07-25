@@ -1260,6 +1260,7 @@ void do_run_timeout(void *data) {
 
     unsigned long *timeout_data = data;
 
+    acquire_eval_lock();
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(ctx, (double)*timeout_data);
     free(timeout_data);
@@ -1269,7 +1270,6 @@ void do_run_timeout(void *data) {
         run_timeout_fn = get_function("global", "PLANCK_RUN_TIMEOUT");
         JSValueProtect(ctx, run_timeout_fn);
     }
-    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, run_timeout_fn, NULL, 1, args, NULL);
     release_eval_lock();
 }
