@@ -197,6 +197,7 @@ void evaluate_source(char *type, char *source, bool expression, bool print_nil, 
         }
     }
 
+    acquire_eval_lock();
     JSValueRef args[6];
     size_t num_args = 6;
 
@@ -226,7 +227,6 @@ void evaluate_source(char *type, char *source, bool expression, bool print_nil, 
     }
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
 
-    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, execute_fn, global_obj, num_args, args, NULL);
     release_eval_lock();
 }
@@ -330,9 +330,9 @@ void run_main_cli_fn() {
         return;
     }
 
+    acquire_eval_lock();
     JSObjectRef global_obj = JSContextGetGlobalObject(ctx);
     JSObjectRef run_main_cli_fn = get_function("planck.repl", "run-main-cli-fn");
-    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, run_main_cli_fn, global_obj, 0, NULL, NULL);
     release_eval_lock();
 }

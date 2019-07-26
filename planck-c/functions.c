@@ -1260,6 +1260,7 @@ void do_run_timeout(void *data) {
 
     unsigned long *timeout_data = data;
 
+    acquire_eval_lock();
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(ctx, (double)*timeout_data);
     free(timeout_data);
@@ -1269,7 +1270,6 @@ void do_run_timeout(void *data) {
         run_timeout_fn = get_function("global", "PLANCK_RUN_TIMEOUT");
         JSValueProtect(ctx, run_timeout_fn);
     }
-    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, run_timeout_fn, NULL, 1, args, NULL);
     release_eval_lock();
 }
@@ -1310,6 +1310,7 @@ void do_run_interval(void *data) {
 
     unsigned long *interval_data = data;
 
+    acquire_eval_lock();
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(ctx, (double)*interval_data);
     free(interval_data);
@@ -1319,7 +1320,7 @@ void do_run_interval(void *data) {
         run_interval_fn = get_function("global", "PLANCK_RUN_INTERVAL");
         JSValueProtect(ctx, run_interval_fn);
     }
-    acquire_eval_lock();
+
     JSObjectCallAsFunction(ctx, run_interval_fn, NULL, 1, args, NULL);
     release_eval_lock();
 }
@@ -1378,6 +1379,7 @@ conn_data_cb_ret_t *socket_conn_data_arrived(char *data, int sock, void *info) {
 
     data_arrived_info_t *data_arrived_info = info;
 
+    acquire_eval_lock();
     JSValueRef args[2];
     args[0] = JSValueMakeNumber(ctx, sock);
 
@@ -1388,7 +1390,6 @@ conn_data_cb_ret_t *socket_conn_data_arrived(char *data, int sock, void *info) {
         args[1] = JSValueMakeNull(ctx);
     }
 
-    acquire_eval_lock();
     JSObjectCallAsFunction(ctx, data_arrived_info->data_arrived_cb, NULL, 2, args, NULL);
     release_eval_lock();
 
@@ -1408,16 +1409,16 @@ accepted_conn_cb_ret_t *accepted_socket_connection(int sock, void *info) {
 
     accept_info_t *accept_info = info;
 
+    acquire_eval_lock();
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(ctx, sock);
 
-    acquire_eval_lock();
     JSValueRef data_arrived_cb_ref = JSObjectCallAsFunction(ctx, accept_info->accept_cb, NULL, 1, args, NULL);
-    release_eval_lock();
 
     data_arrived_info_t *data_arrived_info = malloc(sizeof(data_arrived_info_t));
     data_arrived_info->data_arrived_cb = JSValueToObject(ctx, data_arrived_cb_ref, NULL);
     JSValueProtect(ctx, data_arrived_cb_ref);
+    release_eval_lock();
 
     accepted_conn_cb_ret_t *accepted_conn_cb_ret = malloc(sizeof(accepted_conn_cb_ret_t));
 
