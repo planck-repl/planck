@@ -30,6 +30,12 @@
 #include "sockets.h"
 #include "tasks.h"
 
+JSValueRef make_error_with_errno(JSContextRef ctx) {
+    JSValueRef arguments[1];
+    arguments[0] = c_string_to_value(ctx, strerror(errno));
+    return JSObjectMakeError(ctx, 1, arguments, NULL);
+}
+
 #define CONSOLE_LOG_BUF_SIZE 1000
 char console_log_buf[CONSOLE_LOG_BUF_SIZE];
 
@@ -902,7 +908,13 @@ JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef funct
         char *descriptor = value_to_c_string(ctx, args[0]);
 
         unsigned int count = (unsigned int) array_get_count(ctx, (JSObjectRef) args[1]);
-        uint8_t buf[count];
+
+        uint8_t* buf = malloc(sizeof(uint8_t) * count);
+        if (!buf) {
+            *exception = make_error_with_errno(ctx);
+            return JSValueMakeNull(ctx);
+        }
+
         unsigned int i;
         for (i = 0; i < count; i++) {
             JSValueRef v = array_get_value_at_index(ctx, (JSObjectRef) args[1], i);
@@ -920,6 +932,7 @@ JSValueRef function_file_output_stream_write(JSContextRef ctx, JSObjectRef funct
 
         file_write(descriptor_str_to_int(descriptor), count, buf);
 
+        free(buf);
         free(descriptor);
     }
 
@@ -988,9 +1001,7 @@ JSValueRef function_copy_file(JSContextRef ctx, JSObjectRef function, JSObjectRe
 
         int rv = copy_file(src, dst);
         if (rv) {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         }
 
         free(src);
@@ -1090,9 +1101,7 @@ JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef t
         if (temp_name) {
             return c_string_to_value(ctx, temp_name);
         } else {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         }
 
     }
@@ -1447,9 +1456,7 @@ JSValueRef function_socket_connect(JSContextRef ctx, JSObjectRef function, JSObj
         int sock = connect_socket(host, port, socket_conn_data_arrived, data_arrived_info);
 
         if (sock == -1) {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         } else {
             return JSValueMakeNumber(ctx, sock);
         }
@@ -1479,9 +1486,7 @@ JSValueRef function_socket_listen(JSContextRef ctx, JSObjectRef function, JSObje
 
         int err = bind_and_listen(socket_accept_info);
         if (err == -1) {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         } else {
             pthread_t thread;
             pthread_create(&thread, NULL, accept_connections, socket_accept_info);
@@ -1501,9 +1506,7 @@ JSValueRef function_socket_write(JSContextRef ctx, JSObjectRef function, JSObjec
         int err = write_to_socket(sock, value_to_c_string(ctx, args[1]));
 
         if (err == -1) {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         }
     }
     return JSValueMakeNull(ctx);
@@ -1519,9 +1522,7 @@ JSValueRef function_socket_close(JSContextRef ctx, JSObjectRef function, JSObjec
         int err = close_socket(sock);
 
         if (err == -1) {
-            JSValueRef arguments[1];
-            arguments[0] = c_string_to_value(ctx, strerror(errno));
-            *exception = JSObjectMakeError(ctx, 1, arguments, NULL);
+            *exception = make_error_with_errno(ctx);
         }
     }
     return JSValueMakeNull(ctx);
