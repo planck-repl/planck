@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [Unreleased]
+### Fixed
+- Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))
+
 ## [2.24.0] - 2019-07-25
 ### Added
 - Native temp file and dir facilities ([#934](https://github.com/planck-repl/planck/issues/934))
@@ -857,6 +861,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
+[Unreleased]: https://github.com/mfikes/planck/compare/2.24.0...HEAD
 [2.24.0]: https://github.com/mfikes/planck/compare/2.23.0...2.24.0
 [2.23.0]: https://github.com/mfikes/planck/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/mfikes/planck/compare/2.21.0...2.22.0

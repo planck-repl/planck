@@ -2,7 +2,7 @@
   (:require
    [clojure.test :refer [deftest is testing]]
    [clojure.string :as string]
-   [planck.core :refer [spit slurp with-open]]
+   [planck.core :refer [spit slurp with-open -write-bytes -read-bytes]]
    [planck.io :as io]
    [planck.shell :as shell])
   (:import
@@ -238,3 +238,13 @@
   (let [target-file (io/temp-file)]
     (io/copy (io/input-stream "http://planck-repl.org/releases/andare/andare-0.2.0.jar") target-file)
     (is (= 64328 (:file-size (io/file-attributes target-file))))))
+
+(deftest write-large-binary-file-test
+  (let [file (io/temp-file)
+        content (into [] (take 15485863) (cycle (range 256)))]
+    (with-open [out-stream (io/output-stream file)]
+      (-write-bytes out-stream content))
+    (with-open [in-stream (io/input-stream file)]
+      (is (= content (->> (repeatedly #(-read-bytes in-stream))
+                       (take-while some?)
+                       (reduce into)))))))
