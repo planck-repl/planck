@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Implement `console.time*` functionality ([#997](https://github.com/planck-repl/planck/issues/997))
+
+
 ### Fixed
 - Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))
 
