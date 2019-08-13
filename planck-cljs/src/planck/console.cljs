@@ -16,9 +16,10 @@
 (def ^:private timer-state (atom {}))
 
 (defn- add-label [state label start-time]
-  (-> state
-    (assoc :label-exists? (contains? (:timer-table state) label))
-    (assoc-in [:timer-table label] start-time)))
+  (let [label-exists? (contains? (:timer-table state) label)]
+    (cond-> state
+      true (assoc :label-exists? label-exists?)
+      (not label-exists?) (assoc-in [:timer-table label] start-time))))
 
 (defn- time [label]
   (let [new-state (swap! timer-state add-label label (system-time))]
