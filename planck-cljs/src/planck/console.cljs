@@ -26,8 +26,11 @@
     (when (:label-exists? new-state)
       (log-stderr "label" label "already exists"))))
 
+(defn- format-duration [d]
+  (str (.toFixed d 2) " ms"))
+
 (defn- timer-prefix [label start-time]
-  (str label ": " (- (system-time) start-time) " ms"))
+  (str label ": " (format-duration (- (system-time) start-time))))
 
 (defn- maybe-log-timing [label start-time & data]
   (if (some? start-time)
