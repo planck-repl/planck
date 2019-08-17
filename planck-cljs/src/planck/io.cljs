@@ -445,23 +445,28 @@
 (defn temp-file
   "Returns a temporary file as a [[File]].
 
+  An optional file name prefix and suffix may be supplied, either of which may
+  be nil.
+
   An empty file with the returned name will be created on disk with mode 0600."
-  []
-  (as-file (js/PLANCK_MKTEMP false)))
+  ([] (temp-file nil nil))
+  ([prefix suffix] (as-file (js/PLANCK_MKTEMP prefix suffix false))))
 
 (s/fdef temp-file
-  :args (s/cat)
+  :args (s/cat :prefix (s/? (s/nilable string?)) :suffix (s/? (s/nilable string?)))
   :ret file?)
 
 (defn temp-directory
   "Returns a temporary directory as a [[File]].
 
+  An optional directory name prefix may be supplied which may be nil.
+
   A directory with the returned name will be created on disk with mode 0700."
-  []
-  (as-file (js/PLANCK_MKTEMP true)))
+  ([] (temp-directory nil))
+  ([prefix] (as-file (js/PLANCK_MKTEMP prefix nil true))))
 
 (s/fdef temp-directory
-  :args (s/cat)
+  :args (s/cat :prefix (s/? (s/nilable string?)))
   :ret file?)
 
 (defn resource

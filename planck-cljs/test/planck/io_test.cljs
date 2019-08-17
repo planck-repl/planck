@@ -221,9 +221,25 @@
   (is (io/file? (io/temp-file)))
   (is (= "abc" (slurp (doto (io/temp-file) (spit "abc"))))))
 
+(deftest temp-file-naming-test
+  (is (string/starts-with? (io/file-name (io/temp-file)) "planck."))
+  (is (string/starts-with? (io/file-name (io/temp-file nil nil)) "planck."))
+  (is (string/starts-with? (io/file-name (io/temp-file nil ".foo")) "planck."))
+  (is (string/starts-with? (io/file-name (io/temp-file "hello" nil)) "hello"))
+  (is (string/starts-with? (io/file-name (io/temp-file "hello" "")) "hello"))
+  (is (string/starts-with? (io/file-name (io/temp-file "hello" ".foo")) "hello"))
+  (is (string/ends-with? (io/file-name (io/temp-file nil ".foo")) ".foo"))
+  (is (string/ends-with? (io/file-name (io/temp-file "" ".foo")) ".foo"))
+  (is (string/ends-with? (io/file-name (io/temp-file "hello" ".foo")) ".foo")))
+
 (deftest temp-directory-test
   (is (io/file? (io/temp-directory)))
   (is (io/directory? (io/temp-directory))))
+
+(deftest temp-directory-naming-test
+  (is (string/starts-with? (io/file-name (io/temp-directory)) "planck."))
+  (is (string/starts-with? (io/file-name (io/temp-directory nil)) "planck."))
+  (is (string/starts-with? (io/file-name (io/temp-directory "hello")) "hello")))
 
 (deftest jar-input-stream-test
   (let [resource-name "META-INF/maven/org.clojure/test.check/pom.properties"

@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Ability to specify prefix and suffix for temp files ([#1005](https://github.com/planck-repl/planck/issues/1005))
+
 ### Fixed
 - Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))
 
