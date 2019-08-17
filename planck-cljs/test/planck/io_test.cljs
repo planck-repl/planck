@@ -223,12 +223,8 @@
 
 (deftest temp-file-naming-test
   (is (string/starts-with? (io/file-name (io/temp-file)) "planck."))
-  (is (string/starts-with? (io/file-name (io/temp-file nil nil)) "planck."))
-  (is (string/starts-with? (io/file-name (io/temp-file nil ".foo")) "planck."))
-  (is (string/starts-with? (io/file-name (io/temp-file "hello" nil)) "hello"))
   (is (string/starts-with? (io/file-name (io/temp-file "hello" "")) "hello"))
   (is (string/starts-with? (io/file-name (io/temp-file "hello" ".foo")) "hello"))
-  (is (string/ends-with? (io/file-name (io/temp-file nil ".foo")) ".foo"))
   (is (string/ends-with? (io/file-name (io/temp-file "" ".foo")) ".foo"))
   (is (string/ends-with? (io/file-name (io/temp-file "hello" ".foo")) ".foo")))
 
@@ -238,7 +234,6 @@
 
 (deftest temp-directory-naming-test
   (is (string/starts-with? (io/file-name (io/temp-directory)) "planck."))
-  (is (string/starts-with? (io/file-name (io/temp-directory nil)) "planck."))
   (is (string/starts-with? (io/file-name (io/temp-directory "hello")) "hello")))
 
 (deftest jar-input-stream-test

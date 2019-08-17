@@ -1070,10 +1070,8 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
 JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                            size_t argc, const JSValueRef args[], JSValueRef *exception) {
     if (argc == 3
-        && (JSValueGetType(ctx, args[0]) == kJSTypeString
-            || JSValueGetType(ctx, args[0]) == kJSTypeNull)
-        && (JSValueGetType(ctx, args[1]) == kJSTypeString
-            || JSValueGetType(ctx, args[1]) == kJSTypeNull)
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeString
         && JSValueGetType(ctx, args[2]) == kJSTypeBoolean) {
 
         bool directory = JSValueToBoolean(ctx, args[2]);
@@ -1083,19 +1081,8 @@ JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef t
             tmpdir = "/tmp";
         }
 
-        char* prefix;
-        if (JSValueGetType(ctx, args[0]) == kJSTypeString) {
-            prefix = value_to_c_string(ctx, args[0]);
-        } else {
-            prefix = strdup("planck.");
-        }
-
-        char* suffix;
-        if (JSValueGetType(ctx, args[1]) == kJSTypeString) {
-            suffix = value_to_c_string(ctx, args[1]);
-        } else {
-            suffix = strdup("");
-        }
+        char* prefix = value_to_c_string(ctx, args[0]);
+        char* suffix = value_to_c_string(ctx, args[1]);
 
         char template[PATH_MAX];
         if (str_has_suffix(tmpdir, "/") == 0) {
