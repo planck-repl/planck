@@ -445,23 +445,27 @@
 (defn temp-file
   "Returns a temporary file as a [[File]].
 
+  An optional file name prefix and suffix may be supplied.
+
   An empty file with the returned name will be created on disk with mode 0600."
-  []
-  (as-file (js/PLANCK_MKTEMP false)))
+  ([] (temp-file "planck." ""))
+  ([prefix suffix] (as-file (js/PLANCK_MKTEMP prefix suffix false))))
 
 (s/fdef temp-file
-  :args (s/cat)
+  :args (s/cat :prefix-suffix (s/? (s/cat :prefix string? :suffix string?)))
   :ret file?)
 
 (defn temp-directory
   "Returns a temporary directory as a [[File]].
 
+  An optional directory name prefix may be supplied.
+
   A directory with the returned name will be created on disk with mode 0700."
-  []
-  (as-file (js/PLANCK_MKTEMP true)))
+  ([] (temp-directory "planck."))
+  ([prefix] (as-file (js/PLANCK_MKTEMP prefix "" true))))
 
 (s/fdef temp-directory
-  :args (s/cat)
+  :args (s/cat :prefix (s/? string?))
   :ret file?)
 
 (defn resource

@@ -1069,34 +1069,42 @@ JSValueRef function_list_files(JSContextRef ctx, JSObjectRef function, JSObjectR
 
 JSValueRef function_mktemp(JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
                            size_t argc, const JSValueRef args[], JSValueRef *exception) {
-    if (argc == 1
-        && JSValueGetType(ctx, args[0]) == kJSTypeBoolean) {
+    if (argc == 3
+        && JSValueGetType(ctx, args[0]) == kJSTypeString
+        && JSValueGetType(ctx, args[1]) == kJSTypeString
+        && JSValueGetType(ctx, args[2]) == kJSTypeBoolean) {
 
-        bool directory = JSValueToBoolean(ctx, args[0]);
+        bool directory = JSValueToBoolean(ctx, args[2]);
 
         char *tmpdir = getenv("TMPDIR");
         if (!tmpdir) {
             tmpdir = "/tmp";
         }
 
+        char* prefix = value_to_c_string(ctx, args[0]);
+        char* suffix = value_to_c_string(ctx, args[1]);
+
         char template[PATH_MAX];
         if (str_has_suffix(tmpdir, "/") == 0) {
-            snprintf(template, PATH_MAX, "%splanck.XXXXXX", tmpdir);
+            snprintf(template, PATH_MAX, "%s%sXXXXXX%s", tmpdir, prefix, suffix);
         } else {
-            snprintf(template, PATH_MAX, "%s/planck.XXXXXX", tmpdir);
+            snprintf(template, PATH_MAX, "%s/%sXXXXXX%s", tmpdir, prefix, suffix);
         }
 
         char *temp_name;
         if (directory) {
             temp_name = mkdtemp(template);
         } else {
-            int fd = mkstemp(template);
+            int fd = mkstemps(template, strlen(suffix));
             if (fd != -1 && close(fd) != -1) {
                 temp_name = template;
             } else {
                 temp_name = NULL;
             }
         }
+
+        free(suffix);
+        free(prefix);
 
         if (temp_name) {
             return c_string_to_value(ctx, temp_name);
