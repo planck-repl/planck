@@ -444,16 +444,6 @@ void *do_engine_init(void *data) {
     register_global_function(ctx, "PLANCK_CONSOLE_STDOUT", function_console_stdout);
     register_global_function(ctx, "PLANCK_CONSOLE_STDERR", function_console_stderr);
 
-    evaluate_script(ctx, "var console = {};"\
-            "console.log = PLANCK_CONSOLE_STDOUT;"\
-            "console.trace = PLANCK_CONSOLE_STDOUT;"\
-            "console.debug = PLANCK_CONSOLE_STDOUT;"\
-            "console.info = PLANCK_CONSOLE_STDOUT;"\
-            "console.warn = PLANCK_CONSOLE_STDERR;"\
-            "console.error = PLANCK_CONSOLE_STDERR;", "<init>");
-
-    display_launch_timing("console");
-
     evaluate_script(ctx, "var PLANCK_VERSION = \"" PLANCK_VERSION "\";", "<init>");
 
     display_launch_timing("version");

@@ -5,6 +5,7 @@
    [cljs.env.macros :refer [with-compiler-env]]
    [planck.repl :refer [with-err-str]])
   (:require
+   [planck.console]
    [cljs.analyzer :as ana]
    [cljs.compiler :as comp]
    [cljs.env :as env]
