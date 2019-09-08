@@ -9,6 +9,7 @@
    [general.closure-defines-test]
    [general.data-readers-test]
    [general.fipp-test]
+   [general.transit-test]
    [planck.closure-test]
    [planck.core :refer [exit]]
    [planck.core-test]
@@ -36,4 +37,5 @@
     'general.core-test
     'general.closure-defines-test
     'general.data-readers-test
-    'general.fipp-test))
+    'general.fipp-test
+    'general.transit-test))
