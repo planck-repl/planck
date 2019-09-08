@@ -7,17 +7,7 @@
             [cognitect.transit :as transit])
   (:import [java.io ByteArrayOutputStream File FileInputStream]))
 
-(def canary-build? (boolean (System/getenv "CANARY_BUILD")))
-
 (def sandbox-build? (boolean (System/getenv "SANDBOX_BUILD")))
-
-(def ci-build? (or canary-build?
-                   (boolean (System/getenv "TRAVIS_OS_NAME"))))
-
-(def checked-arrays (cond
-                      ci-build? :error
-                      (System/getenv "CLJS_CHECKED_ARRAYS") (keyword (System/getenv "CLJS_CHECKED_ARRAYS"))
-                      :else false))
 
 (def experimental-warnings #{:recur-type-mismatch :private-var-access})
 
@@ -42,7 +32,6 @@
      :static-fns         true
      :optimize-constants false
      :dump-core          false
-     :checked-arrays     checked-arrays
      :parallel-build     true
      :libs               ["lib/closure"
                           "lib/third_party/closure"]

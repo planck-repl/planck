@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. This change
 - Ability to specify prefix and suffix for temp files ([#1005](https://github.com/planck-repl/planck/issues/1005))
 - Implement `console.time*` functionality ([#997](https://github.com/planck-repl/planck/issues/997))
 
+### Changed
+- Ship with `com.cognitect/transit-js` supporting meta serialization functionality ([#1009](https://github.com/planck-repl/planck/issues/1009))
+
 ### Fixed
 - Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))
 
