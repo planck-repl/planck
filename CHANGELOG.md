@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Fixed
 - Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))
+- GCL lib analysis issue with ClojureScript master ([#1011](https://github.com/planck-repl/planck/issues/1011))
 
 ## [2.24.0] - 2019-07-25
 ### Added
