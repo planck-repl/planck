@@ -1,6 +1,6 @@
 # Planck
 
-Planck™ is a stand-alone ClojureScript REPL for macOS and Linux.
+Planck is a stand-alone ClojureScript REPL for macOS and Linux.
 
 Planck launches instantly and is useful for scripting.
 

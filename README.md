@@ -1,4 +1,4 @@
-# Planck™
+# Planck
 
 A stand-alone ClojureScript REPL for macOS and Linux based on JavaScriptCore.
 
