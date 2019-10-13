@@ -1,4 +1,4 @@
-# Planck
+# Planck™
 
 A stand-alone ClojureScript REPL for macOS and Linux based on JavaScriptCore.
 
@@ -146,6 +146,6 @@ sudo script/install -p /usr
 
 # License
 
-Copyright © 2015–2019 Mike Fikes and Contributors
+Planck™ copyright © 2015–2019 Mike Fikes and Contributors
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
