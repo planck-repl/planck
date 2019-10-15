@@ -2,7 +2,7 @@
 
 void legal() {
   printf("\n"
-    "Planck\n"
+    "Planck™\n"
     "------\n"
     "\n"
     "Copyright © 2015-2017 Mike Fikes and Contributors\n"
