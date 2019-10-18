@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file. This change
 
 ### Changed
 - Ship with `com.cognitect/transit-js` supporting meta serialization functionality ([#1009](https://github.com/planck-repl/planck/issues/1009))
+- Remove unneeded `planck.repl` require in `planck.io` and `planck.http` ([#1007](https://github.com/planck-repl/planck/issues/1007))
 
 ### Fixed
 - Crash if writing large byte vector to output stream ([#1001](https://github.com/planck-repl/planck/issues/1001))

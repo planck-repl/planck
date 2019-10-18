@@ -4,8 +4,7 @@
   (:require
    [cljs.spec.alpha :as s]
    [clojure.string :as string]
-   [planck.from.cljs-bean.core :refer [->clj]]
-   [planck.repl :as repl]))
+   [planck.from.cljs-bean.core :refer [->clj]]))
 
 (def ^:private content-types {:json            "application/json"
                               :xml             "application/xml"

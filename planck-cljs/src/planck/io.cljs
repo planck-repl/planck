@@ -6,8 +6,7 @@
    [clojure.string :as string]
    [planck.core :refer [with-open]]
    [planck.from.cljs-bean.core :refer [bean]]
-   [planck.http :as http]
-   [planck.repl :as repl])
+   [planck.http :as http])
   (:import
    (goog Uri)))
 
