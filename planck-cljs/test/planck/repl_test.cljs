@@ -50,9 +50,9 @@
 (defspec add-drop-macros-suffix-test
   (prop/for-all [ns-sym gen/symbol]
     (= ns-sym (-> ns-sym
-                ^:private-var-access-nowarn repl/add-macros-suffix
+                (#'repl/add-macros-suffix)
                 str
-                ^:private-var-access-nowarn repl/drop-macros-suffix
+                (#'repl/drop-macros-suffix)
                 symbol))))
 
 (deftest get-arglists-test
