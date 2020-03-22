@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [Unreleased]
+## [2.25.0] - 2020-03-22
 ### Added
 - Ability to specify prefix and suffix for temp files ([#1005](https://github.com/planck-repl/planck/issues/1005))
 - Implement `console.time*` functionality ([#997](https://github.com/planck-repl/planck/issues/997))
@@ -872,7 +872,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.24.0...HEAD
+[2.25.0]: https://github.com/mfikes/planck/compare/2.24.0...2.25.0
 [2.24.0]: https://github.com/mfikes/planck/compare/2.23.0...2.24.0
 [2.23.0]: https://github.com/mfikes/planck/compare/2.22.0...2.23.0
 [2.22.0]: https://github.com/mfikes/planck/compare/2.21.0...2.22.0
