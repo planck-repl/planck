@@ -114,11 +114,11 @@ bool is_whitespace(char *s) {
 }
 
 bool is_exit_command(char *input, bool is_socket_repl) {
-    return (strcmp(input, ":cljs/quit") == 0 ||
-            strcmp(input, "quit") == 0 ||
-            strcmp(input, "exit") == 0 ||
-            strcmp(input, "\x04") == 0 ||
-            (is_socket_repl && strcmp(input, ":repl/quit") == 0));
+    return (!strcmp(input, ":cljs/quit") ||
+            !strcmp(input, "quit") ||
+            !strcmp(input, "exit") ||
+            !strcmp(input, "\x04") ||
+            (is_socket_repl && !strcmp(input, ":repl/quit")));
 }
 
 bool process_line(repl_t *repl, char *input_line, bool split_on_newlines) {
