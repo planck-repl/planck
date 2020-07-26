@@ -6,7 +6,7 @@ If you don't provide any `-i` or `-e` options or args to `plk` when launching it
 
 ```
 $ plk
-ClojureScript 1.10.597
+ClojureScript 1.10.758
 cljs.user=> ▊
 ```
 
