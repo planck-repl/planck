@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. This change
 ### Changed
 - Update to ClojureScript 1.10.758 ([#1034](https://github.com/planck-repl/planck/issues/1034))
 
+### Fixed
+- Drone CI builds broken ([#1038](https://github.com/planck-repl/planck/issues/1038))
+
 ## [2.25.0] - 2020-03-22
 ### Added
 - Ability to specify prefix and suffix for temp files ([#1005](https://github.com/planck-repl/planck/issues/1005))
