@@ -1,12 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## Unreleased
+## [Unreleased]
 ### Changed
 - Update to ClojureScript 1.10.758 ([#1034](https://github.com/planck-repl/planck/issues/1034))
 
 ### Fixed
 - Drone CI builds broken ([#1038](https://github.com/planck-repl/planck/issues/1038))
+- Build failing on Fedora 32 ([#1032](https://github.com/planck-repl/planck/issues/1032))
 
 ## [2.25.0] - 2020-03-22
 ### Added
@@ -879,7 +880,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.25.0..HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.25.0...HEAD
 [2.25.0]: https://github.com/mfikes/planck/compare/2.24.0...2.25.0
 [2.24.0]: https://github.com/mfikes/planck/compare/2.23.0...2.24.0
 [2.23.0]: https://github.com/mfikes/planck/compare/2.22.0...2.23.0
