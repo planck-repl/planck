@@ -54,9 +54,6 @@
        (s/spec-impl ::s/unknown o nil nil)))
     ([o form] (s/spec-impl form o nil nil))))
 
-;; Prefer ES6 Number.isInteger
-(set! integer? (or (.-isInteger js/Number) integer?))
-
 ;; Monkey patch target-specific core fns
 
 (set! array? (fn [x] (instance? js/Array x)))
