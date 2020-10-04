@@ -21,7 +21,7 @@ void bootstrap(char *out_path);
 
 int block_until_engine_ready();
 
-const char *block_until_engine_ready_failed_msg;
+extern const char *block_until_engine_ready_failed_msg;
 
 JSObjectRef get_function(char *namespace, char *name);
 
