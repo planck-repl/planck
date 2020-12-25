@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 - Drone CI builds broken ([#1038](https://github.com/planck-repl/planck/issues/1038))
 - Build failing on Fedora 32 ([#1032](https://github.com/planck-repl/planck/issues/1032))
 - `integer?` predicate differs from ClojureScript ([#1036](https://github.com/planck-repl/planck/issues/1036))
+- Unit tests failing on macOS (brew shallow clones) ([#1046](https://github.com/planck-repl/planck/issues/1046))
 
 ## [2.25.0] - 2020-03-22
 ### Added
