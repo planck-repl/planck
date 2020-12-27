@@ -28,10 +28,10 @@ if [ -n "${CANARY_CLOJURESCRIPT_VERSION+set}" ]; then
 fi
 
 if [ -n "${RESOLVE_ALIAS+set}" ]; then
-  clojure -R"${RESOLVE_ALIAS}" -Sdeps "${DEPS:-{}}" script/build.clj
+  clojure -R"${RESOLVE_ALIAS}" -Sdeps "${DEPS:-{}}" -M script/build.clj
 else
   if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
     clojure -Sdeps "${DEPS:-{}}" -Spath
   fi
-  clojure -Sdeps "${DEPS:-{}}" script/build.clj
+  clojure -Sdeps "${DEPS:-{}}" -M script/build.clj
 fi
