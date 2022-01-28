@@ -1,0 +1,47 @@
+name: Build and Test Planck
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build_macos:
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Clojure
+        run: |
+          brew install clojure/tools/clojure
+
+      - name: Build and Test Planck
+        run: | 
+          script/build -Werror --fast
+          script/test
+
+  build_ubuntu:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-java@v2.5.0
+        with:
+          distribution: 'adopt'
+          java-version: '8'
+
+      - uses: DeLaGuardo/setup-clojure@master
+        with:
+            cli: latest
+
+      - name: Install deps
+        run: |
+            sudo apt-get install -y libjavascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev unzip
+
+      - name: Build and Test Planck
+        run: | 
+          script/build -Werror --fast
+          script/test
