@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Add support for `:as-alias` ([#1059](https://github.com/planck-repl/planck/issues/1059))
+
 ### Changed
 - Update to ClojureScript 1.10.914 ([#1028](https://github.com/planck-repl/planck/issues/1028))
 - Qualify lib names ([#1043](https://github.com/planck-repl/planck/issues/1043))

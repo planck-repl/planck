@@ -156,10 +156,13 @@
 
 (defonce ^:private current-ns (atom 'cljs.user))
 
+(declare get-namespace)
+
 (defn- current-alias-map
   []
-  (->> (merge (get-in @st [::ana/namespaces @current-ns :requires])
-         (get-in @st [::ana/namespaces @current-ns :require-macros]))
+  (->> (apply merge
+         ((juxt :requires :require-macros :as-aliases)
+          (get-namespace @current-ns)))
     (remove (fn [[k v]] (= k v)))
     (into {})))
 
