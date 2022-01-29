@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. This change
 - Switch to GitHub for CI
 
 ### Fixed
+- CMake deprecation warning ([#1056](https://github.com/planck-repl/planck/issues/1056))
 - Build failing on Fedora 32 ([#1032](https://github.com/planck-repl/planck/issues/1032))
 - `integer?` predicate differs from ClojureScript ([#1036](https://github.com/planck-repl/planck/issues/1036))
 - Unit tests failing on macOS (brew shallow clones) ([#1046](https://github.com/planck-repl/planck/issues/1046))
