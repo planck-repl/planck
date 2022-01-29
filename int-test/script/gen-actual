@@ -795,35 +795,3 @@ echo "(def x 3)" > /tmp/PLANCK_SRC/user.cljs
 $PLANCK -c /tmp/PLANCK_SRC <<REPL_INPUT
 x
 REPL_INPUT
-
-faketty () {
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        script -qt 0 /dev/null $@
-    else
-        script -qfec "$(printf "%q " "$@")" /dev/null
-    fi
-}
-echo "stdio TTY is detected (in a faketty)"
-faketty $PLANCK -i $SRC/test_tty/stdio.cljs
-echo
-
-echo "stdin non-TTY is detected (in a pipeline)"
-echo "" | $PLANCK -i $SRC/test_tty/stdin.cljs
-echo
-
-echo "stdout non-TTY is detected (in a pipeline)"
-$PLANCK -i $SRC/test_tty/stdout.cljs | cat
-echo
-
-echo "stderr non-TTY is detected (redirected to /dev/null)"
-$PLANCK -i $SRC/test_tty/stderr.cljs 2>/dev/null
-echo
-
-echo "*err* TTY is detected when rebound to *out* even when stderr is redirected to /dev/null"
-cat <<EOF >/tmp/PLANCK_TTY_REBINDING_TEST
-#!/bin/sh
-$PLANCK -i $SRC/test_tty/rebinding_err_out.cljs 2>/dev/null
-EOF
-chmod +x /tmp/PLANCK_TTY_REBINDING_TEST
-faketty /tmp/PLANCK_TTY_REBINDING_TEST
-echo
