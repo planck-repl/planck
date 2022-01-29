@@ -6,9 +6,9 @@ All notable changes to this project will be documented in this file. This change
 - Update to ClojureScript 1.10.758 ([#1034](https://github.com/planck-repl/planck/issues/1034))
 - Qualify lib names ([#1043](https://github.com/planck-repl/planck/issues/1043))
 - Use `-M` with `clojure.main` ([#1044](https://github.com/planck-repl/planck/issues/1044))
+- Switch to GitHub for CI
 
 ### Fixed
-- Drone CI builds broken ([#1038](https://github.com/planck-repl/planck/issues/1038))
 - Build failing on Fedora 32 ([#1032](https://github.com/planck-repl/planck/issues/1032))
 - `integer?` predicate differs from ClojureScript ([#1036](https://github.com/planck-repl/planck/issues/1036))
 - Unit tests failing on macOS (brew shallow clones) ([#1046](https://github.com/planck-repl/planck/issues/1046))
