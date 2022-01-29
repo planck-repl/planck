@@ -57,7 +57,7 @@
                                      (vswap! acc into bytes))
                                    (fn [])
                                    (fn []))]
-                         (io/copy in os in-enc)
+                         (io/copy in os)
                          (into-array @acc)))
           translated (translate-result (js/PLANCK_SHELL_SH (clj->js cmd) in-bytes out-enc
                                          (clj->js (seq env)) dir (if async? (assoc-cb cb))))

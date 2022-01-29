@@ -105,12 +105,14 @@ then
   crc=`shasum $file | cut -f1 -d" "`
 fi
 
-if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -10}" != "paredit.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ]
+if [ $CLOSURE_OPTIMIZATIONS != "NONE" ] && [ ${file: -3} == ".js" ] && [ "${file: -7}" != "deps.js" ] && [ "${file: -9}" != "bundle.js" ] && [ "${file: -9}" != "jscomp.js" ] && [ "${file: -10}" != "paredit.js" ] && [ "${file: -6}" != "csv.js" ] && [ "${file: -19}" != "performancetimer.js" ] && [ "${file: 0:10}" != "goog/labs/" ] && [ "${file: 0:15}" != "goog/useragent/" ] && [ "${file}" != "goog/array/array.js" ] && [ "${file}" != "goog/crypt/aes.js" ] && [ "${file}" != "goog/async/run.js" ] && [ "${file: 0:10}" != "goog/html/" ] && [ "${file}" != "goog/math/long.js" ] && [ "${file: 0:13}" != "goog/testing/" ] && [ "${file: 0:13}" != "goog/memoize/" ] && [ "${file: 0:13}" != "goog/asserts/" ] && [ "${file}" != "goog/object/object.js" ] && [ "${file: 0:12}" != "goog/proto2/" ] && [ "${file}" != "goog/base.js" ] && [ "${file: 0:9}" != "goog/dom/" ] && [ "${file: 0:12}" != "goog/events/" ] && [ "${file: 0:10}" != "goog/i18n/" ] && [ "${file: 0:17}" != "goog/collections/" ] && [ "${file: 0:16}" != "goog/disposable/" ] && [ "${file: 0:11}" != "goog/debug/" ]
 then
   if [ ! -f $buildcache/$file.$crc.optim ] 
   then
     if [ ! -f $file.optim ] || [ $file -nt $file.optim ]
     then
+      # Process goog.define, converting to default value expression
+      sed -E -i "bak" 's/goog.define\(".*",(.*)\);/\1;/g' $file
       if [ -f $file.map ]
       then
         java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim 

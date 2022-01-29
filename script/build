@@ -51,11 +51,12 @@ checkCmdSuccess() {
     fi
 }
 
-export GCC_RELEASE="20190301"
-export CLOSURE_JS_RELEASE=${GCC_RELEASE}.0.0
+export GCC_RELEASE="20210808"
+# Note CLOSURE_JS_RELEASE is no longer maintained; below is an old version
+export CLOSURE_JS_RELEASE=20190301.0.0
 script/get-closure-compiler
 
-export GCL_RELEASE="20190301"
+export GCL_RELEASE="0.0-20211011-0726fdeb"
 script/get-closure-library
 
 script/get-build-cache
