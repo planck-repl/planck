@@ -97,8 +97,7 @@
     (is (= stripped (#'planck.repl/strip-source-map input-sm)))))
 
 (deftest require-goog-test
-  (is (false? (g/isArrayLike nil)))
-  (is (true? (g/isArray #js []))))
+  (is (false? (g/isArrayLike nil))))
 
 (deftest issue-749-test
   (let [source "#!/usr/bin/env bash\n\"exec\" \"plk\" \"-Sdeps\" \"{:deps {org.clojure/tools.cli {:mvn/version \\\"0.3.7\\\"}}}\" \"-Ksf\" \"$0\" \"$@\"\n\n(ns repro.core\n  (:require [clojure.tools.cli :refer [parse-opts]]))"]
