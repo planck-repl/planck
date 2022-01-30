@@ -5,6 +5,6 @@ if [ "${VERBOSE_BUILD:-0}" == "1" ]; then
 fi
 
 mkdir -p lib
-if [ ! -f lib/test.check-0.10.0-alpha4.jar ]; then
-  cp ~/.m2/repository/org/clojure/test.check/0.10.0-alpha4/test.check-0.10.0-alpha4.jar lib/test.check-0.10.0-alpha4.jar
+if [ ! -f lib/test.check-1.1.1.jar ]; then
+  cp ~/.m2/repository/org/clojure/test.check/1.1.1/test.check-1.1.1.jar lib/test.check-1.1.1.jar
 fi
