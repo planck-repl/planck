@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file. This change
 - Qualify lib names ([#1043](https://github.com/planck-repl/planck/issues/1043))
 - Use `-M` with `clojure.main` ([#1044](https://github.com/planck-repl/planck/issues/1044))
 - Switch to GitHub for CI
+- Update internal `cljs-bean` code ([#1065](https://github.com/planck-repl/planck/issues/1065))
 
 ### Fixed
 - CMake deprecation warning ([#1056](https://github.com/planck-repl/planck/issues/1056))
