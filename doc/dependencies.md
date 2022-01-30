@@ -111,7 +111,7 @@ Planck ships with many of the deps that are available to conventional ClojureScr
 
 In addition, Planck ships with these libraries:
 
-* [Fipp](https://github.com/brandonbloom/fipp) 0.6.18
+* [Fipp](https://github.com/brandonbloom/fipp) 0.6.24
 * [test.check](https://github.com/clojure/test.check) 1.1.1
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.256
 * [transit-js](https://github.com/cognitect/transit-js) 0.8.861
