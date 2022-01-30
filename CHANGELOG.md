@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file. This change
 - Build failing on Fedora 32 ([#1032](https://github.com/planck-repl/planck/issues/1032))
 - `integer?` predicate differs from ClojureScript ([#1036](https://github.com/planck-repl/planck/issues/1036))
 - Unit tests failing on macOS (brew shallow clones) ([#1046](https://github.com/planck-repl/planck/issues/1046))
+- Build with `-R` triggers a warning ([#1061](https://github.com/planck-repl/planck/issues/1061))
 
 ## [2.25.0] - 2020-03-22
 ### Added
