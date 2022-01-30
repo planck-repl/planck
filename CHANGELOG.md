@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file. This change
 - Update to `test.check` 1.1.1 ([#1062](https://github.com/planck-repl/planck/issues/1062))
 - Update to `transit-cljs` 0.8.269 ([#1066](https://github.com/planck-repl/planck/issues/1066))
 - Update to Fipp 0.6.24 ([#1064](https://github.com/planck-repl/planck/issues/1064))
+- Indicate `core.rrb-vector` ships with Planck ([#1067](https://github.com/planck-repl/planck/issues/1067))
 - Qualify lib names ([#1043](https://github.com/planck-repl/planck/issues/1043))
 - Use `-M` with `clojure.main` ([#1044](https://github.com/planck-repl/planck/issues/1044))
 - Switch to GitHub for CI
