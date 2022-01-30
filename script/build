@@ -15,8 +15,13 @@ do
       export WARN_ERROR_BUILD=1
       shift
       ;;
+    -M*)
+      export MAIN_ALIASES="${1:2}"
+      shift
+      ;;
     -R*)
-      export RESOLVE_ALIAS="${1:2}"
+      echo $0': -R is deprecated; use -M instead'
+      export MAIN_ALIASES="${1:2}"
       shift
       ;;
     -Sdeps)
