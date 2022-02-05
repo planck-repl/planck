@@ -113,7 +113,6 @@ In addition, Planck ships with these libraries:
 
 * [Fipp](https://github.com/brandonbloom/fipp) 0.6.24
 * [core.rrb-vector](https://github.com/clojure/core.rrb-vector) 0.1.2
-* [test.check](https://github.com/clojure/test.check) 1.1.1
 * [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.269
 * [transit-js](https://github.com/cognitect/transit-js) 0.8.861
 
