@@ -351,15 +351,13 @@ char *get_current_ns() {
         return NULL;
     }
 
-    size_t num_arguments = 0;
-    JSValueRef arguments[num_arguments];
     static JSObjectRef get_current_ns_fn = NULL;
     if (!get_current_ns_fn) {
         get_current_ns_fn = get_function("planck.repl", "get-current-ns");
         JSValueProtect(ctx, get_current_ns_fn);
     }
-    JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), num_arguments,
-                                               arguments, NULL);
+    JSValueRef result = JSObjectCallAsFunction(ctx, get_current_ns_fn, JSContextGetGlobalObject(ctx), 0,
+                                               NULL, NULL);
     return value_to_c_string(ctx, result);
 }
 
@@ -413,10 +411,9 @@ void discarding_sender(const char *msg) {
 
 void maybe_load_user_file() {
     if (config.repl) {
-        JSValueRef arguments[0];
         JSValueRef ex = NULL;
         JSObjectCallAsFunction(ctx, get_function("planck.repl", "maybe-load-user-file"), JSContextGetGlobalObject(ctx),
-                               0, arguments, &ex);
+                               0, NULL, &ex);
         debug_print_value("planck.repl/maybe-load-user-file", ctx, ex);
 
         if (ex) {
@@ -426,10 +423,9 @@ void maybe_load_user_file() {
 }
 
 void init_paredit(JSContextRef ctx) {
-    JSValueRef arguments[0];
     JSValueRef ex = NULL;
     JSObjectCallAsFunction(ctx, get_function("planck.repl", "init-paredit"),
-                           JSContextGetGlobalObject(ctx), 0, arguments, &ex);
+                           JSContextGetGlobalObject(ctx), 0, NULL, &ex);
 
     if (ex) {
         print_value("Error initializing paredit: ", ctx, ex);
@@ -679,10 +675,9 @@ void *do_engine_init(void *data) {
 
     set_print_sender(NULL);
 
-    JSValueRef arguments[0];
     JSValueRef ex = NULL;
     JSObjectCallAsFunction(ctx, get_function("planck.repl", "init-data-readers"), JSContextGetGlobalObject(ctx), 0,
-                           arguments, &ex);
+                           NULL, &ex);
 
     if (ex) {
         print_value("Error initializing data readers: ", ctx, ex);
