@@ -1,4 +1,4 @@
-{:deps {org.clojure/clojurescript {:mvn/version "1.10.914"}
+{:deps {org.clojure/clojurescript {:mvn/version "1.11.51"}
         org.clojure/core.rrb-vector {:mvn/version "0.1.2"}
         org.clojure/test.check {:mvn/version "1.1.1"}
         com.cognitect/transit-cljs {:mvn/version "0.8.269"}
