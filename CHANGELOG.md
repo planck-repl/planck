@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Fixed
 - Build issue with `sed` on Ubuntu ([#1084](https://github.com/planck-repl/planck/issues/1084))
+- Address build errors on Ubuntu 22.04 ([#1089](https://github.com/planck-repl/planck/issues/1089))
 
 ## [2.26.0] - 2022-02-12
 ### Changed
