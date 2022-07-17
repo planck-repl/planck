@@ -6,6 +6,7 @@
    [clojure.string :as string]
    [foo.core]
    [planck.core]
+   [some-arbitrary.namespace.symbol :as my-alias]
    [clojure.string :as string])
   (:import
    (goog Uri)))
@@ -177,3 +178,6 @@
 (deftest slurp-follow-redirects-by-default
   (is (string/includes? (planck.core/slurp "http://planck-repl.org") "ClojureScript REPL"))
   (is (string/includes? (planck.core/slurp "http://planck-repl.org" :follow-redirects false) "Moved Permanently")))
+
+(deftest as-alias-test
+  (is (= :some-arbitrary.namespace.symbol/x ::my-alias/x)))
