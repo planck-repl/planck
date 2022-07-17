@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Changed
-- Update to ClojureScript 1.11.60 ([#1092](https://github.com/planck-repl/planck/issues/1092))
+- Update to ClojureScript 1.11.60 ([#1095](https://github.com/planck-repl/planck/issues/1095))
 
 ### Fixed
 - Build issue with `sed` on Ubuntu ([#1084](https://github.com/planck-repl/planck/issues/1084))
