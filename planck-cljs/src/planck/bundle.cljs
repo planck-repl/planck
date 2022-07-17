@@ -3,6 +3,7 @@
   (:require
    [google-closure-compiler-js]
    [cljs.analyzer.api]
+   [cljs.math]
    [cljs.pprint]
    [cljs.spec.alpha]
    [cljs.spec.test.alpha]
