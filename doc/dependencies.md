@@ -20,11 +20,11 @@ plk -h
 
 you will see that the `plk` script accepts the same arguments as the `clj` / `clojure` tools, along with the additional arguments supported by `planck`.
 
-So for example, to put Andare 0.9.0 and `test.check` 0.10.0-alpha3 on your classpath (automatically downloading them if necessary), just place a  `deps.edn` like the following in the directory where you launch `plk`:
+So for example, to put Andare 1.1.587 and `cljs-bean` 1.8.0 on your classpath (automatically downloading them if necessary), just place a  `deps.edn` like the following in the directory where you launch `plk`:
 
 ```clojure
-{:deps {andare {:mvn/version "0.9.0"}
-        org.clojure/test.check {:mvn/version "0.10.0-alpha3"}}}
+{:deps {andare/andare {:mvn/version "1.1.587"}
+        cljs-bean/cljs-bean {:mvn/version "1.8.0"}}}
 ```
 
 #### Shebang Deps
@@ -33,7 +33,7 @@ If you'd like to specify `deps.edn` dependencies directly within a `#!` script, 
 
 ```clojure
 #!/usr/bin/env bash
-"exec" "plk" "-Sdeps" "{:deps {andare {:mvn/version \"0.9.0\"}}}" "-Ksf" "$0" "$@"
+"exec" "plk" "-Sdeps" "{:deps {andare/andare {:mvn/version \"1.1.587\"}}}" "-Ksf" "$0" "$@"
 (require '[clojure.core.async :refer [chan go <! >!]])
 
 (def c (chan))
@@ -79,10 +79,10 @@ The `-D` / `-​-​dependencies` option can be used to specify coordinates for 
 For example,
 
 ```sh
-planck -c src -D andare:0.9.0,org.clojure/test.check:0.10.0-alpha3
+planck -c src -D andare:1.1.587,cljs-bean:1.8.0
 ```
 
-will expand to a classpath that specifies `src` followed by the paths to the Andare and `test.check` dependencies in your local `.m2` repository.
+will expand to a classpath that specifies `src` followed by the paths to the Andare and `cljs-bean` dependencies in your local `.m2` repository.
 
 In order to use an explicitly-specified path to a Maven repository, you can additionally include `-L` or `-​-​local-repo`, specifying the repository path.
 
@@ -93,7 +93,7 @@ While `planck` can consume JARs from your local `.m2` repo, it doesn't take care
 An easy way to quickly download dependencies is to use [`boot`](https://github.com/boot-clj/boot) with its `-d` option. For example, executing this will ensure the dependencies specified above are installed:
 
 ```
-boot -d andare:0.9.0 -d org.clojure/test.check:0.10.0-alpha3
+boot -d andare:1.1.587 -d cljs-bean:1.8.0
 ```
 
 ### Bundled Deps
@@ -111,8 +111,9 @@ Planck ships with many of the deps that are available to conventional ClojureScr
 
 In addition, Planck ships with these libraries:
 
-* [Fipp](https://github.com/brandonbloom/fipp) 0.6.18
-* [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.256
+* [Fipp](https://github.com/brandonbloom/fipp) 0.6.24
+* [core.rrb-vector](https://github.com/clojure/core.rrb-vector) 0.1.2
+* [transit-cljs](https://github.com/cognitect/transit-cljs) 0.8.269
 * [transit-js](https://github.com/cognitect/transit-js) 0.8.861
 
 Note that bundled dependencies, which includes the core ClojureScript compiler namespaces, are loaded in preference to dependencies specified via `deps.edn`, `-c` / `-​-​classpath`, `-D` / `-​-​dependencies`, or `PLANCK_CLASSPATH`.

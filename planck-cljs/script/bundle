@@ -112,12 +112,12 @@ then
     if [ ! -f $file.optim ] || [ $file -nt $file.optim ]
     then
       # Process goog.define, converting to default value expression
-      sed -E -i "bak" 's/goog.define\(".*",(.*)\);/\1;/g' $file
+      sed -E -ibak 's/goog.define\(".*",(.*)\);/\1;/g' $file
       if [ -f $file.map ]
       then
-        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim 
+        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --jscomp_off=suspiciousCode --js $file --js_output_file $file.optim --source_map_input $file\|$file.map --create_source_map $file.map.optim 
       else
-        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --js $file --js_output_file $file.optim --create_source_map $file.map
+        java -jar ../../compiler/closure-compiler-v$GCC_RELEASE.jar --compilation_level $CLOSURE_OPTIMIZATIONS --language_in ECMASCRIPT6 --language_out ECMASCRIPT6 --process_closure_primitives false --jscomp_off=suspiciousCode --js $file --js_output_file $file.optim --create_source_map $file.map
       fi
     fi
     cp $file.optim $file
