@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Changed
+- Update to ClojureScript 1.11.60 ([#1095](https://github.com/planck-repl/planck/issues/1095))
+
 ### Fixed
 - Build issue with `sed` on Ubuntu ([#1084](https://github.com/planck-repl/planck/issues/1084))
 - Address build errors on Ubuntu 22.04 ([#1089](https://github.com/planck-repl/planck/issues/1089))
