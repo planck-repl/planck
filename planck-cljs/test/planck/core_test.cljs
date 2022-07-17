@@ -7,6 +7,7 @@
    [clojure.string :as string]
    [foo.core]
    [planck.core]
+   [some-arbitrary.namespace.symbol :as-alias my-alias]
    [clojure.string :as string])
   (:import
    (goog Uri)))
@@ -181,3 +182,6 @@
 
 (deftest clojure-math-test
   (is (== 1 (math/floor 1.5))))
+
+(deftest as-alias-test
+  (is (= :some-arbitrary.namespace.symbol/x ::my-alias/x)))

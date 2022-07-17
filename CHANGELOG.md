@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This change
 ## [Unreleased]
 ### Added
 - Bundle `cljs.math` ([#1078](https://github.com/planck-repl/planck/issues/1078))
+- Add support for `:as-alias` ([#1059](https://github.com/planck-repl/planck/issues/1059))
 
 ### Changed
 - Update to ClojureScript 1.11.60 ([#1095](https://github.com/planck-repl/planck/issues/1095))
