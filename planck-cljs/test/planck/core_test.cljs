@@ -3,6 +3,7 @@
    [planck.core])
   (:require
    [clojure.test :refer [deftest is testing]]
+   [clojure.math :as math]
    [clojure.string :as string]
    [foo.core]
    [planck.core]
@@ -177,3 +178,6 @@
 (deftest slurp-follow-redirects-by-default
   (is (string/includes? (planck.core/slurp "http://planck-repl.org") "ClojureScript REPL"))
   (is (string/includes? (planck.core/slurp "http://planck-repl.org" :follow-redirects false) "Moved Permanently")))
+
+(deftest clojure-math-test
+  (is (== 1 (math/floor 1.5))))
