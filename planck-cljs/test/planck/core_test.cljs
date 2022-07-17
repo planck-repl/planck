@@ -7,7 +7,7 @@
    [clojure.string :as string]
    [foo.core]
    [planck.core]
-   [some-arbitrary.namespace.symbol :as my-alias]
+   [some-arbitrary.namespace.symbol :as-alias my-alias]
    [clojure.string :as string])
   (:import
    (goog Uri)))
