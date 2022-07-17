@@ -23,7 +23,7 @@ jobs:
           script/test
 
   build_ubuntu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v2
@@ -39,6 +39,7 @@ jobs:
 
       - name: Install deps
         run: |
+            sudo apt-get update
             sudo apt-get install -y libjavascriptcoregtk-4.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev unzip
 
       - name: Build and Test Planck

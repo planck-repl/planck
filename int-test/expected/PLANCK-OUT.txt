@@ -210,12 +210,14 @@ cljs.core/fn
    (fn name? [params*] exprs*)
    (fn name? ([params*] exprs*) +)
 Macro
-  params => positional-params* , or positional-params* & next-param
+  params => positional-params* , or positional-params* & rest-param
   positional-param => binding-form
-  next-param => binding-form
-  name => symbol
+  rest-param => binding-form
+  binding-form => name, or destructuring-form
 
   Defines a function
+
+  See https://clojure.org/reference/special_forms#fn for more information
 nil
 -------------------------
 cljs.core/IWriter

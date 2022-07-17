@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file. This change
 - Bundle `cljs.math` ([#1078](https://github.com/planck-repl/planck/issues/1078))
 
 ### Changed
+- Update to ClojureScript 1.11.60 ([#1095](https://github.com/planck-repl/planck/issues/1095))
+
+### Fixed
+- Build issue with `sed` on Ubuntu ([#1084](https://github.com/planck-repl/planck/issues/1084))
+- Address build errors on Ubuntu 22.04 ([#1089](https://github.com/planck-repl/planck/issues/1089))
+
+## [2.26.0] - 2022-02-12
+### Changed
 - Update to ClojureScript 1.10.914 ([#1028](https://github.com/planck-repl/planck/issues/1028))
 - Update to `test.check` 1.1.1 ([#1062](https://github.com/planck-repl/planck/issues/1062))
 - Update to `transit-cljs` 0.8.269 ([#1066](https://github.com/planck-repl/planck/issues/1066))
@@ -895,7 +903,8 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.25.0...HEAD
+[Unreleased]: https://github.com/mfikes/planck/compare/2.26.0...HEAD
+[2.26.0]: https://github.com/mfikes/planck/compare/2.25.0...2.26.0
 [2.25.0]: https://github.com/mfikes/planck/compare/2.24.0...2.25.0
 [2.24.0]: https://github.com/mfikes/planck/compare/2.23.0...2.24.0
 [2.23.0]: https://github.com/mfikes/planck/compare/2.22.0...2.23.0
