@@ -1,4 +1,4 @@
-(defproject planck "2.26.0"
+(defproject planck "2.27.0"
   :description "Stand-alone ClojureScript REPL"
   :url "https://planck-repl.org"
   :scm {:name "git" :url "https://github.com/planck-repl/planck"}

@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [Unreleased]
+## [2.27.0] - 2022-11-19
 ### Added
 - Bundle `cljs.math` ([#1078](https://github.com/planck-repl/planck/issues/1078))
 - Add support for `:as-alias` ([#1059](https://github.com/planck-repl/planck/issues/1059))
@@ -904,7 +904,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/mfikes/planck/compare/2.26.0...HEAD
+[2.27.0]: https://github.com/mfikes/planck/compare/2.26.0...2.27.0
 [2.26.0]: https://github.com/mfikes/planck/compare/2.25.0...2.26.0
 [2.25.0]: https://github.com/mfikes/planck/compare/2.24.0...2.25.0
 [2.24.0]: https://github.com/mfikes/planck/compare/2.23.0...2.24.0
