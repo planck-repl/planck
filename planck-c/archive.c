@@ -95,22 +95,3 @@ void format_zip_error(const char *prefix, zip_t *zip, char **error_msg) {
         snprintf(*error_msg, 1024, "%s: %s", prefix, zip_strerror(zip));
     }
 }
-
-#ifdef ZIP_TEST
-int main(int argc, char **argv) {
-    if (argc != 3) {
-        printf("%s <zip-file> <path>\n", argv[0]);
-        return 1;
-    }
-
-    char *contents = get_contents_zip(argv[1], argv[2], NULL);
-    if (contents == NULL) {
-        return 1;
-    }
-
-    printf("%s", contents);
-    free(contents);
-
-    return 0;
-}
-#endif
