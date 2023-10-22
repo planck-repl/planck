@@ -61,7 +61,7 @@ export GCC_RELEASE="20210808"
 export CLOSURE_JS_RELEASE=20190301.0.0
 script/get-closure-compiler
 
-export GCL_RELEASE="0.0-20211011-0726fdeb"
+export GCL_RELEASE="0.0-20230227-c7c0a541"
 script/get-closure-library
 
 script/get-build-cache

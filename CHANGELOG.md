@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [Unreleased]
+### Changed
+- Update to ClojureScript 1.11.132 ([#1095](https://github.com/planck-repl/planck/issues/1095))
+
 ## [2.27.0] - 2022-11-19
 ### Added
 - Bundle `cljs.math` ([#1078](https://github.com/planck-repl/planck/issues/1078))
