@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file. This change
 
 ## [Unreleased]
 ### Changed
-- Update to ClojureScript 1.11.132 ([#1095](https://github.com/planck-repl/planck/issues/1095))
+- Update to ClojureScript 1.11.132 ([#1102](https://github.com/planck-repl/planck/issues/1102))
 
 ## [2.27.0] - 2022-11-19
 ### Added
