@@ -142,6 +142,6 @@ sudo script/install -p /usr
 
 # License
 
-Planck™ copyright © 2015–2022 Mike Fikes and Contributors
+Planck™ copyright © 2015–2024 Mike Fikes and Contributors
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.

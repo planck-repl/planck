@@ -5,7 +5,7 @@ void legal() {
     "Planck™\n"
     "------\n"
     "\n"
-    "Copyright © 2015-2022 Mike Fikes and Contributors\n"
+    "Copyright © 2015-2024 Mike Fikes and Contributors\n"
     "Distributed under the Eclipse Public License either version 1.0 or (at your\n"
     "option) any later version.\n"
     "\n"
