@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
-## [Unreleased]
+## [2.28.0] - 2024-03-24
 ### Changed
 - Update to ClojureScript 1.11.132 ([#1102](https://github.com/planck-repl/planck/issues/1102))
 
@@ -908,6 +908,7 @@ All notable changes to this project will be documented in this file. This change
 ### Added
 - Initial release.
 
+[2.28.0]: https://github.com/mfikes/planck/compare/2.27.0...2.28.0
 [2.27.0]: https://github.com/mfikes/planck/compare/2.26.0...2.27.0
 [2.26.0]: https://github.com/mfikes/planck/compare/2.25.0...2.26.0
 [2.25.0]: https://github.com/mfikes/planck/compare/2.24.0...2.25.0
