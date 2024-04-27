@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
+## [Unreleased]
+- Require a minimum version of CMake 3.5 ([#1107](https://github.com/planck-repl/planck/pull/1107))
+
 ## [2.28.0] - 2024-03-24
 ### Changed
 - Update to ClojureScript 1.11.132 ([#1102](https://github.com/planck-repl/planck/issues/1102))
